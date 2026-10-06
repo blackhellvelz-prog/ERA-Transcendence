@@ -1,0 +1,10 @@
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+# never commit game files or extracted data
+**/Core.zip
+**/*.h3m
+**/*.erm.local
+/artifacts/

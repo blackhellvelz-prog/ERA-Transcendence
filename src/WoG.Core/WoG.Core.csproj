@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Engine-independent WoG 3.58 core. Must not reference Unity, BepInEx or Olden Era. net6.0 so the
+       same assembly loads inside BepInEx 6 IL2CPP (CoreCLR 6). -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>WoG.Core</RootNamespace>
+  </PropertyGroup>
+</Project>

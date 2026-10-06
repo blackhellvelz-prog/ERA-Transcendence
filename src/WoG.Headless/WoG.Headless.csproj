@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- In-memory reference engine implementing IGameAdapter: used by tests and the ERM tool. -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>WoG.Headless</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WoG.Core\WoG.Core.csproj" />
+  </ItemGroup>
+</Project>

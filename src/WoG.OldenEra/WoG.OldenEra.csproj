@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    BepInEx 6 (IL2CPP) plugin that hosts WoG on Heroes of Might and Magic: Olden Era.
+    Compiles against BepInEx NuGet packages only — no game or interop DLLs are referenced or shipped;
+    every game type/member is resolved by name at runtime (OldenEraSymbols), the pattern proven by
+    mimiasei/map-editor-json-tool's gme-mod. Same BepInEx build as that mod: 6.0.0-be.785.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>WoG.OldenEra</AssemblyName>
+    <RootNamespace>WoG.OldenEra</RootNamespace>
+    <RestoreAdditionalProjectSources>https://nuget.bepinex.dev/v3/index.json</RestoreAdditionalProjectSources>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <NoWarn>NU1603</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.785" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WoG.Host\WoG.Host.csproj" />
+    <ProjectReference Include="..\WoG.OldenEra.Data\WoG.OldenEra.Data.csproj" />
+  </ItemGroup>
+</Project>

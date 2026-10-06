@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Engine-free tools for Olden Era data: reading Core.zip, cloning definitions, building the WoG overlay zip. -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>WoG.OldenEra.Data</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WoG.Core\WoG.Core.csproj" />
+    <ProjectReference Include="..\WoG.CreatureExperience\WoG.CreatureExperience.csproj" />
+  </ItemGroup>
+</Project>

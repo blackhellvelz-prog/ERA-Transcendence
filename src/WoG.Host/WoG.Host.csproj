@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Composition root: wires state, modules, ERM runtime and an IGameAdapter together. Engine-free. -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>WoG.Host</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WoG.Core\WoG.Core.csproj" />
+    <ProjectReference Include="..\WoG.Erm\WoG.Erm.csproj" />
+    <ProjectReference Include="..\WoG.Commanders\WoG.Commanders.csproj" />
+    <ProjectReference Include="..\WoG.CreatureExperience\WoG.CreatureExperience.csproj" />
+  </ItemGroup>
+</Project>

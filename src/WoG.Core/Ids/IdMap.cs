@@ -1,0 +1,62 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+
+namespace WoG.Core.Ids;
+
+/// <summary>
+/// Bidirectional mapping between WoG/H3 numeric ids (what ERM scripts use) and engine ids (Olden Era
+/// string sids). Domains: "hero", "creature", "artifact", "spell", "skill", "resource", "town", "building".
+/// An unmapped id is reported as unsupported by the adapter — never silently substituted.
+/// </summary>
+public sealed class IdMap
+{
+    public Dictionary<string, Dictionary<int, string>> Forward { get; set; } = new();
+
+    readonly Dictionary<string, Dictionary<string, int>> reverse = new();
+
+    public void Set(string domain, int wogId, string engineId)
+    {
+        if (!Forward.TryGetValue(domain, out var f)) Forward[domain] = f = new();
+        f[wogId] = engineId;
+        if (!reverse.TryGetValue(domain, out var r)) reverse[domain] = r = new();
+        r[engineId] = wogId;
+    }
+
+    public bool TryGetEngine(string domain, int wogId, out string engineId)
+    {
+        engineId = "";
+        return Forward.TryGetValue(domain, out var f) && f.TryGetValue(wogId, out engineId!);
+    }
+
+    public bool TryGetWoG(string domain, string engineId, out int wogId)
+    {
+        wogId = -1;
+        if (reverse.Count == 0 && Forward.Count > 0) RebuildReverse();
+        return reverse.TryGetValue(domain, out var r) && r.TryGetValue(engineId, out wogId);
+    }
+
+    public void RebuildReverse()
+    {
+        reverse.Clear();
+        foreach (var (domain, f) in Forward)
+        {
+            var r = reverse[domain] = new Dictionary<string, int>();
+            foreach (var (k, v) in f) r[v] = k;
+        }
+    }
+
+    sealed class Entry
+    {
+        public int wog { get; set; }
+        public string? engine { get; set; }
+    }
+
+    /// <summary>Loads Compatibility/id-maps/&lt;domain&gt;.json: [{"wog":0,"engine":"sid"|null,…}].</summary>
+    public void LoadDomainFile(string domain, string path)
+    {
+        var list = JsonSerializer.Deserialize<List<Entry>>(File.ReadAllText(path)) ?? new();
+        foreach (var e in list)
+            if (!string.IsNullOrEmpty(e.engine)) Set(domain, e.wog, e.engine!);
+    }
+}

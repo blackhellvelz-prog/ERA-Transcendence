@@ -1,0 +1,236 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using WoG.Commanders;
+using WoG.Core.Adapters;
+using WoG.Core.Compat;
+using WoG.Core.Events;
+using WoG.Core.Model;
+using WoG.Core.Random;
+using WoG.Core.Save;
+using WoG.Core.Services;
+using WoG.Core.State;
+using WoG.Core.Visual;
+using WoG.CreatureExperience;
+using WoG.Erm.Runtime;
+using WoG.Erm.Syntax;
+
+namespace WoG.Host;
+
+/// <summary>Which optional modules are active (modularity requirement).</summary>
+public sealed class WoGModules
+{
+    public bool Commanders { get; set; } = true;
+    public bool StackExperience { get; set; } = true;
+    public bool Erm { get; set; } = true;
+}
+
+/// <summary>
+/// Composition root. Owns the state and the module instances and translates engine-neutral
+/// <see cref="WoGEvent"/>s into ERM events and module hooks, in WoG's order.
+/// </summary>
+public sealed class WoGHost : IWoGServices
+{
+    public WoGGameState State { get; private set; }
+    public IGameAdapter Game { get; }
+    public IWoGRandom Random { get; }
+    public WoGEventBus Events { get; } = new();
+    public CompatibilityReport Compat { get; } = new();
+    public IVisualResolver Visuals { get; }
+    public ICommanderService? Commanders => commanders;
+    public IStackExperienceService? StackExperience => stackExp;
+
+    public ErmRuntime? Erm { get; private set; }
+    public WoGModules Modules { get; }
+    public ErmRuntimeOptions ErmOptions { get; }
+
+    CommanderService? commanders;
+    StackExperienceService? stackExp;
+    readonly List<ErmScript> scripts = new();
+
+    public WoGHost(IGameAdapter game, IVisualResolver visuals, WoGModules? modules = null,
+        ErmRuntimeOptions? ermOptions = null, IWoGRandom? random = null, WoGGameState? state = null)
+    {
+        Game = game;
+        Visuals = visuals;
+        Modules = modules ?? new WoGModules();
+        ErmOptions = ermOptions ?? new ErmRuntimeOptions();
+        Random = random ?? new MsvcRandom(1);
+        State = state ?? new WoGGameState();
+        Build();
+        Events.Subscribe(OnEvent);
+    }
+
+    void Build()
+    {
+        commanders = Modules.Commanders
+            ? new CommanderService(State, Random, hero => IsAutomatic(hero), (hero, gold) => GrantGold(hero, gold))
+            : null;
+        stackExp = Modules.StackExperience ? new StackExperienceService(State, Game) : null;
+        Erm = Modules.Erm ? new ErmRuntime(this, ErmOptions) : null;
+    }
+
+    bool IsAutomatic(int hero)
+    {
+        int owner = Game.Heroes.Get(hero, HeroStat.Owner) is { IsOk: true } o ? o.Value : -1;
+        if (owner < 0) return true;
+        bool human = Game.Players.IsHuman(owner) is { IsOk: true, Value: true };
+        bool local = Game.Players.IsLocal(owner) is { IsOk: true, Value: true };
+        return !human || !local;
+    }
+
+    void GrantGold(int hero, int gold)
+    {
+        int owner = Game.Heroes.Get(hero, HeroStat.Owner) is { IsOk: true } o ? o.Value : -1;
+        if (owner < 0) return;
+        if (Game.Players.GetResource(owner, WoGLimits.Gold) is { IsOk: true } g)
+        {
+            var r = Game.Players.SetResource(owner, WoGLimits.Gold, g.Value + gold);
+            if (!r.IsOk) Compat.Unsupported("commanders", "class gold bonus", r.Reason ?? "");
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // Scripts
+    // ------------------------------------------------------------------------------------------
+
+    public ErmScript AddScript(string name, string text)
+    {
+        var s = ErmParser.ParseText(name, text, ErmOptions.Dialect);
+        scripts.Add(s);
+        return s;
+    }
+
+    public void AddScriptFile(string path) => AddScript(Path.GetFileName(path), ErmParser.DecodeFile(File.ReadAllBytes(path)));
+
+    /// <summary>New game: load scripts (running instructions), then fire !?PI (post-instruction).</summary>
+    public void StartNewGame()
+    {
+        if (Erm == null) return;
+        foreach (var s in scripts) Erm.Load(s, newGame: true);
+        State.InstructionsDone = true;
+        Erm.Raise(30370, new ErmEventContext { Player = Game.Players.CurrentPlayer });
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // Save / load (05_Save_System.md)
+    // ------------------------------------------------------------------------------------------
+
+    public void SaveTo(string path, string identity)
+    {
+        Erm?.Raise(30361, new ErmEventContext { Player = Game.Players.CurrentPlayer }); // !?GM1 before saving
+        WoGSaveSerializer.WriteFile(path, State, identity);
+    }
+
+    /// <summary>Loaded game: restore state, re-parse scripts without instructions, fire !?GM0.</summary>
+    public void LoadFrom(string path, string identity)
+    {
+        State = WoGSaveSerializer.ReadFile(path, identity);
+        Build();
+        if (Erm == null) return;
+        foreach (var s in scripts) Erm.Load(s, newGame: false);
+        Erm.Raise(30360, new ErmEventContext { Player = Game.Players.CurrentPlayer });
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // Engine events → WoG
+    // ------------------------------------------------------------------------------------------
+
+    void OnEvent(WoGEvent e)
+    {
+        var ctx = new ErmEventContext { Hero = e.Hero, Player = e.Player, Position = e.Position.IsNone ? new MapPos(0, 0, 0) : e.Position };
+        switch (e.Kind)
+        {
+            case WoGEventKind.PlayerDayStarted:
+                Erm?.RunTimers(e.Player, Game.Clock.AbsoluteDay);
+                break;
+            case WoGEventKind.HeroVisitPre:
+            case WoGEventKind.HeroVisitPost:
+                if (Erm != null)
+                {
+                    bool post = e.Kind == WoGEventKind.HeroVisitPost;
+                    int pf = post ? ErmEventIds.PostFlag : 0;
+                    // ERM2Object order: position, type/subtype, type.
+                    Erm.Raise(ErmEventIds.ObjectPos | e.Position.Pack() | pf, ctx);
+                    if (e.ObjectType >= 0)
+                    {
+                        Erm.Raise(ErmEventIds.ObjectType | ((e.ObjectType << 12) + (e.ObjectSubType + 1)) | pf, ctx);
+                        Erm.Raise(ErmEventIds.ObjectType | (e.ObjectType << 12) | pf, ctx);
+                    }
+                    if (ctx.CancelNative) e.CancelNative = true;
+                }
+                break;
+            case WoGEventKind.HeroMeetsHero:
+                Erm?.Raise(30100 + e.Arg, ctx);
+                break;
+            case WoGEventKind.HeroStep:
+                Erm?.Raise(30400, ctx);
+                Erm?.Raise(30401 + e.Hero, ctx);
+                break;
+            case WoGEventKind.HeroLevelUp:
+                Erm?.Raise(30600, ctx);
+                Erm?.Raise(30601 + e.Hero, ctx);
+                break;
+            case WoGEventKind.BattleStart:
+                Erm?.Raise(30300, ctx);
+                Erm?.Raise(30352, ctx);
+                break;
+            case WoGEventKind.BattleFieldSetup:
+                Erm?.Raise(30800, ctx);
+                break;
+            case WoGEventKind.BattleRound:
+                State.Erm.V[996] = e.Arg; // v997 = round
+                Erm?.Raise(30302, ctx);
+                break;
+            case WoGEventKind.BattleActionPre:
+                Erm?.Raise(30303, ctx);
+                break;
+            case WoGEventKind.BattleActionPost:
+                Erm?.Raise(30304, ctx);
+                break;
+            case WoGEventKind.BattleEnd:
+                Erm?.Raise(30301, ctx);
+                Erm?.Raise(30353, ctx);
+                break;
+            case WoGEventKind.ArtifactUnequip:
+                Erm?.Raise(30315, ctx);
+                break;
+            case WoGEventKind.ArtifactEquip:
+                Erm?.Raise(30316, ctx);
+                break;
+            case WoGEventKind.TownHallEnter:
+                Erm?.Raise(30324, ctx);
+                break;
+            case WoGEventKind.TownHallLeave:
+                Erm?.Raise(30325, ctx);
+                break;
+            case WoGEventKind.CommanderDialog:
+                Erm?.Raise(30340 + e.Arg, ctx);
+                break;
+            case WoGEventKind.GameLoaded:
+                Erm?.Raise(30360, ctx);
+                break;
+            case WoGEventKind.GameSaving:
+                Erm?.Raise(30361, ctx);
+                break;
+        }
+    }
+
+    /// <summary>
+    /// After a battle won by <paramref name="hero"/>: commander experience follows the hero's total
+    /// experience (NPC::AddExp, with the class-5 battle gold), stack experience distributes the gain.
+    /// </summary>
+    public void AfterBattleExperience(int hero, int oldHeroExp, int newHeroExp)
+    {
+        if (commanders != null)
+        {
+            var c = commanders.Get(hero);
+            if (c.Used == 1 && c.Dead == 0)
+            {
+                c.LastExpoInBattle = 1;
+                commanders.OnHeroExperience(hero, newHeroExp, auto: false);
+            }
+        }
+        stackExp?.OnHeroBattleExperience(hero, oldHeroExp, newHeroExp);
+    }
+}
