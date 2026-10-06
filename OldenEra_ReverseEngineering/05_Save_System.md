@@ -1,32 +1,35 @@
-# Olden Era — save system
+# Olden Era — система сохранений
 
-## Known
+## Известно
 
-* Scenario script `AutoSave` action forces an autosave; "actions immediately after AutoSave will not be
-  saved" **[V-community]** — saving is snapshot-based and happens between logic ticks.
-* Counters and story counters are persisted by the game (they survive save/load and, for story
-  counters, missions) **[V-community]**.
-* Unity convention: saves and `Player.log` live under
-  `%USERPROFILE%\AppData\LocalLow\<company>\<product>\` (from `app.info`) **[UNVERIFIED for this title]**.
+* Действие сценария `AutoSave` форсирует автосохранение; «действия сразу после AutoSave не сохраняются»
+  **[V-community]** — сохранение — это снимок между тиками логики.
+* Счётчики и сюжетные счётчики сохраняются игрой (переживают сохранение/загрузку, сюжетные — и переход между
+  миссиями) **[V-community]**.
+* Соглашение Unity: сейвы и `Player.log` лежат в `%USERPROFILE%\AppData\LocalLow\<company>\<product>\`
+  (из `app.info`) **[UNVERIFIED для этой игры]**.
 
-## Unknown — must be established on a real install
+## Неизвестно — нужно установить на реальной установке
 
-* Save file format (binary/JSON/compressed), location, and whether it has an extension slot.
-* The managed methods that write/read a save (needed as Harmony hook points).
+* Формат файла сейва (бинарный/JSON/сжатый), расположение, есть ли место для расширений.
+* Управляемые методы записи/чтения сейва (нужны как точки хуков Harmony).
 
-## Strategy that does not depend on the unknowns (implemented)
+## Стратегия, не зависящая от неизвестного (реализована)
 
-The WoG state is **never** stored only in memory, and **never** relies on the game's format:
+Состояние WoG **никогда** не хранится только в памяти и **не** зависит от формата игры:
 
-1. On every game save (Harmony postfix on the save method, or — as a fallback — a file-system watcher
-   on the save folder), the plugin writes `<savename>.wog.json` next to the save: the full
-   `WoGGameState` (options, ERM variables, commanders, stack experience, map object state, timers,
-   macros, id map) produced by `WoGSaveSerializer` with schema version and SHA-256 checksum.
-2. On load, after the game has restored its state, the plugin loads the matching `.wog.json`, verifies
-   the checksum and the save's identity, then raises `!?GM0`. Identity = save file name **plus** a
-   fingerprint of native state the plugin can read back (game day, map id, hero ids/levels). Preferred
-   upgrade once verified: store a GUID in a scenario counter, which is part of the native save
-   **[UNVERIFIED: counters reachable from the plugin]**, so the link survives renamed files.
-3. Missing/mismatched blob → WoG state reset to "new game" values with a visible warning; never silent.
+1. При каждом сохранении игры (постфикс Harmony на метод сохранения — символ `save.write`; запасной вариант —
+   наблюдение за папкой сейвов) плагин пишет блок состояния WoG рядом с сейвом: полный `WoGGameState`
+   (опции, переменные ERM, командиры, опыт стеков, данные объектов, таймеры, макросы, IdMap), сериализованный
+   `WoGSaveSerializer` с номером схемы и SHA-256.
+2. При загрузке, после того как игра восстановила своё состояние, плагин читает соответствующий блок,
+   проверяет контрольную сумму и принадлежность сейву, затем генерирует `!?GM0`. Принадлежность = имя файла
+   сейва **плюс** отпечаток родного состояния, которое плагин может прочитать (день, id карты, id/уровни
+   героев). Улучшение после проверки: хранить GUID в счётчике сценария, который входит в родной сейв
+   **[UNVERIFIED: доступны ли счётчики из плагина]**, — тогда связь переживёт переименование файлов.
+3. Нет блока / не совпал → состояние WoG сбрасывается в «новую игру» с видимым предупреждением; молча — никогда.
 
-This keeps critical state outside volatile memory while being robust to the unknown native format.
+**Текущее состояние кода:** `Hooks.SavePostfix/LoadPostfix` в `WoGPlugin.cs` пишут/читают один файл
+`BepInEx/config/WoG/last.wog.json`, потому что раскладка аргументов метода сохранения (имя слота) ещё не
+известна. После нахождения символа `save.write` имя файла будет браться из аргумента — это отмечено в
+`07_InGame_RE_Plan.md`. Сериализация, проверка целостности и порядок загрузки уже реализованы и покрыты тестами.

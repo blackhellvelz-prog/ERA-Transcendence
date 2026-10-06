@@ -1,71 +1,71 @@
-# Commanders (WoG 3.58) — reverse-engineered model
+# Командиры (WoG 3.58) — модель по результатам реверс-инжиниринга
 
-Source: `T1/npc.cpp` (class `NPC`, `ERM_NPC`, `SetMonInitPars`, `ApplyCmdMonChanges`,
-`GetNPCMagicPower`, `NPC_Resist`), cross-checked with VCMI `config/commanders.json` (S6).
-Implemented by `src/WoG.Commanders` (`CommanderRules`, `CommanderProgression`, `CommanderCombatProfile`).
+Источник: `T1/npc.cpp` (класс `NPC`, `ERM_NPC`, `SetMonInitPars`, `ApplyCmdMonChanges`, `GetNPCMagicPower`,
+`NPC_Resist`, `NPC2Castle`, `ResetNPC`), перекрёстная проверка — VCMI `config/commanders.json` (S6).
+Реализация — `src/WoG.Commanders` (`CommanderTables`, `CommanderService`).
 
-## 1. Identity
+## 1. Сущность
 
-* One commander slot per hero (`NPCs[HERNUM]`, HERNUM = 156). Commander number = hero number.
-* Two extra "additional" commanders `NPCsa[0/1]` exist for battles without a commander-owning hero
-  (attacker/defender side), addressed by `CO-3`/`CO-4`.
-* `Type` (0…8) = commander class = hero class / 2, i.e. the hero's faction:
-  0 Castle, 1 Rampart, 2 Tower, 3 Inferno, 4 Necropolis, 5 Dungeon, 6 Stronghold, 7 Fortress, 8 Conflux.
-  `HType` (0…17) = the owning hero's class (used for AI skill choice).
-* Flags: `Used` (hired/enabled), `Dead`, `Fl.CustomPrimary` (scripts own HP/damage; level-up stops
-  recomputing them).
-* Battle creature types: 174…182 (side 0) and 183…191 (side 1), `= 174 + 9*side + Type`.
+* Один слот командира на героя (`NPCs[HERNUM]`, HERNUM = 156). Номер командира = номер героя.
+* Два «дополнительных» командира `NPCsa[0/1]` — для боёв без героя-владельца командира (атакующая/
+  защищающаяся сторона), доступны через `CO-3`/`CO-4`.
+* `Type` (0…8) — класс командира = класс героя / 2, т.е. фракция:
+  0 Замок, 1 Оплот, 2 Башня, 3 Инферно, 4 Некрополис, 5 Темница, 6 Цитадель, 7 Крепость, 8 Сопряжение.
+  `HType` (0…17) — класс героя-владельца (веса автоматического выбора навыков).
+* Флаги: `Used` (1 — есть, 0 — нет/уволен, −1 — запрещён), `Dead`, `Fl.CustomPrimary` (статы задают скрипты;
+  повышение уровня перестаёт пересчитывать HP/урон).
+* Типы существ в бою: 174…182 (сторона 0) и 183…191 (сторона 1), `= 174 + 9·сторона + Type`.
 
-## 2. Base stats (`NPC::Init`)
+## 2. Базовые статы (`NPC::Init`)
 
-| Index | Stat | Start |
-|-------|------|-------|
-| 0 | Attack (AT) | 5 |
-| 1 | Defence (DF) | 5 |
-| 2 | Hit points (HP) | 40 |
-| 3 | Damage (DM, max) | 12 |
-| 4 | Magic power (MP) | 1 |
-| 5 | Speed (SP) | 4 |
-| 6 | Magic resistance % (MR) | 5 |
+| Индекс | Стат | Старт |
+|--------|------|-------|
+| 0 | Атака (AT) | 5 |
+| 1 | Защита (DF) | 5 |
+| 2 | Здоровье (HP) | 40 |
+| 3 | Урон (DM, максимум) | 12 |
+| 4 | Сила магии (MP) | 1 |
+| 5 | Скорость (SP) | 4 |
+| 6 | Сопротивление магии % (MR) | 5 |
 
-Exp = 0, Level = 0 (displayed as level 1), no skills, no bonuses, no artifacts.
+Опыт = 0, уровень = 0 (отображается как 1), навыков, бонусов и артефактов нет.
 
-## 3. Levels
+## 3. Уровни
 
-* Experience table `NPC::Levels[]` (index = internal level, value = total exp needed), 75 entries,
-  max internal level **74**: `0, 1000, 2000, 3200, 4600, 6200, 8000, 10000, 12200, 14700, 17500, 20600,
-  24320, 28784, 34140, 40567, 48279, 57533, 68637, 81961, 97949, …, 1810036464`
-  (full table in `src/WoG.Commanders/CommanderTables.cs`). From level 12 on each step ≈ ×1.2.
-* Exp gain (`NPC::AddExp(NewHeroExp)`): the commander receives the **delta of its hero's experience**
-  since the last update (`DelExp = NewExp - OldHeroExp`); class 0 (Castle) gets **150 %**.
-* On each level gained (while `NExp ≥ Levels[Level+1]`, cap 74):
-  * unless `CustomPrimary`: `HP = 40 + 20·Level`, `DM = 12 + 4·Level` (internal level, after increment);
-  * a level-up choice: one secondary-skill step **or** one special bonus (see §4–5). AI / auto: first
-    available special bonus if any; otherwise a weighted random skill using `AISkillsChance[HType]`.
-    Human: dialog (`ShowNPC`) offering the available choices.
-* Class-specific gold on exp (`AddExp` tail): for `Type == 5` after a battle (`LastExpoInBattle`) the
-  owner receives `DelExp * 50 / 100` gold. **Discrepancy:** the design comment in the same file says
-  "Inferno 3: gives 25 % of exp in gold". The port follows the code (type 5, 50 %) and records the
-  discrepancy in the compatibility notes.
+* Таблица опыта `NPC::Levels[]` (индекс — внутренний уровень, значение — суммарный опыт), 75 значений,
+  максимальный внутренний уровень **74**: `0, 1000, 2000, 3200, 4600, 6200, 8000, 10000, 12200, 14700, 17500,
+  20600, 24320, 28784, 34140, 40567, 48279, 57533, 68637, 81961, 97949, …, 1810036464` (полностью — в
+  `CommanderTables.cs`). С 12-го уровня каждый шаг ≈ ×1.2.
+* Получение опыта (`NPC::AddExp(NewHeroExp)`): командир получает **приращение опыта своего героя** с прошлого
+  обновления (`DelExp = NewExp - OldHeroExp`); класс 0 (Замок) получает **150 %**.
+* На каждом полученном уровне (пока `NExp ≥ Levels[Level+1]`, предел 74):
+  * если не `CustomPrimary`: `HP = 40 + 20·Level`, `DM = 12 + 4·Level` (внутренний уровень после увеличения);
+  * выбор повышения: один шаг вторичного навыка **или** один спец-бонус (§4–5). ИИ/автоматически: первый
+    доступный спец-бонус, иначе случайный навык с весами `AISkillsChance[HType]`. Человек: диалог (`ShowNPC`).
+* Золото класса (`AddExp`): для `Type == 5` после боя (`LastExpoInBattle`) владелец получает
+  `DelExp * 50 / 100` золота. **Расхождение:** проектный комментарий в том же файле говорит «Инферно 3: 25 %
+  опыта в золоте». Порт следует коду (тип 5, 50 %) и фиксирует расхождение.
+* При новой игре (`ResetNPC`) все командиры инициализируются и получают текущий опыт героя (`AddExp(exp, 0)`),
+  после чего включаются/выключаются по опциям 3 и 6.
 
-## 4. Secondary skills (`Skills[7]`, levels 0…5)
+## 4. Вторичные навыки (`Skills[7]`, уровни 0…5)
 
-Six choosable skills — AT, DF, HP, DM, MP, SP. Choosing MP also raises the 7th, MR, by the same step.
+Шесть выбираемых навыков — AT, DF, HP, DM, MP, SP. Выбор MP поднимает и седьмой — MR — на тот же шаг.
 
-Gating (`MayNextSkill`):
+Ограничения (`MayNextSkill`):
 
-| Current level | May advance if |
-|---------------|----------------|
-| 0 (none) | fewer than 4 skills learned |
-| 1 → 2 | ≥ 2 skills learned |
-| 2 → 3 | ≥ 3 skills learned |
-| 3 → 4 | ≥ 4 skills learned |
-| 4 → 5 | ≥ 4 skills learned **and** ≥ 4 skills at level ≥ 2 |
-| 5 | never |
+| Текущий уровень | Можно повысить, если |
+|-----------------|----------------------|
+| 0 (нет) | изучено меньше 4 навыков |
+| 1 → 2 | изучено ≥ 2 навыков |
+| 2 → 3 | изучено ≥ 3 навыков |
+| 3 → 4 | изучено ≥ 4 навыков |
+| 4 → 5 | изучено ≥ 4 навыков **и** ≥ 4 навыков на уровне ≥ 2 |
+| 5 | никогда |
 
-Bonus by skill level (`NPC::Bonus[7][5]`; HP and DM are **percent**):
+Бонус по уровню навыка (`NPC::Bonus[7][5]`; HP и DM — **проценты**):
 
-| Skill | L1 | L2 | L3 | L4 | L5 |
+| Навык | У1 | У2 | У3 | У4 | У5 |
 |-------|----|----|----|----|----|
 | AT + | 2 | 5 | 9 | 15 | 25 |
 | DF + | 4 | 10 | 18 | 30 | 50 |
@@ -75,107 +75,108 @@ Bonus by skill level (`NPC::Bonus[7][5]`; HP and DM are **percent**):
 | SP + | 1 | 2 | 3 | 4 | 6 |
 | MR +% | 5 | 15 | 35 | 60 | 90 |
 
-Effective stat (`CalcSkill(i)`): `val = Primary[i]`; add skill bonus (percent of `val` for HP/DM, flat
-otherwise); then for each of up to 10 artifact slots add the artifact bonus (percent for HP/DM).
-The "super ring" (art 155) instead grants the level-2 bonus once if the skill is ≤ 2.
-(`SpecBonus[][]` doubles exist in code but are disabled — `spec` is always 0.)
+Итоговый стат (`CalcSkill(i)`): `val = Primary[i]`; плюс бонус навыка (процент от `val` для HP/DM, иначе
+прибавка); затем для каждого из 10 слотов артефактов — бонус артефакта (процент для HP/DM). «Суперкольцо»
+(арт. 155) вместо этого один раз даёт бонус 2-го уровня, если навык ≤ 2.
+(Таблица `SpecBonus[][]` в коде есть, но отключена — `spec` всегда 0.)
 
-## 5. Special bonuses (`SpecBon[0]` = owned mask, `SpecBon[1]` = forbidden mask)
+## 5. Спец-бонусы (`SpecBon[0]` — полученные, `SpecBon[1]` — запрещённые)
 
-Available when **both** paired skills are ≥ 4 (`GetAvailableSpecBon`), taken in bit order:
+Доступен, когда **оба** парных навыка ≥ 4 (`GetAvailableSpecBon`), выдаются в порядке битов:
 
-| Bit | Pair | Effect in battle — taken from the battle code that tests the bit |
-|-----|------|-------------------------------------------------------------------|
-| 0 | AT+DF | target's defence halved: `NPCReduceDefence → Defence*50/100` |
-| 1 | AT+HP | fearsome (`HasNPCFear`) |
-| 2 | AT+DM | always maximum damage (`DamageL = DamageH`) |
-| 3 | AT+MP | no enemy retaliation (monster flag `0x10000`) |
-| 4 | AT+SP | can shoot (monster flags `0x1004`) |
-| 5 | DF+HP | unlimited retaliation (`AddMagic2NPC`) |
-| 6 | DF+DM | attacks all adjacent (monster flag `0x80000`) |
-| 7 | DF+MP | permanent fire shield (`AddMagic2NPC`) |
-| 8 | DF+SP | 30 % chance to block an attack completely (`CommanderBlock`) |
-| 9 | HP+DM | attacks twice (monster flag `0x8000`) |
-| 10 | HP+MP | melee: 50 % chance to paralyse (`NPC_Paralize`) |
-| 11 | HP+SP | regeneration (`CanNPCRegenerate`) |
-| 12 | DM+MP | death stare: kills `(Level+1) / (targetLevel)` creatures (`NPCDeathStare`, target level = `SubGroup+1`) |
-| 13 | DM+SP | champion distance bonus for melee (`NPCChampion`) |
-| 14 | MP+SP | flying (monster flag `0x2`) |
+| Бит | Пара | Эффект в бою — по коду, проверяющему бит |
+|-----|------|------------------------------------------|
+| 0 | AT+DF | защита цели уменьшается вдвое: `NPCReduceDefence → Defence*50/100` |
+| 1 | AT+HP | устрашение (`HasNPCFear`) |
+| 2 | AT+DM | всегда максимальный урон (`DamageL = DamageH`) |
+| 3 | AT+MP | враг не отвечает (флаг монстра `0x10000`) |
+| 4 | AT+SP | стреляет (флаги `0x1004`) |
+| 5 | DF+HP | бесконечный ответный удар (`AddMagic2NPC`) |
+| 6 | DF+DM | бьёт всех вокруг (флаг `0x80000`) |
+| 7 | DF+MP | постоянный огненный щит (`AddMagic2NPC`) |
+| 8 | DF+SP | 30 % шанс полностью заблокировать атаку (`CommanderBlock`) |
+| 9 | HP+DM | бьёт дважды (флаг `0x8000`) |
+| 10 | HP+MP | в ближнем бою 50 % шанс парализовать (`NPC_Paralize`) |
+| 11 | HP+SP | регенерация (`CanNPCRegenerate`) |
+| 12 | DM+MP | смертельный взгляд: убивает `(Level+1) / (уровень цели)` существ (`NPCDeathStare`, уровень цели = `SubGroup+1`) |
+| 13 | DM+SP | бонус чемпиона за дистанцию (`NPCChampion`) |
+| 14 | MP+SP | полёт (флаг `0x2`) |
 
-The bit → pair mapping is from the `#define AT_DF … MP_SP` masks; the effects are from the functions
-that test each mask and from `NPC::ToHint` (the in-game hint). **The large design comment block in
-`npc.cpp` (near `NPC2Castle`) is outdated** — e.g. it lists AT+HP as "attack twice" and MP+SP as
-"summon stack"; the code does not. The hint text claims "reduce defence by 80 %"; the code uses 50 %.
-The port follows the code. VCMI (S6) agrees with the code on every pair.
+Соответствие бит → пара — из масок `#define AT_DF … MP_SP`; эффекты — из функций, проверяющих каждую маску,
+и из `NPC::ToHint` (подсказка в игре). **Большой проектный комментарий в `npc.cpp` (рядом с `NPC2Castle`)
+устарел** — например, там AT+HP — «бьёт дважды», а MP+SP — «призыв стека»; код делает иначе. Подсказка
+обещает «−80 % защиты», код делает 50 %. Порт следует коду. VCMI (S6) по всем парам совпадает с кодом.
 
-## 6. Class abilities (code, not just text)
+## 6. Особенности классов (из кода, а не только из текста)
 
-| Type | Faction | Spell cast after attack (`SetMonInitAfter`, monster spell slot `0x4E0`) | Other |
-|------|---------|----------------------------------------------------------------------|-------|
-| 0 | Castle | Cure (37) | exp ×1.5 |
-| 1 | Rampart | Shield (27) | (First Aid Tent stack — code disabled) |
-| 2 | Tower | Precision (44) | |
-| 3 | Inferno | Fire Shield (29) | |
-| 4 | Necropolis | Animate Dead (39) (additional commander: Haste 53) | undead |
-| 5 | Dungeon | Bloodlust (43) | gold 50 % of exp (code) |
-| 6 | Stronghold | Stone Skin (46) | controls ballista (`NPCBalistaControl`) |
-| 7 | Fortress | Haste (53) | hero's AT/DF contribution +50 %: `v += (v - CalcSkill)·50/100` |
-| 8 | Conflux | Counterstrike (58) | |
+| Type | Фракция | Заклинание после атаки (`SetMonInitAfter`, слот `0x4E0`) | Другое |
+|------|---------|-----------------------------------------------------------|--------|
+| 0 | Замок | Лечение (37) | опыт ×1.5 |
+| 1 | Оплот | Щит (27) | (стек палаток первой помощи — код отключён) |
+| 2 | Башня | Точность (44) | |
+| 3 | Инферно | Огненный щит (29) | |
+| 4 | Некрополис | Поднятие мёртвых (39) (у доп. командира — Ускорение 53) | нежить |
+| 5 | Темница | Жажда крови (43) | золото 50 % опыта (по коду) |
+| 6 | Цитадель | Каменная кожа (46) | управляет баллистой (`NPCBalistaControl`) |
+| 7 | Крепость | Ускорение (53) | вклад героя в атаку/защиту +50 %: `v += (v - CalcSkill)·50/100` |
+| 8 | Сопряжение | Контрудар (58) | |
 
-Number of casts per battle = `Skills[MP] + 1`. Magic power used by spells = `CalcSkill(MP)`; for
-creature types 178/187 (Necropolis) it is divided by 4 (min 1) — "3.58 reduction".
-Magic resistance: incoming spell damage × `(100 − CalcSkill(MR)) / 100` (`NPC_Resist`).
+Число заклинаний за бой = `Skills[MP] + 1`. Сила магии = `CalcSkill(MP)`; для типов 178/187 (Некрополис) она
+делится на 4 (минимум 1) — «понижение 3.58». Сопротивление: входящий урон заклинанием ×
+`(100 − CalcSkill(MR)) / 100` (`NPC_Resist`).
 
-## 7. Battle stats (`SetMonInitPars`)
+## 7. Статы в бою (`SetMonInitPars`)
 
-`Attack = CalcSkill(0)`, `Defence = CalcSkill(1)`, `HP = CalcSkill(2)`, `DamageMax = CalcSkill(3)`,
-`DamageMin = AT+DM bonus ? DamageMax : DamageMax/2`, `Speed = CalcSkill(5)`, casts = `MPS+1`.
-The hero's primary skills are then applied by the native battle code (as for any creature),
-which is why class 7 boosts the *difference*.
+`Атака = CalcSkill(0)`, `Защита = CalcSkill(1)`, `HP = CalcSkill(2)`, `УронМакс = CalcSkill(3)`,
+`УронМин = AT+DM ? УронМакс : УронМакс/2`, `Скорость = CalcSkill(5)`, касты = `MPS+1`.
+Первичные навыки героя затем применяет родной код боя (как к любому существу) — поэтому класс 7 усиливает
+именно *разницу*.
 
-## 8. Artifacts (146…155)
+## 8. Артефакты (146…155)
 
-Six usable slots (`Arts[10][8]`, slots 0…5 via ERM), each with a "battles won" counter:
+Шесть доступных слотов (`Arts[10][8]`, из ERM — слоты 0…5), у каждого счётчик выигранных боёв:
 
-| Art | Bonus (`ArtCalcSkill`) |
-|-----|------------------------|
-| 146 | AT +5, +1 per 6 battles |
-| 147 | HP +12 % +1 % per battle |
-| 148 | DM +12 % +1 % per battle |
-| 149 | (none yet) |
-| 150 | MP +1, +1 per 10 battles |
-| 151 | SP +1, +1 per 10 battles |
-| 152 | ≥ 5 battles: can shoot (`SetMonInitPars`) |
-| 153 | flag `0x80000008` (special) |
-| 154 | DF +5, +1 per 6 battles |
-| 155 | super ring: level-2 bonus to every skill ≤ 2 |
+| Арт. | Бонус (`ArtCalcSkill`) |
+|------|------------------------|
+| 146 | AT +5, +1 за каждые 6 боёв |
+| 147 | HP +12 % +1 % за бой |
+| 148 | DM +12 % +1 % за бой |
+| 149 | (пока ничего) |
+| 150 | MP +1, +1 за каждые 10 боёв |
+| 151 | SP +1, +1 за каждые 10 боёв |
+| 152 | при ≥ 5 боях: стреляет (`SetMonInitPars`) |
+| 153 | флаг `0x80000008` (особый) |
+| 154 | DF +5, +1 за каждые 6 боёв |
+| 155 | суперкольцо: бонус 2-го уровня каждому навыку ≤ 2 |
 
-## 9. ERM interface (`ERM_NPC`) — exact semantics
+Свободный слот — первый с номером артефакта ≤ 0 (`ArtGetFreeSlot`).
 
-| Cmd | Syntax | Semantics | Faithful quirks |
-|-----|--------|-----------|-----------------|
-| `E` | `E$` | enabled (`Used`) | `CO-2` set-only |
-| `D` | `D$` | dead | |
-| `T` | `T$` | class 0…8 (clamped) | |
-| `H` | `H$` | hero class 0…17 (clamped) | |
-| `P` | `P$` / `P#/$` | custom-primary flag / primary stat # (0…6) | |
-| `S` | `S#/$` | skill level # (0…6) | |
-| `A` | `A1/art/won`, `A2/art`, `A3/slot/$art/$won`, `A4/…12` | artifacts, result in `v1` | **bug:** no `break` after `A` — execution falls into `N` and copies `z<p1>` into the name. Reproduced only with `ErmCompat.ReproduceKnownBugs` |
-| `N` | `N$` | name via z-var (31 chars) | |
-| `X` | `X0/$` old hero exp, `X1/$` exp, `X2/$` level (1-based) | | |
-| `B` | `B0/$mask`, `B1/#/$`, `B2/$mask`, `B3/#/$` | owned/forbidden special bonuses | **bug:** single-commander `B3` writes the bit into the *owned* mask; `CO-2:B1/#/0` uses an uninitialised mask. Reproduced only with `ReproduceKnownBugs` |
+## 9. Интерфейс ERM (`ERM_NPC`) — точная семантика
 
-Triggers: `!?CO0` before opening the dialog, `!?CO1` after closing, `!?CO2` after buying, `!?CO3` after
-reviving.
+| Команда | Синтаксис | Семантика | Воспроизводимые особенности |
+|---------|-----------|-----------|-----------------------------|
+| `E` | `E$` | `Used` | для `CO-2` только запись |
+| `D` | `D$` | мёртв | |
+| `T` | `T$` | класс 0…8 (с обрезкой) | |
+| `H` | `H$` | класс героя 0…17 (с обрезкой) | |
+| `P` | `P$` / `P#/$` | флаг CustomPrimary / первичный стат # (0…6) | |
+| `S` | `S#/$` | уровень навыка # (0…6) | |
+| `A` | `A1/арт/побед`, `A2/арт`, `A3/слот/$арт/$побед`, `A4/…12` | артефакты, результат в `v1` (0 ок, 1 не артефакт командира, 3 уже есть, 4 нет места) | **баг:** после `A` нет `break` — выполнение проваливается в `N` и копирует `z<p1>` в имя. Воспроизводится только с `ReproduceKnownBugs` |
+| `N` | `N$` | имя через z-перем. (31 символ) | |
+| `X` | `X0/$` старый опыт героя, `X1/$` опыт, `X2/$` уровень (с 1) | | |
+| `B` | `B0/$маска`, `B1/#/$`, `B2/$маска`, `B3/#/$` | полученные/запрещённые спец-бонусы | **баг:** одиночный `B3` записывает бит в маску *полученных*; `CO-2:B1/#/0` использует неинициализированную маску. Воспроизводится только с `ReproduceKnownBugs` |
 
-## 10. Hiring / death / persistence
+Триггеры: `!?CO0` перед открытием диалога, `!?CO1` после закрытия, `!?CO2` после покупки, `!?CO3` после
+воскрешения.
 
-* WoG option 3 (`PL_NoNPC`) disables commanders; option 6 (`PL_NPC2Hire`) makes them hireable in
-  town instead of present from the start (`EnableNPC(-1, !PL_NPC2Hire)`).
-* Town visit (`NPC2Castle`, the hero's own town):
-  * no commander (`Used==0`): hire for **1000 gold** → `Init`, enable, `!?CO2`;
-  * dead commander: requires mage guild level ≥ 1 / 2 / 3 when commander level ≥ 10 / 20 / 30
-    (internal level), price `(L·L + L%2) · 50` gold with `L` = internal level; → enable, `!?CO3`.
-  * `Used < 0` = forbidden for this hero.
-  (VCMI uses a flat 1500 gold — a VCMI simplification, not WoG behaviour.)
-* `SaveNPC`/`LoadNPC` write the whole `NPCs[]` array: the port persists every field above.
+## 10. Найм / смерть / сохранение
+
+* Опция 3 (`PL_NoNPC`) выключает командиров: `DisableNPC(-1)` → `Used = −1`, `Dead = 0` у всех. Иначе
+  `EnableNPC(-1, !PL_NPC2Hire)`: `Used = 1` (или 0, если по опции 6 командиров надо нанимать), `Dead = 0`.
+* Визит героя в свой город (`NPC2Castle`):
+  * командира нет (`Used==0`): найм за **1000 золота** → `Init`, сброс опыта, включение, `!?CO2`;
+  * командир мёртв: нужна гильдия магов уровня ≥ 1 / 2 / 3 при уровне командира ≥ 10 / 20 / 30 (внутренний
+    уровень); цена `(L·L + L%2) · 50` золота, `L` — внутренний уровень; → включение, `!?CO3`;
+  * `Used < 0` — командир для этого героя запрещён.
+  (В VCMI фиксированные 1500 золота — упрощение VCMI, а не поведение WoG.)
+* `SaveNPC`/`LoadNPC` пишут весь массив `NPCs[]` — порт сохраняет все поля выше.

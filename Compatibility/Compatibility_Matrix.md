@@ -1,46 +1,57 @@
-# Compatibility matrix
+# Матрица совместимости
 
-Status vocabulary (project brief): **FULLY SUPPORTED · PARTIALLY SUPPORTED · EMULATED · WORKAROUND ·
-UNSUPPORTED**. "Target" is the status the design can reach on Olden Era given the verified
-capabilities; "Now" is what exists in this repository today.
+Словарь статусов (из задания): **FULLY SUPPORTED · PARTIALLY SUPPORTED · EMULATED · WORKAROUND · UNSUPPORTED**.
+«Цель» — статус, достижимый на Olden Era с учётом проверенных возможностей; столбцы реализации показывают, что
+есть в репозитории **сейчас**.
 
-Columns:
-* **WoG RE** — reverse-engineering of the WoG side: *Complete* (from source code), *Partial*.
-* **OE support** — what Olden Era offers natively (`OldenEra_ReverseEngineering/06_Capabilities.md`).
-* **Core (headless)** — implemented in the engine-independent WoG Core and covered by tests.
-* **OE adapter** — implemented against Olden Era. *Designed* = interface + adapter code path exist but
-  depend on [UNVERIFIED] symbols; *Not started*.
-* **In-game verified** — confirmed in a running Olden Era. **Nothing is yet**, because this work was done
-  without a copy of the game (see `OldenEra_ReverseEngineering/00_Sources_and_Verification.md`).
+Столбцы:
+* **RE WoG** — реверс-инжиниринг стороны WoG: *Полный* (по исходному коду), *Частичный*.
+* **Поддержка в OE** — что Olden Era даёт сама (`OldenEra_ReverseEngineering/06_Capabilities.md`).
+* **Ядро (headless)** — реализовано в независимом от движка ядре и покрыто тестами.
+* **Адаптер OE** — реализовано для Olden Era. *Спроектировано* = интерфейс и путь кода в адаптере есть, но
+  зависят от символов со статусом [UNVERIFIED]; *Не начато*.
+* **Проверено в игре** — подтверждено в запущенной Olden Era. **Пока ничего**, потому что работа велась без
+  копии игры (см. `OldenEra_ReverseEngineering/00_Sources_and_Verification.md`). Ни одна строка не отмечена как
+  «полностью работает в игре».
 
-| WoG feature | WoG RE | OE support | Implementation strategy | Core (headless) | OE adapter | In-game verified | Target | Known limitations |
-|-------------|--------|-----------|------------------------|-----------------|------------|------------------|--------|-------------------|
-| ERM parser (syntax, params, conditions, strings) | Complete | None | own parser (`WoG.Erm.Syntax`) | **Done + tests** | n/a (engine-free) | n/a | FULLY SUPPORTED | 3.59 additions parsed; Era extensions rejected with a message |
-| ERM variables, flags, strings, floats, macros, indirection | Complete | None (counters only) | runtime + persisted state | **Done + tests** | n/a | n/a | FULLY SUPPORTED | |
-| ERM control flow (triggers order, FU/DO, if/el/en, FU:E, la/go) | Complete | None | runtime | **Done + tests** | n/a | n/a | FULLY SUPPORTED | |
-| ERM timers (TM) | Complete | turn start condition | runtime + day hook | **Done + tests** | Designed | No | FULLY SUPPORTED | needs verified "new day" hook |
-| ERM triggers: hero/object/battle/level/move/mouse | Complete | partial (visit/turn/kill/hero battle) | adapter raises WoG events | event model done | Designed | No | PARTIALLY SUPPORTED | mouse/click triggers depend on UI hooks; network (IP) not applicable |
-| `VR FU DO MC` receivers | Complete | — | runtime | **Done + tests** | n/a | n/a | FULLY SUPPORTED | `FU:D` (network) unsupported |
-| `IF` messages/questions | Complete | dialogs | UI adapter | **Done (M,Q,V,W,X) + tests** | Designed | No | PARTIALLY SUPPORTED | multi-choice/picture dialogs need custom UI |
-| `UN:P` options | Complete | — | Core options | **Done + tests** | n/a | n/a | FULLY SUPPORTED | |
-| `UN` other (object placement, memory) | Partial | spawn/delete objects via actions | adapter | stubs report Unsupported | Not started | No | PARTIALLY SUPPORTED | `UN:C` memory poke: UNSUPPORTED by design |
-| `HE` hero receiver | Complete (core cmds) | hero model via plugin; scenario actions for exp/stats/mana/units/items/skills/spells | adapter | **Done (E F I W S M A C O P N K) + tests** | Designed | No | PARTIALLY SUPPORTED | H3 has 4 primary skills, OE has 6 (offence, defence, spellPower, intelligence, luck, moral) — mapped A→offence, D→defence, P→spellPower, K→intelligence; 28 H3 secondary skills ≠ OE skill set (id map) |
-| `OW` players | Complete (core) | resources via actions | adapter | **Done (R C A I) + tests** | Designed | No | PARTIALLY SUPPORTED | 7 H3 resources vs OE resource set (id map) |
-| `MA` creature type data | Complete | static JSON; runtime change needs plugin | adapter | **Done + tests** | Designed | No | PARTIALLY SUPPORTED | OE splits speed into initiative+speed; shots not a stat |
-| `CA` towns | Partial | buildings via actions | adapter | Not started | Not started | No | PARTIALLY SUPPORTED | OE town/building ids differ completely |
-| Map object receivers (`OB MN DW CB …`) | Partial | object logic families | adapter + clones | Not started | Not started | No | PARTIALLY SUPPORTED | |
-| Battle receivers (`BA BM BU BG BH BF MR MF`) | Partial | none native | battle adapter (Harmony) + buffs | interfaces only | Designed | No | EMULATED | depends on combat symbols |
-| WoG Options system | Complete | none | Core options + plugin UI | **Done + tests** | UI not started | No | FULLY SUPPORTED | option texts from user's `ZSETUP00.TXT` |
-| Commanders (state, exp, levels, skills, bonuses, artifacts, hire/revive, ERM `CO`) | Complete | **no equivalent entity** | WoG.Commanders + emulated battle unit | **Done + tests** | Designed | No | EMULATED | battle-side special abilities need hooks; UI new |
-| Stack experience (records, gain, ranks, merge, ERM `EX`) | Complete | none | WoG.CreatureExperience + rank buffs | **Done + tests** | Designed | No | EMULATED | bonus tables from user's `CREXPBON.TXT`/`CREXPMOD.TXT` or VCMI data |
-| Stack exp bonuses in combat | Complete | buffs (V-data) | generated buffs per rank + hooks | profile calc done | Designed | No | PARTIALLY SUPPORTED | chance-based abilities need hooks |
-| Commander/stack artifacts (146–156) | Complete | items + buffs | clones + WoG state | commander arts done | Not started | No | EMULATED | |
-| 8th-level creatures, WoG creatures | Partial | clone units (V-community) | overlay zip + recolour | Not started | Not started | No | PARTIALLY SUPPORTED | new models not created (asset policy) |
-| WoG scripts 00–76 (objects, rules, enhancements) | corpus parsed | — | run through ERM runtime | **all 3.58f scripts parse** (test) | depends on receivers | No | PARTIALLY SUPPORTED | each script inherits the status of the receivers it uses (`ERM_Compatibility.md`) |
-| Save/load of WoG state | Complete | unknown native format | side-car `.wog.json` + identity check | **Done + round-trip tests** | Designed | No | WORKAROUND | requires save/load hook or file watcher |
-| Visual assets | — | OE models/icons | VisualRef + priority resolver | **Done (resolver) + tests** | Designed | No | PARTIALLY SUPPORTED | placeholders allowed |
-| Multiplayer / network ERM (`IP`, `FU:D`) | Partial | n/a | — | — | — | — | UNSUPPORTED | project rule: single-player only |
-| Memory-level ERM (`UN:C`, raw addresses) | Complete | impossible | — | — | — | — | UNSUPPORTED | different engine; no addresses |
+| Возможность WoG | RE WoG | Поддержка в OE | Стратегия реализации | Ядро (headless) | Адаптер OE | Проверено в игре | Цель | Известные ограничения |
+|-----------------|--------|----------------|----------------------|-----------------|------------|------------------|------|-----------------------|
+| Парсер ERM (синтаксис, параметры, условия, строки) | Полный | нет | свой парсер (`WoG.Erm.Syntax`) | **Готово + тесты; 78/78 скриптов 3.58f и 117 файлов 3.59 без ошибок** | не нужен | н/д | FULLY SUPPORTED | дополнения 3.59 — по флагу диалекта; триггеры Era не поддерживаются |
+| Переменные, флаги, строки, вещественные, макросы, косвенная адресация ERM | Полный | только счётчики | рантайм + сохраняемое состояние | **Готово + тесты** | не нужен | н/д | FULLY SUPPORTED | строки ERT (`z>1000`) ещё не загружаются |
+| Управление потоком ERM (порядок секций, FU/DO, if/el/en, FU:E, la/go) | Полный | нет | рантайм | **Готово + тесты** | не нужен | н/д | FULLY SUPPORTED | |
+| Таймеры ERM (TM) | Полный | условие начала хода | рантайм + хук дня | **Готово + тесты** | Спроектировано (`turn.start`) | Нет | FULLY SUPPORTED | нужен проверенный хук нового дня |
+| Триггеры ERM: герой/объект/бой/уровень/шаг/мышь | Полный | частично (посещение/ход/убийство/бой героев) | адаптер генерирует события WoG | модель событий и мост готовы | Спроектировано (`object.interact`, `battle.*`) | Нет | PARTIALLY SUPPORTED | триггеры мыши зависят от хуков UI; сетевые (IP) не нужны |
+| Ресиверы `VR FU DO MC TM` | Полный | — | рантайм | **Готово + тесты** | не нужен | н/д | FULLY SUPPORTED | `FU:D` (сеть) — UNSUPPORTED |
+| `IF` сообщения/вопросы/флаги | Полный | диалоги | UI-адаптер | **Готово (M, Q, V, W, A, S, R) + тесты** | Спроектировано (`ui.*`) | Нет | PARTIALLY SUPPORTED | диалоги с картинками/множественным выбором требуют своего UI |
+| `UN:P` опции | Полный | — | опции ядра | **Готово + тесты** | не нужен | н/д | FULLY SUPPORTED | |
+| `UN` прочее (объекты, память) | Частичный | создание/удаление объектов действиями | адаптер | сообщает Unsupported | Не начато | Нет | PARTIALLY SUPPORTED | `UN:C` (запись в память) — UNSUPPORTED принципиально |
+| `HE` герой | Полный (основные команды) | модель героя через плагин; действия сценария для опыта/статов/маны/юнитов/предметов/навыков/заклинаний | адаптер | **Готово (E F I W S M A C O P N K) + тесты** | Спроектировано (E, F, I, W, O, чтение армии) | Нет | PARTIALLY SUPPORTED | у H3 4 первичных навыка, у OE 6 (offence, defence, spellPower, intelligence, luck, moral): А→offence, З→defence, С→spellPower, Зн→intelligence; 28 навыков H3 ≠ навыки OE (IdMap) |
+| `OW` игроки | Полный (основное) | ресурсы действиями | адаптер | **Готово (R C A I G) + тесты** | Спроектировано | Нет | PARTIALLY SUPPORTED | 7 ресурсов H3 ↔ ресурсы OE (IdMap) |
+| `MA` данные типа существа | Полный | статический JSON; изменение на лету — через плагин | адаптер | **Готово + тесты** | Спроектировано (`unit.db`) | Нет | PARTIALLY SUPPORTED | в OE скорость разделена на initiative+speed; выстрелов как стата нет |
+| `CA` города | Частичный | постройки действиями | адаптер | Не начато | Не начато | Нет | PARTIALLY SUPPORTED | id городов/построек OE совсем другие |
+| Ресиверы объектов карты (`OB MN DW CB …`) | Частичный | семейства логики объектов | адаптер + клоны | Не начато | Не начато | Нет | PARTIALLY SUPPORTED | |
+| Ресиверы боя (`BA BM BU BG BH BF MR MF`) | Частичный | родного нет | адаптер боя (Harmony) + баффы | только интерфейсы | Спроектировано | Нет | EMULATED | зависит от символов боя |
+| Система WoG Options | Полный | нет | опции ядра + UI плагина | **Готово + тесты** | UI не начат | Нет | FULLY SUPPORTED | тексты опций — из `ZSETUP00.TXT` пользователя; формат пресета `.dat` не подтверждён |
+| Командиры (состояние, опыт, уровни, навыки, спец-бонусы, артефакты, найм/воскрешение, ERM `CO`) | Полный | **нет аналога** | WoG.Commanders + эмулируемый юнит в бою | **Готово + тесты** | Спроектировано | Нет | EMULATED | боевые спец-способности требуют хуков; UI новый |
+| Опыт стеков (записи, получение, ранги, слияние, ERM `EX`) | Полный | нет | WoG.CreatureExperience + баффы рангов | **Готово + тесты** | Спроектировано | Нет | EMULATED | таблицы бонусов — из `CREXPBON.TXT`/`CREXPMOD.TXT` пользователя (или данных VCMI); `EX` по позиции на карте — ещё нет |
+| Бонусы опыта стеков в бою | Полный | баффы (V-data) | сгенерированные баффы на ранг + хуки | **генератор баффов готов + тест** | Спроектировано (`buff.apply`) | Нет | PARTIALLY SUPPORTED | шансовые способности и флаги — через хуки |
+| Артефакты командира/стека (146–156) | Полный | предметы + баффы | клоны + состояние WoG | артефакты командира готовы | Не начато | Нет | EMULATED | |
+| Существа 8-го уровня, существа WoG | Частичный | клоны юнитов (V-community) | оверлей + перекраска | клонирование юнитов готово (тест) | Не начато | Нет | PARTIALLY SUPPORTED | новые модели не создаются (политика ассетов) |
+| Скрипты WoG 00–76 (объекты, правила, улучшения) | корпус разобран | — | исполнение рантаймом ERM | **все 78 файлов 3.58f загружаются как новая игра, 0 ошибок** | зависит от ресиверов | Нет | PARTIALLY SUPPORTED | статус каждого скрипта = статус его ресиверов (`ERM_Compatibility.md`) |
+| Сохранение/загрузка состояния WoG | Полный | формат игры неизвестен | файл `.wog.json` рядом с сейвом + проверка принадлежности | **Готово + тесты «туда-обратно»** | Спроектировано (`save.*`; сейчас один файл `last.wog.json`) | Нет | WORKAROUND | нужен хук сохранения/загрузки с именем слота |
+| Визуальные ресурсы | — | модели/иконки OE | `VisualRef` + резолвер по приоритету | **Готово (резолвер) + тест** | заглушки | Нет | PARTIALLY SUPPORTED | заглушки разрешены политикой |
+| Мультиплеер / сетевой ERM (`IP`, `FU:D`) | Частичный | н/д | — | — | — | — | UNSUPPORTED | правило проекта: только одиночная игра |
+| ERM на уровне памяти (`UN:C`, адреса) | Полный | невозможно | — | — | — | — | UNSUPPORTED | другой движок, адресов нет |
 
-This table is regenerated in part from code: `dotnet run --project tools/WoG.ErmTool -- compat`
-prints per-receiver/per-command status (`ERM_Compatibility.md`).
+Таблица по командам ERM генерируется из кода: `dotnet run --project tools/WoG.ErmTool -- compat`
+→ `ERM_Compatibility.md`.
+
+## Почему некоторые вещи не FULLY SUPPORTED (по требованию задания)
+
+| Что | Почему нельзя полностью | Что пробовали | Ограничение движка | Сколько воспроизводимо | Возможный путь |
+|-----|------------------------|---------------|--------------------|------------------------|----------------|
+| `UN:C` | пишет по адресам памяти H3 | — | другой движок | 0 % | переписать конкретные скрипты, использующие `UN:C`, на ресиверы |
+| Командиры как сущность | в OE нет «особого юнита героя» | анализ данных (`units`, `heroes`) | нет такой сущности | оценка: всё, кроме родного UI (не измерено) | эмуляция: клон юнита + состояние WoG + uGUI |
+| Скорость существ | в OE она разделена на `initiative` и `speed` | анализ `stats` | другая модель боя | приблизительно | менять оба стата одной дельтой (так делает генератор баффов) |
+| Выстрелы/касты существ | нет такого стата | анализ `stats`/баффов | энергия и способности вместо них | не определено | найти модель боезапаса в игре (план RE, п. 3.4) |
+| Формат сейва | неизвестен | — | закрытый формат | 100 % состояния WoG, но вне сейва | файл рядом + проверка принадлежности |

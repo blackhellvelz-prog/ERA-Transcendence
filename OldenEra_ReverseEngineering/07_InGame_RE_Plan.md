@@ -1,50 +1,55 @@
-# In-game reverse-engineering plan (to run on a machine that owns Olden Era)
+# План реверс-инжиниринга в игре (выполнить на компьютере, где есть Olden Era)
 
-This is the work that cannot be done without the game. It is ordered so each step unlocks adapter
-features. Tooling follows the universal-modder Unity/IL2CPP playbook.
+Это работа, которую нельзя сделать без игры. Шаги упорядочены так, что каждый открывает функции адаптера.
+Инструменты — по плейбуку universal-modder для Unity/IL2CPP.
 
-## 0. Lab safety
-1. Back up saves and the game folder's `HeroesOldenEra_Data/StreamingAssets/Core.zip`.
-2. Single-player only. Windowed mode for screenshots.
+## 0. Безопасность
+1. Сделать резервные копии сейвов и `HeroesOldenEra_Data/StreamingAssets/Core.zip`.
+2. Только одиночная игра. Оконный режим для скриншотов.
 
-## 1. Dump the code model
-1. Install BepInEx 6 IL2CPP **be.785** (same as O2) into the game folder; start once — it generates
-   `BepInEx/interop/*.dll` (typed proxies of every game class, incl. obfuscated names).
-2. Alternatively run **Cpp2IL** / **Il2CppDumper** on `GameAssembly.dll` +
-   `HeroesOldenEra_Data/il2cpp_data/Metadata/global-metadata.dat` for dummy DLLs.
-3. Open `BepInEx/interop/Hex.dll` in ILSpy/dnSpy. Produce `OldenEra_ReverseEngineering/symbols.json`
-   by running `tools/WoG.ErmTool -- probe-symbols <interop dir>` (searches the patterns below and writes
-   the resolved names; the plugin reads the same file).
+## 1. Получить модель кода
+1. Поставить BepInEx 6 IL2CPP **be.785** (как в O2) в папку игры; запустить один раз — появятся
+   `BepInEx/interop/*.dll` (типизированные прокси всех классов игры, в т.ч. с обфусцированными именами).
+2. Альтернатива: **Cpp2IL** / **Il2CppDumper** по `GameAssembly.dll` +
+   `HeroesOldenEra_Data/il2cpp_data/Metadata/global-metadata.dat`.
+3. Выполнить `dotnet run --project tools/WoG.ErmTool -- probe-symbols <BepInEx/interop>` — инструмент
+   (только чтение метаданных, код игры не запускается) печатает типы и члены `Hex.dll`, чьи имена связаны с
+   героями, боем, юнитами, баффами, сохранением, сценариями, ходом, картой, городами, предметами,
+   заклинаниями, диалогами. По этому списку и ILSpy/dnSpy заполнить `BepInEx/config/wog_symbols.json`
+   (шаблон плагин создаёт сам при первом запуске).
 
-## 2. Symbols to locate (fill `OldenEraSymbols`)
+## 2. Символы, которые нужно найти (ключи `OldenEraSymbols.Known`)
 
-| Area | What to find | How to recognise it |
-|------|--------------|---------------------|
-| Game state root | singleton holding players, heroes, map, day | static instance with `List<Hero>`-like fields; used by UI top bar |
-| Day/turn | "start turn"/"new day" method | called once per player turn; scenario `StartTurn` condition must be raised from it |
-| Hero | hero model class | fields matching hero JSON: `offence, defence, spellPower, intelligence, luck, moral`, exp, level, mana, army (7 slots?) |
-| Army slot | stack model | unit sid + count |
-| Map object interaction | method invoked when a hero enters an object | the code path that raises `ObjectInteractionBefore/After` |
-| Scenario engine | condition/action dispatcher | string switch on `"GiveRes"`, `"StartTurn"`, … — **gives callable implementations of all 114 actions** |
-| Battle | battle controller: start, end, round, unit turn, action, damage | `initiative` queue, `numCounters` use, `damageMin/Max` roll |
-| Buff application | method that adds a buff by id to a unit/hero | used by `AddBuffHeroDays` |
-| Save/Load | methods writing/reading save files | file I/O under the saves folder |
-| UI | message box, yes/no dialog, hero screen, town screen | used by scenario `Dialog` |
-| FileManager | (O2: `qp`/`bufc`/`bufo`) virtual file index | for loading our overlay data |
+| Ключ | Что найти | Как узнать |
+|------|-----------|------------|
+| `game.root` | синглтон с состоянием игры | статический экземпляр со списками игроков/героев; используется верхней панелью |
+| `game.day`, `turn.start` | счётчик дней; метод «начало хода/нового дня» | вызывается раз за ход игрока; отсюда же срабатывает условие сценария `StartTurn` |
+| `hero.list`, `hero.id`, `hero.owner`, `hero.experience`, `hero.level`, `hero.offence`, `hero.defence`, `hero.spellPower`, `hero.intelligence`, `hero.mana`, `hero.movement` | модель героя | поля совпадают с JSON героя: `offence, defence, spellPower, intelligence, luck, moral`, опыт, уровень, мана |
+| `hero.army`, `stack.unitSid`, `stack.count` | армия и стек | sid юнита + количество |
+| `object.interact` | метод, вызываемый при входе героя в объект | путь кода, генерирующий `ObjectInteractionBefore/After` |
+| (диспетчер сценария) | диспетчер условий/действий | `switch` по строкам `"GiveRes"`, `"StartTurn"` … — **даёт вызываемые реализации всех 114 действий** |
+| `battle.start`, `battle.end`, `battle.round`, `battle.action` | контроллер боя | очередь по `initiative`, использование `numCounters`, бросок `damageMin/Max` |
+| `buff.apply` | метод наложения баффа по id | используется действием `AddBuffHeroDays` |
+| `save.write`, `save.read` | запись/чтение сейва | файловый ввод-вывод в папке сейвов; нужна и раскладка аргументов (имя слота) |
+| `ui.message`, `ui.question` | окно сообщения, вопрос да/нет | используется действием `Dialog` |
+| FileManager | (в O2: `qp`/`bufc`/`bufo`) виртуальный индекс файлов | для загрузки наших данных |
 
-## 3. Verify the [UNVERIFIED] items
-1. Overlay zip global scope: put `wog_core.zip` with one cloned creature next to `Core.zip`; start a
-   random map; check the creature exists (e.g. via `GiveUnitHero` in a test scenario).
-2. Buff granting flight; buff `numCounters`; percent stats rounding.
-3. Counters writable from the plugin (save-identity token).
-4. Ammo/shots model.
-5. Custom uGUI window over adventure map and town screen.
+Каждую запись в `wog_symbols.json` после проверки в игре пометить `"Status": "verified"` — только тогда
+плагин включит зависящую от неё функцию.
 
-## 4. Oracles (how we know a mapping works)
-* `BepInEx/LogOutput.log` lines from the plugin's `wog-probe` channel.
-* A test map `tests/oe-maps/wog_probe` whose scenario JSON prints counters (`Print` action) and whose
-  ERM script (run by our runtime) asserts the same values — the two must agree.
-* Screenshots of the commander/experience UI per feature.
+## 3. Проверить пункты [UNVERIFIED]
+1. Глобальность оверлея: положить `wog_core.zip` с одним клонированным существом рядом с `Core.zip`, начать
+   случайную карту, проверить, что существо есть (например, `GiveUnitHero` в тестовом сценарии).
+2. Бафф, дающий полёт; бафф `numCounters`; округление процентных статов.
+3. Доступность счётчиков сценария из плагина (метка принадлежности сейва).
+4. Модель выстрелов/боезапаса.
+5. Своё окно uGUI поверх карты приключений и экрана города.
 
-## 5. Deliverable of this phase
-`symbols.json` + a filled "Verified" column in `Compatibility/Compatibility_Matrix.md`.
+## 4. Оракулы (как узнать, что отображение работает)
+* Строки канала `wog` в `BepInEx/LogOutput.log`.
+* Тестовая карта, чей JSON сценария печатает счётчики (действие `Print`), а ERM-скрипт (исполняемый нашим
+  рантаймом) проверяет те же значения — результаты должны совпасть.
+* Скриншоты интерфейса командира/опыта по каждой функции.
+
+## 5. Результат этапа
+Заполненный `wog_symbols.json` + столбец «Проверено в игре» в `Compatibility/Compatibility_Matrix.md`.

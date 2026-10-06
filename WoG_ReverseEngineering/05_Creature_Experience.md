@@ -1,123 +1,129 @@
-# Stack (creature) experience — reverse-engineered model
+# Опыт стеков (существ) — модель по результатам реверс-инжиниринга
 
-Sources: `T1/crexpo.h`, `T1/crexpo.cpp` (`CrExpo`, `CrExpoSet`, `CrExpMod`, `CrExpBon`,
-`ERM_StackExperience` in `erm.cpp`), `wog features.html` §Stack Experience (S4), VCMI WoG mod
-`stackExperience/*.json` (S6) as numeric cross-check.
-Implemented by `src/WoG.CreatureExperience`.
+Источники: `T1/crexpo.h`, `T1/crexpo.cpp` (`CrExpo`, `CrExpoSet`, `CrExpMod`, `CrExpBon`), `ERM_StackExperience`
+в `erm.cpp`, раздел «Stack Experience» в `wog features.html` (S4), JSON-данные VCMI `stackExperience/*.json`
+(S6) — для сверки чисел. Реализация — `src/WoG.CreatureExperience`.
 
-## 1. Where experience lives
+## 1. Где хранится опыт
 
-`CrExpoSet::Body[10000]` — a table of records, **one per army slot that has ever gained experience**,
-keyed by location:
+`CrExpoSet::Body[10000]` — таблица записей, **по одной на каждый слот армии, когда-либо получивший опыт**,
+ключ — местоположение:
 
-| Location type | Key |
-|---------------|-----|
-| `CE_HERO` (1) | hero index + slot |
-| `CE_MAP` (2) | map monster x/y/l |
-| `CE_TOWN` (3) | town x/y/l + garrison slot |
-| `CE_MINE` (4) | mine x/y/l + slot |
-| `CE_HORN` (5) | garrison x/y/l + slot |
+| Тип места | Ключ |
+|-----------|------|
+| `CE_HERO` (1) | номер героя + слот |
+| `CE_MAP` (2) | монстр на карте x/y/l |
+| `CE_TOWN` (3) | город x/y/l + слот гарнизона |
+| `CE_MINE` (4) | шахта x/y/l + слот |
+| `CE_HORN` (5) | гарнизон x/y/l + слот |
 
-Record (`CrExpo`): `Expo` = experience **per creature**, `Num` = number of creatures it was computed for,
-`MType` = creature type, stack-artifact fields (`mHasArt`, `mArt`, `mSubArt` 0…15, `mCopyArt` 0…3).
-The engine re-validates the record against the real slot (`RecalcExp2RealNum`, `Validate`) whenever it
-reads it, so external changes to the army do not corrupt it.
+Запись (`CrExpo`): `Expo` — опыт **на одно существо**, `Num` — число существ, для которого он посчитан,
+`MType` — тип существа, поля артефакта стека (`mHasArt`, `mArt`, `mSubArt` 0…15, `mCopyArt` 0…3).
 
-Port consequence: experience is **external state keyed by army location**, not a field of the creature.
-`WoG.CreatureExperience.StackExperienceStore` reproduces exactly this.
+Сверка с реальным слотом (`RecalcExp2RealNum`, портирована точно):
+* тип существа сменился → опыт обнуляется (исключение — оборотень, тип 194: опыт сохраняется);
+* существ стало 0 → опыт 0; стало меньше или столько же → только `Num`; стало больше →
+  `Expo = Expo·Num/n` (новые существа «разбавляют» опыт), `Num = n`.
 
-## 2. Per-type parameters (`CrExpMod`, file `CREXPMOD.TXT`)
+Следствие для порта: опыт — **внешнее состояние, привязанное к месту армии**, а не поле существа.
+`StackExperienceService` воспроизводит именно это.
 
-| Field | Meaning |
-|-------|---------|
-| `ExpMul` | weight of this creature when sharing battle experience |
-| `UpgrMul` | multiplier applied to experience when the stack is upgraded |
-| `Limit` | experience needed for rank 10 (scales the rank table) |
-| `Cap` | % of `Limit` a stack may gain in **one** battle (`CapIt`) |
-| `Lvl11Exp` | extra experience from rank 10 to rank 11 |
+## 2. Параметры по типу (`CrExpMod`, файл `CREXPMOD.TXT`)
 
-Rows with negative ids `-1…-8` are per-creature-level defaults (level = `SubGroup`, 0…6, 7 = other);
-explicit creature rows override them.
-**Code quirk:** the hard-coded fallback before the file is read sets `CrModTmp2[j][1]` twice (50, then
-55580) and never sets index 2; the values are always overwritten by `CREXPMOD.TXT` in a normal install.
+| Поле | Смысл |
+|------|-------|
+| `ExpMul` | вес существа при делении опыта за бой |
+| `UpgrMul` | множитель опыта при апгрейде стека |
+| `Limit` | опыт, нужный для ранга 10 (масштабирует таблицу рангов) |
+| `Cap` | сколько % от `Limit` стек может получить за **один** бой (`CapIt`) |
+| `Lvl11Exp` | дополнительный опыт от ранга 10 до 11 |
 
-## 3. Ranks (`CrExpMod::Ranks`, `GetRank`, `GetRankExp`)
+Строки с id `-1…-8` — значения по умолчанию для уровня существа (уровень = `SubGroup` 0…6, 7 = прочие);
+явные строки существ их перекрывают.
+**Особенность кода:** запасные значения до чтения файла присваивают `CrModTmp2[j][1]` дважды (50, затем 55580)
+и не задают индекс 2; в нормальной установке файл всё перезаписывает.
 
-`Ranks = {17500 (scale base), 1000, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2500, 2800}`.
-`scale = Limit / 17500`. Experience needed **for** rank r (cumulative) =
-`scale · Σ_{i=1..r} Ranks[i]` (for r ≤ 10), and rank 11 adds `Lvl11Exp`.
-`GetRank(exp)`: subtract `Ranks[1..10]` (scaled) until negative → rank 0…10. Ranks are 0…10 internally
-(11 is only reachable through `Exp4Level`/`MaxExpo`).
-Max experience = `Limit + Lvl11Exp` (`Check4Max` clamps).
+## 3. Ранги (`CrExpMod::Ranks`, `GetRank`, `GetRankExp`)
 
-## 4. Gaining experience after battle (`CrExpoSet::AddExpo`)
+`Ranks = {17500 (база масштаба), 1000, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2500, 2800}`.
+`масштаб = Limit / 17500`. Опыт, нужный **для** ранга r (нарастающим итогом) =
+`масштаб · Σ_{i=1..r} Ranks[i]` (для r ≤ 10), ранг 11 добавляет `Lvl11Exp`.
+`GetRank(опыт)`: вычитать `Ranks[1..10]` (с масштабом), пока не станет отрицательным → ранг 0…10.
+Максимальный опыт = `Limit + Lvl11Exp` (`Check4Max` обрезает).
 
-Runs for a **human** hero only ("do not support AI experience yet" — AI uses `EA`/`DaylyAIExperience`),
-when option 900 (`PL_CrExpEnable`) is on and 906 (`PL_ExpGainDis`) is off.
+## 4. Опыт после боя (`CrExpoSet::AddExpo`)
 
-Input: hero experience before (`OldHExp`) and after (`NewHExp`) the battle.
-For each of the 7 slots with creatures, a weight `W[i]` (option 901 `PL_CrExpStyle`):
+Только для героя-**человека** («опыт ИИ пока не поддерживается» — у ИИ свой механизм `EA`/`DaylyAIExperience`),
+если опция 900 (`PL_CrExpEnable`) включена и 906 (`PL_ExpGainDis`) выключена.
 
-| Style | Weight |
-|-------|--------|
-| 0 (default) | `ExpMul(type)` |
-| 1 "Timothy" | `0.9 + count · (7 − level) · ExpMul` |
-| 2 "QQD" | `0.9 + count · ((level+1)·100 + currentExp + 10) · ExpMul / 100` |
-| 3 "equal" | `count · ExpMul` |
+Вход: опыт героя до (`OldHExp`) и после (`NewHExp`) боя. Для каждого из 7 слотов с существами — вес `W[i]`
+(опция 901 `PL_CrExpStyle`):
 
-`AllW = Σ W` for styles 1–3 (style 0 leaves `AllW = 0 → 1`, so each stack gets its weight in full).
-Gain per creature:
-* style 0: `ΔHeroExp · PlayerMult/100 · W[i] / AllW`
-* styles 1–3: `ΔHeroExp · PlayerMult/100 · W[i] / AllW / count[i]`
-then `CapIt` (≤ `Limit·Cap/100`, at least 1), ×1.5 if the stack artifact sub-type is 5, added to
-`Expo`, then clamped to max. Stacks that died are deleted (and a stack artifact is returned to the hero).
-`PlayerMult` defaults to 100 (saved).
+| Стиль | Вес |
+|-------|-----|
+| 0 (по умолчанию) | `ExpMul(тип)` |
+| 1 «Timothy» | `0.9 + кол-во · (7 − уровень) · ExpMul` |
+| 2 «QQD» | `0.9 + кол-во · ((уровень+1)·100 + текущийОпыт + 10) · ExpMul / 100` |
+| 3 «поровну» | `кол-во · ExpMul` |
 
-## 5. Merging and moving stacks (`ApplyExpo` modes, `HComb`, `HMove`)
+`AllW = Σ W` для стилей 1–3 (в стиле 0 `AllW` остаётся 0 → 1, так что каждый стек получает свой вес целиком).
+Прибавка на существо:
+* стиль 0: `(int)(ΔОпытаГероя) · PlayerMult/100 · W[i] / AllW` (разность сначала приводится к int — порядок
+  операций как в коде);
+* стили 1–3: `ΔОпытаГероя · PlayerMult/100 · W[i] / AllW / кол-во[i]`;
+затем `CapIt` (≤ `Limit·Cap/100`, минимум 1), ×1.5 если подтип артефакта стека = 5, прибавка к `Expo`, обрезка до
+максимума. Погибшие стеки удаляются (артефакт стека возвращается герою). `PlayerMult` по умолчанию 100
+(сохраняется).
 
-When N creatures with experience E are added to a stack of `Num` creatures with experience `Exp`:
-`Exp = (Exp·Num + E·(N − Num)) / N` (weighted average, integer division) — mode 0/1 of `ApplyExpo`.
-Upgrading: `Exp · UpgrMul(type)` (mode 5). Rank-based modes 10–14 convert through `Exp4Level`.
-All 15 modes are reproduced (`ExperienceMath.Apply`).
+## 5. Слияние и перемещение стеков (режимы `ApplyExpo`, `HComb`, `HMove`)
 
-## 6. Bonuses per rank (`CrExpBon`, file `CREXPBON.TXT`)
+Когда к стеку из `Num` существ с опытом `Exp` добавляют существ до общего числа N с опытом E:
+`Exp = (Exp·Num + E·(N − Num)) / N` (средневзвешенное, целочисленное деление) — режимы 0/1 `ApplyExpo`.
+Апгрейд: `Exp · UpgrMul(тип) + E` (режим 5). Режимы 10–14 работают через ранги (`Exp4Level`).
+Все 15 режимов воспроизведены (`ExperienceMath.Apply`).
 
-Up to 20 bonus lines per creature; each line: `Type` char, `Mod` char (or `#n` byte), 11 values
-(ranks 0…10). Level defaults (`-1…-8`) fill missing types. Applied at battle start (`Apply`) to the
-battle stack, from the **stack's original stats** (stored once per battle in `BFStat`):
+## 6. Бонусы по рангам (`CrExpBon`, файл `CREXPBON.TXT`)
 
-| Type | Stat | 
-|------|------|
-| `A` | attack |
-| `D` | defence |
-| `H` | hit points (both current-max fields) |
-| `m` / `M` | min / max damage |
-| `S` | speed |
-| `O` | shots |
-| `P` | spell casts |
-| `R` | number of retaliations (+ native count) |
-| `f` + flag letter | creature flag on (value 1) / off (0) / unchanged (2): `F` fly, `S` shoot, `B` breath, `L` alive, `1/2/3` king, `P` mind immunity, `E` no melee penalty, `I` fire immunity, `D` double strike, `R` no retaliation, `M` no morale penalty, `U` undead, `A` attack all around, `G` dragon |
+До 20 строк бонусов на существо; строка: символ `Type`, символ `Mod` (или байт `#n`), 11 значений (ранги
+0…10). Умолчания уровня (`-1…-8`) дополняют недостающие типы, явные строки `A D H m M S` заменяют строку
+того же типа. Применяются в начале боя (`Apply`) к стеку в бою, от **исходных статов стека** (запоминаются
+один раз за бой в `BFStat`):
 
-`Mod`: `+` add, `-` subtract, `%` `val += val·p/100 + 0.5` (then truncated), `=` set.
-Stack artifact (art 156) sub-types double a bonus and add a constant: sub 0 HP ×2+2, 1 attack ×2+2,
-2 defence ×2+2, 3 damage ×2+1, 4 speed ×2+1, 5 +50 % experience gain, 8 +2 retaliations.
+| Тип | Стат |
+|-----|------|
+| `A` | атака |
+| `D` | защита |
+| `H` | здоровье (оба поля) |
+| `m` / `M` | урон мин / макс |
+| `S` | скорость |
+| `O` | выстрелы |
+| `P` | касты заклинаний |
+| `R` | число ответных ударов (+ родное) |
+| `f` + буква флага | флаг существа вкл (значение 1) / выкл (0) / без изменений (2): `F` полёт, `S` стрельба, `B` дыхание, `L` живой, `1/2/3` король, `P` иммунитет к разуму, `E` без штрафа в ближнем бою, `I` иммунитет к огню, `D` двойной удар, `R` без ответа, `M` без штрафа морали, `U` нежить, `A` атака вокруг, `G` дракон |
 
-Other types handled by dedicated hooks (each is a separate battle rule in the port's battle layer):
-blocking (`StackBlock`, `StackBlockPartial`), fear/fearless, dwarf-style resistance (own and friendly),
-no distance/obstacle penalty, spell cost reduction, defence bonus when defending, death blow, personal
-hate, cast spell on attack (single and mass, before/after hit), cast spell at round start, harpy
-return, defence reduction, champion, golem resistance, dispel resistance, regeneration, minotaur
-morale, unicorn aura, shoot adjacent, death stare, rebirth.
+`Mod`: `+` прибавить, `-` вычесть, `%` `val += val·p/100 + 0.5` (затем отбрасывание дробной части),
+`=` присвоить. Артефакт стека (арт. 156) по подтипу удваивает бонус и добавляет константу: подтип 0 HP ×2+2,
+1 атака ×2+2, 2 защита ×2+2, 3 урон ×2+1, 4 скорость ×2+1, 5 +50 % получаемого опыта, 8 +2 ответа.
+Флаг `fS` (стрельба) при загрузке таблиц также меняет флаг типа существа в `MonTable`.
+
+Другие типы обрабатываются отдельными хуками боя (в порте — отдельные правила боевого слоя): блок
+(`StackBlock`, `StackBlockPartial`), страх/бесстрашие, «гномье» сопротивление (своё и к дружеской магии), без
+штрафа дистанции/препятствий, снижение цены заклинаний, бонус защиты при обороне, смертельный удар, личная
+ненависть, заклинание при атаке (одиночное и массовое, до/после удара), заклинание в начале раунда, возврат
+как у гарпии, снижение защиты, чемпион, сопротивление голема, сопротивление развеиванию, регенерация, мораль
+минотавра, аура единорога, стрельба в упор, смертельный взгляд, возрождение.
 
 ## 7. ERM (`EX`, `EA`)
 
-`!!EX hero/slot:` or `!!EX x/y/l/slot[/ownerType]:` —
-`A$type/$num/$exp`, `T$type`, `N$num`, `E$exp`, `R$rank`, `C…` combine, plus stack-artifact commands.
-`HE:C0/slot/$type/$num/$exp[/mode]` also reads/writes experience (mode ≥ 10 → rank instead of exp,
-**[3.59]** returns rank when modifier ≥ 10).
-`!!EA` controls AI experience parameters (`AIMult`, `AIBase`, `AITMult` per difficulty) and bonus lines.
+`!!EX герой/слот:` (герой −1 = текущий) или `!!EX x/y/l/слот[/типВладельца]:` —
+`E$` опыт на существо · `N$` число · `T$` тип · `A$тип/$кол/$опыт` · `R$арт/$подтип` или
+`R$есть/$арт/$подтип/$копии` (артефакт стека) · `C…` объединение с другим стеком (результат в `v1`).
+Запись создаётся только при установке значения (при чтении несуществующей — читаются значения слота).
+`HE:C0/слот/$тип/$кол/$опыт[/режим]` тоже читает/пишет опыт (режим ≥ 10 → ранг вместо опыта,
+**[3.59]** при модификаторе ≥ 10 возвращает ранг).
+`!!EA` управляет параметрами опыта ИИ (`AIMult`, `AIBase`, `AITMult` по сложности) и строками бонусов.
 
-## 8. Persistence
+## 8. Сохранение
 
-`CrExpoSet::Save` writes `Body[]` + `PlayerMult` (+ AI tables); `CrExpMod::Save` writes `Body[]` ("CRMD");
-`CrExpBon::Save` writes the bonus tables. All three are part of the WoG save layer in the port.
+`CrExpoSet::Save` пишет `Body[]` + `PlayerMult` (+ таблицы ИИ); `CrExpMod::Save` — `Body[]` («CRMD»);
+`CrExpBon::Save` — таблицы бонусов. Все три — часть слоя сохранения WoG в порте.

@@ -1,74 +1,74 @@
-# Architecture — WoG 3.58 on Olden Era
+# Архитектура — WoG 3.58 на Olden Era
 
 ```
-                    WoG 3.58 scripts (.erm) — run unchanged
+                 Скрипты WoG 3.58 (.erm) — выполняются без изменений
                                 │
                        ┌────────┴────────┐
-                       │   WoG.Erm        │  parser → IR → interpreter → receivers
+                       │   WoG.Erm        │  парсер → IR → интерпретатор → ресиверы
                        └────────┬────────┘
-                                │ IWoGServices (interfaces only)
-   ┌──────────────┬─────────────┼──────────────┬───────────────┐
-   │ WoG.Core      │ WoG.Commanders│ WoG.CreatureExperience │ (future: WoG.MapObjects, WoG.Towns, WoG.Battle)
-   │ state, model, │ rules + state │ rules + state          │
-   │ options, save,│               │                        │
-   │ events, ids   │               │                        │
-   └──────┬───────┴──────┬────────┴──────────┬─────────────┘
-          │  IGameAdapter (hero/army/player/creature/map/town/ui/battle/visual)
+                                │ IWoGServices (только интерфейсы)
+   ┌──────────────┬─────────────┼──────────────┬────────────────────┐
+   │ WoG.Core      │ WoG.Commanders│ WoG.CreatureExperience │ (далее: MapObjects, Towns, Battle)
+   │ состояние,    │ правила +     │ правила + состояние     │
+   │ модель, опции,│ состояние     │                         │
+   │ сейв, события │               │                         │
+   └──────┬───────┴──────┬────────┴──────────┬──────────────┘
+          │  WoG.Host — точка сборки: модули + рантайм ERM + мост событий WoG → ERM
+          │  IGameAdapter (герои/армии/игроки/существа/карта/города/UI/бой/часы)
    ┌──────┴───────────────────────────────────────────┐
-   │ WoG.Headless (reference engine, tests, ErmTool)   │  WoG.OldenEra (BepInEx 6 IL2CPP plugin)
-   └───────────────────────────────────────────────────┘  ├─ OldenEraSymbols (name/signature resolution)
-                                                          ├─ OldenEraGameAdapter (Harmony + Il2CppInterop)
-                                                          ├─ OldenEraProbes (capability verification)
-                                                          └─ DataOverlayBuilder (wog_core.zip)
+   │ WoG.Headless (эталонный движок: тесты, ErmTool)   │  WoG.OldenEra (плагин BepInEx 6 IL2CPP)
+   └───────────────────────────────────────────────────┘  ├─ OldenEraSymbols (символы игры из wog_symbols.json)
+                                                          ├─ OldenEraGameAdapter (Il2CppInterop через символы)
+                                                          ├─ WoGPlugin + Hooks (Harmony → события WoG)
+                                                          └─ WoG.OldenEra.Data (Core.zip → wog_core.zip)
 ```
 
-## Rules enforced by the code structure
+## Правила, закреплённые структурой кода
 
-1. **WoG Core knows nothing about Olden Era.** `WoG.Core`, `WoG.Erm`, `WoG.Commanders`,
-   `WoG.CreatureExperience` have no reference to Unity/BepInEx/IL2CPP. They compile and are tested on
-   plain .NET (`tests/WoG.Tests`).
-2. **Engine-specific code lives only in `WoG.OldenEra`.** It implements `IGameAdapter`.
-3. **Every adapter call returns an `AdapterResult`** with `Supported` / `Unsupported(reason)` /
-   `Failed(reason)`. The ERM runtime turns `Unsupported` into a logged compatibility event instead of
-   pretending the command worked (project rule 6). `CompatibilityReport` aggregates them per
-   receiver/command for the matrix.
-4. **Optional modules are services.** `CO` and `EX` receivers look up `ICommanderService` /
-   `IStackExperienceService` in `IWoGServices`; with the module disabled the receivers report
-   `Unsupported("module disabled")` and nothing else breaks.
-5. **Gameplay/visual separation.** Gameplay code refers to visuals only through `VisualRef`
-   (logical keys like `creature:wog.commander.castle`, `icon:artifact:146`). `IVisualAdapter` resolves
-   them by the asset priority policy (OE asset → recolour → material/texture → VFX → imported H3/WoG 2D →
-   placeholder). Replacing an icon never touches gameplay code.
-6. **State is centralised and persisted.** `WoGGameState` holds options, ERM variables/flags/strings/
-   macros/timers, commanders, stack experience, per-object and per-square ERM data, id map. It is
-   serialised by `WoGSaveSerializer` (versioned JSON + SHA-256) next to every save.
+1. **Ядро WoG ничего не знает об Olden Era.** `WoG.Core`, `WoG.Erm`, `WoG.Commanders`,
+   `WoG.CreatureExperience`, `WoG.Host` не ссылаются на Unity/BepInEx/IL2CPP. Они собираются и тестируются на
+   обычном .NET (`tests/WoG.Tests`, 100 тестов).
+2. **Код под конкретный движок — только в `WoG.OldenEra`.** Он реализует `IGameAdapter`.
+3. **Каждый вызов адаптера возвращает `AdapterResult`**: `Ok` / `Unsupported(причина)` / `Failed(причина)`.
+   Рантайм ERM превращает `Unsupported` в запись отчёта совместимости, а не делает вид, что команда сработала
+   (правило 6). `CompatibilityReport` агрегирует записи по ресиверам/командам — это доказательная база матрицы.
+4. **Необязательные модули — сервисы.** Ресиверы `CO` и `EX` ищут `ICommanderService` /
+   `IStackExperienceService` в `IWoGServices`; при выключенном модуле (`WoGModules`) они сообщают
+   `Unsupported("… module disabled")`, остальное продолжает работать (тест `Disabled_module_reports_unsupported`).
+5. **Разделение игрового и визуального.** Игровой код ссылается на графику только через `VisualRef` —
+   логические ключи вроде `creature:wog.commander.castle`, `icon:artifact:146`. `IVisualResolver` выбирает
+   ресурс по обязательному приоритету: ассет OE → перекраска → материал/текстура → VFX → импортированный 2D
+   H3/WoG → заглушка. Замена иконки никогда не трогает игровой код; отсутствие графики никогда не блокирует
+   игру (резолвер всегда возвращает хотя бы заглушку).
+6. **Состояние централизовано и сохраняется.** `WoGGameState` хранит опции, переменные/флаги/строки/макросы/
+   таймеры ERM, командиров, опыт стеков, данные объектов и клеток, переопределения существ, `IdMap`.
+   Сериализуется `WoGSaveSerializer` (версионированный JSON + SHA-256) рядом с каждым сейвом.
 
-## Identity mapping
+## Отображение идентичностей
 
-ERM scripts address the world by **H3 numbers** (hero 0…155, creature 0…196, artifact 0…170, spell,
-skill, positions). Olden Era uses **string sids** and its own map. `IdMap` translates in both directions
-and is part of the save. Mapping data lives in `Compatibility/id-maps/*.json`; unmapped ids return
-`Unsupported("no mapping for creature 151")` — again never silently replaced.
+ERM-скрипты обращаются к миру **номерами H3** (герой 0…155, существо 0…196, артефакт 0…170, заклинание,
+навык, позиции). Olden Era использует **строковые sid** и свою карту. `IdMap` переводит в обе стороны и входит в
+сейв. Данные отображения — `Compatibility/id-maps/*.json` (плагин читает их из `BepInEx/config/WoG/id-maps`);
+неотображённый id возвращает `Unsupported("… has no WoG creature mapping")` — опять же без молчаливой подмены.
 
-## Battle
+## Бой
 
-`IBattleAdapter` exposes the WoG battle lifecycle (start, field setup, round, action pre/post, end) and
-stack get/set. The Olden Era implementation patches the combat controller (symbols from the in-game RE
-plan). Stat effects are applied as **generated buffs** (one buff per WoG effect and rank, shipped in the
-overlay zip) so they act on the real simulation; effects buffs cannot express are implemented as
-Harmony hooks on damage/resistance/action methods.
+`IBattleAdapter` описывает жизненный цикл боя WoG (начало, подготовка поля, раунд, действие до/после, конец)
+и чтение/запись стеков. Реализация для Olden Era патчит контроллер боя (символы `battle.*` из плана
+реверс-инжиниринга). Стат-эффекты накладываются **сгенерированными баффами** (по баффу на эффект и ранг,
+поставляются в оверлее, `StackExperienceBuffs`), поэтому действуют на настоящую симуляцию; то, что баффы
+выразить не могут (шансовые эффекты и т.п.), реализуется хуками Harmony на методы урона/сопротивления/действия.
 
-## Commanders without a native equivalent
+## Командиры без родного аналога
 
-A commander is emulated as: (1) WoG state (`WoGCommander`, persisted); (2) an extra battle unit
-created at battle start from a dedicated creature definition per class (cloned OE unit, recoloured —
-`creature:wog.commander.<class>`), whose stats are set from `CommanderRules.BattleProfile`; (3) a hero
-screen button opening the commander window (uGUI from the plugin). Death/revival/exp follow
-`04_Commanders.md`.
+Командир эмулируется так: (1) состояние WoG (`WoGCommander`, сохраняется); (2) дополнительный юнит в бою,
+создаваемый в начале боя из отдельного определения существа на класс (клон юнита OE, перекрашенный —
+`creature:wog.commander.<класс>`), статы которого задаёт `CommanderService.BattleProfile`; (3) кнопка на экране
+героя, открывающая окно командира (uGUI из плагина). Смерть/воскрешение/опыт — по `04_Commanders.md`.
 
-## Data overlay
+## Оверлей данных
 
-`DataOverlayBuilder` (tools + plugin) produces `wog_core.zip` from WoG data: cloned creatures for
-commanders and WoG creatures, buffs for stack experience ranks and commander bonuses, artifacts
-146–156, localisation. Placed next to `Core.zip` (verified mechanism). Contains no game files — only
-JSON derived from WoG tables and references to existing OE assets.
+`WoG.OldenEra.Data` (`CoreZipReader`, `OverlayBuilder`, `StackExperienceBuffs`) собирает `wog_core.zip` из данных
+WoG: клоны существ для командиров и существ WoG, баффы рангов опыта стеков и бонусов командиров, артефакты
+146–156, локализацию. Архив кладётся рядом с `Core.zip` (проверенный механизм). Он не содержит файлов игры —
+только JSON, сгенерированный на машине пользователя из его `Core.zip` и таблиц WoG.

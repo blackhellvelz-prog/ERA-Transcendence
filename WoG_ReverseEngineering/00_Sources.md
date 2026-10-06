@@ -1,41 +1,43 @@
-# WoG 3.58 reverse engineering — sources and provenance
+# Реверс-инжиниринг WoG 3.58 — источники и их происхождение
 
-Everything in this folder is derived from primary sources. Where a statement comes from reading code,
-the file and function are named so the next person can re-check it. Nothing here was taken from memory.
+Всё в этой папке выведено из первоисточников. Если утверждение получено чтением кода, указаны файл и
+функция — чтобы любой мог перепроверить. Ничего не взято «по памяти».
 
-## Primary sources used
+## Использованные первоисточники
 
-| # | Source | What it gives us | Notes |
-|---|--------|------------------|-------|
-| S1 | `GrayFace/wog` on GitHub, folder `T1/` (C++), README: *"Heroes 3.5: In the Wake of Gods 3.59 alpha"* | The WoG engine extension source code: ERM interpreter (`erm.cpp`), Commanders (`npc.cpp`), Stack Experience (`crexpo.cpp`, `crexpo.h`), WoG Options dialog (`wogsetup.cpp`), option flags (`erm.h`) | This is the **3.59 alpha** tree, which descends from the 3.58f source. Every 3.59-only behaviour is marked in the docs as **[3.59]** using the changelogs in `T1/docs/ChangeLog*.txt` and the `// 3.59` comments in the code. Source files are cp1251 encoded (Russian comments). |
-| S2 | `GrayFace/wog`, folder `Mods/WoG/ERM/` (216 files) | The original WoG scripts (`script00.erm` … `script76.erm` + `.ert` text files), header `ZVSE`, *"Requires WOG version 3.58f or later"* | Used as a parse corpus and to rank receivers by real-world usage. |
-| S3 | ERM help (`Help/ERM-Help.chm` in `ERA-Projects/era-project-eng`) | Official receiver/trigger reference (WoG team ERM help, extended by Era). 306 pages. | Era-only pages (`triggers_ERA`, `trigger_ERA_*`) are excluded from the WoG 3.58 reference. |
-| S4 | `Help/wog features.html` (same repo) — *"New Features Added to the In the Wake of Gods AddOn"*, Timothy Pulver, 2004 | Player-facing feature list: 8th level monsters, Commanders, Stack Experience, new artifacts, the 77 WoG scripts (00–76) | |
-| S5 | `ethernidee/era` (`Erm.pas`, `Triggers.pas`, `AdvErm.pas`) | Independent re-implementation/extension of the WoG ERM engine (Era). Confirms trigger id ranges and parameter type model. | Era adds triggers 77001+ that are **not** WoG 3.58. They are listed only to be excluded. |
-| S6 | `vcmi/vcmi` `config/commanders.json`; `vcmi-mods/wake-of-gods` `Mods/stackExperience/Content/config/*.json` | Independent re-implementation of WoG Commanders and Stack Experience (VCMI). Used as a cross-check of the numbers read from S1. | |
-| S7 | `alexandersorokin/heroes3-era-wogify`, folder `Mods/WoG Wogify Scripts 3.58f/Data/s` | 3.58f scripts as packaged for Era | Secondary corpus. |
+| # | Источник | Что даёт | Примечания |
+|---|----------|----------|------------|
+| S1 | GitHub `GrayFace/wog`, папка `T1/` (C++), README: *«Heroes 3.5: In the Wake of Gods 3.59 alpha»* | Исходный код движкового расширения WoG: интерпретатор ERM (`erm.cpp`), командиры (`npc.cpp`), опыт стеков (`crexpo.cpp`, `crexpo.h`), диалог WoG Options (`wogsetup.cpp`), флаги опций (`erm.h`) | Это ветка **3.59 alpha**, выросшая из исходников 3.58f. Всё, что появилось только в 3.59, помечено в документах как **[3.59]** — по changelog'ам `T1/docs/ChangeLog*.txt` и комментариям `// 3.59` в коде. Файлы в кодировке cp1251 (комментарии на русском). |
+| S2 | `GrayFace/wog`, папка `Mods/WoG/ERM/` (216 файлов) | Скрипты WoG (`script00.erm` … `script76.erm` + текстовые `.ert`), заголовок `ZVSE` | Версии 3.59 (используют `!!SS` и т.п.) — используются как второй корпус для парсера. |
+| S3 | Справка ERM (`Help/ERM-Help.chm` в `ERA-Projects/era-project-eng`) | Официальный справочник ресиверов/триггеров (справка команды WoG, дополненная Era), 306 страниц | Era-страницы (`triggers_ERA`, `trigger_ERA_*`) в эталон WoG 3.58 не входят. |
+| S4 | `Help/wog features.html` (тот же репозиторий) — *«New Features Added to the In the Wake of Gods AddOn»*, Timothy Pulver, 2004 | Описание возможностей для игрока: монстры 8-го уровня, командиры, опыт стеков, новые артефакты, 77 скриптов WoG (00–76) | |
+| S5 | `ethernidee/era` (`Erm.pas`, `Triggers.pas`, `AdvErm.pas`) | Независимая переработка/расширение ERM (Era). Подтверждает диапазоны id триггеров и модель типов параметров | Era добавляет триггеры 77001+, которых **нет** в WoG 3.58 — они упомянуты только чтобы их распознавать и отклонять. |
+| S6 | `vcmi/vcmi` `config/commanders.json`; `vcmi-mods/wake-of-gods` `Mods/stackExperience/Content/config/*.json` | Независимая реализация командиров и опыта стеков (VCMI) — для перекрёстной проверки чисел из S1 | |
+| S7 | `alexandersorokin/heroes3-era-wogify`, папка `Mods/WoG Wogify Scripts 3.58f/Data/s` | Скрипты 3.58f (78 файлов) в упаковке Era | **Основной корпус**: статистика использования ресиверов и тест парсера. |
 
-## Version policy
+## Политика версий
 
-* **Target behaviour = WoG 3.58f.**
-* Where S1 contains 3.59 changes, the 3.58 behaviour is documented and the 3.59 behaviour is listed as an
-  optional dialect (`ErmDialect.Wog359Alpha` in code). The ERM runtime defaults to 3.58 semantics but can
-  parse the 3.59 additions (`!!la`/`!!go`, local functions `FU-1…-100`, numeric macros, `z-11…z-20`)
-  because many later scripts use them.
-* Era (S5) behaviour is never used as the reference when it differs from S1.
+* **Эталонное поведение = WoG 3.58f.**
+* Где в S1 есть изменения 3.59, документируется поведение 3.58, а поведение 3.59 указывается как
+  необязательный диалект (`ErmDialect.Wog359Alpha` в коде). Рантайм ERM по умолчанию работает по
+  семантике 3.58, но умеет разбирать добавления 3.59 (`!!la`/`!!go`, локальные функции `FU-1…-100`,
+  числовые макросы, `z-11…z-20`), т.к. их используют многие поздние скрипты.
+* Поведение Era (S5) никогда не берётся за эталон, если оно расходится с S1.
 
-## What is *not* in these sources and therefore not claimed
+## Чего в источниках нет (и что поэтому не утверждается)
 
-* The H3 executable's own (pre-WoG) game rules are not in S1. Where WoG hooks a native H3 routine by
-  address (e.g. `0x4E3620`), only the WoG side of the hook is documented. The native behaviour is taken from
-  the ERM help (S3) and marked *"per help"*.
-* The data files `CREXPMOD.TXT`, `CREXPBON.TXT`, `ZCRTRAIT.TXT`, `ZSETUP00.TXT` ship with a WoG install,
-  not with S1. The loaders and their file layout are documented from S1; the numeric contents are read
-  from the user's own install at runtime (bring-your-own-files, see `Compatibility/Architecture.md`).
-  S6 is used as the cross-check of those numbers.
+* Собственных (до-WoG) правил исполняемого файла H3 в S1 нет. Там, где WoG перехватывает родную функцию
+  H3 по адресу (например `0x4E3620`), документирована только сторона WoG. Родное поведение взято из
+  справки ERM (S3) и помечено *«по справке»*.
+* Файлы данных `CREXPMOD.TXT`, `CREXPBON.TXT`, `ZCRTRAIT.TXT`, `ZSETUP00.TXT` поставляются с установкой
+  WoG, а не с S1. Загрузчики и формат файлов документированы по S1; числовое содержимое читается во время
+  работы из установки самого пользователя (принцип «свои файлы игры», см. `Compatibility/Architecture.md`).
+  S6 — перекрёстная проверка этих чисел.
+* Функции `SaveSetupState`/`LoadSetupState` (пресеты опций) реализованы в закрытой `ZvsLib1.dll` —
+  формат файла пресета **не подтверждён**.
 
-## Legal hygiene
+## Правовая гигиена
 
-No WoG/H3 binaries, data files, scripts or help pages are committed to this repository. The docs describe
-behaviour in our own words and cite file/function names. Test fixtures that need real scripts read them from
-a path given in the `WOG_SCRIPTS_DIR` environment variable.
+В репозиторий не коммитятся бинарники, файлы данных, скрипты и страницы справки WoG/H3. Документы
+описывают поведение своими словами со ссылками на файлы/функции. Тестам, которым нужны настоящие скрипты,
+путь к ним передаётся переменной окружения `WOG_SCRIPTS_DIR`.

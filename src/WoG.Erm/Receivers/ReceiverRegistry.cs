@@ -64,7 +64,7 @@ public sealed class ReceiverRegistry
     {
         var reg = new ReceiverRegistry();
         foreach (var id in ErmParser.KnownReceivers358.Concat(ErmParser.KnownReceivers359))
-            reg.Register(new UnsupportedReceiver(id, "receiver not mapped to the target engine yet"));
+            reg.Register(new UnsupportedReceiver(id, "ресивер ещё не отображён на целевой движок"));
         reg.Register(new VrReceiver());
         reg.Register(new FuReceiver());
         reg.Register(new DoReceiver());
@@ -82,7 +82,7 @@ public sealed class ReceiverRegistry
         reg.Register(new NoOpReceiver("if"));
         reg.Register(new NoOpReceiver("el"));
         reg.Register(new NoOpReceiver("en"));
-        reg.Register(new UnsupportedReceiver("IP", "network ERM is out of scope (single-player only)"));
+        reg.Register(new UnsupportedReceiver("IP", "сетевой ERM вне рамок проекта (только одиночная игра)"));
         return reg;
     }
 
@@ -101,7 +101,7 @@ public sealed class ReceiverRegistry
             }
             var cmds = string.Join("; ", r.Support.OrderBy(k => k.Key)
                 .GroupBy(k => (k.Value.Level, k.Value.Note))
-                .Select(g => $"`{string.Concat(g.Select(x => x.Key))}` {Level(g.Key.Level)}{(g.Key.Note.Length > 0 ? " (" + g.Key.Note + ")" : "")}"));
+                .Select(g => $"`{string.Concat(g.Select(x => x.Key)).Replace("|", "\\|")}` {Level(g.Key.Level)}{(g.Key.Note.Length > 0 ? " (" + g.Key.Note + ")" : "")}"));
             sb.Append($"| `{r.Id}` | да | {cmds} |\n");
         }
         return sb.ToString();

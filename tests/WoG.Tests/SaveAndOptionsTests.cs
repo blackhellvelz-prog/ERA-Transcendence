@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using WoG.Core.Model;
 using WoG.Core.Save;
 using WoG.Core.State;
@@ -124,5 +125,31 @@ public class SaveAndOptionsTests
         readonly string available;
         public SetProbe(string a) { available = a; }
         public bool IsAvailable(VisualCandidate c) => c.Asset == available;
+    }
+}
+
+public class RepositoryDataTests
+{
+    static string Repo([System.Runtime.CompilerServices.CallerFilePath] string here = "") =>
+        Path.GetFullPath(Path.Combine(Path.GetDirectoryName(here)!, "..", ".."));
+
+    [Fact]
+    public void Options_catalogue_loads_and_keeps_options_separate()
+    {
+        var defs = WoG.Core.Options.WoGOptionCatalog.LoadJson(Path.Combine(Repo(), "Compatibility", "options-defaults.json"));
+        Assert.Contains(defs, d => d.Index == 900);
+        Assert.Equal(defs.Count, defs.Select(d => d.Index).Distinct().Count());
+        Assert.All(defs, d => Assert.False(d.DefaultVerified)); // nothing here is claimed as verified
+        var o = new WoG.Core.Options.WoGOptions();
+        o.ApplyDefaults(defs);
+        Assert.Equal(1, o.Get(900));
+    }
+
+    [Fact]
+    public void Creature_id_map_loads_without_inventing_mappings()
+    {
+        var map = new WoG.Core.Ids.IdMap();
+        map.LoadDomainFile("creature", Path.Combine(Repo(), "Compatibility", "id-maps", "creature.json"));
+        Assert.False(map.TryGetEngine("creature", 0, out _));
     }
 }

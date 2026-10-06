@@ -1,210 +1,207 @@
-# ERM receivers — catalog and command specifications
+# Ресиверы ERM — каталог и спецификации команд
 
-Three sources are combined here:
+Объединены три источника:
 
-* **what the engine implements** — command letters extracted from the dispatch `switch(Cmd)` /
-  `Cmd=='X'` tests of each receiver function in S1 (`T1/*.cpp`); the extractor script is reproduced in
-  `tools/re/extract_receivers.py`;
-* **what scripts actually use** — occurrences of `!!XX`/`!#XX` in the 76 original 3.58f WoG scripts (S7);
-* **what each command means** — the ERM help (S3), cross-checked against the code for the commands that
-  the runtime implements.
+* **что реализовано в движке** — буквы команд, извлечённые из `switch(Cmd)` / проверок `Cmd=='X'` в функции
+  каждого ресивера в S1 (`T1/*.cpp`); скрипт-извлекатель лежит в `tools/re/extract_receivers.py`;
+* **что реально используют скрипты** — число вхождений `!!XX`/`!#XX` в 76 оригинальных скриптах WoG 3.58f (S7);
+* **что означает каждая команда** — справка ERM (S3), сверенная с кодом для реализованных команд.
 
-The usage column drives implementation priority: `VR`, `FU`, `IF`, `UN`, `HE`, `MA`, `BM`, `DO`, `OW`,
-`CA` cover ≈ 90 % of all receiver lines in the WoG scripts.
+Столбец использований задаёт приоритет реализации: `VR`, `FU`, `IF`, `UN`, `HE`, `MA`, `BM`, `DO`, `OW`, `CA`
+покрывают ≈ 90 % всех строк ресиверов в скриптах WoG.
 
-## 1. Catalog
+## 1. Каталог
 
-| Receiver | Area | Uses in 3.58f WoG scripts | Source (S1) | Command letters found in source | Ver |
+| Ресивер | Область | Использований в скриптах 3.58f | Исходник (S1) | Буквы команд, найденные в исходнике | Версия |
 |---|---|---|---|---|---|
-| `VR` | variables | 12366 | `erm.cpp` `ERM_Variable` | `SRTXHCUMV` | 3.58 |
-| `FU` | control | 2325 | `erm.cpp` `ERM_Function` | `PDEXC` | 3.58 |
-| `IF` | ui/dialogs | 2168 | `erm.cpp` `ProcessMes` | `TQMSRNVAWPEXBFGDL` | 3.58 |
-| `UN` | universal/global | 2088 | `erm.cpp` `ERM_Universal` | `(nested switches — see help)` | 3.58 |
-| `HE` | hero | 2074 | `erm.cpp` `ProcessMes` | `OPIXUCSAMFNLWGKEVBRYTHD` | 3.58 |
-| `MA` | creature data | 660 | `Monsters.cpp` `ERM_MonAtr` | `OLCFIGRPSADMENBVHXU` | 3.58 |
-| `BM` | battle stack | 568 | `Monsters.cpp` `ERM_BRound` (table entry `BM`; `ERM_BMonster` is commented out) | `TNLBEIADHSFORJU` | 3.58 |
-| `DO` | control | 521 | `erm.cpp` `ERM_Do` | `P` | 3.58 |
-| `OW` | player | 486 | `erm.cpp` `ERM_Owner` | `RDIGTHCKOVANWS` | 3.58 |
-| `CA` | town | 339 | `casdem.cpp` `ERM_Castle` | `HUINPOTVRGMBS` | 3.58 |
-| `PO` | map square | 230 | `erm.cpp` `ERM_Position` | `HONTSCVB` | 3.58 |
-| `MO` | map monster | 194 | `erm.cpp` `ProcessMes` | `GOURMBAW` | 3.58 |
-| `BA` | battle | 178 | `Monsters.cpp` `ERM_Battle` | `HMPOEDABQS` | 3.58 |
-| `BU` | battle universal | 177 | `Monsters.cpp` `ERM_BUniversal` | `MEDOSTCRGVHPABQNFW` | 3.58 |
-| `CM` | input | 170 | `erm.cpp` `ERM_MouseClick` | `TSIFAPRHDM` | 3.58 |
-| `CO` | commander | 138 | `npc.cpp` `ERM_NPC` | `EDCTHPSANXB` | 3.58 |
-| `OB` | map object | 107 | `erm.cpp` `ERM_SetObject` | `TUCMDESRHB` | 3.58 |
-| `MC` | variables | 91 | `erm.cpp` `ERM_Macro` | `S` | 3.58 |
-| `TR` | map terrain | 77 | `erm.cpp` `ERM_Terrain` | `GTPEV` | 3.58 |
-| `BG` | battle action | 73 | `Monsters.cpp` `ERM_MAction` | `ASDXQHENVC` | 3.58 |
-| `HT` | map/hint | 68 | `erm.cpp` `ERM_HintType` | `TPWV` | 3.58 |
-| `CB` | object: creature bank | 49 | `erm.cpp` `ERM_SetCrBank` | `MGRATV` | 3.58 |
-| `EA` | stack experience (AI) | 49 | `crexpo.cpp` `ERM_AICrExp` | `MULPCBODREFASTH` | 3.58 |
-| `BF` | battle | 46 | `Monsters.cpp` `ERM_BattleField` | `COM` | 3.58 |
-| `BH` | battle hero | 39 | `Monsters.cpp` `ERM_BHero` | `NMCQ` | 3.58 |
-| `TM` | timers | 39 | `erm.cpp` `ERM_Timer` | `SED` | 3.58 |
-| `GR` | object: garrison | 26 | `erm.cpp` `ERM_Garrison` | `OGFN` | 3.58 |
-| `MN` | object: mine | 25 | `erm.cpp` `ERM_Mine` | `ORM` | 3.58 |
-| `DW` | object: dwelling | 22 | `erm.cpp` `ERM_SetDwelling` | `MGO` | 3.58 |
-| `AR` | map artifact | 18 | `erm.cpp` `ProcessMes` | `VMGX` | 3.58 |
-| `MM` | input | 17 | `erm.cpp` `ERM_MouseMove` | `MSD` | 3.58 |
-| `EX` | stack experience | 15 | `erm.cpp` `ERM_StackExperience` | `(nested switches — see help)` | 3.58 |
-| `MW` | wandering monster | 13 | `womo.cpp` `ERM_WMon` | `PCMEA` | 3.58 |
-| `PM` | object: pyramid | 12 | `erm.cpp` `ERM_Pyramid` | `VPS` | 3.58 |
-| `CH` | object: chest | 10 | `erm.cpp` `ERM_SetChest` | `SAB` | 3.58 |
-| `SR` | object: shrine | 8 | `erm.cpp` `ERM_Shrine` | `S` | 3.58 |
-| `MR` | battle magic res | 7 | `Monsters.cpp` `ERM_MonRes` | (see help) | 3.58 |
-| `ML` | object: mill | 6 | `erm.cpp` `ERM_SetMill` | `B` | 3.58 |
-| `WH` | object: witch hut | 6 | `erm.cpp` `ERM_SetWHat` | `S` | 3.58 |
-| `GD` | object: garden | 5 | `erm.cpp` `ERM_SetGarden` | `BTN` | 3.58 |
-| `LE` | map event | 5 | `erm.cpp` `ProcessMes` | `MGXEPOURFNABSCDIL` | 3.58 |
-| `QW` | quest log | 5 | `erm.cpp` `ERM_Qwest` | `A` | 3.58 |
-| `FR` | object: fire | 4 | `erm.cpp` `ERM_SetFire` | `B` | 3.58 |
-| `IP` | network | 4 | `Monsters.cpp` `ERM_NetworkService` | `DVWFR` | 3.58 |
-| `SC` | object: scholar | 4 | `erm.cpp` `ERM_SetScoolar` | `TPSL` | 3.58 |
-| `SG` | object: sign | 4 | `erm.cpp` `ERM_Sign` | `M` | 3.58 |
-| `WM` | object: windmill | 4 | `erm.cpp` `ERM_SetWMill` | `B` | 3.58 |
-| `SY` | object: shipyard | 3 | `erm.cpp` `ERM_Shipyard` | `OP` | 3.58 |
-| `MF` | battle monster feature | 2 | `Monsters.cpp` `ERM_MonFeature` | (see help) | 3.58 |
-| `SN` | sound | 2 | `sound.cpp` `ERM_Sound` | `SP` | 3.58 |
-| `HL` | hero | 1 | `erm.cpp` `ERM_HeroGainLevel` | `SR` | 3.58 |
-| `KT` | object: tree of knowledge | 1 | `erm.cpp` `ERM_SetKTree` | `SN` | 3.58 |
-| `LN` | object: lean-to | 1 | `erm.cpp` `ERM_SetLean` | `BN` | 3.58 |
-| `MT` | object: monolith | 1 | `erm.cpp` `ERM_SetMonolit` | `N` | 3.58 |
-| `SK` | object: skeleton | 1 | `erm.cpp` `ERM_SetSkelet` | `ANS` | 3.58 |
-| `ST` | object: stone | 1 | `erm.cpp` `ERM_SetStone` | `N` | 3.58 |
-| `UR` | object: university | 1 | `erm.cpp` `ERM_Univer` | `S` | 3.58 |
-| `WG` | object: wagon | 1 | `erm.cpp` `ERM_SetWagon` | `SBAR` | 3.58 |
-| `WT` | object: warrior tomb | 1 | `erm.cpp` `ERM_SetWTomb` | `AS` | 3.58 |
-| `AI` | AI | 0 | `ai.cpp` `ERM_AIRun` | `SDWM` | 3.58 |
-| `CD` | town (demolition) | 0 | `casdem.cpp` `ERM_CasDem` | `PDMNEAB` | 3.58 |
-| `CE` | town event | 0 | `erm.cpp` `ProcessMes` | `MFRBENHQCUD` | 3.58 |
-| `CI` | town | 0 | `casdem.cpp` `ERM_CastleIncome` | `IL` | 3.59 |
-| `DL` | custom dialogs | 0 | `dlg.cpp` `ERM_Dlg` | `CPNSHEA` | 3.59 |
-| `GE` | global event | 0 | `erm.cpp` `ProcessMes` | `MFRBENHQD` | 3.58 |
-| `HD` | hint | 0 | `erm.cpp` `ERM_HintDisplay` | `MTPC` | 3.59 |
-| `HO` | hero | 0 | `erm.cpp` `ERM_SetHero` | `DESRH` | 3.58 |
-| `LD` | resources (LOD) | 0 | `lod.cpp` `ERM_LODs` | `LTU` | 3.59 |
-| `MP` | sound | 0 | `sound.cpp` `ERM_MP3` | `CPSN` | 3.58 |
-| `SP` | object: spring | 0 | `erm.cpp` `ERM_SetSpring` | `SN` | 3.58 |
-| `SS` | spells | 0 | `spell.cpp` `ERM_Spell` | `OWXFNALSCPEHID` | 3.59 |
-| `SW` | object: swan pond | 0 | `erm.cpp` `ERM_SetSwan` | `BN` | 3.58 |
-| `TL` | realtime timer | 0 | `timer.cpp` `ERM_TL` | `ECTSD` | 3.59 |
-| `UX` | universal ext | 0 | `erm.cpp` `ERM_UniversalEx` | `KMTSGAV` | 3.59 |
-| `VC` | debug | 0 | `erm.cpp` `ERM_VarControl` | `CBEYNW` | 3.58 |
+| `VR` | переменные | 12366 | `erm.cpp` `ERM_Variable` | `SRTXHCUMV` | 3.58 |
+| `FU` | управление | 2325 | `erm.cpp` `ERM_Function` | `PDEXC` | 3.58 |
+| `IF` | интерфейс/диалоги | 2168 | `erm.cpp` `ProcessMes` | `TQMSRNVAWPEXBFGDL` | 3.58 |
+| `UN` | универсальный | 2088 | `erm.cpp` `ERM_Universal` | `(вложенные switch — см. справку)` | 3.58 |
+| `HE` | герой | 2074 | `erm.cpp` `ProcessMes` | `OPIXUCSAMFNLWGKEVBRYTHD` | 3.58 |
+| `MA` | данные существ | 660 | `Monsters.cpp` `ERM_MonAtr` | `OLCFIGRPSADMENBVHXU` | 3.58 |
+| `BM` | стек в бою | 568 | `Monsters.cpp` `ERM_BRound` (запись `BM` в таблице; `ERM_BMonster` закомментирован) | `TNLBEIADHSFORJU` | 3.58 |
+| `DO` | управление | 521 | `erm.cpp` `ERM_Do` | `P` | 3.58 |
+| `OW` | игрок | 486 | `erm.cpp` `ERM_Owner` | `RDIGTHCKOVANWS` | 3.58 |
+| `CA` | город | 339 | `casdem.cpp` `ERM_Castle` | `HUINPOTVRGMBS` | 3.58 |
+| `PO` | клетка карты | 230 | `erm.cpp` `ERM_Position` | `HONTSCVB` | 3.58 |
+| `MO` | монстр на карте | 194 | `erm.cpp` `ProcessMes` | `GOURMBAW` | 3.58 |
+| `BA` | бой | 178 | `Monsters.cpp` `ERM_Battle` | `HMPOEDABQS` | 3.58 |
+| `BU` | бой (общий) | 177 | `Monsters.cpp` `ERM_BUniversal` | `MEDOSTCRGVHPABQNFW` | 3.58 |
+| `CM` | ввод | 170 | `erm.cpp` `ERM_MouseClick` | `TSIFAPRHDM` | 3.58 |
+| `CO` | командир | 138 | `npc.cpp` `ERM_NPC` | `EDCTHPSANXB` | 3.58 |
+| `OB` | объект карты | 107 | `erm.cpp` `ERM_SetObject` | `TUCMDESRHB` | 3.58 |
+| `MC` | переменные | 91 | `erm.cpp` `ERM_Macro` | `S` | 3.58 |
+| `TR` | ландшафт | 77 | `erm.cpp` `ERM_Terrain` | `GTPEV` | 3.58 |
+| `BG` | действие в бою | 73 | `Monsters.cpp` `ERM_MAction` | `ASDXQHENVC` | 3.58 |
+| `HT` | карта/подсказки | 68 | `erm.cpp` `ERM_HintType` | `TPWV` | 3.58 |
+| `CB` | объект: банк существ | 49 | `erm.cpp` `ERM_SetCrBank` | `MGRATV` | 3.58 |
+| `EA` | опыт стеков (ИИ) | 49 | `crexpo.cpp` `ERM_AICrExp` | `MULPCBODREFASTH` | 3.58 |
+| `BF` | бой | 46 | `Monsters.cpp` `ERM_BattleField` | `COM` | 3.58 |
+| `BH` | герой в бою | 39 | `Monsters.cpp` `ERM_BHero` | `NMCQ` | 3.58 |
+| `TM` | таймеры | 39 | `erm.cpp` `ERM_Timer` | `SED` | 3.58 |
+| `GR` | объект: гарнизон | 26 | `erm.cpp` `ERM_Garrison` | `OGFN` | 3.58 |
+| `MN` | объект: шахта | 25 | `erm.cpp` `ERM_Mine` | `ORM` | 3.58 |
+| `DW` | объект: жилище | 22 | `erm.cpp` `ERM_SetDwelling` | `MGO` | 3.58 |
+| `AR` | артефакт на карте | 18 | `erm.cpp` `ProcessMes` | `VMGX` | 3.58 |
+| `MM` | ввод | 17 | `erm.cpp` `ERM_MouseMove` | `MSD` | 3.58 |
+| `EX` | опыт стеков | 15 | `erm.cpp` `ERM_StackExperience` | `(вложенные switch — см. справку)` | 3.58 |
+| `MW` | бродячий монстр | 13 | `womo.cpp` `ERM_WMon` | `PCMEA` | 3.58 |
+| `PM` | объект: пирамида | 12 | `erm.cpp` `ERM_Pyramid` | `VPS` | 3.58 |
+| `CH` | объект: сундук | 10 | `erm.cpp` `ERM_SetChest` | `SAB` | 3.58 |
+| `SR` | объект: святилище | 8 | `erm.cpp` `ERM_Shrine` | `S` | 3.58 |
+| `MR` | сопротивление магии | 7 | `Monsters.cpp` `ERM_MonRes` | (см. справку) | 3.58 |
+| `ML` | объект: мельница | 6 | `erm.cpp` `ERM_SetMill` | `B` | 3.58 |
+| `WH` | объект: хижина ведьмы | 6 | `erm.cpp` `ERM_SetWHat` | `S` | 3.58 |
+| `GD` | объект: сад | 5 | `erm.cpp` `ERM_SetGarden` | `BTN` | 3.58 |
+| `LE` | событие на карте | 5 | `erm.cpp` `ProcessMes` | `MGXEPOURFNABSCDIL` | 3.58 |
+| `QW` | журнал заданий | 5 | `erm.cpp` `ERM_Qwest` | `A` | 3.58 |
+| `FR` | объект: костёр | 4 | `erm.cpp` `ERM_SetFire` | `B` | 3.58 |
+| `IP` | сеть | 4 | `Monsters.cpp` `ERM_NetworkService` | `DVWFR` | 3.58 |
+| `SC` | объект: учёный | 4 | `erm.cpp` `ERM_SetScoolar` | `TPSL` | 3.58 |
+| `SG` | объект: табличка | 4 | `erm.cpp` `ERM_Sign` | `M` | 3.58 |
+| `WM` | объект: ветряк | 4 | `erm.cpp` `ERM_SetWMill` | `B` | 3.58 |
+| `SY` | объект: верфь | 3 | `erm.cpp` `ERM_Shipyard` | `OP` | 3.58 |
+| `MF` | способности монстров | 2 | `Monsters.cpp` `ERM_MonFeature` | (см. справку) | 3.58 |
+| `SN` | звук | 2 | `sound.cpp` `ERM_Sound` | `SP` | 3.58 |
+| `HL` | герой | 1 | `erm.cpp` `ERM_HeroGainLevel` | `SR` | 3.58 |
+| `KT` | объект: древо знаний | 1 | `erm.cpp` `ERM_SetKTree` | `SN` | 3.58 |
+| `LN` | объект: шалаш | 1 | `erm.cpp` `ERM_SetLean` | `BN` | 3.58 |
+| `MT` | объект: монолит | 1 | `erm.cpp` `ERM_SetMonolit` | `N` | 3.58 |
+| `SK` | объект: скелет | 1 | `erm.cpp` `ERM_SetSkelet` | `ANS` | 3.58 |
+| `ST` | объект: камень | 1 | `erm.cpp` `ERM_SetStone` | `N` | 3.58 |
+| `UR` | объект: университет | 1 | `erm.cpp` `ERM_Univer` | `S` | 3.58 |
+| `WG` | объект: повозка | 1 | `erm.cpp` `ERM_SetWagon` | `SBAR` | 3.58 |
+| `WT` | объект: могила воина | 1 | `erm.cpp` `ERM_SetWTomb` | `AS` | 3.58 |
+| `AI` | ИИ | 0 | `ai.cpp` `ERM_AIRun` | `SDWM` | 3.58 |
+| `CD` | город (снос) | 0 | `casdem.cpp` `ERM_CasDem` | `PDMNEAB` | 3.58 |
+| `CE` | событие города | 0 | `erm.cpp` `ProcessMes` | `MFRBENHQCUD` | 3.58 |
+| `CI` | город | 0 | `casdem.cpp` `ERM_CastleIncome` | `IL` | 3.59 |
+| `DL` | свои диалоги | 0 | `dlg.cpp` `ERM_Dlg` | `CPNSHEA` | 3.59 |
+| `GE` | глобальное событие | 0 | `erm.cpp` `ProcessMes` | `MFRBENHQD` | 3.58 |
+| `HD` | подсказка | 0 | `erm.cpp` `ERM_HintDisplay` | `MTPC` | 3.59 |
+| `HO` | герой | 0 | `erm.cpp` `ERM_SetHero` | `DESRH` | 3.58 |
+| `LD` | ресурсы (LOD) | 0 | `lod.cpp` `ERM_LODs` | `LTU` | 3.59 |
+| `MP` | звук | 0 | `sound.cpp` `ERM_MP3` | `CPSN` | 3.58 |
+| `SP` | объект: источник | 0 | `erm.cpp` `ERM_SetSpring` | `SN` | 3.58 |
+| `SS` | заклинания | 0 | `spell.cpp` `ERM_Spell` | `OWXFNALSCPEHID` | 3.59 |
+| `SW` | объект: лебединый пруд | 0 | `erm.cpp` `ERM_SetSwan` | `BN` | 3.58 |
+| `TL` | таймер реального времени | 0 | `timer.cpp` `ERM_TL` | `ECTSD` | 3.59 |
+| `UX` | универсальный (расш.) | 0 | `erm.cpp` `ERM_UniversalEx` | `KMTSGAV` | 3.59 |
+| `VC` | отладка | 0 | `erm.cpp` `ERM_VarControl` | `CBEYNW` | 3.58 |
 
-Control-flow pseudo-receivers: `if`, `el`, `en` (3.58), `la`, `go` (3.59).
-Notes on the extractor: `UN` and `EX` contain nested switches on their first parameter, so their letter
-list is taken from the help, not the extractor. `BM` is implemented by `ERM_BRound` (the table entry
-named `ERM_BMonster` is commented out); `MR`/`MF` are not `switch(Cmd)` based. Other letter lists are exact.
+Псевдо-ресиверы управления потоком: `if`, `el`, `en` (3.58), `la`, `go` (3.59).
+Примечания к извлечению: у `UN` и `EX` вложенные `switch` по первому параметру, поэтому их список берётся из
+справки. `BM` реализован функцией `ERM_BRound` (запись `ERM_BMonster` закомментирована); `MR`/`MF` не
+построены на `switch(Cmd)`. Остальные списки букв точные.
 
-## 2. Command specification format
+## 2. Формат спецификации команды
 
-Each implemented command is specified as:
+`Ресивер:Команда` → **Смысл** · **Входы** · **Выходы** · **Затрагиваемое состояние** · **Контекст** ·
+**Побочные эффекты** · **Эквивалент в Olden Era** (заполнен в `Compatibility/ERM_Compatibility.md`).
 
-`Receiver:Command` → **Meaning** · **Inputs** · **Outputs** · **State affected** · **Context** ·
-**Side effects** · **Olden Era equivalent** (filled in `Compatibility/ERM_Compatibility.md`).
+`$` — параметр, допускающий set/get/check/`d`; `#` — простое число/переменная.
 
-`$` = parameter that accepts set/get/check/`d` syntax, `#` = plain number/variable.
+## 3. Основные ресиверы (реализованы в `src/WoG.Erm/Receivers`)
 
-## 3. Core receivers (implemented in `src/WoG.Erm/Receivers`)
+### VR — переменные (`ERM_Variable`)
+Селектор: одна ссылка на переменную (вычисляется при выполнении; может быть косвенной, `!!VRvy1:`).
 
-### VR — variables (`ERM_Variable`)
-Selector: one variable reference (evaluated at execution; may be indirect, e.g. `!!VRvy1:`).
+| Команда | Смысл | Входы | Выход / состояние | Особенности из кода |
+|---------|-------|-------|-------------------|---------------------|
+| `S$` | присвоить | значение, `^текст^` или z-перем. для строк | перем ← значение | `?перем` копирует *в* параметр; для z: число ≠ 0 = скопировать строку с этим индексом; для e — только set |
+| `R$` / `R0/$seed` | прибавить случайное 0…$ | максимум (включительно) | перем += rnd | форма с 2 параметрами читает/ставит seed |
+| `T$` | прибавить «временное» случайное 0…$ | | | |
+| `+$ -$ *$ :$ %$` | арифметика | операнд | перем оп= операнд | `:`/`%` на 0 → сообщение, без изменений; для строк `+` = конкатенация |
+| `&$ \|$ X$` | побитовые И/ИЛИ/XOR | | | `^` — устаревший синоним `X` (выводит предупреждение) |
+| `H#` | флаг # ← строка непустая | флаг 1…1000 | флаг | только z |
+| `C$/$/…` | присвоить подряд идущие переменные | до 16 значений | перем, перем+1, … | только целые; каждый параметр с set/get/check |
+| `U$` | флаг 1 ← строка **оканчивается** на $ | z-перем. или текст | флаг 1 | см. п.9 §11 в `01_ERM_Language.md` |
+| `M1/z/нач/длина` `M2/z/номер` `M3/знач/основание` `M4/?длина` `M5/?первый` `M6/?последний` | строковые операции | | | `M2` — токен по разделителям « ,.\t\n\a»; `M3` — itoa |
+| `V$` | разобрать z в целое/вещественное | индекс z | перем | |
 
-| Cmd | Meaning | Inputs | Outputs / state | Notes from code |
-|-----|---------|--------|-----------------|-----------------|
-| `S$` | set | value, `^text^` or z-var for strings | var ← value | `?var` copies *into* the param; floats: only set syntax |
-| `R$` / `R0/$seed` | add random 0…$ | max (inclusive) | var += rnd | 2-param form reads/sets the RNG seed |
-| `T$` | add time-random 0…$ | | | |
-| `+$ -$ *$ :$ %$` | arithmetic | operand | var op= operand | `:`/`%` by 0 → message, unchanged; strings support `+` (concat) |
-| `&$ \|$ X$` | bitwise and/or/xor | | | `^` is the deprecated alias of `X` |
-| `H#` | flag # ← string is non-empty | flag 1…1000 | flag | z-vars only |
-| `C$/$/…` | set consecutive vars | up to 16 values | var, var+1, … | int vars only, each param supports set/get/check |
-| `U$` | flag 1 ← substring found (case-insensitive) | z-var or text | flag 1 | |
-| `M1/z/start/len` `M2/z/token` `M3/val/base` `M4/?len` `M5/?first` `M6/?last` | string ops | | | `M3` = itoa |
-| `V$` | parse z-var to int/float | z index | var | |
+### FU — функции (`ERM_Function`); DO — циклы (`ERM_Do`)
+| Команда | Смысл |
+|---------|-------|
+| `FU#:P$…` | вызов функции # с ≤ 16 аргументами → `x1…x16`; аргументы `?перем` получают итоговые `x` |
+| `FU:E[#]` | выход из текущей секции (с # > 0 — пропустить следующие # секций; < 0 — вернуться) |
+| `FU:D…` | сетевой «удалённый» вызов → **не поддерживается (нет сетевого слоя)** |
+| `FU:C#` | вкл/выкл проверку y-переменных вне функций (отладка) |
+| `FU:X#/$` [3.59] | как был передан аргумент # |
+| `DO#/a/b/s:P$…` | цикл `x16=a..b шаг s` с вызовом функции # |
 
-### FU — functions (`ERM_Function`); DO — loops (`ERM_Do`)
-| Cmd | Meaning |
-|-----|---------|
-| `FU#:P$…` | call function # with up to 16 args → `x1…x16`; `?var` args receive the final `x` values |
-| `FU:E[#]` | exit current trigger section ([3.59] `#`<0 jumps back) |
-| `FU:D…` | network "distant" call → **unsupported (no network layer)** |
-| `FU:C#` | toggle y-var-outside-function check (debug) |
-| `FU:X#/$` [3.59] | how arg # was passed |
-| `DO#/a/b/s:P$…` | loop `x16=a..b step s` calling function # |
+### MC — макросы (`ERM_Macro`)
+`!!MCv5:S@имя@;` привязывает макрос `имя` (≤ 16 символов) к переменной селектора; затем `$имя$` можно
+писать вместо переменной. Порядок поиска имени: числовые макросы **[3.59]**, f…t, v, z, w. Макросы
+глобальные и сохраняются.
 
-### MC — macros (`ERM_Macro`)
-`!#MC:S@name@` / `!!VRv5:…$name$…` — `!!MCv5:S@name@;` binds macro `name` to the variable in the selector.
-Macros are global and saved.
+### IF — сообщения/диалоги/флаги (inline `IF`)
+| Команда | Смысл | Реализация |
+|---------|-------|------------|
+| `M^текст^` / `M1/$` / `M$/тип/текст` | показать сообщение (с подстановками) | UI-адаптер `ShowMessage` (тип 2 — вопрос) |
+| `Q#^текст^` / `Q#/z` | вопрос «да/нет» → флаг # | UI-адаптер `AskYesNo`; варианты с картинками — нужен свой UI |
+| `V#/$` | флаг # ← $ (0/1) | ядро |
+| `W$` | выбрать героя для `w`-переменных (−1 — текущий) | ядро |
+| `A#`, `S#`, `R#` | флаги 1…10 из десятичных цифр числа (A — присвоить все, S — только установить, R — только сбросить) | ядро |
+| `G…`, `B…`, `D…`, `E…`, `N…`, `P…`, `X…`, `F…`, `L^текст^` | сложные диалоги, журнал боя и т.п. | нужен свой UI-слой |
 
-### IF — messages/dialogs/flags (inline `IF`)
-| Cmd | Meaning | Implementation |
-|-----|---------|----------------|
-| `M^text^` / `M1/$` | show a message (interpolated) | UI adapter `ShowMessage` |
-| `Q#/pic…^text^` | yes/no or picture question → flag # | UI adapter `AskQuestion` |
-| `V#/$` | set flag # to $ (0/1) | core |
-| `W$` | select the hero whose `w` vars are used | core |
-| `X$` | flags from bit mask (A/R/S variants set/reset) | core |
-| `G…`, `B…`, `D…`, `E…`, `N…`, `P…`, `T…`, `L^text^` | multi-choice dialogs, battle log, etc. | UI adapter where available |
+### UN — универсальный (`ERM_Universal`) — реализованная часть
+| Команда | Смысл |
+|---------|-------|
+| `P#/$` | чтение/запись WoG-опции # (0…999) — `PL_WoGOptions[0][#]`; запись в 3/6 сразу включает/выключает командиров |
+| `P$` (1 параметр) | устаревшая форма: опция 0 |
+| `C…` | прямая запись в память H3 — **не поддерживается принципиально** |
+| `I`,`R`,`O`,`T`,`S`,`V`,`A`,`X`,… | размещение/удаление объектов, размеры и т.д. — через адаптер карты (ещё не отображено) |
 
-### UN — universal (`ERM_Universal`) — implemented subset
-| Cmd | Meaning |
-|-----|---------|
-| `P#/$` | get/set WoG option # (0…999) — writes `PL_WoGOptions[0][#]`; options 3/6 also enable/disable commanders immediately |
-| `P$` (1 param) | legacy: option 0 |
-| `C…` | raw memory poke — **unsupported by design** (see compatibility) |
-| `I`,`R`,`O`,`T`,`S`,… | object placement/removal, dimensions, etc. — map adapter |
+### HE — герой (inline `HE`) — реализованная часть
+Селектор: `#` номер героя, `-1` текущий герой, `-10/-20` атакующий/защитник в бою, `x/y/l` — герой в позиции.
 
-### HE — hero (inline `HE`) — implemented subset
-Selector: `#` hero id, `-1` current hero, `-10/-20` attacker/defender in battle, `x/y/l` hero at position.
+| Команда | Смысл | Состояние |
+|---------|-------|-----------|
+| `E$` / `E$/$ур` | опыт (и уровень) | опыт героя |
+| `F$/$/$/$` | первичные навыки (А/З/С/З); 5-й параметр `1` = базовые без артефактов (только чтение) | статы героя |
+| `I$` | очки заклинаний | мана |
+| `W$` | очки передвижения | |
+| `S#/$` | уровень вторичного навыка 0…3 | навыки |
+| `M#/$` | заклинание в книге 0/1 | книга |
+| `A#` / `A1/арт/слот` `A2/арт/?n/?m` `A3/арт/n/m` `A4/арт` | дать/забрать/посчитать/надеть артефакт | инвентарь |
+| `C0/слот/$тип/$кол[/$опыт[/режим]]` | слот армии (+опыт стека) | армия |
+| `C1/тип/$тип/$кол` | все стеки данного типа | армия |
+| `C2/тип/кол/спросить` | добавить стек | армия |
+| `O$` | владелец | |
+| `P$x/$y/$l[/стиль]` | переместить | позиция (порождает триггеры `HM`/посещения) |
+| `N?$` | номер героя | |
+| `K` | убить героя | |
 
-| Cmd | Meaning | State |
-|-----|---------|-------|
-| `E$` / `E$/$lvl` | experience (and level) | hero exp |
-| `F$/$/$/$` | primary skills (A/D/P/K); `/1` 5th param = base without artifacts (get only) | hero stats |
-| `I$` | spell points | hero mana |
-| `W$` | movement points | |
-| `S#/$` | secondary skill level 0…3 | skills |
-| `M#/$` | spell in book 0/1 | spellbook |
-| `A#` / `A1/art/slot` `A2/art/?n/?m` `A3/art/n/m` `A4/art` | give/remove/count/equip artifacts | inventory |
-| `C0/slot/$type/$num[/$exp]` | army slot | army (+stack exp) |
-| `C1/type/$type/$num` | all stacks of a type | army |
-| `C2/type/num/ask` | add a stack | army |
-| `O$` | owner | ownership |
-| `P$x/$y/$l[/style]` | move | position (raises `HM`/visit triggers) |
-| `N?$` | hero id | |
-| `K` | kill hero | |
+### OW — игроки (`ERM_Owner`) — реализованная часть
+`R#/рес/$` ресурсы (игрок −1 = текущий); `C?$` текущий игрок; `A#/$` активный герой; `I#/$[/$]` ИИ/человек
+(и жив ли); `G#/$` игрок за этим ПК.
 
-### OW — players (`ERM_Owner`) — implemented subset
-`R#/res/$` resources (player −1 = current); `C?$` current player; `A#/$` active hero; `I#/$` AI/human;
-`H#/v/#` hero list into v vars.
+### MA — данные типа существа (`ERM_MonAtr`)
+`A D P S M E N F I G R H V C L O U X B` = атака, защита, HP, скорость, урон мин/макс, выстрелы, Fight value,
+AI value, прирост, прирост орды, кол-во на карте макс/мин, стоимость, уровень, город, апгрейд-в, флаги, касты.
+Действует на весь тип; сохраняется.
 
-### MA — creature type data (`ERM_MonAtr`)
-`A D P S M E N F I G R H V C L O U X B` = attack, defence, HP, speed, dmg low/high, shots, fight value,
-AI value, growth, horde growth, adventure-map high/low, cost, level, town, upgrade-to, flags, casts.
-Global for the creature type; saved (`MonsterUpgradeTable`, monster data via `SendCreatures`).
+### TM — таймеры (`ERM_Timer`)
+`S$первый/$последний/$период/$владельцы` · `E$игрок` · `D$игрок`. Поля 16-битные без знака. Таймер срабатывает
+в начале дня игрока, если `первый ≤ день ≤ последний`, `(день-первый) % период == 0` и бит игрока установлен
+(`RunTimer`). При периоде 0 WoG делит на ноль (падение); порт такой таймер просто не запускает.
 
-### TM — timers (`ERM_Timer`)
-`S$first/$last/$period/$owners` · `E$player` · `D$player`. A timer fires at the start of a player's day if
-`first ≤ day ≤ last` and `(day-first) % period == 0` and the player's bit is set (`RunTimer`).
+### CO — командиры (`ERM_NPC`, `npc.cpp`) — см. `04_Commanders.md`
+Селектор `-1` командир текущего героя, `-2` все, `-3` доп. командир атакующих, `-4` защитников, `#` номер героя.
+`E$` нанят · `D$` мёртв · `T$` класс · `H$` класс героя · `P$`/`P#/$` первичные · `S#/$` навыки · `B…` спец-бонусы ·
+`A1…A4` артефакты · `N$` имя · `X0/1/2` опыт/уровень.
 
-### CO — commanders (`ERM_NPC`, `npc.cpp`) — see `04_Commanders.md`
-Selector `-1` current hero's commander, `-2` all, `-3` attacker side, `-4` defender side, `#` hero id.
-`E$exp/$level` · `P$a/$d/$hp/$dmg/$mp/$spd/$mr` (primary) · `S#/$` (skill level) · `B…` special
-bonuses · `A1…A4` artifacts · `D`/`X` dead/alive · `N^name^` · `T$type` · `H$hero` · `C` enable/hire.
+### EX — опыт стеков (`ERM_StackExperience`) — см. `05_Creature_Experience.md`
+Селектор `герой/слот` или `x/y/l/слот[/типВладельца]`. `A$тип/$кол/$опыт` · `T$` · `N$` · `E$` (опыт на
+существо) · `R$арт/$подтип` или `R$есть/$арт/$подтип/$копии` (артефакт стека) · `C…` объединение стеков.
 
-### EX — stack experience (`ERM_StackExperience`) — see `05_Creature_Experience.md`
-Selector `hero/slot` or `x/y/l/slot[/ownerType]`. `A$type/$num/$exp` · `T$` · `N$` · `E$` (exp) ·
-`R$` (rank) · `C…` combine stacks · artifact commands.
+### BA / BM / BU / BG / BH / BF — бой
+См. `07_Battle_Map_Towns_Features.md`; зависят от адаптера боя.
 
-### BA / BM / BU / BG / BH / BF — battle
-Specified in `07_Battle.md`; adapter-dependent.
+## 4. Остальные ресиверы
 
-## 4. Remaining receivers
-
-All other receivers (object-specific `MN SC CH WT KT FR LN ST WG SK SP WM SW MT GD ML DW WH SY GR SR SG
-UR PM CB`, `PO TR OB MO AR LE GE CE HT QW`, input `CM MM`, sound `MP SN`, network `IP`, AI `AI EA`) are
-parsed, registered with a compatibility status, and dispatched to adapter interfaces. Their per-command
-status lives in `Compatibility/ERM_Compatibility.md` and is generated from the runtime's receiver registry
-(`dotnet run --project tools/WoG.ErmTool -- compat`).
+Все прочие ресиверы (объекты `MN SC CH WT KT FR LN ST WG SK SP WM SW MT GD ML DW WH SY GR SR SG UR PM CB`,
+`PO TR OB MO AR LE GE CE HT QW`, ввод `CM MM`, звук `MP SN`, сеть `IP`, ИИ `AI EA`) разбираются, имеют статус
+совместимости и вызывают интерфейсы адаптера. Статус по командам — в `Compatibility/ERM_Compatibility.md`,
+генерируется из реестра рантайма (`dotnet run --project tools/WoG.ErmTool -- compat`).

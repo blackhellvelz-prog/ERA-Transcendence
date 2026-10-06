@@ -307,7 +307,7 @@ public sealed class FuReceiver : ErmReceiverBase
     public FuReceiver() : base("FU")
     {
         Declare("PEXC", CompatLevel.FullySupported);
-        Declare("D", CompatLevel.Unsupported, "FU:D is a network call (multiplayer is out of scope)");
+        Declare("D", CompatLevel.Unsupported, "FU:D — сетевой вызов (мультиплеер вне рамок проекта)");
     }
 
     protected override void Run(ErmCall c)

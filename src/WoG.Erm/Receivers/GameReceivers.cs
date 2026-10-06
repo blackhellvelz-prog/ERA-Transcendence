@@ -13,8 +13,8 @@ public sealed class IfReceiver : ErmReceiverBase
     public IfReceiver() : base("IF")
     {
         Declare("VASRW", CompatLevel.FullySupported);
-        Declare("MQ", CompatLevel.PartiallySupported, "text messages and yes/no questions; picture variants need custom UI");
-        Declare("TPEXBFGDNL", CompatLevel.Unsupported, "custom WoG dialogs (pictures, sphinx, check-box and multi-choice dialogs) need the custom UI layer");
+        Declare("MQ", CompatLevel.PartiallySupported, "текстовые сообщения и вопросы да/нет; варианты с картинками требуют своего UI");
+        Declare("TPEXBFGDNL", CompatLevel.Unsupported, "особые диалоги WoG (картинки, сфинкс, флажки, множественный выбор) требуют своего UI-слоя");
     }
 
     protected override void Run(ErmCall c)
@@ -99,8 +99,8 @@ public sealed class UnReceiver : ErmReceiverBase
     public UnReceiver() : base("UN")
     {
         Declare("P", CompatLevel.FullySupported);
-        Declare("C", CompatLevel.Unsupported, "UN:C pokes H3 memory addresses; impossible on another engine");
-        Declare("ABDEFGHIJKLMNOQRSTUVWXYZ", CompatLevel.Unsupported, "map/object/global UN commands not mapped yet");
+        Declare("C", CompatLevel.Unsupported, "UN:C пишет по адресам памяти H3 — на другом движке невозможно");
+        Declare("ABDEFGHIJKLMNOQRSTUVWXYZ", CompatLevel.Unsupported, "команды UN для карты/объектов/глобальные ещё не отображены");
     }
 
     protected override void Run(ErmCall c)
@@ -155,9 +155,9 @@ public sealed class HeReceiver : ErmReceiverBase
 {
     public HeReceiver() : base("HE")
     {
-        Declare("EFIWMONPK", CompatLevel.PartiallySupported, "values are mapped through the adapter; OE primary stats differ (see matrix)");
-        Declare("SAC", CompatLevel.PartiallySupported, "ids mapped through IdMap; display-slot forms unsupported");
-        Declare("BDGHLRTUVXY", CompatLevel.Unsupported, "not mapped yet");
+        Declare("EFIWMONPK", CompatLevel.PartiallySupported, "значения идут через адаптер; первичные статы OE отличаются (см. матрицу)");
+        Declare("SAC", CompatLevel.PartiallySupported, "id через IdMap; формы со слотами отображения не поддерживаются");
+        Declare("BDGHLRTUVXY", CompatLevel.Unsupported, "ещё не отображено");
     }
 
     protected override void Run(ErmCall c)
@@ -352,8 +352,8 @@ public sealed class OwReceiver : ErmReceiverBase
 {
     public OwReceiver() : base("OW")
     {
-        Declare("RCAIG", CompatLevel.PartiallySupported, "resource ids mapped through IdMap");
-        Declare("DTHKOVNWS", CompatLevel.Unsupported, "not mapped yet");
+        Declare("RCAIG", CompatLevel.PartiallySupported, "id ресурсов через IdMap");
+        Declare("DTHKOVNWS", CompatLevel.Unsupported, "ещё не отображено");
     }
 
     protected override void Run(ErmCall c)
@@ -410,7 +410,7 @@ public sealed class MaReceiver : ErmReceiverBase
 {
     public MaReceiver() : base("MA")
     {
-        Declare("ADPSMENFIGRHVLOUXBC", CompatLevel.PartiallySupported, "engine stat model differs (initiative/speed, no shots)");
+        Declare("ADPSMENFIGRHVLOUXBC", CompatLevel.PartiallySupported, "модель статов движка отличается (initiative/speed, нет выстрелов)");
     }
 
     protected override void Run(ErmCall c)

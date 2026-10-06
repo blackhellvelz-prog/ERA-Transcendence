@@ -1,69 +1,67 @@
-# Olden Era — buffs, creature stats and battle
+# Olden Era — баффы, статы существ и бой
 
-## 1. Creature battle stats **[V-data]**
+## 1. Боевые статы существ **[V-data]**
 
-`stats` of a unit: `hp, offence, defence, damageMin, damageMax, initiative, speed, luck, moral,
-actionPoints, numCounters, energyPerCast, energyPerRound, energyPerTakeDamage`.
+`stats` юнита: `hp, offence, defence, damageMin, damageMax, initiative, speed, luck, moral, actionPoints,
+numCounters, energyPerCast, energyPerRound, energyPerTakeDamage`.
 
-Differences from H3 that matter for WoG (from the stat set itself):
+Отличия от H3, важные для WoG (видны из самого набора статов):
 
-| H3/WoG concept | Olden Era |
+| Понятие H3/WoG | Olden Era |
 |----------------|-----------|
-| speed = both turn order and movement | **split**: `initiative` (turn order) + `speed` (movement) |
-| shots | no `shots` stat in `stats` (ranged handled by abilities) **[UNVERIFIED: ammo]** |
-| retaliations (1, or unlimited) | `numCounters` |
-| spell casts per battle (creature casters) | energy system (`energyPer*`, `maxEnergy`, `actionPoints`) |
-| morale/luck | `moral`, `luck` (present) |
+| скорость = и очерёдность хода, и передвижение | **разделено**: `initiative` (очерёдность) + `speed` (передвижение) |
+| выстрелы | в `stats` нет стата выстрелов (стрельба — через способности) **[UNVERIFIED: боезапас]** |
+| ответные удары (1 или бесконечно) | `numCounters` |
+| касты заклинаний существ за бой | система энергии (`energyPer*`, `maxEnergy`, `actionPoints`) |
+| мораль/удача | `moral`, `luck` (есть) |
 
-## 2. Buffs (`DB/buffs/*.json`) **[V-data]**
+## 2. Баффы (`DB/buffs/*.json`) **[V-data]**
 
-414 buffs in 19 files. Fields seen in real data: `id, name_, description_, icon, duration
-(infinite / maxDuration / caster-defined), addition (stacking rule), data{stats{…}, outDmgMods,
-inDmgMods}, actions, mechanics, disablers, immunities[{type: mechanic|effect|magic_level|ability_rank|damage}],
+414 баффов в 19 файлах. Поля в реальных данных: `id, name_, description_, icon, duration (бесконечный /
+maxDuration / задаётся кастующим), addition (правило наложения), data{stats{…}, outDmgMods, inDmgMods},
+actions, mechanics, disablers, immunities[{type: mechanic|effect|magic_level|ability_rank|damage}],
 sequenceEffect, statOverrides, vfxList, timeoutActions, mimicStats, activationParams`.
 
-`data.stats` keys (all confirmed in real buffs):
-`offence, defence, offencePerc, defencePerc, initiative, speed, moral, luck, hp, hpPerc, damageMin,
-damageMax, damagePerc, inAllDmgMod, outAllDmgMod, alwaysMaxDmg, alwaysMinDmg, alwaysTakeMaxDmg,
-accumulateDamage, healthLimitMinPercent, actionPoints, maxAddedApPerRound, maxEnergy, energyPerCast,
-energyPerRound, energyPerTakeDamage, blockEnergyRegen, finalAbilityDamageBonusPercent,
-finalHealingBonusPercent, finalSummonBonusPercent, numCounters, maxOverwatchStrikes,
-disableCounterOnCrit, skipActionChanceModifier, anticritChanceModifier, untargetable, untargetByLowLevel,
-tauntRadius, ignoreShootingBlock, ignoreShootDmgBuff, ignoreObstacles, ignoreCastleProtection, armorPen,
-attackPen, lifetimeBonus, heroOffenceModifier, heroDefenceModifier, heroSpellPowerModifier,
-heroIntelligenceModifier`; damage modifiers by damage type (`normal_damage, melee_attack, shoot_attack,
-range_attack, counter_attack, magic_damage, …`).
+Ключи `data.stats` (все встречаются в реальных баффах):
+`offence, defence, offencePerc, defencePerc, initiative, speed, moral, luck, hp, hpPerc, damageMin, damageMax,
+damagePerc, inAllDmgMod, outAllDmgMod, alwaysMaxDmg, alwaysMinDmg, alwaysTakeMaxDmg, accumulateDamage,
+healthLimitMinPercent, actionPoints, maxAddedApPerRound, maxEnergy, energyPerCast, energyPerRound,
+energyPerTakeDamage, blockEnergyRegen, finalAbilityDamageBonusPercent, finalHealingBonusPercent,
+finalSummonBonusPercent, numCounters, maxOverwatchStrikes, disableCounterOnCrit, skipActionChanceModifier,
+anticritChanceModifier, untargetable, untargetByLowLevel, tauntRadius, ignoreShootingBlock, ignoreShootDmgBuff,
+ignoreObstacles, ignoreCastleProtection, armorPen, attackPen, lifetimeBonus, heroOffenceModifier,
+heroDefenceModifier, heroSpellPowerModifier, heroIntelligenceModifier`; модификаторы урона по типу
+(`normal_damage, melee_attack, shoot_attack, range_attack, counter_attack, magic_damage, …`).
 
-Buffs are applied by: artifacts (`battleSubskillBonus`), map script actions `AddBuffHeroDays`,
-`RemoveBuffHero`, `AddGlobalBuff` (durations `Infinite`, days…), spells/abilities, object rewards.
+Баффы накладываются: артефактами (`battleSubskillBonus`), действиями сценария `AddBuffHeroDays`,
+`RemoveBuffHero`, `AddGlobalBuff` (длительность `Infinite`, дни…), заклинаниями/способностями, наградами объектов.
 
-### Why buffs matter for WoG
+### Почему баффы важны для WoG
 
-The buff system is the **verified, data-driven way to change creature stats in real combat**. Most WoG
-stat effects map onto it directly:
+Система баффов — **проверенный, управляемый данными способ менять статы существ в настоящем бою**. Большинство
+стат-эффектов WoG ложатся на неё напрямую:
 
-| WoG effect | Buff expression |
-|------------|-----------------|
-| Stack exp `A/D/H/m/M/S` with `+`/`-`/`=` | `offence`/`defence`/`hp`/`damageMin`/`damageMax`/`speed` (+`initiative`, see compat) |
-| `%` modifiers | `offencePerc`, `defencePerc`, `hpPerc`, `damagePerc` |
-| Stack exp `R` (retaliations) | `numCounters` |
-| `fM`/`AT+DM` "always max damage" | `alwaysMaxDmg` |
-| `fE` no melee penalty / shoot adjacent | `ignoreShootingBlock`, `ignoreShootDmgBuff` |
-| `fF` fly / commander DF+SP… | `ignoreObstacles` (movement-type flying is a unit property — **[UNVERIFIED]** whether a buff can grant it) |
-| Commander MR % | `inDmgMods` with `magic_damage` |
-| Commander AT+DF "halve target defence" | `armorPen` (semantics to calibrate) |
+| Эффект WoG | Выражение баффом |
+|------------|------------------|
+| Опыт стека `A/D/H/m/M/S` с `+`/`-`/`%`/`=` | дельта к `offence`/`defence`/`hp`/`damageMin`/`damageMax`/`speed`(+`initiative`), посчитанная от базы юнита OE (`StackExperienceBuffs`) |
+| Опыт стека `R` (ответы) | `numCounters` |
+| `fM` / AT+DM командира «всегда максимальный урон» | `alwaysMaxDmg` |
+| `fE` без штрафа в ближнем бою / стрельба в упор | `ignoreShootingBlock`, `ignoreShootDmgBuff` |
+| `fF` полёт / DF+SP командира… | `ignoreObstacles` (тип передвижения «полёт» — свойство юнита; **[UNVERIFIED]**, может ли его дать бафф) |
+| Сопротивление магии командира % | `inDmgMods` с `magic_damage` |
+| AT+DF командира «защита цели ×0.5» | `armorPen` (семантику нужно откалибровать) |
 
-What buffs cannot express (needs plugin hooks): per-instance scaling by experience rank (solved by
-generating one buff per rank and applying the right one), chance effects (block 30 %, paralyse 50 %),
-death stare formula, regeneration of exact HP, "cast spell after attack", fear.
+Что баффы выразить не могут (нужны хуки плагина): шансовые эффекты (блок 30 %, паралич 50 %), формула
+смертельного взгляда, точная регенерация, «заклинание после атаки», страх, флаги существ (`f`), выстрелы (`O`),
+касты (`P`). Генератор перечисляет такие бонусы в `NotExpressible`, а не подделывает их.
 
-## 3. Battle hooks available
+## 3. Доступные хуки боя
 
-| Hook | Source | Tag |
-|------|--------|-----|
-| Before/after hero-vs-hero battle | scenario interruptions | [V-community] |
-| Battle start/end, round start, unit turn, before/after action, damage calculation | BepInEx Harmony patches on combat methods | **[UNVERIFIED]** — class/method names must be found (plan in `07_InGame_RE_Plan.md`) |
-| Neutral squad fights | scenario `SquadInteraction`, `SquadKill`, `InitiateAttack` | [V-community] |
+| Хук | Источник | Метка |
+|-----|----------|-------|
+| До/после боя героя с героем | прерывания сценария | [V-community] |
+| Начало/конец боя, начало раунда, ход юнита, до/после действия, расчёт урона | патчи Harmony на методы боя через BepInEx | **[UNVERIFIED]** — имена классов/методов надо найти (план — `07_InGame_RE_Plan.md`) |
+| Бои с нейтральными отрядами | `SquadInteraction`, `SquadKill`, `InitiateAttack` в сценарии | [V-community] |
 
-The port's battle layer is written against an interface (`IBattleAdapter`) whose Olden Era
-implementation is enabled only after the probe finds the combat methods.
+Слой боя порта написан против интерфейса `IBattleAdapter`; реализация для Olden Era включается только после
+того, как символы боя найдены и помечены `verified`.

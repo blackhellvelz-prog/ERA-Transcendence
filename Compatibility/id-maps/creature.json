@@ -1,0 +1,1352 @@
+[
+ {
+  "wog": 0,
+  "h3": "pikeman",
+  "faction": "castle",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 1,
+  "h3": "halberdier",
+  "faction": "castle",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 2,
+  "h3": "archer",
+  "faction": "castle",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 3,
+  "h3": "marksman",
+  "faction": "castle",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 4,
+  "h3": "griffin",
+  "faction": "castle",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 5,
+  "h3": "royalGriffin",
+  "faction": "castle",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 6,
+  "h3": "swordsman",
+  "faction": "castle",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 7,
+  "h3": "crusader",
+  "faction": "castle",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 8,
+  "h3": "monk",
+  "faction": "castle",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 9,
+  "h3": "zealot",
+  "faction": "castle",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 10,
+  "h3": "cavalier",
+  "faction": "castle",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 11,
+  "h3": "champion",
+  "faction": "castle",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 12,
+  "h3": "angel",
+  "faction": "castle",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 13,
+  "h3": "archangel",
+  "faction": "castle",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 14,
+  "h3": "centaur",
+  "faction": "rampart",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 15,
+  "h3": "centaurCaptain",
+  "faction": "rampart",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 16,
+  "h3": "dwarf",
+  "faction": "rampart",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 17,
+  "h3": "battleDwarf",
+  "faction": "rampart",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 18,
+  "h3": "woodElf",
+  "faction": "rampart",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 19,
+  "h3": "grandElf",
+  "faction": "rampart",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 20,
+  "h3": "pegasus",
+  "faction": "rampart",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 21,
+  "h3": "silverPegasus",
+  "faction": "rampart",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 22,
+  "h3": "dendroidGuard",
+  "faction": "rampart",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 23,
+  "h3": "dendroidSoldier",
+  "faction": "rampart",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 24,
+  "h3": "unicorn",
+  "faction": "rampart",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 25,
+  "h3": "warUnicorn",
+  "faction": "rampart",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 26,
+  "h3": "greenDragon",
+  "faction": "rampart",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 27,
+  "h3": "goldDragon",
+  "faction": "rampart",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 28,
+  "h3": "gremlin",
+  "faction": "tower",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 29,
+  "h3": "masterGremlin",
+  "faction": "tower",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 30,
+  "h3": "stoneGargoyle",
+  "faction": "tower",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 31,
+  "h3": "obsidianGargoyle",
+  "faction": "tower",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 32,
+  "h3": "ironGolem",
+  "faction": "tower",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 33,
+  "h3": "stoneGolem",
+  "faction": "tower",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 34,
+  "h3": "mage",
+  "faction": "tower",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 35,
+  "h3": "archMage",
+  "faction": "tower",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 36,
+  "h3": "genie",
+  "faction": "tower",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 37,
+  "h3": "masterGenie",
+  "faction": "tower",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 38,
+  "h3": "naga",
+  "faction": "tower",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 39,
+  "h3": "nagaQueen",
+  "faction": "tower",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 40,
+  "h3": "giant",
+  "faction": "tower",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 41,
+  "h3": "titan",
+  "faction": "tower",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 42,
+  "h3": "imp",
+  "faction": "inferno",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 43,
+  "h3": "familiar",
+  "faction": "inferno",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 44,
+  "h3": "gog",
+  "faction": "inferno",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 45,
+  "h3": "magog",
+  "faction": "inferno",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 46,
+  "h3": "hellHound",
+  "faction": "inferno",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 47,
+  "h3": "cerberus",
+  "faction": "inferno",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 48,
+  "h3": "demon",
+  "faction": "inferno",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 49,
+  "h3": "hornedDemon",
+  "faction": "inferno",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 50,
+  "h3": "pitFiend",
+  "faction": "inferno",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 51,
+  "h3": "pitLord",
+  "faction": "inferno",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 52,
+  "h3": "efreet",
+  "faction": "inferno",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 53,
+  "h3": "efreetSultan",
+  "faction": "inferno",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 54,
+  "h3": "devil",
+  "faction": "inferno",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 55,
+  "h3": "archDevil",
+  "faction": "inferno",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 56,
+  "h3": "skeleton",
+  "faction": "necropolis",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 57,
+  "h3": "skeletonWarrior",
+  "faction": "necropolis",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 58,
+  "h3": "walkingDead",
+  "faction": "necropolis",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 59,
+  "h3": "zombieLord",
+  "faction": "necropolis",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 60,
+  "h3": "wight",
+  "faction": "necropolis",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 61,
+  "h3": "wraith",
+  "faction": "necropolis",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 62,
+  "h3": "vampire",
+  "faction": "necropolis",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 63,
+  "h3": "vampireLord",
+  "faction": "necropolis",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 64,
+  "h3": "lich",
+  "faction": "necropolis",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 65,
+  "h3": "powerLich",
+  "faction": "necropolis",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 66,
+  "h3": "blackKnight",
+  "faction": "necropolis",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 67,
+  "h3": "dreadKnight",
+  "faction": "necropolis",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 68,
+  "h3": "boneDragon",
+  "faction": "necropolis",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 69,
+  "h3": "ghostDragon",
+  "faction": "necropolis",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 70,
+  "h3": "troglodyte",
+  "faction": "dungeon",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 71,
+  "h3": "infernalTroglodyte",
+  "faction": "dungeon",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 72,
+  "h3": "harpy",
+  "faction": "dungeon",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 73,
+  "h3": "harpyHag",
+  "faction": "dungeon",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 74,
+  "h3": "beholder",
+  "faction": "dungeon",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 75,
+  "h3": "evilEye",
+  "faction": "dungeon",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 76,
+  "h3": "medusa",
+  "faction": "dungeon",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 77,
+  "h3": "medusaQueen",
+  "faction": "dungeon",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 78,
+  "h3": "minotaur",
+  "faction": "dungeon",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 79,
+  "h3": "minotaurKing",
+  "faction": "dungeon",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 80,
+  "h3": "manticore",
+  "faction": "dungeon",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 81,
+  "h3": "scorpicore",
+  "faction": "dungeon",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 82,
+  "h3": "redDragon",
+  "faction": "dungeon",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 83,
+  "h3": "blackDragon",
+  "faction": "dungeon",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 84,
+  "h3": "goblin",
+  "faction": "stronghold",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 85,
+  "h3": "hobgoblin",
+  "faction": "stronghold",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 86,
+  "h3": "goblinWolfRider",
+  "faction": "stronghold",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 87,
+  "h3": "hobgoblinWolfRider",
+  "faction": "stronghold",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 88,
+  "h3": "orc",
+  "faction": "stronghold",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 89,
+  "h3": "orcChieftain",
+  "faction": "stronghold",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 90,
+  "h3": "ogre",
+  "faction": "stronghold",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 91,
+  "h3": "ogreMage",
+  "faction": "stronghold",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 92,
+  "h3": "roc",
+  "faction": "stronghold",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 93,
+  "h3": "thunderbird",
+  "faction": "stronghold",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 94,
+  "h3": "cyclop",
+  "faction": "stronghold",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 95,
+  "h3": "cyclopKing",
+  "faction": "stronghold",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 96,
+  "h3": "behemoth",
+  "faction": "stronghold",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 97,
+  "h3": "ancientBehemoth",
+  "faction": "stronghold",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 98,
+  "h3": "gnoll",
+  "faction": "fortress",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 99,
+  "h3": "gnollMarauder",
+  "faction": "fortress",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 100,
+  "h3": "lizardman",
+  "faction": "fortress",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 101,
+  "h3": "lizardWarrior",
+  "faction": "fortress",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 102,
+  "h3": "gorgon",
+  "faction": "fortress",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 103,
+  "h3": "mightyGorgon",
+  "faction": "fortress",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 104,
+  "h3": "serpentFly",
+  "faction": "fortress",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 105,
+  "h3": "fireDragonFly",
+  "faction": "fortress",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 106,
+  "h3": "basilisk",
+  "faction": "fortress",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 107,
+  "h3": "greaterBasilisk",
+  "faction": "fortress",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 108,
+  "h3": "wyvern",
+  "faction": "fortress",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 109,
+  "h3": "wyvernMonarch",
+  "faction": "fortress",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 110,
+  "h3": "hydra",
+  "faction": "fortress",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 111,
+  "h3": "chaosHydra",
+  "faction": "fortress",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 112,
+  "h3": "airElemental",
+  "faction": "conflux",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 113,
+  "h3": "earthElemental",
+  "faction": "conflux",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 114,
+  "h3": "fireElemental",
+  "faction": "conflux",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 115,
+  "h3": "waterElemental",
+  "faction": "conflux",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 116,
+  "h3": "goldGolem",
+  "faction": "neutral",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 117,
+  "h3": "diamondGolem",
+  "faction": "neutral",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 118,
+  "h3": "pixie",
+  "faction": "conflux",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 119,
+  "h3": "sprite",
+  "faction": "conflux",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 120,
+  "h3": "psychicElemental",
+  "faction": "conflux",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 121,
+  "h3": "magicElemental",
+  "faction": "conflux",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 122,
+  "h3": "unused122",
+  "faction": "special",
+  "level": null,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 123,
+  "h3": "iceElemental",
+  "faction": "conflux",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 124,
+  "h3": "unused124",
+  "faction": "special",
+  "level": null,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 125,
+  "h3": "magmaElemental",
+  "faction": "conflux",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 126,
+  "h3": "unused126",
+  "faction": "special",
+  "level": null,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 127,
+  "h3": "stormElemental",
+  "faction": "conflux",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 128,
+  "h3": "unused128",
+  "faction": "special",
+  "level": null,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 129,
+  "h3": "energyElemental",
+  "faction": "conflux",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 130,
+  "h3": "firebird",
+  "faction": "conflux",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 131,
+  "h3": "phoenix",
+  "faction": "conflux",
+  "level": 7,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 132,
+  "h3": "azureDragon",
+  "faction": "neutral",
+  "level": 10,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 133,
+  "h3": "crystalDragon",
+  "faction": "neutral",
+  "level": 10,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 134,
+  "h3": "fairieDragon",
+  "faction": "neutral",
+  "level": 8,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 135,
+  "h3": "rustDragon",
+  "faction": "neutral",
+  "level": 10,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 136,
+  "h3": "enchanter",
+  "faction": "neutral",
+  "level": 6,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 137,
+  "h3": "sharpshooter",
+  "faction": "neutral",
+  "level": 4,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 138,
+  "h3": "halfling",
+  "faction": "neutral",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 139,
+  "h3": "peasant",
+  "faction": "neutral",
+  "level": 1,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 140,
+  "h3": "boar",
+  "faction": "neutral",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 141,
+  "h3": "mummy",
+  "faction": "neutral",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 142,
+  "h3": "nomad",
+  "faction": "neutral",
+  "level": 3,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 143,
+  "h3": "rogue",
+  "faction": "neutral",
+  "level": 2,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 144,
+  "h3": "troll",
+  "faction": "neutral",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 145,
+  "h3": "catapult",
+  "faction": "special",
+  "level": 0,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 146,
+  "h3": "ballista",
+  "faction": "special",
+  "level": 5,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 147,
+  "h3": "firstAidTent",
+  "faction": "special",
+  "level": 0,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 148,
+  "h3": "ammoCart",
+  "faction": "special",
+  "level": 0,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ },
+ {
+  "wog": 149,
+  "h3": "arrowTower",
+  "faction": "special",
+  "level": 0,
+  "engine": null,
+  "visual": null,
+  "note": "не отображено"
+ }
+]

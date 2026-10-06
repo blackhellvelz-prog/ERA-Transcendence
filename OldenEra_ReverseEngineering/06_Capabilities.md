@@ -1,43 +1,43 @@
-# Olden Era — what is exposed
+# Olden Era — что доступно моддингу
 
-Classification required by the project brief. Tags as in `00_Sources_and_Verification.md`.
+Классификация, требуемая заданием. Метки — как в `00_Sources_and_Verification.md`.
 
-## Exposed (usable today, verified)
+## Доступно (можно использовать сейчас, проверено)
 
-| Capability | Through | Tag |
-|------------|---------|-----|
-| Static content: creatures, heroes, artifacts, buffs, spells, skills, map objects, factions, dialogs, localisation | JSON in `Core.zip` + overlay zip | V-data / V-community |
-| New content by cloning existing definitions under new ids | overlay zip | V-community |
-| Map scripting: counters, quests, triggers on turn/week/visit/capture/kill/hire/build/cast/hero stat, 114 actions (resources, units, exp, stats, mana, spells, skills, items, buffs, buildings, spawning, fog, camera, AI control, victory/defeat) | scenario JSON beside the map | V-community |
-| Hero-vs-hero battle interruptions | scenario JSON | V-community |
-| Running managed code in the game process, Harmony patches, reading/writing game objects | BepInEx 6 IL2CPP | V-code |
-| Map editor UI extension | BepInEx (O2) | V-code |
-| Reading/writing binary `.map`, importing `.h3m` | O1 | V-code |
+| Возможность | Через что | Метка |
+|-------------|-----------|-------|
+| Статический контент: существа, герои, артефакты, баффы, заклинания, навыки, объекты карты, фракции, диалоги, локализация | JSON в `Core.zip` + zip-оверлей | V-data / V-community |
+| Новый контент клонированием существующих определений под новыми id | zip-оверлей | V-community |
+| Скриптинг карт: счётчики, квесты, триггеры на ход/неделю/посещение/захват/убийство/найм/стройку/заклинание/стат героя, 114 действий (ресурсы, юниты, опыт, статы, мана, заклинания, навыки, предметы, баффы, постройки, создание объектов, туман, камера, управление ИИ, победа/поражение) | JSON сценария рядом с картой | V-community |
+| Прерывания боя «герой против героя» | JSON сценария | V-community |
+| Выполнение своего управляемого кода в процессе игры, патчи Harmony, чтение/запись игровых объектов | BepInEx 6 IL2CPP | V-code |
+| Расширение интерфейса редактора карт | BepInEx (O2) | V-code |
+| Чтение/запись бинарного `.map`, импорт `.h3m` | O1 | V-code |
 
-## Partially exposed
+## Доступно частично
 
-| Capability | Limitation |
-|------------|-----------|
-| Game logic classes | IL2CPP + obfuscation: names change per update; must be resolved by name/signature at runtime |
-| Creature stat changes in combat | buffs cover additive/percent stats and many flags; per-instance and chance effects need hooks |
-| Adventure-map object behaviour | object logic families are fixed; new behaviour only through scripts or hooks |
-| Overlay zip scope | global vs per-map not confirmed |
+| Возможность | Ограничение |
+|-------------|-------------|
+| Классы игровой логики | IL2CPP + обфускация: имена меняются с обновлениями; разрешаются по имени/сигнатуре во время работы |
+| Изменение статов существ в бою | баффы покрывают прибавки/проценты и многие флаги; экземплярные и шансовые эффекты требуют хуков |
+| Поведение объектов карты | семейства логики объектов фиксированы; новое поведение — только скриптами или хуками |
+| Область действия zip-оверлея | глобально или только для карты — не подтверждено |
 
-## Not exposed (needs plugin hooks, or not possible)
+## Недоступно (нужны хуки плагина или невозможно)
 
-| Capability | Status |
-|------------|--------|
-| General-purpose scripting language (variables, loops, functions) | **not exposed** — must be provided by our ERM runtime in the plugin |
-| Battle event hooks (round, action, damage, death) | **not exposed by data/scripting**; reachable only via Harmony on combat methods — [UNVERIFIED names] |
-| Per-stack persistent state (experience, stack artifacts) | **not exposed**; external WoG state + battle hooks |
-| Commanders (hero-bound special unit with progression) | **no equivalent entity**; must be emulated (special stack + external state) |
-| Custom UI windows | **not exposed**; Unity UI can be built from a plugin (uGUI/TMP present) — [UNVERIFIED stability] |
-| Save-file extension | **not exposed**; side-car file strategy |
-| Raw memory pokes (`UN:C`) | **impossible by design** (different engine; no address compatibility) |
-| H3 graphics formats (DEF/PCX/LOD) | not native; 2D icons can be imported as PNG → Unity `Sprite` from the plugin |
+| Возможность | Статус |
+|-------------|--------|
+| Скриптовый язык общего назначения (переменные, циклы, функции) | **нет** — его даёт наш рантайм ERM в плагине |
+| Хуки событий боя (раунд, действие, урон, смерть) | **нет через данные/скрипты**; только Harmony на методы боя — [UNVERIFIED имена] |
+| Постоянное состояние стека (опыт, артефакт стека) | **нет**; внешнее состояние WoG + хуки боя |
+| Командиры (особый юнит героя с прогрессией) | **нет аналога**; эмулируется (особый стек + внешнее состояние) |
+| Свои окна интерфейса | **нет**; Unity UI можно строить из плагина (uGUI/TMP есть) — [UNVERIFIED стабильность] |
+| Расширение файла сейва | **нет**; стратегия «файл рядом с сейвом» |
+| Прямая запись в память (`UN:C`) | **невозможно принципиально** (другой движок, адресов нет) |
+| Графические форматы H3 (DEF/PCX/LOD) | не родные; 2D-иконки можно импортировать как PNG → Unity `Sprite` из плагина |
 
-## Verification debt
+## Долг проверки
 
-Every **[UNVERIFIED]** row has a probe in the adapter (`OldenEraProbes`) and a step in
-`07_InGame_RE_Plan.md`. Until a probe passes, the dependent WoG features report *unsupported* at
-runtime (never silently faked).
+У каждой строки **[UNVERIFIED]** есть символ в `OldenEraSymbols` и шаг в `07_InGame_RE_Plan.md`. Пока символ не
+помечен `verified`, зависящие от него функции WoG во время работы сообщают *unsupported* (никогда не
+подделываются молча).
