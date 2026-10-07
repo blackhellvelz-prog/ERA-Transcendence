@@ -30,6 +30,14 @@ user's `Core.zip` after a game update. A row with `engine: null` is not mapped: 
   summons, …) read as not known. A specialist knows a spell as its `_special` variant, which is the same number. Olden
   Era-only spells get numbers from 1000 up.
 
+* `artifact.json` — two-way, written by hand (`"engine"` checked against `DB/items`): H3/WoG artifact 0..170 → Olden
+  Era item sid, by name where Olden Era kept it (Ogre's Club of Havoc, Crown of the Supreme Magi, Tunic of the Cyclops
+  King, Spyglass, Spellbinder's Hat, Shackles of War, Orb of Inhibition, the Angelic Alliance and Power of the Dragon
+  Father parts, …) and otherwise by effect (+attack weapons, +defence shields, gold or mana each day, …); 61 of 171.
+  The rest (war machines, combined artifacts — Olden Era has set bonuses instead —, commander and blank WoG artifacts,
+  …) has no equivalent. Olden Era-only items get numbers from 500 up (1000 and up are ERM's spellbook and scroll
+  numbers); spell scrolls are 1001 + spell and map to `magic_scroll_artifact_<spell sid>`.
+
 When a saved game is loaded, the tables of these files replace the copies stored in its WoG state (the files may be
 newer than the save); numbers given during the game (hero numbers) come from the save.
 * `object.json` — one-way, `{"engine": object sid, "tag", "type", "subtype", "h3", "note"}`: an Olden Era map object →

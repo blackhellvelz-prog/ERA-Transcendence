@@ -83,73 +83,73 @@
     "engine": "ambassadors_word_ambassadors_sash_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 68,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "ambassadors_word_diplomatic_gifts_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 67,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "ancient_idol_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 537,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "angelic_alliance_armor_of_wonder_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 31,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "angelic_alliance_celestial_sash_of_bliss_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 33,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "angelic_alliance_helm_of_heavenly_enlightenment_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 36,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "angelic_alliance_lions_shield_of_courage_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 34,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "angelic_alliance_sandals_of_the_saint_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 32,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "angelic_alliance_sword_of_judgement_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 35,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "arena",
@@ -179,9 +179,9 @@
     "engine": "banner_of_four_winds_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 99,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "barracks_demon_1",
@@ -667,33 +667,33 @@
     "engine": "beelzebubs_blessing_chitinous_shield_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 18,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "beelzebubs_blessing_demon_claw_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 12,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "beelzebubs_blessing_demon_crest_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 24,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "beelzebubs_blessing_heartbeat_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 30,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "beer_fountain",
@@ -803,41 +803,41 @@
     "engine": "boreolos_foot_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 546,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "boreolos_hand_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 545,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "boreolos_head_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 548,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "boreolos_heart_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 547,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "caduceus_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 562,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "camp_fire",
@@ -1187,41 +1187,41 @@
     "engine": "cards_deck_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 556,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "catechism_of_daylight_magic_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 532,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "catechism_of_night_magic_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 531,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "catechism_of_primal_magic_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 534,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "catechism_of_spacetime_magic_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 533,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "celestial_sphere",
@@ -1235,17 +1235,17 @@
     "engine": "chain_link_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 83,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "chain_mail_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 504,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "chest",
@@ -1291,9 +1291,9 @@
     "engine": "clothes_of_enlightenment_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 505,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "college_of_wonder",
@@ -1331,9 +1331,9 @@
     "engine": "crown_of_the_supreme_magi_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 22,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "crystal_trail",
@@ -1771,9 +1771,9 @@
     "engine": "demonic_heart_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 551,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "dragon_utopia",
@@ -1787,25 +1787,25 @@
     "engine": "duelists_pride_brass_knuckles_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 570,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "duelists_pride_buckler_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 559,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "duelists_pride_rapier_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 566,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "dungeon_city",
@@ -1819,33 +1819,33 @@
     "engine": "eagle_armor_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 500,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "elixir_of_life_flask_of_oblivion_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 512,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "elixir_of_life_lifeblood_fairy_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 96,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "elixir_of_life_ring_of_life_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 95,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "enchanted_scroll_box",
@@ -1859,9 +1859,9 @@
     "engine": "endless_bag_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 513,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "eternal_dragon",
@@ -1875,41 +1875,41 @@
     "engine": "ethereal_knowledge_glass_dagger_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 93,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "ethereal_knowledge_mirror_shoes_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 522,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "ethereal_knowledge_third_eye_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 523,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "ethereal_knowledge_vortex_dress_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 501,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "excalibur_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 567,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "fairy_ring",
@@ -1923,9 +1923,9 @@
     "engine": "fallen_angel_wings_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 72,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "fickle_shrine",
@@ -1939,17 +1939,17 @@
     "engine": "fine_wand_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 561,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "flag_of_truce_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 507,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "flattering_mirror",
@@ -2011,41 +2011,41 @@
     "engine": "garotte_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 565,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "gifts_of_dwarven_lords_automated_antimagic_shield_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 58,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "gifts_of_dwarven_lords_crimson_resonance_controller_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 572,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "gifts_of_dwarven_lords_emerald_resonance_controller_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 573,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "gifts_of_dwarven_lords_protective_belt_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 57,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "gingerbread_house",
@@ -2091,17 +2091,17 @@
     "engine": "golden_goose_egg_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 530,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "head_torch_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 527,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "hero-spawner",
@@ -2123,73 +2123,73 @@
     "engine": "holy_sigil_of_eridore_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 585,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "holy_sigil_of_insara_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 583,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "holy_sigil_of_mearea_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 584,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "holy_sigil_of_quix_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 582,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "holy_sigil_of_roph_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 586,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "holy_sigil_of_the_second_man_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 580,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "holy_sigil_of_the_seven_magi_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 581,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "holy_sigil_of_uurdt_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 579,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "hourglass_of_protection_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 558,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "human_city",
@@ -2219,25 +2219,25 @@
     "engine": "inner_song_fancy_mask_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 528,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "inner_song_music_sheet_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 539,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "inner_song_singing_pan_pipe_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 560,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "insaras_eye",
@@ -2267,57 +2267,57 @@
     "engine": "keepers_fortitude_keepers_oberegus_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 553,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "keepers_fortitude_keepers_ring_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 578,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "knights_honor_armet_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 526,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "knights_honor_drums_of_war_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 544,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "knights_honor_lance_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 11,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "knights_honor_misericorde_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 9,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "knights_honor_plate_armor_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 503,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "knowledge_garden",
@@ -2363,41 +2363,41 @@
     "engine": "legions_step_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 118,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "living_arrows_light_and_shade_cloak_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 506,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "living_arrows_quivering_quiver_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 60,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "living_arrows_shroomwood_bow_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 91,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "lords_ring_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 576,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "lost_library",
@@ -2443,9 +2443,9 @@
     "engine": "magic_key_ring_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 511,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "magic_wheel",
@@ -2515,25 +2515,25 @@
     "engine": "milos_curse_golden_moth_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 117,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "milos_curse_golden_pig_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 116,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "milos_curse_skull_of_milos_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 115,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "mine_crystals",
@@ -2595,9 +2595,9 @@
     "engine": "monster_head_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 84,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "monty_hall",
@@ -2643,17 +2643,17 @@
     "engine": "ogres_club_of_havoc_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 10,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "omencaller_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 508,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "orb_observatory",
@@ -2675,17 +2675,17 @@
     "engine": "orb_of_destruction_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 536,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "orb_of_inhibition_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 126,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "overgrown_grave",
@@ -2707,49 +2707,49 @@
     "engine": "paupers_glory_dumb_club_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 7,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "paupers_glory_last_coin_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 46,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "paupers_glory_rags_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 25,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "paupers_glory_rope_belt_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 514,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "paupers_glory_straw_hat_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 21,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "paupers_glory_wooden_ring_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 575,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "peasant_cart",
@@ -2803,9 +2803,9 @@
     "engine": "pole_star_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 535,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "portal_1",
@@ -2939,65 +2939,65 @@
     "engine": "power_of_the_dragon_father_dragon_crest_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 44,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "power_of_the_dragon_father_dragon_scale_armor_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 40,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "power_of_the_dragon_father_dragon_scale_shield_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 39,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "power_of_the_dragon_father_dragon_wing_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 42,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "power_of_the_dragon_father_dragonbone_greaves_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 41,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "power_of_the_dragon_father_piercing_eye_of_a_dragon_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 37,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "power_of_the_dragon_father_red_dragon_flame_tongue_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 38,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "power_of_the_dragon_father_slithering_sash_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 43,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "prismatic_lair",
@@ -3115,33 +3115,33 @@
     "engine": "resonant_sphere_orb_of_daylight_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 541,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "resonant_sphere_orb_of_eternity_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 542,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "resonant_sphere_orb_of_twilight_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 540,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "resonant_sphere_primal_orb_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 543,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "resource_crystals",
@@ -3203,9 +3203,9 @@
     "engine": "ring_of_neutrality_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 85,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "ritual_pyre",
@@ -3219,41 +3219,41 @@
     "engine": "rule_of_shadow_liquid_silence_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 549,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "rule_of_shadow_nostrias_gaze_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 529,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "rule_of_shadow_the_truthmaker_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 568,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "rule_of_shadow_the_truthseeker_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 563,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "runestone_shards_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 557,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "sacrificial_shrine",
@@ -3267,17 +3267,17 @@
     "engine": "scholars_wisdom_scholars_oberegus_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 555,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "scholars_wisdom_scholars_tiara_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 23,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "scroll_box",
@@ -3291,57 +3291,57 @@
     "engine": "seal_of_silence_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 577,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "seven_league_boots_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 518,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "shackles_of_war_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 125,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "shadow_of_death_bone_boots_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 519,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "shadow_of_death_cursed_armor_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 26,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "shadow_of_death_dark_hatchet_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 8,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "shadow_of_death_second_shade_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 509,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "shady_den",
@@ -3363,41 +3363,41 @@
     "engine": "shamaniac_soul_clutching_ring_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 77,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "shamaniac_soul_gemwood_mask_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 525,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "shamaniac_soul_iridescent_cloak_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 502,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "shamaniac_soul_shaman_staff_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 564,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "shoddy_shield_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 13,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "shroom_of_growth",
@@ -3411,49 +3411,49 @@
     "engine": "sixth_finger_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 571,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "soulless_sash_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 515,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "soulscaller_ring_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 569,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "spellbinders_hat_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 124,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "spells_in_a_bottle_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 517,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "spyglass_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 53,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "stables",
@@ -3539,25 +3539,25 @@
     "engine": "swamp_boots_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 520,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "tactical_guide_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 538,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "tarq_of_the_rampaging_ogre_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 16,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "tavern",
@@ -3611,25 +3611,25 @@
     "engine": "tranquility_brightmind_tiara_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 75,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "tranquility_magic_mirror_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 73,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "tranquility_ring_of_serenity_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 74,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "tree_of_abundance",
@@ -3667,9 +3667,9 @@
     "engine": "tunic_of_the_cyclops_king_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 28,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "twilight_bloom",
@@ -3683,25 +3683,25 @@
     "engine": "two_faced_mask_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 524,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "ukhtabar_seal_tabar_seal_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 574,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "ukhtabar_seal_ukh_seal_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 49,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "uncanny_rite",
@@ -3795,49 +3795,49 @@
     "engine": "voodoosh_doll_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 550,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "wanderers_way_backpack_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 70,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "wanderers_way_boots_of_travel_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 98,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "warlord_boots_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 521,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "warriors_strength_warriors_belt_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 516,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "warriors_strength_warriors_oberegus_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 552,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "watchtower",
@@ -3875,16 +3875,16 @@
     "engine": "wizards_might_wizards_cloak_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 510,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   },
   {
     "engine": "wizards_might_wizards_oberegus_artifact",
     "tag": "Artifact",
     "type": 5,
-    "subtype": -1,
+    "subtype": 554,
     "h3": "Artifact",
-    "note": "artifact not linked to an H3 number yet"
+    "note": "artifact (artifact.json)"
   }
 ]

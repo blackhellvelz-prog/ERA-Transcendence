@@ -409,9 +409,208 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         OldenEraSymbols.Call(list, "Add", unit);
         return AdapterResult.Ok;
     }
-    public AdapterResult<int> CountArtifact(int hero, int artifact) => Missing<int>("hero.items");
-    public AdapterResult AddArtifact(int hero, int artifact, int slot) => Missing("hero.items");
-    public AdapterResult<int> RemoveArtifact(int hero, int artifact, int count) => Missing<int>("hero.items");
+    // Artifacts: the doll (Hero.slots) and the backpack (Hero.inventory) are item containers whose slots (SlotInfo:
+    // type, items = item ids, -1 empty) point into Data.items (DataItem: id, configSid). Changes go through the item
+    // logic of a hero on the map (eas: bbci adds to the backpack, Move puts on the doll, bbck removes) [V-game]. Move
+    // does not check the slot type [V-game: it put a spyglass on the head], so the adapter does.
+    // H3 worn positions → Olden Era doll slots: the neck is the belt (Olden Era's dragon and Angelic Alliance sets
+    // carry a sash where H3 has a necklace), H3's right hand (weapons) is Olden Era's LEFT_HAND and the left hand
+    // (shields) RIGHT_HAND; misc 1..4 are the four ITEM_SLOTs, misc 5 the UNIQUE_SLOT.
+    static readonly (string type, int index)?[] DollSlots =
+    {
+        ("HEAD", 0), ("BACK", 0), ("BELT", 0), ("LEFT_HAND", 0), ("RIGHT_HAND", 0), ("ARMOR", 0), ("RING", 0),
+        ("RING", 1), ("BOOTS", 0), ("ITEM_SLOT", 0), ("ITEM_SLOT", 1), ("ITEM_SLOT", 2), ("ITEM_SLOT", 3),
+        null, null, null, null, null, ("UNIQUE_SLOT", 0),
+    };
+    static readonly string[] ScrollPrefixes = { "magic_scroll_artifact_", "enchanted_magic_scroll_artifact_", "mythic_magic_scroll_artifact_" };
+    /// <summary>The number of an Olden Era item that artifact.json does not list (an item added by a game update).</summary>
+    public const int UnknownItem = 499;
+
+    Dictionary<string, List<int>> SlotItems(object container)
+    {
+        var d = new Dictionary<string, List<int>>();
+        foreach (var slot in OldenEraSymbols.Items(sym.Read("container.slots", container)))
+            if (slot != null)
+                d[sym.Read("slot.type", slot)!.ToString()!] = OldenEraSymbols.Items(sym.Read("slot.items", slot)).Select(Convert.ToInt32).ToList();
+        return d;
+    }
+
+    List<int> BackpackItems(object hero) =>
+        SlotItems(sym.Read("hero.backpack", hero)!).Values.SelectMany(x => x).Where(x => x >= 0).ToList();
+
+    int ArtifactOf(string sid)
+    {
+        var ids = currentIds();
+        foreach (var prefix in ScrollPrefixes)
+            if (sid.StartsWith(prefix, StringComparison.Ordinal))
+                return ids.TryGetWoG("spell", sid[prefix.Length..], out int n) ? ArtifactSlots.ScrollBase + n : UnknownItem;
+        return ids.TryGetWoG("artifact", sid, out int a) ? a : UnknownItem;
+    }
+
+    string? SidOf(int artifact)
+    {
+        var ids = currentIds();
+        if (artifact >= ArtifactSlots.ScrollBase)
+            return ids.TryGetEngine("spell", artifact - ArtifactSlots.ScrollBase, out var spell) ? ScrollPrefixes[0] + spell : null;
+        return ids.TryGetEngine("artifact", artifact, out var sid) ? sid : null;
+    }
+
+    object? ItemData(int id)
+    {
+        foreach (var it in OldenEraSymbols.Items(sym.Read("item.list", Root())))
+            if (it != null && Convert.ToInt32(sym.Read("item.id", it)) == id) return it;
+        return null;
+    }
+
+    /// <summary>The doll and backpack logic (eas) of a hero on the map; null for heroes without map logic.</summary>
+    (object doll, object pack)? ItemLogic(object hero)
+    {
+        if (!sym.Has("world.heroLogics") || !sym.Has("visitor.hero") || !sym.Has("herologic.doll") || !sym.Has("herologic.backpack"))
+            return null;
+        int id = HeroEngineId(hero);
+        foreach (var l in OldenEraSymbols.Items(sym.Read("world.heroLogics", null)))
+            if (l != null && sym.Read("visitor.hero", l) is { } d && HeroEngineId(d) == id
+                && sym.Read("herologic.doll", l) is { } doll && sym.Read("herologic.backpack", l) is { } pack)
+                return (doll, pack);
+        return null;
+    }
+
+    /// <summary>Calls a bound game method; text arguments for enum parameters are enum value names.</summary>
+    object? CallGame(object target, string key, params object?[] args)
+    {
+        var m = (System.Reflection.MethodInfo)sym.MemberOf(key)!;
+        var ps = m.GetParameters();
+        var call = new object?[ps.Length];
+        for (int i = 0; i < ps.Length; i++)
+            call[i] = args[i] is string s && ps[i].ParameterType.IsEnum ? Enum.Parse(ps[i].ParameterType, s) : args[i];
+        return m.Invoke(target, call);
+    }
+
+    bool HasItemSymbols() => sym.Has("hero.doll") && sym.Has("hero.backpack") && sym.Has("container.slots")
+        && sym.Has("slot.type") && sym.Has("slot.items") && sym.Has("item.list") && sym.Has("item.id") && sym.Has("item.sid");
+
+    public AdapterResult<int[]> GetArtifacts(int hero)
+    {
+        if (!HasItemSymbols()) return Missing<int[]>("hero.doll");
+        var h = FindHero(hero);
+        if (h == null) return AdapterResult<int[]>.Failed($"hero {hero} does not exist");
+        var sids = new Dictionary<int, string>();
+        foreach (var it in OldenEraSymbols.Items(sym.Read("item.list", Root())))
+            if (it != null) sids[Convert.ToInt32(sym.Read("item.id", it))] = sym.Read("item.sid", it) as string ?? "";
+        int Code(int id) => id >= 0 && sids.TryGetValue(id, out var s) ? ArtifactOf(s) : -1;
+        var all = Enumerable.Repeat(-1, ArtifactSlots.Positions).ToArray();
+        var doll = SlotItems(sym.Read("hero.doll", h)!);
+        for (int p = 0; p < ArtifactSlots.Worn; p++)
+            if (DollSlots[p] is { } slot && doll.TryGetValue(slot.type, out var list) && slot.index < list.Count)
+                all[p] = Code(list[slot.index]);
+        all[ArtifactSlots.SpellBook] = 0; // Olden Era heroes always have a spellbook
+        var pack = BackpackItems(h);
+        for (int k = 0; k < pack.Count && k < ArtifactSlots.Backpack; k++) all[ArtifactSlots.Worn + k] = Code(pack[k]);
+        return AdapterResult<int[]>.Ok(all);
+    }
+
+    /// <summary>Adds an item to the backpack; its index there, or an error.</summary>
+    AdapterResult<int> AddItem(object hero, int artifact, (object doll, object pack) logic)
+    {
+        var sid = SidOf(artifact);
+        if (sid == null) return AdapterResult<int>.Unsupported($"artifact {artifact} has no Olden Era equivalent (id-maps/artifact.json)");
+        if (!sym.Has("items.add")) return Missing<int>("items.add");
+        // eas.bbci(sid, Real, 1): a new item at the end of the backpack
+        if (CallGame(logic.pack, "items.add", sid, "Real", 1) is not true)
+            return AdapterResult<int>.Failed($"the game did not add {sid}");
+        return AdapterResult<int>.Ok(BackpackItems(hero).Count - 1);
+    }
+
+    AdapterResult<(object hero, (object doll, object pack) logic)> ItemTarget(int hero)
+    {
+        if (!HasItemSymbols()) return Missing<(object, (object, object))>("hero.doll");
+        var h = FindHero(hero);
+        if (h == null) return AdapterResult<(object, (object, object))>.Failed($"hero {hero} does not exist");
+        var logic = ItemLogic(h);
+        if (logic == null)
+            return AdapterResult<(object, (object, object))>.Unsupported("changing the artifacts of a hero that is not on the map is not mapped (no item logic)");
+        return AdapterResult<(object, (object, object))>.Ok((h, logic.Value));
+    }
+
+    public AdapterResult AddToBackpack(int hero, int artifact)
+    {
+        var t = ItemTarget(hero);
+        if (t.Status != AdapterStatus.Ok) return t.AsPlain();
+        if (BackpackItems(t.Value.hero).Count >= ArtifactSlots.Backpack) return AdapterResult.Ok; // full, as in H3
+        return AddItem(t.Value.hero, artifact, t.Value.logic).AsPlain();
+    }
+
+    /// <summary>Moves the backpack item at index k onto a doll slot when its type fits; otherwise removes it again.</summary>
+    AdapterResult Wear(object hero, (object doll, object pack) logic, int k, (string type, int index) slot, out bool fits)
+    {
+        fits = false;
+        var item = ItemData(BackpackItems(hero)[k]);
+        string? type = item != null && sym.Has("item.slotType") ? sym.Read("item.slotType", item)?.ToString() : null;
+        if (type != slot.type) return AdapterResult.Ok;
+        fits = true;
+        if (!sym.Has("items.move")) return Missing("items.move");
+        // eas.Move(toType, toIndex, toContainer, fromType, fromIndex, Real), called on the backpack
+        return CallGame(logic.pack, "items.move", slot.type, slot.index, logic.doll, "ANY", k, "Real") is true
+            ? AdapterResult.Ok : AdapterResult.Failed("the game did not move the item");
+    }
+
+    void DropFromBackpack((object doll, object pack) logic, int k) => CallGame(logic.pack, "items.remove", "ANY", k, false, "Real");
+
+    public AdapterResult PutArtifact(int hero, int position, int artifact)
+    {
+        // Olden Era's backpack has no gaps: an empty backpack position means "at the end".
+        if (position >= ArtifactSlots.Worn) return AddToBackpack(hero, artifact);
+        if (DollSlots[position] is not { } slot)
+            return AdapterResult.Unsupported(position == ArtifactSlots.SpellBook
+                ? "Olden Era heroes always have a spellbook" : "Olden Era has no war machines");
+        var t = ItemTarget(hero);
+        if (t.Status != AdapterStatus.Ok) return t.AsPlain();
+        var (h, logic) = t.Value;
+        var added = AddItem(h, artifact, logic);
+        if (added.Status != AdapterStatus.Ok) return added.AsPlain();
+        var r = Wear(h, logic, added.Value, slot, out bool fits);
+        if (fits && r.Status == AdapterStatus.Ok) return r;
+        DropFromBackpack(logic, added.Value);
+        return fits ? r : AdapterResult.Unsupported($"{SidOf(artifact)} does not fit the {slot.type} slot (Olden Era items fit only their own slot type)");
+    }
+
+    public AdapterResult RemoveArtifactAt(int hero, int position)
+    {
+        var t = ItemTarget(hero);
+        if (t.Status != AdapterStatus.Ok) return t.AsPlain();
+        var (h, logic) = t.Value;
+        if (!sym.Has("items.remove")) return Missing("items.remove");
+        if (position >= ArtifactSlots.Worn)
+        {
+            if (position - ArtifactSlots.Worn < BackpackItems(h).Count) DropFromBackpack(logic, position - ArtifactSlots.Worn);
+            return AdapterResult.Ok;
+        }
+        if (DollSlots[position] is not { } slot)
+            return position == ArtifactSlots.SpellBook
+                ? AdapterResult.Unsupported("Olden Era heroes always have a spellbook") : AdapterResult.Ok; // no war machines
+        var doll = SlotItems(sym.Read("hero.doll", h)!);
+        if (doll.TryGetValue(slot.type, out var list) && slot.index < list.Count && list[slot.index] >= 0)
+            // eas.bbck(type, index, false, Real) on the doll: the item is gone (also from Data.items)
+            CallGame(logic.doll, "items.remove", slot.type, slot.index, false, "Real");
+        return AdapterResult.Ok;
+    }
+
+    public AdapterResult EquipArtifact(int hero, int artifact)
+    {
+        var t = ItemTarget(hero);
+        if (t.Status != AdapterStatus.Ok) return t.AsPlain();
+        var (h, logic) = t.Value;
+        var added = AddItem(h, artifact, logic);
+        if (added.Status != AdapterStatus.Ok) return added.AsPlain();
+        var doll = SlotItems(sym.Read("hero.doll", h)!);
+        foreach (var s in DollSlots)
+            if (s is { } slot && doll.TryGetValue(slot.type, out var list) && slot.index < list.Count && list[slot.index] < 0)
+            {
+                var r = Wear(h, logic, added.Value, slot, out bool fits);
+                if (fits) return r;
+            }
+        return AdapterResult.Ok; // no free slot of its type: it stays in the backpack
+    }
     public AdapterResult<string> GetName(int hero) => Missing<string>("hero.name");
     public AdapterResult SetName(int hero, string name) => Missing("hero.name");
     public AdapterResult Kill(int hero) => Missing("hero.kill");

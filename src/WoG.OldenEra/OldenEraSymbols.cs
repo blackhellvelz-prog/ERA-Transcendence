@@ -87,13 +87,18 @@ public sealed class OldenEraSymbols
         "magiclogic.list", "magiclogic.sid", // magic logic → spell logics; spell logic → sid
         "magics.learn", "magics.forget", // methods of the magic logic: learn a spell by sid / remove a spell logic
         "magics.variant",            // method of the magic logic: the hero's "_special" variant of a spell sid
+        "hero.doll", "hero.backpack", // hero → its worn items / backpack (item containers)
+        "container.slots", "slot.type", "slot.items", // container → slots; slot → type / item ids (-1 empty)
+        "item.list", "item.id", "item.sid", "item.slotType", // root → items; item → id / sid / the slot type it is worn on
+        "herologic.doll", "herologic.backpack", // hero logic → item logic of the doll / backpack
+        "items.add", "items.move", "items.remove", // item logic: add by sid (backpack), move to a slot, remove at a slot
         "ui.message", "ui.question",
         "turn.start",                // method: start of a day (Harmony postfix → PlayerDayStarted for every player)
         "object.interact",           // method: hero interacts with a map object (prefix/postfix → OB triggers)
         "battle.start", "battle.end", "battle.round", "battle.action",
         "buff.apply",                // method: apply buff by id to a unit
         "save.write", "save.read",   // methods: save/load (side-car WoG state)
-        "hero.position", "hero.move", "hero.skills", "hero.items", "hero.name", "hero.kill",
+        "hero.position", "hero.move", "hero.skills", "hero.name", "hero.kill",
         "stack.create", "player.activeHero", "player.heroes",
         "map.objects", "town.list", "town.buildings", "battle.stacks", "battle.summon",
         "map.root",                  // static path to the adventure map (Hex.Map.Map)

@@ -184,32 +184,58 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
         return AdapterResult.Ok;
     }
 
-    public AdapterResult<int> CountArtifact(int hero, int artifact)
+    /// <summary>Where an artifact is worn ("Format P2"), for HE:A4; null = everything goes to the backpack.</summary>
+    public Func<int, int>? ArtifactPosition { get; set; }
+
+    public AdapterResult<int[]> GetArtifacts(int hero)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return NoHero<int>(hero);
-        return AdapterResult<int>.Ok(h.Equipped.Count(a => a == artifact) + h.Backpack.Count(a => a == artifact));
+        if (!HeroList.TryGetValue(hero, out var h)) return NoHero<int[]>(hero);
+        var all = Enumerable.Repeat(-1, ArtifactSlots.Positions).ToArray();
+        Array.Copy(h.Equipped, all, ArtifactSlots.Worn);
+        for (int i = 0; i < h.Backpack.Count && i < ArtifactSlots.Backpack; i++) all[ArtifactSlots.Worn + i] = h.Backpack[i];
+        return AdapterResult<int[]>.Ok(all);
     }
 
-    public AdapterResult AddArtifact(int hero, int artifact, int slot)
+    public AdapterResult PutArtifact(int hero, int position, int artifact)
     {
         if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
-        if (slot >= 0 && slot < WoGLimits.ArtifactSlots)
+        if (position < ArtifactSlots.Worn)
         {
-            if (h.Equipped[slot] != -1) return AdapterResult.Failed("slot busy");
-            h.Equipped[slot] = artifact;
+            if (h.Equipped[position] != -1) return AdapterResult.Failed("position taken");
+            h.Equipped[position] = artifact;
+            return AdapterResult.Ok;
         }
-        else h.Backpack.Add(artifact);
+        int k = position - ArtifactSlots.Worn;
+        while (h.Backpack.Count <= k) h.Backpack.Add(-1);
+        if (h.Backpack[k] != -1) return AdapterResult.Failed("position taken");
+        h.Backpack[k] = artifact;
         return AdapterResult.Ok;
     }
 
-    public AdapterResult<int> RemoveArtifact(int hero, int artifact, int count)
+    public AdapterResult RemoveArtifactAt(int hero, int position)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return NoHero<int>(hero);
-        int removed = 0;
-        while (removed < count && h.Backpack.Remove(artifact)) removed++;
-        for (int i = 0; i < h.Equipped.Length && removed < count; i++)
-            if (h.Equipped[i] == artifact) { h.Equipped[i] = -1; removed++; }
-        return AdapterResult<int>.Ok(removed);
+        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        if (position < ArtifactSlots.Worn) h.Equipped[position] = -1;
+        else if (position - ArtifactSlots.Worn < h.Backpack.Count) h.Backpack[position - ArtifactSlots.Worn] = -1;
+        return AdapterResult.Ok;
+    }
+
+    public AdapterResult AddToBackpack(int hero, int artifact)
+    {
+        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        int k = h.Backpack.IndexOf(-1);
+        if (k >= 0) h.Backpack[k] = artifact;
+        else if (h.Backpack.Count < ArtifactSlots.Backpack) h.Backpack.Add(artifact);
+        return AdapterResult.Ok;
+    }
+
+    public AdapterResult EquipArtifact(int hero, int artifact)
+    {
+        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        int p2 = artifact >= ArtifactSlots.ScrollBase ? 9 : ArtifactPosition?.Invoke(artifact) ?? 0;
+        foreach (int slot in ArtifactSlots.ForPosition(p2))
+            if (h.Equipped[slot] == -1) { h.Equipped[slot] = artifact; return AdapterResult.Ok; }
+        return AddToBackpack(hero, artifact);
     }
 
     public AdapterResult<string> GetName(int hero) =>

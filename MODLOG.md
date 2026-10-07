@@ -452,3 +452,30 @@ unsupported commands. 166 xUnit tests.
   WoG state, so a table added after the save (here `spell.json`) was empty after loading. The file tables now win;
   numbers given during the game still come from the save (`IdMap.AdoptFileDomains`, test).
 * 177 xUnit tests.
+
+## 2026-10-07 — session 2, continued: HE:A artifacts on Olden Era
+
+* **What:** `HE:A` is a port of WoG's `erm.cpp` (HE Cmd=='A') over hero positions 0..18 worn and 19..82 backpack:
+  `A$` into the backpack, `A=$` has it (flag 1), `A-$` removes every copy (`A-1` every scroll), `A1/art/pos` puts an
+  artifact into an empty position (flag 1) or reads the one there (artifact 0 reads 1000, scrolls 1001 + spell),
+  `A2` counts all and worn copies, `A3` removes copies (the backpack first, or worn ones first), `A4` is the game's
+  own "give" (the first suitable empty slot, else the backpack); `A5` (slot locks) is `Unsupported`. The adapter API
+  changed to positions (`GetArtifacts`, `PutArtifact`, `RemoveArtifactAt`, `AddToBackpack`, `EquipArtifact`); the
+  headless engine keeps gaps in the backpack as H3 does.
+* **Artifact map** `Compatibility/id-maps/artifact.json` (61 of 171, by name or effect; Olden Era-only items from
+  500); `object.json` regenerated: artifact objects on the map now have their subtype.
+* **Olden Era items** `[V-game]`: the doll (`Hero.slots`) and the backpack (`Hero.inventory`) are item containers
+  whose slots hold item ids of `Data.items`. Changes go through the item logic of a hero on the map
+  (`Logic.Hero.chnh`/`chni`, class `eas`): `bbci(sid, Real, 1)` on the backpack adds an item, `Move(toType, index,
+  doll, ANY, k, Real)` puts it on, `bbck(type, index, false, Real)` removes it (also from `Data.items`). `Move` does
+  not check the slot type (it put a spyglass on the head), so the adapter checks `ItemConfig`'s slot type and reports
+  a wrong slot as `Unsupported`. H3 positions map to Olden Era's slots: neck → belt (Olden Era's sets carry a sash
+  where H3 has a necklace), right hand (weapons) → LEFT_HAND, left hand (shields) → RIGHT_HAND, misc 1..4 → ITEM_SLOT,
+  misc 5 → UNIQUE_SLOT; there are no war machines and the spellbook is always there.
+* **Verified in a skirmish:** `A53`, `A1/53/9`, `A1/22/0`, `A4/40`, `A1018`: spyglass in the backpack and in misc 1,
+  Crown of the Supreme Magi on the head, Dragon Scale Armor on the torso, a Lightning Bolt scroll in the backpack;
+  attack 2 → 6, defence 3 → 7, knowledge 1 → 5, view radius 7 → 9 (the hero screen shows them); `A1/22/10` →
+  `Unsupported` (a crown in a misc slot); `A-53`, `A3/40/1/1`, `A-1`, `A-22` removed everything, the stats went back.
+* An earlier experiment left two items without a container in that test session's `Data.items` (a failed `bbci` on
+  the doll creates the item before it throws); the test game was not saved.
+* 182 xUnit tests.

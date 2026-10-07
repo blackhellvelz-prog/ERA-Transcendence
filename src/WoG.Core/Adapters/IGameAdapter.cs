@@ -54,11 +54,18 @@ public interface IHeroAdapter
     AdapterResult SetSpell(int hero, int spell, bool known);
     AdapterResult<WoGStack> GetStack(int hero, int slot);
     AdapterResult SetStack(int hero, int slot, int type, int count);
-    AdapterResult<int> CountArtifact(int hero, int artifact);
-    /// <summary>Gives an artifact; slot -1 = first suitable slot or backpack.</summary>
-    AdapterResult AddArtifact(int hero, int artifact, int slot);
-    /// <summary>Removes up to <paramref name="count"/> copies; returns how many were removed.</summary>
-    AdapterResult<int> RemoveArtifact(int hero, int artifact, int count);
+    /// <summary>
+    /// The hero's artifacts by position, numbered as ERM's HE:A does: 0..18 worn (<see cref="ArtifactSlots"/>),
+    /// 19..82 backpack; -1 = empty, 1001 + n = a scroll with spell n.
+    /// </summary>
+    AdapterResult<int[]> GetArtifacts(int hero);
+    /// <summary>Puts an artifact into an empty position (WoG's HE:A1 does not check that it fits).</summary>
+    AdapterResult PutArtifact(int hero, int position, int artifact);
+    AdapterResult RemoveArtifactAt(int hero, int position);
+    /// <summary>The first empty backpack position (HE:A$); nothing happens when the backpack is full.</summary>
+    AdapterResult AddToBackpack(int hero, int artifact);
+    /// <summary>The game's own "give an artifact" (HE:A4, H3 EquipArtifact): a suitable empty slot, else the backpack.</summary>
+    AdapterResult EquipArtifact(int hero, int artifact);
     AdapterResult<string> GetName(int hero);
     AdapterResult SetName(int hero, string name);
     AdapterResult Kill(int hero);

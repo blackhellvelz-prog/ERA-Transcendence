@@ -685,6 +685,104 @@
       "Member": "baxy",
       "Status": "verified",
       "Note": "0.81.04: eaa.baxy(string sid) → the hero's variant sid or null | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish: null for a hero without a spell specialty, night_2_magic_web_special for hero 156"
+    },
+    "hero.doll": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "slots",
+      "Status": "verified",
+      "Note": "0.81.04: DataItemsContainer hero_doll (Character): slots LEFT_HAND, RIGHT_HAND, ARMOR, HEAD, BOOTS, BACK, BELT, RING x2, ITEM_SLOT x4, UNIQUE_SLOT | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "hero.backpack": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "inventory",
+      "Status": "verified",
+      "Note": "0.81.04: DataItemsContainer hero_inventory (Inventory): one ANY slot, a list of item ids without gaps | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "container.slots": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataItemsContainer",
+      "Member": "itemSlots",
+      "Status": "verified",
+      "Note": "0.81.04: SlotInfo[] | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "slot.type": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.SlotInfo",
+      "Member": "type",
+      "Status": "verified",
+      "Note": "0.81.04: cnl.EType (ANY, LEFT_HAND, RIGHT_HAND, ARMOR, HEAD, BOOTS, BELT, BACK, RING, ITEM_SLOT, UNIQUE_SLOT) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "slot.items": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.SlotInfo",
+      "Member": "items",
+      "Status": "verified",
+      "Note": "0.81.04: List<int> item ids, -1 = empty | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "item.list": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Data",
+      "Member": "items.list",
+      "Status": "verified",
+      "Note": "0.81.04: List<DataItem> of every item in the game (freeId counts up) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "item.id": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataItem",
+      "Member": "id",
+      "Status": "verified",
+      "Note": "0.81.04: item id | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "item.sid": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataItem",
+      "Member": "configSid",
+      "Status": "verified",
+      "Note": "0.81.04: item sid (DB/items) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "item.slotType": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataItem",
+      "Member": "cnhy._cbup_k__BackingField",
+      "Status": "verified",
+      "Note": "0.81.04: ItemConfig slot type (cnl.EType): head_torch_artifact HEAD | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "herologic.doll": {
+      "Assembly": "Hex",
+      "Type": "fdq",
+      "Member": "cnsj.chnh",
+      "Status": "verified",
+      "Note": "0.81.04: Logic.Hero.chnh: ean (eas) item logic of the doll | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "herologic.backpack": {
+      "Assembly": "Hex",
+      "Type": "fdq",
+      "Member": "cnsj.chni",
+      "Status": "verified",
+      "Note": "0.81.04: Logic.Hero.chni: eap (eas) item logic of the backpack | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "items.add": {
+      "Assembly": "Hex",
+      "Type": "eas",
+      "Member": "bbci",
+      "Status": "verified",
+      "Note": "0.81.04: eas.bbci(string sid, EListenerCallbackCall, int count = 1) → bool: on the backpack logic adds a new item at the end (spyglass shown in the hero's backpack); on the doll it throws (no ANY slot) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "items.move": {
+      "Assembly": "Hex",
+      "Type": "eas",
+      "Member": "Move",
+      "Status": "verified",
+      "Note": "0.81.04: eas.Move(toType, toIndex, toContainer, fromType, fromIndex, callType) → bool: backpack ANY k → doll HEAD 0 put a head torch on, view radius 7 to 8; it does not check the slot type (a spyglass went onto HEAD) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "items.remove": {
+      "Assembly": "Hex",
+      "Type": "eas",
+      "Member": "bbck",
+      "Status": "verified",
+      "Note": "0.81.04: eas.bbck(EType, int index, bool, EListenerCallbackCall) → bool with false, Real: removes the item at that slot (also from Data.items; the head torch's view radius bonus went away) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
     }
   }
 }

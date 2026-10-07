@@ -80,6 +80,7 @@ public sealed class WoGHero
     public HashSet<int> Spells { get; set; } = new();
     /// <summary>Equipped slots 0..18 (artifact id or -1).</summary>
     public int[] Equipped { get; set; } = NewEquipped();
+    /// <summary>Backpack positions 19.. as a list; -1 = an empty position left by a removed artifact.</summary>
     public List<int> Backpack { get; set; } = new();
     public WoGArmy Army { get; set; } = new();
     public bool Alive { get; set; } = true;
@@ -90,6 +91,27 @@ public sealed class WoGHero
         for (int i = 0; i < a.Length; i++) a[i] = -1;
         return a;
     }
+}
+
+/// <summary>Hero artifact positions as ERM's HE:A numbers them (H3 ART_SLOT_*), and where an artifact can be worn.</summary>
+public static class ArtifactSlots
+{
+    public const int Head = 0, Shoulders = 1, Neck = 2, RightHand = 3, LeftHand = 4, Torso = 5, RightRing = 6,
+        LeftRing = 7, Feet = 8, Misc1 = 9, Misc4 = 12, Ballista = 13, AmmoCart = 14, FirstAidTent = 15, Catapult = 16,
+        SpellBook = 17, Misc5 = 18;
+    public const int Worn = 19, Backpack = 64, Positions = Worn + Backpack;
+    /// <summary>ERM's scroll numbers: 1001 + spell.</summary>
+    public const int ScrollBase = 1001;
+
+    /// <summary>Worn positions for an artifact position of "Format P2" (<see cref="WoGArtifact.Position"/>).</summary>
+    public static int[] ForPosition(int formatP2) => formatP2 switch
+    {
+        1 => new[] { Head }, 2 => new[] { Shoulders }, 3 => new[] { Neck }, 4 => new[] { RightHand },
+        5 => new[] { LeftHand }, 6 => new[] { Torso }, 7 => new[] { RightRing, LeftRing }, 8 => new[] { Feet },
+        9 => new[] { Misc1, Misc1 + 1, Misc1 + 2, Misc4, Misc5 }, 10 => new[] { Ballista }, 11 => new[] { AmmoCart },
+        12 => new[] { FirstAidTent }, 13 => new[] { Catapult }, 14 => new[] { SpellBook },
+        _ => System.Array.Empty<int>(),
+    };
 }
 
 /// <summary>Creature type definition (the fields ERM's MA receiver can read/write).</summary>

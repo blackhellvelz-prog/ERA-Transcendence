@@ -589,7 +589,8 @@ public sealed class HeReceiver : ErmReceiverBase
         Declare("EFIWONPK", CompatLevel.PartiallySupported, "values go through the adapter; OE primary stats differ (see the matrix)");
         Declare("M", CompatLevel.PartiallySupported, "M: spells; Olden Era maps H3 spells by effect (id-maps/spell.json, 37 of 70), a spell it does not have reads as not known and cannot be learned, a specialist knows a spell as its masterful variant, the spells of a hero that is not on the map cannot be changed");
         Declare("S", CompatLevel.PartiallySupported, "S: secondary skills; Olden Era maps H3 skills by effect (id-maps/skill.json, 14 of 28), a skill it does not have reads as not learned and cannot be learned, lowering a learned skill and changing the hero-screen order are not mapped, Olden Era-only skills are invisible to scripts");
-        Declare("AC", CompatLevel.PartiallySupported, "ids via IdMap; display-slot forms are not supported");
+        Declare("A", CompatLevel.PartiallySupported, "A: artifacts by position (0..18 worn, 19..82 backpack); Olden Era maps H3 artifacts by effect or name (id-maps/artifact.json, 61 of 171), its items fit only their own slot type, has no war machines (the spellbook is always there) and no gaps in the backpack; A5 slot locks are not mapped");
+        Declare("C", CompatLevel.PartiallySupported, "ids via IdMap; display-slot forms are not supported");
         Declare("BDGHLRTUVXY", CompatLevel.Unsupported, "not mapped yet");
     }
 
@@ -730,44 +731,98 @@ public sealed class HeReceiver : ErmReceiverBase
         }
     }
 
+    /// <summary>HE:A — artifacts (WoG erm.cpp, HE Cmd=='A'): positions 0..18 worn, 19..82 backpack.</summary>
     static void Artifacts(ErmCall c, IHeroAdapter heroes, int h)
     {
+        // ERM numbers: 1000 = artifact 0 (the spellbook), 1001 + n = a scroll with spell n
         if (c.Num == 1)
         {
             int a = c.N(0);
-            if (a >= 0) c.Need(heroes.AddArtifact(h, a, -1));
-            else c.Need(heroes.RemoveArtifact(h, -a, 1));
+            if (a >= 0)
+            {
+                int art = a == 1000 ? 0 : a;
+                if (c.IsGetOrCheck(0))
+                {
+                    if (!c.IsCheck(0)) throw new ErmRuntimeException("\"HE:A\"-wrong syntax (second argument).");
+                    c.Rt.SetFlag(1, c.Need(heroes.GetArtifacts(h)).Contains(art));
+                }
+                else c.Need(heroes.AddToBackpack(h, art)); // A$ — into the backpack
+                return;
+            }
+            // A-$ — every copy, worn and in the backpack; A-1 (the old syntax) every scroll
+            int r = -a == 1000 ? 0 : -a;
+            var all = c.Need(heroes.GetArtifacts(h));
+            RemoveAt(c, heroes, h, Enumerable.Range(0, all.Length)
+                .Where(p => all[p] == r || (r == 1 && all[p] >= ArtifactSlots.ScrollBase)));
             return;
+        }
+        int Art(int i)
+        {
+            int x = c.N(i);
+            if (x < 0) throw new ErmRuntimeException("\"HE:A\"-wrong artifact number.");
+            return x == 1000 ? 0 : x;
         }
         switch (c.N(0))
         {
-            case 1: // A1/art/slot — equip; flag 1 = 0 when the slot is busy
+            case 1: // A1/art/pos — put an artifact into an empty position (flag 1), or read the one there
             {
                 c.RequireMin(3);
-                var r = heroes.AddArtifact(h, c.N(1), c.N(2));
-                if (r.Status == AdapterStatus.Failed) { c.Rt.SetFlag(1, false); break; }
-                c.Need(r);
+                int pos = c.N(2);
+                if (pos < 0 || pos >= ArtifactSlots.Positions) throw new ErmRuntimeException("\"HE:A1\"-wrong slot number.");
+                int there = c.Need(heroes.GetArtifacts(h))[pos];
+                if (c.IsGetOrCheck(1))
+                {
+                    if (there == 0) there = 1000;
+                    c.Apply(ref there, 1);
+                    break;
+                }
+                int art = Art(1);
+                if (there != -1) { c.Rt.SetFlag(1, false); break; }
+                c.Need(heroes.PutArtifact(h, pos, art));
+                c.Rt.SetFlag(1, true);
                 break;
             }
-            case 2: // A2/art/?n/?m — count (the port does not distinguish equipped/backpack: m = 0)
+            case 2: // A2/art/?num/?worn — copies in all and worn ones
             {
                 c.RequireMin(3);
-                int n = c.Need(heroes.CountArtifact(h, c.N(1)));
-                c.Apply(ref n, 2);
-                if (c.Num > 3) { int m = 0; c.Apply(ref m, 3); }
+                int art = Art(1);
+                var all = c.Need(heroes.GetArtifacts(h));
+                int num = all.Count(x => x == art), worn = all.Take(ArtifactSlots.Worn).Count(x => x == art);
+                c.Apply(ref num, 2);
+                if (c.Num > 3) c.Apply(ref worn, 3);
                 break;
             }
-            case 3: // A3/art/n/m — remove copies
+            case 3: // A3/art/num/worn — remove copies: the backpack first, worn ones first when worn != 0
+            {
                 c.RequireMin(3);
-                c.Need(heroes.RemoveArtifact(h, c.N(1), c.N(2)));
+                int art = Art(1);
+                int num = 0, wornFirst = 0;
+                c.Apply(ref num, 2);
+                if (c.Num > 3) c.Apply(ref wornFirst, 3);
+                var all = c.Need(heroes.GetArtifacts(h));
+                var worn = Enumerable.Range(0, ArtifactSlots.Worn);
+                var pack = Enumerable.Range(ArtifactSlots.Worn, ArtifactSlots.Backpack);
+                RemoveAt(c, heroes, h, (wornFirst == 0 ? pack.Concat(worn) : worn.Concat(pack)).Where(p => all[p] == art).Take(num));
                 break;
-            case 4:
+            }
+            case 4: // A4/art — the game's own "give an artifact" (EquipArtifact)
                 c.RequireMin(2);
-                c.Need(heroes.AddArtifact(h, c.N(1), -1));
+                c.Need(heroes.EquipArtifact(h, Art(1)));
                 break;
+            case 5:
+                throw new ErmUnsupportedException("HE:A5 (slot locks of combined artifacts) is not mapped");
             default:
-                throw new ErmUnsupportedException($"HE:A{c.N(0)} not mapped");
+                throw new ErmRuntimeException("\"HE:A\"-wrong syntax.");
         }
+    }
+
+    /// <summary>
+    /// Removes the artifacts at these positions, the highest first: in an engine whose backpack has no gaps the
+    /// later backpack artifacts move up when one is removed.
+    /// </summary>
+    static void RemoveAt(ErmCall c, IHeroAdapter heroes, int h, IEnumerable<int> positions)
+    {
+        foreach (int p in positions.OrderByDescending(p => p).ToList()) c.Need(heroes.RemoveArtifactAt(h, p));
     }
 
     static void Creatures(ErmCall c, IHeroAdapter heroes, int h)
