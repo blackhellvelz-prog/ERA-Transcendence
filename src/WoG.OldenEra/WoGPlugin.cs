@@ -10,6 +10,7 @@ using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using WoG.Core.Events;
 using WoG.Core.Ids;
+using WoG.Core.Model;
 using WoG.Core.Visual;
 using WoG.Erm.Runtime;
 using WoG.Erm.Syntax;
@@ -112,6 +113,7 @@ public sealed class WoGPlugin : BasePlugin
         HookPostfix(harmony, symbols, "turn.start", nameof(Hooks.TurnStartPostfix));
         HookPrefix(harmony, symbols, "object.interact", nameof(Hooks.InteractPrefix));
         HookPostfix(harmony, symbols, "object.interactEnd", nameof(Hooks.InteractPostfix));
+        HookPrefix(harmony, symbols, "events.invoke", nameof(Hooks.GameEventPrefix));
         HookPostfix(harmony, symbols, "battle.start", nameof(Hooks.BattleStartPostfix));
         HookPostfix(harmony, symbols, "battle.end", nameof(Hooks.BattleEndPostfix));
         HookPostfix(harmony, symbols, "save.write", nameof(Hooks.SavePostfix));
@@ -314,6 +316,64 @@ internal static class Hooks
             });
         }
         catch (Exception ex) { WoGPlugin.L?.LogError("WoG: visit hook failed: " + ex); }
+    }
+
+    // Olden Era's game event bus, zb.Invoke(EEvent, yx) [V-game 0.81.04, traces of moves, visits and battles]:
+    //  * a battle fought on the field: SideStartBattle for each side (xe.buri = side id, -1 neutral), …,
+    //    BattleResultsStartApplying (ua.bumo = Standard), SideEndBattle for each side;
+    //  * a battle whose simulated result the player accepts: BattleResultsStartApplying (Simulated), SideEndBattle;
+    //  * every step of a moving hero: HeroMakeStep (ve.buog = the hero's logic).
+    // A battle starts !?BA0/52 once, at its first event (for an accepted simulation the result is already decided
+    // then — scripts that change armies before the battle do not change it [documented limitation]); it ends at the
+    // first SideEndBattle.
+    static bool inBattle;
+
+    internal static void GameEventPrefix(object[] __args)
+    {
+        if (H == null || WoGPlugin.Adapter is not { } a || __args == null || __args.Length < 2) return;
+        try
+        {
+            string ev = __args[0]?.ToString() ?? "";
+            switch (ev)
+            {
+                case "SideStartBattle":
+                case "BattleResultsStartApplying":
+                {
+                    if (inBattle) return;
+                    inBattle = true;
+                    int side = ev == "SideStartBattle" ? a.EventInt(__args[1], "event.battleSide") : -1;
+                    var b = a.BeginBattle(side, quick: ev != "SideStartBattle");
+                    WoGPlugin.L?.LogInfo($"WoG: battle starts ({ev}) — player {b.Owners[0]}, hero {b.Heroes[0]} at {b.Position}, quick {b.Quick}");
+                    H.Events.Raise(new WoGEvent { Kind = WoGEventKind.BattleStart, Player = b.Owners[0], Hero = b.Heroes[0], Position = b.Position });
+                    break;
+                }
+                case "SideEndBattle":
+                {
+                    if (!inBattle) return;
+                    inBattle = false;
+                    var b = a.CurrentBattle;
+                    int player = b?.Owners[0] ?? -1, hero = b?.Heroes[0] ?? -1;
+                    WoGPlugin.L?.LogInfo($"WoG: battle ends — player {player}, hero {hero}");
+                    try { H.Events.Raise(new WoGEvent { Kind = WoGEventKind.BattleEnd, Player = player, Hero = hero, Position = b?.Position ?? MapPos.None }); }
+                    finally { a.EndBattle(); }
+                    break;
+                }
+                case "HeroMakeStep":
+                case "HeroLevelUp":
+                {
+                    var (hero, player, pos) = a.EventHero(__args[1]);
+                    if (hero < 0) return;
+                    if (ev == "HeroLevelUp") WoGPlugin.L?.LogInfo($"WoG: hero {hero} gains a level");
+                    H.Events.Raise(new WoGEvent
+                    {
+                        Kind = ev == "HeroLevelUp" ? WoGEventKind.HeroLevelUp : WoGEventKind.HeroStep,
+                        Hero = hero, Player = player, Position = pos,
+                    });
+                    break;
+                }
+            }
+        }
+        catch (Exception ex) { WoGPlugin.L?.LogError("WoG: game event hook failed: " + ex); }
     }
 
     internal static void BattleStartPostfix()

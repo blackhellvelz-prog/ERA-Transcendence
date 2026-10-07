@@ -138,6 +138,8 @@ public enum BattleStackStat
 public interface IBattleAdapter
 {
     bool InBattle { get; }
+    /// <summary>The battle being set up or fought: heroes, owners, position, flags (what BA reads).</summary>
+    AdapterResult<WoGBattle> GetBattle();
     AdapterResult<int> GetHero(int side);
     AdapterResult<int> StackCount();
     AdapterResult<int> GetStack(int stackIndex, BattleStackStat stat);

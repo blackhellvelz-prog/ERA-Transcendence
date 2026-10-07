@@ -94,6 +94,9 @@ public sealed class OldenEraSymbols
         "object.interactEnd",        // method: a visit completes (postfix → !$OB)
         "visit.mapObject",           // object logic of a visit → its map object
         "visitor.hero",              // hero logic of a visit → Hex.Session.Data.Hero
+        "events.invoke",             // method: the game event bus (EEvent, argument) — battles, steps, level-ups
+        "event.battleSide",          // SideStartBattle argument → side id (-1 neutral)
+        "event.battleEndSide",       // SideEndBattle argument → side id
         "squad.list",                // root → wandering monster squads
         "squad.node", "squad.units", "squad.released", // squad → node / unit stacks / defeated
         "squadunit.sid", "squadunit.amount",           // squad unit → unit sid / count

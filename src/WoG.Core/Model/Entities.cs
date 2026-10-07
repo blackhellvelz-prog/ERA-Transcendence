@@ -238,6 +238,12 @@ public sealed class WoGBattle
     public int Round { get; set; } = -1;
     public List<WoGBattleStack> Stacks { get; set; } = new();
     public int Winner { get; set; } = -1;
+    /// <summary>Quick battle (BA:Q): the result is computed, not fought on the field.</summary>
+    public bool Quick { get; set; }
+    /// <summary>A town siege (BA:S).</summary>
+    public bool Siege { get; set; }
+    /// <summary>Both sides are run by the computer (BA:A).</summary>
+    public bool CompleteAi { get; set; }
 }
 
 /// <summary>A loaded ERM script (text and origin).</summary>

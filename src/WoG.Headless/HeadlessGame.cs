@@ -351,6 +351,9 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
 
     public bool InBattle => CurrentBattle != null;
 
+    public AdapterResult<WoGBattle> GetBattle() =>
+        CurrentBattle != null ? AdapterResult<WoGBattle>.Ok(CurrentBattle) : AdapterResult<WoGBattle>.Failed("not in battle");
+
     public AdapterResult<int> GetHero(int side) =>
         CurrentBattle != null ? AdapterResult<int>.Ok(CurrentBattle.Heroes[side]) : AdapterResult<int>.Failed("not in battle");
 

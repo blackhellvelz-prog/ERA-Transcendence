@@ -625,6 +625,47 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         };
     }
 
+    /// <summary>An int member of a game event argument through a symbol; -1 when it cannot be read.</summary>
+    public int EventInt(object? arg, string key)
+    {
+        if (arg == null || !sym.Has(key)) return -1;
+        try { return Convert.ToInt32(sym.Read(key, MethodTraceReal(arg))); }
+        catch (Exception) { return -1; }
+    }
+
+    /// <summary>The WoG player of a battle side (side id; -1 or unknown: the player whose turn it is) and that player's active hero.</summary>
+    public (int Player, int Hero) BattleParticipant(int side)
+    {
+        int player = side >= 0 ? PlayerOfSide(side) : -1;
+        if (player < 0) player = CurrentPlayer;
+        var hero = GetActiveHero(player);
+        return (player, hero.Status == AdapterStatus.Ok ? hero.Value : -1);
+    }
+
+    /// <summary>
+    /// The hero a game event is about: the first member of the event argument that is a hero's logic (fdq) or a session
+    /// hero; with its owner and map position. Hero −1 when the event names no hero of this game.
+    /// </summary>
+    public (int Hero, int Player, MapPos Pos) EventHero(object? arg)
+    {
+        if (arg == null || !sym.Has("visitor.hero")) return (-1, -1, MapPos.None);
+        var real = MethodTraceReal(arg);
+        object? hero = null;
+        foreach (var p in real.GetType().GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public))
+        {
+            if (p.GetIndexParameters().Length > 0) continue;
+            string type = p.PropertyType.FullName ?? "";
+            if (type == "fdq") { var v = p.GetValue(real); hero = v == null ? null : sym.Read("visitor.hero", v); }
+            else if (type == "Hex.Session.Data.Hero") hero = p.GetValue(real);
+            if (hero != null) break;
+        }
+        if (hero == null) return (-1, -1, MapPos.None);
+        int number = HeroNumber(HeroEngineId(hero));
+        int player = sym.Has("hero.owner") ? PlayerOfSide(Convert.ToInt32(sym.Read("hero.owner", hero))) : -1;
+        var pos = number >= 0 && GetPosition(number) is { Status: AdapterStatus.Ok } r ? r.Value : MapPos.None;
+        return (number, player, pos);
+    }
+
     /// <summary>A game object re-wrapped as its runtime class (Harmony hands over the declared base type).</summary>
     public static Func<object, object> MethodTraceReal = o => o;
 
@@ -670,8 +711,39 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
 
     // ---- battle -----------------------------------------------------------------------------
 
-    public bool InBattle => false;
-    public AdapterResult<int> GetHero(int side) => Missing<int>("battle.start");
+    /// <summary>The battle the event bus reported starting; null outside battles.</summary>
+    public WoGBattle? CurrentBattle { get; private set; }
+
+    public bool InBattle => CurrentBattle != null;
+
+    public AdapterResult<WoGBattle> GetBattle() =>
+        CurrentBattle != null ? AdapterResult<WoGBattle>.Ok(CurrentBattle) : AdapterResult<WoGBattle>.Failed("not in battle");
+
+    /// <summary>
+    /// Records a starting battle: the attacker is the active hero of the battle side's player (the player whose turn it
+    /// is when the side is unknown); the defender is the monster squad on a square next to the attacker, neutral and
+    /// without a hero. Hero-vs-hero and town battles are not told apart yet [UNVERIFIED].
+    /// </summary>
+    public WoGBattle BeginBattle(int side, bool quick)
+    {
+        var (player, hero) = BattleParticipant(side);
+        var b = new WoGBattle { Quick = quick, Owners = new[] { player, -1 }, Heroes = new[] { hero, -1 } };
+        var at = hero >= 0 && GetPosition(hero) is { Status: AdapterStatus.Ok } p ? p.Value : MapPos.None;
+        b.Position = at;
+        if (!at.IsNone && GetObjects() is { Status: AdapterStatus.Ok } objs)
+        {
+            var squad = objs.Value.FirstOrDefault(o => o.Type == 54 && o.Position.L == at.L
+                && Math.Abs(o.Position.X - at.X) <= 1 && Math.Abs(o.Position.Y - at.Y) <= 1);
+            if (squad != null) b.Position = squad.Position;
+        }
+        CurrentBattle = b;
+        return b;
+    }
+
+    public void EndBattle() => CurrentBattle = null;
+
+    public AdapterResult<int> GetHero(int side) =>
+        CurrentBattle != null && side is 0 or 1 ? AdapterResult<int>.Ok(CurrentBattle.Heroes[side]) : AdapterResult<int>.Failed("not in battle");
     public AdapterResult<int> StackCount() => Missing<int>("battle.start");
     public AdapterResult<int> GetStack(int stackIndex, BattleStackStat stat) => Missing<int>("battle.stacks");
     public AdapterResult SetStack(int stackIndex, BattleStackStat stat, int value) => Missing("battle.stacks");

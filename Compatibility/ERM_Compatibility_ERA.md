@@ -22,7 +22,7 @@ startup: `UN:C` (H3 memory), `SN:E` (H3 code), `FU:D` (network), `UN:A/R/X/N/U/V
 |---|---|---|
 | `AI` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `AR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
-| `BA` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `BA` | yes | `AEHOPQS` PARTIALLY SUPPORTED (BA:H/O/P/Q/S/E/A — the battle as the adapter saw it start: attacker = the active hero of the player whose turn it is, defender = the monster squad next to it (hero-vs-hero and town battles are not told apart yet); read only); `BD` UNSUPPORTED (BA:D/B — cancelling a battle and its background are not mapped yet); `M` UNSUPPORTED (BA:M — the armies of the battle sides are not mapped yet) |
 | `BF` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `BG` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `BH` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |

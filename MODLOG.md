@@ -344,3 +344,32 @@ errors.
 ### Verification
 In game: picking up wood ran `!?OB79` and `!$OB79` once each (79/0 at 10/38/0, hero 105); a treasure chest ran
 `!?OB101`/`!$OB101`. ERM lesson: consecutive trigger lines are separate empty sections — each needs its own body.
+
+## 2026-10-07 — session 2, continued: game event bus, battles, BA
+
+### Found (traces in game)
+* Olden Era raises its game events through one method, `zb.Invoke(EEvent, yx)` (singleton `zb.buvw`; 229 event kinds:
+  `HeroMakeStep`, `HeroLevelUp`, `SideStartBattle`, `SideEndBattle`, `BattleResultsStartApplying`, `KillSquad`,
+  `InteractWithWoObject`, `MapSaved`, `SaveLoaded`, …). One hook gives most adventure-map triggers.
+* Attacking a squad first shows a simulated result with "To battle / Accept / Flee". Accepting gives
+  `BattleResultsStartApplying (Simulated)`, … `SideEndBattle` ×2 (one per side); a fought battle gives
+  `SideStartBattle` ×2 (`xe.buri` = side id, −1 neutral) at the tactics phase, then `BattleResultsStartApplying
+  (Standard)` and `SideEndBattle` ×2. Rounds and stack turns do not go through this bus.
+* `HeroMakeStep` (`ve.buog` = hero logic) came once per move in the traces, not once per square [UNVERIFIED for long
+  paths].
+* Era rewrote `OW:C`: `OW:C?(current player)/?(the human player at this PC)`, other parameters ignored
+  (`Hook_OW_C`); GEM's battle script uses it.
+
+### Done
+* Hook on the event bus: battle start → `!?BA0/52` (OnBeforeBattle/Universal) once per battle (for an accepted
+  simulation the result is already decided then — documented limitation), battle end → `!?BA1/53`, `HeroMakeStep` →
+  `!?HM`, `HeroLevelUp` → `!?HL`.
+* `BA` receiver (H O P Q S E A, read only): the adapter records the battle at its start — attacker = active hero of the
+  side's player, defender = the monster squad next to it (neutral, no hero), quick = accepted simulation. Hero-vs-hero
+  and town battles are not told apart yet; `BA:M` (armies) and `BA:D/B` are unsupported.
+* Era's `OW:C`.
+
+### Verification
+In game with all 17 mods: an accepted battle ran OnBeforeBattleUniversal and OnAfterBattleUniversal once each
+(player 0, hero 105, squad at 57/19/0, quick); Era Erm Framework's `UpdateBattleVars` (BA:Q/P/O/H) no longer reports
+unsupported commands. 166 xUnit tests.

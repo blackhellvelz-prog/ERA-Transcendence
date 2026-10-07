@@ -454,6 +454,27 @@
       "Member": "cnsj.chna",
       "Status": "verified",
       "Note": "0.81.04: fdq = hero logic; cnsj = Hex.Session.Logic.Hero; chna = Hex.Session.Data.Hero | verified 2026-10-07 (0.81.04): WoG Debug method trace while a hero picked up gems — bmjj, bmjb, bmiw, bmjf, bmji, bmip, bmio ran once each, in this order"
+    },
+    "events.invoke": {
+      "Assembly": "Hex",
+      "Type": "zb",
+      "Member": "Invoke",
+      "Status": "verified",
+      "Note": "0.81.04: zb = game event bus (singleton zb.buvw); Invoke(EEvent, yx) raises every game event | verified 2026-10-07 (0.81.04) with a WoG Debug trace of zb.Invoke during moves, visits, an accepted battle simulation and a fought battle"
+    },
+    "event.battleSide": {
+      "Assembly": "Hex",
+      "Type": "xe",
+      "Member": "buri",
+      "Status": "verified",
+      "Note": "0.81.04: xe = SideStartBattle argument; buri = side id (0 the player, -1 neutral) | verified 2026-10-07 (0.81.04) with a WoG Debug trace of zb.Invoke during moves, visits, an accepted battle simulation and a fought battle"
+    },
+    "event.battleEndSide": {
+      "Assembly": "Hex",
+      "Type": "xb",
+      "Member": "bura",
+      "Status": "verified",
+      "Note": "0.81.04: xb = SideEndBattle argument; bura = side id | verified 2026-10-07 (0.81.04) with a WoG Debug trace of zb.Invoke during moves, visits, an accepted battle simulation and a fought battle"
     }
   }
 }

@@ -73,6 +73,7 @@ public sealed class ReceiverRegistry
         reg.Register(new UnReceiver());
         reg.Register(new ObReceiver());
         reg.Register(new TrReceiver());
+        reg.Register(new BaReceiver());
         reg.Register(new TmReceiver());
         reg.Register(new HeReceiver());
         reg.Register(new OwReceiver());
@@ -106,6 +107,7 @@ public sealed class ReceiverRegistry
         reg.Register(new UnReceiver());
         reg.Register(new ObReceiver());
         reg.Register(new TrReceiver());
+        reg.Register(new BaReceiver());
         reg.Register(new TmReceiver());
         reg.Register(new HeReceiver());
         reg.Register(new OwReceiver());
@@ -175,6 +177,12 @@ public sealed class ReceiverRegistry
             "UN:N — названия артефактов, заклинаний, существ и вторичных навыков из текстовых таблиц установки ERA; значения ini N5/N6 (пишутся в BepInEx/config/WoG/era-root); названия построек N2 пока не читаются",
         ["UN:R — R1-R4 redraws: Olden Era redraws its screens itself; R5-R7 (mouse pointer shape, delay) are cosmetic and do nothing"] =
             "UN:R — перерисовка R1-R4: Olden Era сама обновляет свои экраны; R5-R7 (вид указателя мыши, задержка) косметические и ничего не делают",
+        ["BA:H/O/P/Q/S/E/A — the battle as the adapter saw it start: attacker = the active hero of the player whose turn it is, defender = the monster squad next to it (hero-vs-hero and town battles are not told apart yet); read only"] =
+            "BA:H/O/P/Q/S/E/A — бой таким, каким адаптер увидел его начало: атакующий — активный герой игрока, чей ход, защитник — отряд монстров рядом с ним (бои герой-против-героя и за города пока не различаются); только чтение",
+        ["BA:M — the armies of the battle sides are not mapped yet"] =
+            "BA:M — армии сторон боя пока не отображены",
+        ["BA:D/B — cancelling a battle and its background are not mapped yet"] =
+            "BA:D/B — отмена боя и его фон пока не отображены",
         ["UN map/object/global commands are not mapped yet"] = "команды UN для карты/объектов/глобальные ещё не отображены",
         ["values go through the adapter; OE primary stats differ (see the matrix)"] = "значения идут через адаптер; первичные статы OE отличаются (см. матрицу)",
         ["ids via IdMap; display-slot forms are not supported"] = "id через IdMap; формы со слотами отображения не поддерживаются",

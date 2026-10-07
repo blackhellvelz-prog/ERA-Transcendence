@@ -28,3 +28,15 @@ ZVSE2
 !!OB998:T?i^wogdebug_type^;
 !!OB998:U?i^wogdebug_subtype^;
 !!HE-1:N?i^wogdebug_hero^;
+
+!?FU(OnBeforeBattleUniversal);
+!!VRi^wogdebug_battles^:+1;
+
+!?FU(OnAfterBattleUniversal);
+!!VRi^wogdebug_battlesEnded^:+1;
+
+!?FU(OnHeroMove);
+!!VRi^wogdebug_steps^:+1;
+
+!?FU(OnHeroGainLevel);
+!!VRi^wogdebug_levels^:+1;

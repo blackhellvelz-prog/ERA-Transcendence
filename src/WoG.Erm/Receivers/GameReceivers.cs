@@ -686,6 +686,19 @@ public sealed class OwReceiver : ErmReceiverBase
             }
             case 'C':
             {
+                if (c.IsEra)
+                {
+                    // Era's Hook_OW_C: OW:C?(current player)/?(the human player at this PC); other parameters are ignored.
+                    if (c.Num >= 1 && c.IsGet(0)) c.Rt.EraSetInt(c.P(0), players.CurrentPlayer);
+                    if (c.Num >= 2 && c.IsGet(1))
+                    {
+                        int local = players.CurrentPlayer;
+                        for (int p = 0; p < WoGLimits.PlayerCount; p++)
+                            if (players.IsLocal(p) is { Status: AdapterStatus.Ok, Value: true }) { local = p; break; }
+                        c.Rt.EraSetInt(c.P(1), local);
+                    }
+                    break;
+                }
                 int v = players.CurrentPlayer;
                 if (!c.IsGetOrCheck(0)) throw new ErmRuntimeException("\"!!OW:C\"-you can only get or check the current player.");
                 c.Apply(ref v, 0);
