@@ -114,7 +114,7 @@ public sealed partial class ErmRuntime
 
     static bool IsMutableZ(int ind) => (ind >= 1 && ind <= WoGVariables.ZCount) || (-ind >= 1 && -ind <= EraNzCount);
 
-    void SetEraZ(int ind, string value)
+    public void SetEraZ(int ind, string value)
     {
         value = WoGVariables.Clip(value);
         if (ind >= 1 && ind <= WoGVariables.ZCount) Vars.Z[ind - 1] = value;

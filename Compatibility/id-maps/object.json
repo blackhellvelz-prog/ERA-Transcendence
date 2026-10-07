@@ -1,0 +1,3890 @@
+[
+  {
+    "engine": "abandoned_corpse",
+    "tag": "Interact",
+    "type": 1000,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "abandoned_mansion",
+    "tag": "Interact",
+    "type": 1001,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "abandoned_outpost",
+    "tag": "Interact",
+    "type": 1002,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "abnormal_structure",
+    "tag": "Interact",
+    "type": 1003,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "alchemy_lab",
+    "tag": "Interact",
+    "type": 1004,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "altar_of_magic_1",
+    "tag": "Interact",
+    "type": 1005,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "altar_of_magic_2",
+    "tag": "Interact",
+    "type": 1006,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "altar_of_magic_3",
+    "tag": "Interact",
+    "type": 1007,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "altar_of_magic_4",
+    "tag": "Interact",
+    "type": 1008,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "alvars_eye",
+    "tag": "Interact",
+    "type": 1009,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "ambassadors_word_ambassadors_sash_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "ambassadors_word_diplomatic_gifts_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "ancient_idol_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "angelic_alliance_armor_of_wonder_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "angelic_alliance_celestial_sash_of_bliss_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "angelic_alliance_helm_of_heavenly_enlightenment_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "angelic_alliance_lions_shield_of_courage_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "angelic_alliance_sandals_of_the_saint_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "angelic_alliance_sword_of_judgement_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "arena",
+    "tag": "Interact",
+    "type": 1010,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "armory_automaton",
+    "tag": "Interact",
+    "type": 1011,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "armory_automaton_campaign",
+    "tag": "Interact",
+    "type": 1012,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "banner_of_four_winds_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "barracks_demon_1",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 29,
+    "h3": "Creature Generator 1",
+    "note": "demon tier 1 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_demon_2",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 22,
+    "h3": "Creature Generator 1",
+    "note": "demon tier 2 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_demon_3",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 27,
+    "h3": "Creature Generator 1",
+    "note": "demon tier 3 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_demon_4",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 37,
+    "h3": "Creature Generator 1",
+    "note": "demon tier 4 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_demon_5",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 40,
+    "h3": "Creature Generator 1",
+    "note": "demon tier 5 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_demon_6",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 14,
+    "h3": "Creature Generator 1",
+    "note": "demon tier 6 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_demon_7",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 10,
+    "h3": "Creature Generator 1",
+    "note": "demon tier 7 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_dungeon_1",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 46,
+    "h3": "Creature Generator 1",
+    "note": "dungeon tier 1 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_dungeon_2",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 26,
+    "h3": "Creature Generator 1",
+    "note": "dungeon tier 2 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_dungeon_3",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 2,
+    "h3": "Creature Generator 1",
+    "note": "dungeon tier 3 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_dungeon_4",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 33,
+    "h3": "Creature Generator 1",
+    "note": "dungeon tier 4 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_dungeon_5",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 34,
+    "h3": "Creature Generator 1",
+    "note": "dungeon tier 5 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_dungeon_6",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 32,
+    "h3": "Creature Generator 1",
+    "note": "dungeon tier 6 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_dungeon_7",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 41,
+    "h3": "Creature Generator 1",
+    "note": "dungeon tier 7 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_human_1",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 56,
+    "h3": "Creature Generator 1",
+    "note": "human tier 1 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_human_2",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 57,
+    "h3": "Creature Generator 1",
+    "note": "human tier 2 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_human_3",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 25,
+    "h3": "Creature Generator 1",
+    "note": "human tier 3 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_human_4",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 58,
+    "h3": "Creature Generator 1",
+    "note": "human tier 4 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_human_5",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 35,
+    "h3": "Creature Generator 1",
+    "note": "human tier 5 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_human_6",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 5,
+    "h3": "Creature Generator 1",
+    "note": "human tier 6 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_human_7",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 8,
+    "h3": "Creature Generator 1",
+    "note": "human tier 7 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_nature_1",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 6,
+    "h3": "Creature Generator 1",
+    "note": "nature tier 1 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_nature_2",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 12,
+    "h3": "Creature Generator 1",
+    "note": "nature tier 2 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_nature_3",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 15,
+    "h3": "Creature Generator 1",
+    "note": "nature tier 3 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_nature_4",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 50,
+    "h3": "Creature Generator 1",
+    "note": "nature tier 4 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_nature_5",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 45,
+    "h3": "Creature Generator 1",
+    "note": "nature tier 5 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_nature_6",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 51,
+    "h3": "Creature Generator 1",
+    "note": "nature tier 6 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_nature_7",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 24,
+    "h3": "Creature Generator 1",
+    "note": "nature tier 7 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_necropolis_1",
+    "tag": "Interact",
+    "type": 1013,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_necropolis_2",
+    "tag": "Interact",
+    "type": 1014,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_necropolis_3",
+    "tag": "Interact",
+    "type": 1015,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_necropolis_4",
+    "tag": "Interact",
+    "type": 1016,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_necropolis_5",
+    "tag": "Interact",
+    "type": 1017,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_necropolis_6",
+    "tag": "Interact",
+    "type": 1018,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_necropolis_7",
+    "tag": "Interact",
+    "type": 1019,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_1",
+    "tag": "Interact",
+    "type": 1020,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_10",
+    "tag": "Interact",
+    "type": 1021,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_11",
+    "tag": "Interact",
+    "type": 1022,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_12",
+    "tag": "Interact",
+    "type": 1023,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_13",
+    "tag": "Interact",
+    "type": 1024,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_14",
+    "tag": "Interact",
+    "type": 1025,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_15",
+    "tag": "Interact",
+    "type": 1026,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_16",
+    "tag": "Interact",
+    "type": 1027,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_17",
+    "tag": "Interact",
+    "type": 1028,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_2",
+    "tag": "Interact",
+    "type": 1029,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_3",
+    "tag": "Interact",
+    "type": 1030,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_4",
+    "tag": "Interact",
+    "type": 1031,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_5",
+    "tag": "Interact",
+    "type": 1032,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_6",
+    "tag": "Interact",
+    "type": 1033,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_7",
+    "tag": "Interact",
+    "type": 1034,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_8",
+    "tag": "Interact",
+    "type": 1035,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_9",
+    "tag": "Interact",
+    "type": 1036,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_neutral_dragon_lich",
+    "tag": "Interact",
+    "type": 1037,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "barracks_unfrozen_1",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 59,
+    "h3": "Creature Generator 1",
+    "note": "unfrozen tier 1 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_unfrozen_2",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 7,
+    "h3": "Creature Generator 1",
+    "note": "unfrozen tier 2 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_unfrozen_3",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 47,
+    "h3": "Creature Generator 1",
+    "note": "unfrozen tier 3 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_unfrozen_4",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 16,
+    "h3": "Creature Generator 1",
+    "note": "unfrozen tier 4 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_unfrozen_5",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 13,
+    "h3": "Creature Generator 1",
+    "note": "unfrozen tier 5 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_unfrozen_6",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 60,
+    "h3": "Creature Generator 1",
+    "note": "unfrozen tier 6 dwelling (Format CG)"
+  },
+  {
+    "engine": "barracks_unfrozen_7",
+    "tag": "Interact",
+    "type": 17,
+    "subtype": 61,
+    "h3": "Creature Generator 1",
+    "note": "unfrozen tier 7 dwelling (Format CG)"
+  },
+  {
+    "engine": "beelzebubs_blessing_chitinous_shield_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "beelzebubs_blessing_demon_claw_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "beelzebubs_blessing_demon_crest_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "beelzebubs_blessing_heartbeat_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "beer_fountain",
+    "tag": "Interact",
+    "type": 1038,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "black_tower",
+    "tag": "Interact",
+    "type": 1039,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "block",
+    "tag": "Interact",
+    "type": 1040,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "block_2",
+    "tag": "Interact",
+    "type": 1041,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "block_campaign",
+    "tag": "Interact",
+    "type": 1042,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "block_campaign_mountain_dirt",
+    "tag": "Interact",
+    "type": 1043,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "block_campaign_tree_autumn",
+    "tag": "Interact",
+    "type": 1044,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "block_campaign_tree_dead",
+    "tag": "Interact",
+    "type": 1045,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "block_campaign_tree_dirt",
+    "tag": "Interact",
+    "type": 1046,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "block_campaign_tree_grass",
+    "tag": "Interact",
+    "type": 1047,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "block_campaign_tree_snow",
+    "tag": "Interact",
+    "type": 1048,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "block_campaign_tree_withered",
+    "tag": "Interact",
+    "type": 1049,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "boreal_call",
+    "tag": "Interact",
+    "type": 1050,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "boreolos_foot_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "boreolos_hand_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "boreolos_head_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "boreolos_heart_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "caduceus_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "camp_fire",
+    "tag": "Resource",
+    "type": 12,
+    "subtype": 0,
+    "h3": "Campfire",
+    "note": "resources \u002B gold, once (Campfire)"
+  },
+  {
+    "engine": "campaign_M1_broken_bridge",
+    "tag": "Interact",
+    "type": 1051,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M2_empty_mine",
+    "tag": "Interact",
+    "type": 1052,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M2_shroom_tether",
+    "tag": "Interact",
+    "type": 1053,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M3_cage",
+    "tag": "Interact",
+    "type": 1054,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M3_necro_altar",
+    "tag": "Interact",
+    "type": 1055,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M4_burning_man",
+    "tag": "Interact",
+    "type": 1056,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M4_construction_site",
+    "tag": "Interact",
+    "type": 1057,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M4_diary",
+    "tag": "Interact",
+    "type": 1058,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M4_stargazer_tower",
+    "tag": "Interact",
+    "type": 1059,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M5_death_knight_house",
+    "tag": "Interact",
+    "type": 1060,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M5_death_knight_house_empty",
+    "tag": "Interact",
+    "type": 1061,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M6_cage",
+    "tag": "Interact",
+    "type": 1062,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M6_mearea_shrine",
+    "tag": "Interact",
+    "type": 1063,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M9_block_angel1",
+    "tag": "Interact",
+    "type": 1064,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M9_block_angel2",
+    "tag": "Interact",
+    "type": 1065,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M9_block_angel3",
+    "tag": "Interact",
+    "type": 1066,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M9_block_angel4",
+    "tag": "Interact",
+    "type": 1067,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M9_necromancy_amplifier",
+    "tag": "Interact",
+    "type": 1068,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M9_necromancy_amplifier_destroyed",
+    "tag": "Interact",
+    "type": 1069,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M9_necromancy_amplifier_foundation",
+    "tag": "Interact",
+    "type": 1070,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M9_phoenix_egg",
+    "tag": "Interact",
+    "type": 1071,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M9_phoenix_egg_item",
+    "tag": "Artifact",
+    "type": 1072,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M9_phoenix_nest",
+    "tag": "Interact",
+    "type": 1073,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M9_phoenix_nest_shroom",
+    "tag": "Interact",
+    "type": 1074,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M9_scientist_house",
+    "tag": "Interact",
+    "type": 1075,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M9_sylvan_altar",
+    "tag": "Interact",
+    "type": 1076,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_M9_tomb",
+    "tag": "Interact",
+    "type": 1077,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_armory_automaton",
+    "tag": "Interact",
+    "type": 1078,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_college_of_wonder",
+    "tag": "Interact",
+    "type": 1079,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_empty_crystal_item",
+    "tag": "Artifact",
+    "type": 1080,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_flattering_mirror",
+    "tag": "Interact",
+    "type": 1081,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_fort",
+    "tag": "Interact",
+    "type": 1082,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_gingerbread_house",
+    "tag": "Interact",
+    "type": 1083,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_ichor_item",
+    "tag": "Artifact",
+    "type": 1084,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_knowledge_garden",
+    "tag": "Interact",
+    "type": 1085,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_lost_library_empty",
+    "tag": "Interact",
+    "type": 1086,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_magic_wheel",
+    "tag": "Interact",
+    "type": 1087,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_maze",
+    "tag": "Interact",
+    "type": 1088,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_orb_observatory",
+    "tag": "Interact",
+    "type": 1089,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_shady_den",
+    "tag": "Interact",
+    "type": 1090,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_stinging_sword",
+    "tag": "Interact",
+    "type": 1091,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "campaign_trial_scales",
+    "tag": "Interact",
+    "type": 1092,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "cards_deck_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "catechism_of_daylight_magic_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "catechism_of_night_magic_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "catechism_of_primal_magic_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "catechism_of_spacetime_magic_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "celestial_sphere",
+    "tag": "Interact",
+    "type": 1093,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "chain_link_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "chain_mail_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "chest",
+    "tag": "Resource",
+    "type": 101,
+    "subtype": 0,
+    "h3": "Treasure Chest",
+    "note": "gold or experience, once (Treasure Chest)"
+  },
+  {
+    "engine": "chimerologist",
+    "tag": "Interact",
+    "type": 1094,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "circle_of_life",
+    "tag": "Interact",
+    "type": 1095,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "circus",
+    "tag": "Interact",
+    "type": 1096,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "city-spawner",
+    "tag": "meta",
+    "type": 1097,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "clothes_of_enlightenment_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "college_of_wonder",
+    "tag": "Interact",
+    "type": 1098,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "college_of_wonder_campaign",
+    "tag": "Interact",
+    "type": 1099,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "crow_nest",
+    "tag": "Interact",
+    "type": 1100,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "crow_nest_campaign",
+    "tag": "Interact",
+    "type": 1101,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "crown_of_the_supreme_magi_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "crystal_trail",
+    "tag": "Interact",
+    "type": 1102,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "cursed_old_house",
+    "tag": "Interact",
+    "type": 1103,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_abandoned_corpse",
+    "tag": "Interact",
+    "type": 1104,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_abandoned_mansion",
+    "tag": "Interact",
+    "type": 1105,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_abnormal_structure",
+    "tag": "Interact",
+    "type": 1106,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_altar_of_magic_1",
+    "tag": "Interact",
+    "type": 1107,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_altar_of_magic_2",
+    "tag": "Interact",
+    "type": 1108,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_altar_of_magic_3",
+    "tag": "Interact",
+    "type": 1109,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_altar_of_magic_4",
+    "tag": "Interact",
+    "type": 1110,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_alvars_eye",
+    "tag": "Interact",
+    "type": 1111,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_black_tower",
+    "tag": "Interact",
+    "type": 1112,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_boreal_call",
+    "tag": "Interact",
+    "type": 1113,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_circle_of_life",
+    "tag": "Interact",
+    "type": 1114,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_crow_nest",
+    "tag": "Interact",
+    "type": 1115,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_cursed_old_house",
+    "tag": "Interact",
+    "type": 1116,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_dragon_utopia",
+    "tag": "Interact",
+    "type": 25,
+    "subtype": 0,
+    "h3": "Dragon Utopia",
+    "note": "Dragon Utopia \u2014 generator variant"
+  },
+  {
+    "engine": "custom_gardener",
+    "tag": "Interact",
+    "type": 1117,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_gingerbread_house",
+    "tag": "Interact",
+    "type": 1118,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_goblin_cache",
+    "tag": "Interact",
+    "type": 1119,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_heros_crypt",
+    "tag": "Interact",
+    "type": 84,
+    "subtype": 0,
+    "h3": "Crypt",
+    "note": "guarded, gives items (Crypt) \u2014 generator variant"
+  },
+  {
+    "engine": "custom_iridescent_abbey",
+    "tag": "Interact",
+    "type": 1120,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_jousting_range",
+    "tag": "Interact",
+    "type": 1121,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_legions_memorial",
+    "tag": "Interact",
+    "type": 1122,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_monty_hall",
+    "tag": "Interact",
+    "type": 1123,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_overgrown_grave",
+    "tag": "Interact",
+    "type": 1124,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_peasant_cart",
+    "tag": "Interact",
+    "type": 1125,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_petrified_memorial",
+    "tag": "Interact",
+    "type": 1126,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_point_of_balance",
+    "tag": "Interact",
+    "type": 1127,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_prismatic_lair",
+    "tag": "Interact",
+    "type": 1128,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_raiders_camp",
+    "tag": "Interact",
+    "type": 1129,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_research_laboratory",
+    "tag": "Interact",
+    "type": 1130,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_ritual_pyre",
+    "tag": "Interact",
+    "type": 1131,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_shady_den",
+    "tag": "Interact",
+    "type": 1132,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_storage_crystals",
+    "tag": "Interact",
+    "type": 1133,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_storage_dust",
+    "tag": "Interact",
+    "type": 1134,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_storage_gemstones",
+    "tag": "Interact",
+    "type": 1135,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_storage_gold",
+    "tag": "Interact",
+    "type": 1136,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_storage_mercury",
+    "tag": "Interact",
+    "type": 1137,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_storage_ore",
+    "tag": "Interact",
+    "type": 1138,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_storage_wood",
+    "tag": "Interact",
+    "type": 1139,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_testing_grounds",
+    "tag": "Interact",
+    "type": 1140,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_the_gorge",
+    "tag": "Interact",
+    "type": 1141,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_troglodyte_throne",
+    "tag": "Interact",
+    "type": 1142,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_twilight_bloom",
+    "tag": "Interact",
+    "type": 1143,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_uncanny_rite",
+    "tag": "Interact",
+    "type": 1144,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_underground_lair",
+    "tag": "Interact",
+    "type": 1145,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_unforgotten_grave",
+    "tag": "Interact",
+    "type": 1146,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_university",
+    "tag": "Interact",
+    "type": 104,
+    "subtype": 0,
+    "h3": "University",
+    "note": "skills for gold (University) \u2014 generator variant"
+  },
+  {
+    "engine": "custom_unstable_ruins",
+    "tag": "Interact",
+    "type": 1147,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_vanguard",
+    "tag": "Interact",
+    "type": 1148,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_village",
+    "tag": "Interact",
+    "type": 1149,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "custom_windmill",
+    "tag": "Interact",
+    "type": 112,
+    "subtype": 0,
+    "h3": "Windmill",
+    "note": "resources, weekly (Windmill) \u2014 generator variant"
+  },
+  {
+    "engine": "custom_wise_owl",
+    "tag": "Interact",
+    "type": 1150,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "demon_city",
+    "tag": "Interact",
+    "type": 98,
+    "subtype": 3,
+    "h3": "Town",
+    "note": "demon city (Format T 3)"
+  },
+  {
+    "engine": "demonic_heart_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "dragon_utopia",
+    "tag": "Interact",
+    "type": 25,
+    "subtype": 0,
+    "h3": "Dragon Utopia",
+    "note": "Dragon Utopia"
+  },
+  {
+    "engine": "duelists_pride_brass_knuckles_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "duelists_pride_buckler_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "duelists_pride_rapier_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "dungeon_city",
+    "tag": "Interact",
+    "type": 98,
+    "subtype": 5,
+    "h3": "Town",
+    "note": "dungeon city (Format T 5)"
+  },
+  {
+    "engine": "eagle_armor_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "elixir_of_life_flask_of_oblivion_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "elixir_of_life_lifeblood_fairy_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "elixir_of_life_ring_of_life_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "enchanted_scroll_box",
+    "tag": "Artifact",
+    "type": 1151,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "endless_bag_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "eternal_dragon",
+    "tag": "Interact",
+    "type": 1152,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "ethereal_knowledge_glass_dagger_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "ethereal_knowledge_mirror_shoes_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "ethereal_knowledge_third_eye_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "ethereal_knowledge_vortex_dress_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "excalibur_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "fairy_ring",
+    "tag": "Interact",
+    "type": 1153,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "fallen_angel_wings_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "fickle_shrine",
+    "tag": "Interact",
+    "type": 1154,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "fine_wand_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "flag_of_truce_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "flattering_mirror",
+    "tag": "Interact",
+    "type": 1155,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "forge",
+    "tag": "Interact",
+    "type": 7,
+    "subtype": 0,
+    "h3": "Black Market",
+    "note": "sells items (Black Market)"
+  },
+  {
+    "engine": "fort",
+    "tag": "Interact",
+    "type": 1156,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "fort_campaign",
+    "tag": "Interact",
+    "type": 1157,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "fountain",
+    "tag": "Interact",
+    "type": 1158,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "fountain_2",
+    "tag": "Interact",
+    "type": 1159,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "gardener",
+    "tag": "Interact",
+    "type": 1160,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "garotte_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "gifts_of_dwarven_lords_automated_antimagic_shield_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "gifts_of_dwarven_lords_crimson_resonance_controller_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "gifts_of_dwarven_lords_emerald_resonance_controller_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "gifts_of_dwarven_lords_protective_belt_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "gingerbread_house",
+    "tag": "Interact",
+    "type": 1161,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "gladiator_arena",
+    "tag": "Interact",
+    "type": 1162,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "gladiator_spire",
+    "tag": "Interact",
+    "type": 1163,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "goblin_cache",
+    "tag": "Interact",
+    "type": 1164,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "goblin_cache_campaign",
+    "tag": "Interact",
+    "type": 1165,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "golden_goose_egg_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "head_torch_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "hero-spawner",
+    "tag": "meta",
+    "type": 1166,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "heros_crypt",
+    "tag": "Interact",
+    "type": 84,
+    "subtype": 0,
+    "h3": "Crypt",
+    "note": "guarded, gives items (Crypt)"
+  },
+  {
+    "engine": "holy_sigil_of_eridore_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "holy_sigil_of_insara_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "holy_sigil_of_mearea_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "holy_sigil_of_quix_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "holy_sigil_of_roph_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "holy_sigil_of_the_second_man_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "holy_sigil_of_the_seven_magi_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "holy_sigil_of_uurdt_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "hourglass_of_protection_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "human_city",
+    "tag": "Interact",
+    "type": 98,
+    "subtype": 0,
+    "h3": "Town",
+    "note": "human city (Format T 0)"
+  },
+  {
+    "engine": "huntsmans_camp",
+    "tag": "Interact",
+    "type": 1167,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "infernal_cirque",
+    "tag": "Interact",
+    "type": 1168,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "inner_song_fancy_mask_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "inner_song_music_sheet_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "inner_song_singing_pan_pipe_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "insaras_eye",
+    "tag": "Interact",
+    "type": 1169,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "iridescent_abbey",
+    "tag": "Interact",
+    "type": 1170,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "jousting_range",
+    "tag": "Interact",
+    "type": 1171,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "keepers_fortitude_keepers_oberegus_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "keepers_fortitude_keepers_ring_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "knights_honor_armet_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "knights_honor_drums_of_war_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "knights_honor_lance_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "knights_honor_misericorde_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "knights_honor_plate_armor_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "knowledge_garden",
+    "tag": "Interact",
+    "type": 1172,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "knowledge_garden_campaign",
+    "tag": "Interact",
+    "type": 1173,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "learning_stone",
+    "tag": "Interact",
+    "type": 100,
+    "subtype": 0,
+    "h3": "Learning Stone",
+    "note": "experience once per hero (Learning Stone)"
+  },
+  {
+    "engine": "learning_stone_old",
+    "tag": "Interact",
+    "type": 1174,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "legions_memorial",
+    "tag": "Interact",
+    "type": 1175,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "legions_step_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "living_arrows_light_and_shade_cloak_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "living_arrows_quivering_quiver_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "living_arrows_shroomwood_bow_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "lords_ring_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "lost_library",
+    "tag": "Interact",
+    "type": 1176,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "magic_amplifier_1",
+    "tag": "Interact",
+    "type": 1177,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "magic_amplifier_2",
+    "tag": "Interact",
+    "type": 1178,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "magic_amplifier_3",
+    "tag": "Interact",
+    "type": 1179,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "magic_amplifier_4",
+    "tag": "Interact",
+    "type": 1180,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "magic_key_ring_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "magic_wheel",
+    "tag": "Interact",
+    "type": 1181,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "magic_wheel_campaign",
+    "tag": "Interact",
+    "type": 1182,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "mana_well",
+    "tag": "Interact",
+    "type": 49,
+    "subtype": 0,
+    "h3": "Magic Well",
+    "note": "restores mana (Magic Well)"
+  },
+  {
+    "engine": "market",
+    "tag": "Interact",
+    "type": 99,
+    "subtype": 0,
+    "h3": "Trading Post",
+    "note": "resource trade (Trading Post)"
+  },
+  {
+    "engine": "maze",
+    "tag": "Interact",
+    "type": 1183,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "maze_campaign",
+    "tag": "Interact",
+    "type": 1184,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "mercenary_guild",
+    "tag": "Interact",
+    "type": 1185,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "mereas_shrine",
+    "tag": "Interact",
+    "type": 1186,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "milos_curse_golden_moth_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "milos_curse_golden_pig_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "milos_curse_skull_of_milos_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "mine_crystals",
+    "tag": "Interact",
+    "type": 53,
+    "subtype": 4,
+    "h3": "Mine",
+    "note": "produces crystals (Format MI 4)"
+  },
+  {
+    "engine": "mine_gemstones",
+    "tag": "Interact",
+    "type": 53,
+    "subtype": 5,
+    "h3": "Mine",
+    "note": "produces gemstones (Format MI 5)"
+  },
+  {
+    "engine": "mine_gold",
+    "tag": "Interact",
+    "type": 53,
+    "subtype": 6,
+    "h3": "Mine",
+    "note": "produces gold (Format MI 6)"
+  },
+  {
+    "engine": "mine_mercury",
+    "tag": "Interact",
+    "type": 53,
+    "subtype": 1,
+    "h3": "Mine",
+    "note": "produces mercury (Format MI 1)"
+  },
+  {
+    "engine": "mine_ore",
+    "tag": "Interact",
+    "type": 53,
+    "subtype": 2,
+    "h3": "Mine",
+    "note": "produces ore (Format MI 2)"
+  },
+  {
+    "engine": "mine_wood",
+    "tag": "Interact",
+    "type": 53,
+    "subtype": 0,
+    "h3": "Mine",
+    "note": "produces wood (Format MI 0)"
+  },
+  {
+    "engine": "mirage",
+    "tag": "Interact",
+    "type": 1187,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "monster_head_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "monty_hall",
+    "tag": "Interact",
+    "type": 1188,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "mysterious_stone",
+    "tag": "Interact",
+    "type": 1189,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "mystical_tower",
+    "tag": "Interact",
+    "type": 1190,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "mythic_scroll_box",
+    "tag": "Artifact",
+    "type": 1191,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "nature_city",
+    "tag": "Interact",
+    "type": 98,
+    "subtype": 1,
+    "h3": "Town",
+    "note": "nature city (Format T 1)"
+  },
+  {
+    "engine": "ogres_club_of_havoc_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "omencaller_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "orb_observatory",
+    "tag": "Interact",
+    "type": 1192,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "orb_observatory_campaign",
+    "tag": "Interact",
+    "type": 1193,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "orb_of_destruction_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "orb_of_inhibition_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "overgrown_grave",
+    "tag": "Interact",
+    "type": 1194,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "pandora_box",
+    "tag": "Resource",
+    "type": 6,
+    "subtype": 0,
+    "h3": "Pandora\u0027s Box",
+    "note": "Pandora\u0027s Box"
+  },
+  {
+    "engine": "paupers_glory_dumb_club_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "paupers_glory_last_coin_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "paupers_glory_rags_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "paupers_glory_rope_belt_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "paupers_glory_straw_hat_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "paupers_glory_wooden_ring_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "peasant_cart",
+    "tag": "Interact",
+    "type": 1195,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "peasant_cart_campaign",
+    "tag": "Interact",
+    "type": 1196,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "petrified_memorial",
+    "tag": "Interact",
+    "type": 1197,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "pile_of_books",
+    "tag": "Interact",
+    "type": 1198,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "pocket_dimension",
+    "tag": "Interact",
+    "type": 1199,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "point_of_balance",
+    "tag": "Interact",
+    "type": 1200,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "pole_star_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "portal_1",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 0,
+    "h3": "Monolith Two Way",
+    "note": "portal group 1"
+  },
+  {
+    "engine": "portal_1_2",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 0,
+    "h3": "Monolith Two Way",
+    "note": "portal group 1"
+  },
+  {
+    "engine": "portal_1_3",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 0,
+    "h3": "Monolith Two Way",
+    "note": "portal group 1"
+  },
+  {
+    "engine": "portal_2",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 1,
+    "h3": "Monolith Two Way",
+    "note": "portal group 2"
+  },
+  {
+    "engine": "portal_2_2",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 1,
+    "h3": "Monolith Two Way",
+    "note": "portal group 2"
+  },
+  {
+    "engine": "portal_2_3",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 1,
+    "h3": "Monolith Two Way",
+    "note": "portal group 2"
+  },
+  {
+    "engine": "portal_3",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 2,
+    "h3": "Monolith Two Way",
+    "note": "portal group 3"
+  },
+  {
+    "engine": "portal_3_2",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 2,
+    "h3": "Monolith Two Way",
+    "note": "portal group 3"
+  },
+  {
+    "engine": "portal_3_3",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 2,
+    "h3": "Monolith Two Way",
+    "note": "portal group 3"
+  },
+  {
+    "engine": "portal_4",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 3,
+    "h3": "Monolith Two Way",
+    "note": "portal group 4"
+  },
+  {
+    "engine": "portal_4_2",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 3,
+    "h3": "Monolith Two Way",
+    "note": "portal group 4"
+  },
+  {
+    "engine": "portal_4_3",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 3,
+    "h3": "Monolith Two Way",
+    "note": "portal group 4"
+  },
+  {
+    "engine": "portal_5",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 4,
+    "h3": "Monolith Two Way",
+    "note": "portal group 5"
+  },
+  {
+    "engine": "portal_5_2",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 4,
+    "h3": "Monolith Two Way",
+    "note": "portal group 5"
+  },
+  {
+    "engine": "portal_5_3",
+    "tag": "Interact",
+    "type": 45,
+    "subtype": 4,
+    "h3": "Monolith Two Way",
+    "note": "portal group 5"
+  },
+  {
+    "engine": "portal_magic",
+    "tag": "Interact",
+    "type": 1201,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "power_of_the_dragon_father_dragon_crest_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "power_of_the_dragon_father_dragon_scale_armor_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "power_of_the_dragon_father_dragon_scale_shield_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "power_of_the_dragon_father_dragon_wing_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "power_of_the_dragon_father_dragonbone_greaves_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "power_of_the_dragon_father_piercing_eye_of_a_dragon_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "power_of_the_dragon_father_red_dragon_flame_tongue_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "power_of_the_dragon_father_slithering_sash_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "prismatic_lair",
+    "tag": "Interact",
+    "type": 1202,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "prison",
+    "tag": "Interact",
+    "type": 62,
+    "subtype": 0,
+    "h3": "Prison",
+    "note": "Prison"
+  },
+  {
+    "engine": "pvp_promo_barracks",
+    "tag": "Interact",
+    "type": 1203,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "pvp_promo_barracks_necropolis",
+    "tag": "Interact",
+    "type": 1204,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "quixs_path",
+    "tag": "Interact",
+    "type": 1205,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "raiders_camp",
+    "tag": "Interact",
+    "type": 1206,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "random-city",
+    "tag": "meta",
+    "type": 77,
+    "subtype": 0,
+    "h3": "Random Town",
+    "note": "Random Town (before the game starts)"
+  },
+  {
+    "engine": "random-hero",
+    "tag": "meta",
+    "type": 70,
+    "subtype": 0,
+    "h3": "Random Hero",
+    "note": "Random Hero (before the game starts)"
+  },
+  {
+    "engine": "random-hire",
+    "tag": "meta",
+    "type": 216,
+    "subtype": 0,
+    "h3": "Random Dwelling",
+    "note": "Random Dwelling (before the game starts)"
+  },
+  {
+    "engine": "random-item",
+    "tag": "meta",
+    "type": 65,
+    "subtype": 0,
+    "h3": "Random Artifact",
+    "note": "Random Artifact (before the game starts)"
+  },
+  {
+    "engine": "random-res",
+    "tag": "meta",
+    "type": 76,
+    "subtype": 0,
+    "h3": "Random Resource",
+    "note": "Random Resource (before the game starts)"
+  },
+  {
+    "engine": "random-squad",
+    "tag": "meta",
+    "type": 71,
+    "subtype": 0,
+    "h3": "Random Monster",
+    "note": "Random Monster (before the game starts)"
+  },
+  {
+    "engine": "remote_foothold",
+    "tag": "Interact",
+    "type": 1207,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "research_laboratory",
+    "tag": "Interact",
+    "type": 1208,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "resonant_sphere_orb_of_daylight_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "resonant_sphere_orb_of_eternity_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "resonant_sphere_orb_of_twilight_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "resonant_sphere_primal_orb_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "resource_crystals",
+    "tag": "Resource",
+    "type": 79,
+    "subtype": 4,
+    "h3": "Resource",
+    "note": "crystals (Format R 4)"
+  },
+  {
+    "engine": "resource_dust",
+    "tag": "Resource",
+    "type": 1209,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "resource_gemstones",
+    "tag": "Resource",
+    "type": 79,
+    "subtype": 5,
+    "h3": "Resource",
+    "note": "gemstones (Format R 5)"
+  },
+  {
+    "engine": "resource_gold",
+    "tag": "Resource",
+    "type": 79,
+    "subtype": 6,
+    "h3": "Resource",
+    "note": "gold (Format R 6)"
+  },
+  {
+    "engine": "resource_mercury",
+    "tag": "Resource",
+    "type": 79,
+    "subtype": 1,
+    "h3": "Resource",
+    "note": "mercury (Format R 1)"
+  },
+  {
+    "engine": "resource_ore",
+    "tag": "Resource",
+    "type": 79,
+    "subtype": 2,
+    "h3": "Resource",
+    "note": "ore (Format R 2)"
+  },
+  {
+    "engine": "resource_wood",
+    "tag": "Resource",
+    "type": 79,
+    "subtype": 0,
+    "h3": "Resource",
+    "note": "wood (Format R 0)"
+  },
+  {
+    "engine": "ring_of_neutrality_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "ritual_pyre",
+    "tag": "Interact",
+    "type": 1210,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "rule_of_shadow_liquid_silence_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "rule_of_shadow_nostrias_gaze_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "rule_of_shadow_the_truthmaker_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "rule_of_shadow_the_truthseeker_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "runestone_shards_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "sacrificial_shrine",
+    "tag": "Interact",
+    "type": 2,
+    "subtype": 0,
+    "h3": "Altar of Sacrifice",
+    "note": "experience for artifacts and units (Altar of Sacrifice)"
+  },
+  {
+    "engine": "scholars_wisdom_scholars_oberegus_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "scholars_wisdom_scholars_tiara_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "scroll_box",
+    "tag": "Artifact",
+    "type": 1211,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "seal_of_silence_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "seven_league_boots_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "shackles_of_war_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "shadow_of_death_bone_boots_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "shadow_of_death_cursed_armor_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "shadow_of_death_dark_hatchet_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "shadow_of_death_second_shade_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "shady_den",
+    "tag": "Interact",
+    "type": 1212,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "shady_den_campaign",
+    "tag": "Interact",
+    "type": 1213,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "shamaniac_soul_clutching_ring_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "shamaniac_soul_gemwood_mask_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "shamaniac_soul_iridescent_cloak_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "shamaniac_soul_shaman_staff_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "shoddy_shield_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "shroom_of_growth",
+    "tag": "Interact",
+    "type": 1214,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "sixth_finger_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "soulless_sash_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "soulscaller_ring_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "spellbinders_hat_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "spells_in_a_bottle_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "spyglass_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "stables",
+    "tag": "Interact",
+    "type": 94,
+    "subtype": 0,
+    "h3": "Stables",
+    "note": "hero buff, weekly (Stables)"
+  },
+  {
+    "engine": "stinging_sword",
+    "tag": "Interact",
+    "type": 1215,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "stinging_sword_campaign",
+    "tag": "Interact",
+    "type": 1216,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "storage_crystals",
+    "tag": "Interact",
+    "type": 1217,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "storage_dust",
+    "tag": "Interact",
+    "type": 1218,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "storage_gemstones",
+    "tag": "Interact",
+    "type": 1219,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "storage_gold",
+    "tag": "Interact",
+    "type": 1220,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "storage_mercury",
+    "tag": "Interact",
+    "type": 1221,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "storage_ore",
+    "tag": "Interact",
+    "type": 1222,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "storage_wood",
+    "tag": "Interact",
+    "type": 1223,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "swamp_boots_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "tactical_guide_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "tarq_of_the_rampaging_ogre_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "tavern",
+    "tag": "Interact",
+    "type": 95,
+    "subtype": 0,
+    "h3": "Tavern",
+    "note": "Tavern"
+  },
+  {
+    "engine": "tear_of_truth",
+    "tag": "Interact",
+    "type": 1224,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "temporary_camp",
+    "tag": "Interact",
+    "type": 1225,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "testing_grounds",
+    "tag": "Interact",
+    "type": 1226,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "the_gorge",
+    "tag": "Interact",
+    "type": 1227,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "town_gate",
+    "tag": "Interact",
+    "type": 1228,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "tranquility_brightmind_tiara_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "tranquility_magic_mirror_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "tranquility_ring_of_serenity_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "tree_of_abundance",
+    "tag": "Interact",
+    "type": 1229,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "tree_of_knowledge",
+    "tag": "Interact",
+    "type": 102,
+    "subtype": 0,
+    "h3": "Tree of Knowledge",
+    "note": "a level once per hero (Tree of Knowledge)"
+  },
+  {
+    "engine": "trial_scales",
+    "tag": "Interact",
+    "type": 1230,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "troglodyte_throne",
+    "tag": "Interact",
+    "type": 1231,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "tunic_of_the_cyclops_king_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "twilight_bloom",
+    "tag": "Interact",
+    "type": 1232,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "two_faced_mask_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "ukhtabar_seal_tabar_seal_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "ukhtabar_seal_ukh_seal_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "uncanny_rite",
+    "tag": "Interact",
+    "type": 1233,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "undead_city",
+    "tag": "Interact",
+    "type": 98,
+    "subtype": 4,
+    "h3": "Town",
+    "note": "undead city (Format T 4)"
+  },
+  {
+    "engine": "underground_lair",
+    "tag": "Interact",
+    "type": 1234,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "unforgotten_grave",
+    "tag": "Interact",
+    "type": 1235,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "unfrozen_city",
+    "tag": "Interact",
+    "type": 98,
+    "subtype": 8,
+    "h3": "Town",
+    "note": "unfrozen city (Format T 8)"
+  },
+  {
+    "engine": "unit_trade_lab_gnat",
+    "tag": "Interact",
+    "type": 1236,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "unit_trade_lab_kitten_horn",
+    "tag": "Interact",
+    "type": 1237,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "university",
+    "tag": "Interact",
+    "type": 104,
+    "subtype": 0,
+    "h3": "University",
+    "note": "skills for gold (University)"
+  },
+  {
+    "engine": "unstable_ruins",
+    "tag": "Interact",
+    "type": 1238,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "vanguard",
+    "tag": "Interact",
+    "type": 1239,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "village",
+    "tag": "Interact",
+    "type": 1240,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "voodoosh_doll_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "wanderers_way_backpack_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "wanderers_way_boots_of_travel_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "warlord_boots_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "warriors_strength_warriors_belt_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "warriors_strength_warriors_oberegus_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "watchtower",
+    "tag": "Interact",
+    "type": 58,
+    "subtype": 0,
+    "h3": "Redwood Observatory",
+    "note": "reveals the map around (Redwood Observatory)"
+  },
+  {
+    "engine": "wind_rose",
+    "tag": "Interact",
+    "type": 1241,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "windmill",
+    "tag": "Interact",
+    "type": 112,
+    "subtype": 0,
+    "h3": "Windmill",
+    "note": "resources, weekly (Windmill)"
+  },
+  {
+    "engine": "wise_owl",
+    "tag": "Interact",
+    "type": 1242,
+    "subtype": 0,
+    "h3": null,
+    "note": "Olden Era only"
+  },
+  {
+    "engine": "wizards_might_wizards_cloak_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  },
+  {
+    "engine": "wizards_might_wizards_oberegus_artifact",
+    "tag": "Artifact",
+    "type": 5,
+    "subtype": -1,
+    "h3": "Artifact",
+    "note": "artifact not linked to an H3 number yet"
+  }
+]

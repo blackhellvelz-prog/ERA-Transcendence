@@ -192,9 +192,26 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     }
 
     public AdapterResult<int> GetBase(int hero, HeroStat stat) => Get(hero, stat);
-    public AdapterResult<MapPos> GetPosition(int hero) => Missing<MapPos>("hero.position");
+    public AdapterResult<MapPos> GetPosition(int hero)
+    {
+        if (!sym.Has("hero.position")) return Missing<MapPos>("hero.position");
+        if (MapDims() is not var (sx, sz)) return AdapterResult<MapPos>.Failed("no game session");
+        var h = FindHero(hero);
+        if (h == null) return AdapterResult<MapPos>.Failed($"hero {hero} does not exist");
+        return AdapterResult<MapPos>.Ok(NodeToPos(Convert.ToInt32(sym.Read("hero.position", h)), sx, sz));
+    }
+
     public AdapterResult MoveTo(int hero, MapPos pos, bool withEffect) => Missing("hero.move");
-    public AdapterResult<int> HeroAt(MapPos pos) => Missing<int>("hero.position");
+
+    public AdapterResult<int> HeroAt(MapPos pos)
+    {
+        if (!sym.Has("hero.position")) return Missing<int>("hero.position");
+        if (MapDims() is not var (sx, sz)) return AdapterResult<int>.Failed("no game session");
+        int node = PosToNode(pos, sx, sz);
+        foreach (var (n, h) in HeroTable())
+            if (node >= 0 && Convert.ToInt32(sym.Read("hero.position", h)) == node) return AdapterResult<int>.Ok(n);
+        return AdapterResult<int>.Failed($"no hero at {pos}");
+    }
     public AdapterResult<int> GetSecondarySkill(int hero, int skill) => Missing<int>("hero.skills");
     public AdapterResult SetSecondarySkill(int hero, int skill, int level) => Missing("hero.skills");
     public AdapterResult<bool> HasSpell(int hero, int spell) => Missing<bool>("hero.spells");
@@ -389,9 +406,220 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
 
     // ---- map / towns ------------------------------------------------------------------------
 
-    public AdapterResult<(int type, int subtype)> GetObjectAt(MapPos pos) => Missing<(int, int)>("map.objects");
-    public AdapterResult<int> GetObjectOwner(MapPos pos) => Missing<int>("map.objects");
-    public AdapterResult SetObjectOwner(MapPos pos, int owner) => Missing("map.objects");
+    // Olden Era's map is a grid of nodes (node = x + z·sizeX) with z growing to the north and no underground; H3
+    // counts y from the top, so y = sizeZ − 1 − z [V-game: a hero standing at its town's south gate has the smaller
+    // z]. An Olden Era object may have several entrance nodes; it stands at the first one in H3 scan order, so it is
+    // counted once. Scenery and objects without a row in id-maps/object.json are not objects for ERM.
+
+    /// <summary>Olden Era object sid → H3 type/subtype (id-maps/object.json); null when the file is missing.</summary>
+    public ObjectTypeMap? ObjectTypes { get; set; }
+
+    static readonly string[] MapKeys = { "map.root", "map.sizeX", "map.sizeZ" };
+    static readonly string[] ObjectKeys = { "map.objects", "mapobj.id", "mapobj.node", "mapobj.entrances", "mapobj.sid" };
+
+    object? MapRoot() => sym.Has("map.root") ? sym.Read("map.root", null) : null;
+
+    (int sx, int sz)? MapDims()
+    {
+        if (MapKeys.Any(k => !sym.Has(k)) || MapRoot() is not { } map) return null;
+        return (Convert.ToInt32(sym.Read("map.sizeX", map)), Convert.ToInt32(sym.Read("map.sizeZ", map)));
+    }
+
+    static MapPos NodeToPos(int node, int sx, int sz) => node < 0 ? MapPos.None : new(node % sx, sz - 1 - node / sx, 0);
+
+    static int PosToNode(MapPos p, int sx, int sz) =>
+        p.L != 0 || p.X < 0 || p.X >= sx || p.Y < 0 || p.Y >= sz ? -1 : p.X + (sz - 1 - p.Y) * sx;
+
+    public AdapterResult<(int Size, int Levels)> GetSize()
+    {
+        if (MapKeys.FirstOrDefault(k => !sym.Has(k)) is { } missing) return Missing<(int, int)>(missing);
+        if (MapDims() is not var (sx, sz)) return AdapterResult<(int, int)>.Failed("no game session");
+        return AdapterResult<(int, int)>.Ok((Math.Max(sx, sz), 0));
+    }
+
+    /// <summary>Counts game frames (the plugin's frame hook); one ERM call runs within one frame, so map data read
+    /// once per frame is current for the whole call.</summary>
+    public static long Frame;
+
+    /// <summary>The map as ERM sees it, read once per frame (scripts scan every square in one call).</summary>
+    sealed class MapSnapshot
+    {
+        public long Frame, Time;
+        public int SizeX, SizeZ;
+        public List<WoGMapObject> Objects = new();
+        public int[] ObjectAt = Array.Empty<int>();   // node → index in Objects, -1 none
+        public bool[] Entrance = Array.Empty<bool>(); // node is an object's ERM position (yellow square)
+        public bool[] Blocked = Array.Empty<bool>();  // node is covered by any object, scenery included (red square)
+        public byte[] Land = Array.Empty<byte>();
+        public byte[] Road = Array.Empty<byte>();
+    }
+
+    MapSnapshot? snapshot;
+
+    AdapterResult<MapSnapshot> Snapshot()
+    {
+        if (MapKeys.Concat(ObjectKeys).FirstOrDefault(k => !sym.Has(k)) is { } missing) return Missing<MapSnapshot>(missing);
+        if (ObjectTypes == null) return AdapterResult<MapSnapshot>.Unsupported("the object type map (id-maps/object.json) is not installed");
+        if (MapDims() is not var (sx, sz) || MapRoot() is not { } map) return AdapterResult<MapSnapshot>.Failed("no game session");
+        long now = Environment.TickCount64;
+        if (snapshot != null && ((Frame > 0 && snapshot.Frame == Frame) || now - snapshot.Time < 250)) return AdapterResult<MapSnapshot>.Ok(snapshot);
+
+        var snap = new MapSnapshot { Frame = Frame, Time = now, SizeX = sx, SizeZ = sz };
+        int nodes = sx * sz;
+        snap.ObjectAt = Enumerable.Repeat(-1, nodes).ToArray();
+        snap.Entrance = new bool[nodes];
+        snap.Blocked = new bool[nodes];
+        snap.Land = new byte[nodes];
+        snap.Road = new byte[nodes];
+        ReadTerrain(map, snap);
+
+        var owners = new Dictionary<int, int>();
+        if (sym.Has("object.list") && sym.Has("object.mapId") && sym.Has("object.owner") && Root() is { } root)
+            foreach (var o in OldenEraSymbols.Items(sym.Read("object.list", root)))
+                if (o != null) owners[Convert.ToInt32(sym.Read("object.mapId", o))] = Convert.ToInt32(sym.Read("object.owner", o));
+
+        var covered = new List<(WoGMapObject Obj, List<int> Nodes)>();
+        foreach (var o in OldenEraSymbols.Items(sym.Read("map.objects", map)))
+        {
+            if (o == null) continue;
+            var blocked = sym.Has("mapobj.blocked")
+                ? OldenEraSymbols.Items(sym.Read("mapobj.blocked", o)).Select(Convert.ToInt32).Where(n => n >= 0 && n < nodes).Distinct().ToList()
+                : new List<int>();
+            foreach (int n in blocked) snap.Blocked[n] = true;
+            if (sym.Read("mapobj.sid", o) is not string sid || !ObjectTypes.TryGet(sid, out int type, out int subtype)) continue;
+            // A pick-up (resource, chest, artifact, prison) occupies one node with entrances all around: as in H3 a hero
+            // steps onto it, so that node is its position. A building stands at its first entrance in H3 scan order.
+            var pos = MapPos.None;
+            if (blocked.Count == 1) pos = NodeToPos(blocked[0], sx, sz);
+            else
+                foreach (var n in OldenEraSymbols.Items(sym.Read("mapobj.entrances", o)))
+                {
+                    var p = NodeToPos(Convert.ToInt32(n), sx, sz);
+                    if (pos.IsNone || p.Y < pos.Y || (p.Y == pos.Y && p.X < pos.X)) pos = p;
+                }
+            if (pos.IsNone) pos = NodeToPos(Convert.ToInt32(sym.Read("mapobj.node", o)), sx, sz);
+            int id = Convert.ToInt32(sym.Read("mapobj.id", o));
+            int owner = owners.TryGetValue(id, out int side) && side >= 0 ? PlayerOfSide(side) : -1;
+            var obj = new WoGMapObject { Position = pos, Type = type, SubType = subtype, Owner = owner, Sid = sid };
+            snap.Objects.Add(obj);
+            covered.Add((obj, blocked));
+        }
+        AddMonsters(snap.Objects, sx, sz);
+        AddHeroes(snap.Objects, sx, sz);
+        snap.Objects.Sort((a, b) => a.Position.Y != b.Position.Y ? a.Position.Y.CompareTo(b.Position.Y) : a.Position.X.CompareTo(b.Position.X));
+        var index = new Dictionary<WoGMapObject, int>(ReferenceEqualityComparer.Instance);
+        for (int i = 0; i < snap.Objects.Count; i++) index[snap.Objects[i]] = i;
+        foreach (var (obj, blocked) in covered)
+            foreach (int n in blocked) if (snap.ObjectAt[n] < 0) snap.ObjectAt[n] = index[obj];
+        for (int i = 0; i < snap.Objects.Count; i++)
+        {
+            int n = PosToNode(snap.Objects[i].Position, sx, sz);
+            if (n < 0 || snap.Objects[i].Type == 34) continue; // a hero stands on a square; it does not make it an entrance
+            snap.ObjectAt[n] = i;
+            snap.Entrance[n] = true;
+            snap.Blocked[n] = true;
+        }
+        snapshot = snap;
+        return AdapterResult<MapSnapshot>.Ok(snap);
+    }
+
+    // Olden Era biomes (DB/map/tiles/tiles.json ids) as the H3 terrain of the town whose faction lives there (Format
+    // TR): grass 1 → grass, sand 2 → sand, deathland 3 → dirt (Necropolis), snow 4 → snow, autumn 5 → grass (Rampart),
+    // lava 6 → lava, dirt 7 → dirt. Water (DB/map/waters) → water, its lava kind → lava.
+    static readonly byte[] LandOfTile = { 2, 2, 1, 0, 3, 2, 7, 0 };
+
+    void ReadTerrain(object map, MapSnapshot snap)
+    {
+        if (!sym.Has("map.data") || sym.Read("map.data", map) is not { } data) { Array.Fill(snap.Land, (byte)2); return; }
+        byte[] Bytes(string key) => sym.Has(key) && sym.Read(key, data) is { } arr ? OldenEraSymbols.Items(arr).Select(Convert.ToByte).ToArray() : Array.Empty<byte>();
+        var tiles = Bytes("map.tiles");
+        var water = Bytes("map.water");
+        var roads = Bytes("map.roads");
+        for (int n = 0; n < snap.Land.Length; n++)
+        {
+            int w = n < water.Length ? water[n] : 0;
+            int t = n < tiles.Length ? tiles[n] : 1;
+            snap.Land[n] = w != 0 ? (byte)(w == 6 ? 7 : 8) : t < LandOfTile.Length ? LandOfTile[t] : (byte)2;
+            snap.Road[n] = n < roads.Length ? roads[n] : (byte)0;
+        }
+    }
+
+    /// <summary>The map objects ERM can see (one snapshot per frame).</summary>
+    public AdapterResult<IReadOnlyList<WoGMapObject>> GetObjects()
+    {
+        var s = Snapshot();
+        return s.Status == AdapterStatus.Ok ? AdapterResult<IReadOnlyList<WoGMapObject>>.Ok(s.Value.Objects) : s.Error<IReadOnlyList<WoGMapObject>>();
+    }
+
+    public AdapterResult<MapSquare> GetSquare(MapPos pos)
+    {
+        var r = Snapshot();
+        if (r.Status != AdapterStatus.Ok) return r.Error<MapSquare>();
+        var s = r.Value;
+        int n = PosToNode(pos, s.SizeX, s.SizeZ);
+        if (n < 0) return AdapterResult<MapSquare>.Failed($"square {pos} is outside the map");
+        int i = s.ObjectAt[n];
+        var o = i >= 0 ? s.Objects[i] : null;
+        return AdapterResult<MapSquare>.Ok(new MapSquare(o?.Type ?? 0, o?.SubType ?? 0, s.Entrance[n], s.Blocked[n], s.Land[n], s.Road[n],
+            o?.Position ?? MapPos.None));
+    }
+
+    static readonly string[] SquadKeys = { "squad.list", "squad.node", "squad.units", "squad.released", "squadunit.sid" };
+
+    /// <summary>
+    /// Wandering monsters: an Olden Era squad (several unit stacks on one node) is H3's monster object (type 54); its
+    /// subtype is the creature number (creature.json) of its first unit. Defeated squads stay in the list as released.
+    /// </summary>
+    void AddMonsters(List<WoGMapObject> list, int sx, int sz)
+    {
+        if (SquadKeys.Any(k => !sym.Has(k)) || Root() is not { } root) return;
+        var ids = currentIds();
+        foreach (var s in OldenEraSymbols.Items(sym.Read("squad.list", root)))
+        {
+            if (s == null || Convert.ToBoolean(sym.Read("squad.released", s))) continue;
+            var pos = NodeToPos(Convert.ToInt32(sym.Read("squad.node", s)), sx, sz);
+            if (pos.IsNone) continue;
+            var first = OldenEraSymbols.Items(sym.Read("squad.units", s)).FirstOrDefault(u => u != null);
+            string? unit = first == null ? null : sym.Read("squadunit.sid", first) as string;
+            int creature = unit != null && ids.TryGetWoG("creature", unit, out int n) ? n : -1;
+            list.Add(new WoGMapObject { Position = pos, Type = 54, SubType = creature, Sid = unit });
+        }
+    }
+
+    /// <summary>Heroes on the map are objects of type 34 with their WoG number as subtype (Format OB).</summary>
+    void AddHeroes(List<WoGMapObject> list, int sx, int sz)
+    {
+        if (!sym.Has("hero.position")) return;
+        foreach (var (n, h) in HeroTable())
+        {
+            var pos = NodeToPos(Convert.ToInt32(sym.Read("hero.position", h)), sx, sz);
+            if (pos.IsNone) continue;
+            int owner = sym.Has("hero.owner") ? PlayerOfSide(Convert.ToInt32(sym.Read("hero.owner", h))) : -1;
+            list.Add(new WoGMapObject { Position = pos, Type = 34, SubType = n, Owner = owner, Sid = "hero" });
+        }
+    }
+
+    AdapterResult<WoGMapObject> ObjectAt(MapPos pos)
+    {
+        var all = GetObjects();
+        if (all.Status != AdapterStatus.Ok) return all.Error<WoGMapObject>();
+        var o = all.Value.FirstOrDefault(x => x.Position == pos);
+        return o == null ? AdapterResult<WoGMapObject>.Failed($"no object at {pos}") : AdapterResult<WoGMapObject>.Ok(o);
+    }
+
+    public AdapterResult<(int type, int subtype)> GetObjectAt(MapPos pos)
+    {
+        var o = ObjectAt(pos);
+        return o.Status == AdapterStatus.Ok ? AdapterResult<(int, int)>.Ok((o.Value.Type, o.Value.SubType)) : o.Error<(int, int)>();
+    }
+
+    public AdapterResult<int> GetObjectOwner(MapPos pos)
+    {
+        var o = ObjectAt(pos);
+        return o.Status == AdapterStatus.Ok ? AdapterResult<int>.Ok(o.Value.Owner) : o.Error<int>();
+    }
+
+    public AdapterResult SetObjectOwner(MapPos pos, int owner) => Missing("object.setOwner");
     public AdapterResult<int> TownAt(MapPos pos) => Missing<int>("town.list");
     public AdapterResult<int> GetMageGuildLevel(int town) => Missing<int>("town.buildings");
     public AdapterResult<bool> IsBuilt(int town, int building) => Missing<bool>("town.buildings");

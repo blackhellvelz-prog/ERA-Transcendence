@@ -33,13 +33,14 @@ internal sealed class DebugBridge
         Directory.CreateDirectory(outDir);
         commands = new DebugCommands(host, engine);
         File.WriteAllText(Path.Combine(dir, "README.txt"),
-            "Put a command into a text file in 'in' (for example in/1.txt containing: state).\n" +
+            "Put a command into a .txt file in 'in' (for example in/1.txt containing: state); write it under another\n" +
+            "extension first and rename it, so a half-written file is never read.\n" +
             "The result appears in 'out' under the same name.\n\n" + DebugCommands.Help);
     }
 
     public void Poll()
     {
-        foreach (var file in Directory.GetFiles(inDir).OrderBy(f => f, StringComparer.Ordinal))
+        foreach (var file in Directory.GetFiles(inDir, "*.txt").OrderBy(f => f, StringComparer.Ordinal))
         {
             string text;
             try { text = File.ReadAllText(file); File.Delete(file); }
@@ -119,30 +120,42 @@ internal static class MethodTrace
         if (a == null) return "null";
         var t = a.GetType();
         if (t.IsPrimitive || t.IsEnum || a is string) return a.ToString() ?? "";
-        try
-        {
-            var il2cppType = t.GetMethod("GetIl2CppType", Type.EmptyTypes)?.Invoke(a, null);
-            var name = il2cppType?.GetType().GetProperty("FullName")?.GetValue(il2cppType) as string;
-            if (name != null)
-            {
-                // Re-wrap the object as its real class to show that class's own fields (event argument data).
-                var real = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "Hex")?.GetType(name);
-                if (real != null && real != t && a is Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase o)
-                {
-                    var wrapped = Activator.CreateInstance(real, o.Pointer);
-                    var fields = real.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                        .Where(p => p.GetIndexParameters().Length == 0)
-                        .Select(p => { try { return $"{p.Name}={Short(p.GetValue(wrapped))}"; } catch { return p.Name + "=?"; } });
-                    return $"<{name} {string.Join(" ", fields)}>";
-                }
-                return "<" + name + ">";
-            }
-        }
-        catch { /* not an IL2CPP object */ }
-        return "<" + t.FullName + ">";
+        var real = Real(a);
+        if (real.GetType().Assembly.GetName().Name != "Hex") return "<" + RuntimeName(a) + ">";
+        // The real class's own fields (event argument data, session objects).
+        var fields = real.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+            .Where(p => p.GetIndexParameters().Length == 0)
+            .Select(p => { try { return $"{p.Name}={Short(p.GetValue(real))}"; } catch { return p.Name + "=?"; } });
+        return $"<{RuntimeName(a)} {string.Join(" ", fields)}>";
     }
 
-    static string Short(object? v) => v == null ? "null" : v.GetType().IsPrimitive || v is string || v.GetType().IsEnum ? v.ToString()! : v.GetType().Name;
+    /// <summary>The IL2CPP runtime class name of an object (the declared .NET type is often a base class).</summary>
+    static string RuntimeName(object a)
+    {
+        try
+        {
+            var il2cppType = a.GetType().GetMethod("GetIl2CppType", Type.EmptyTypes)?.Invoke(a, null);
+            if (il2cppType?.GetType().GetProperty("FullName")?.GetValue(il2cppType) is string name) return name;
+        }
+        catch { /* not an IL2CPP object */ }
+        return a.GetType().FullName ?? a.GetType().Name;
+    }
+
+    /// <summary>An IL2CPP object re-wrapped as its runtime class of the game assembly, so that class's members resolve.</summary>
+    internal static object Real(object a)
+    {
+        try
+        {
+            string name = RuntimeName(a);
+            var real = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "Hex")?.GetType(name.Replace('/', '+'));
+            if (real != null && real != a.GetType() && a is Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase o)
+                return Activator.CreateInstance(real, o.Pointer)!;
+        }
+        catch { /* keep the declared type */ }
+        return a;
+    }
+
+    internal static string Short(object? v) => v == null ? "null" : v.GetType().IsPrimitive || v is string || v.GetType().IsEnum ? v.ToString()! : v.GetType().Name;
 }
 
 /// <summary>The Olden Era half of WoG Debug: raw state read through the symbols, without ERM.</summary>
@@ -240,5 +253,119 @@ internal sealed class OldenEraDebugEngine : IDebugEngine
     {
         try { return f()?.ToString() ?? "null"; }
         catch (Exception ex) { return "error: " + ex.Message; }
+    }
+
+    const BindingFlags Members = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
+
+    /// <summary>
+    /// peek root.heroes.list[0].node | peek Type.staticMember.member[2] | peek Type — walks the path with
+    /// reflection; every object is re-wrapped as its runtime class first, so members of derived classes resolve.
+    /// </summary>
+    public string Peek(string args)
+    {
+        var words = args.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length == 0) return "usage: peek <root|Type>.member[index].member... [max items]";
+        int max = words.Length > 1 && int.TryParse(words[1], out int m) ? m : 10;
+        string[]? only = words.Length > 2 ? words[2].Split(',', StringSplitOptions.RemoveEmptyEntries) : null;
+        var segs = Segments(words[0]);
+        object? o;
+        int i;
+        if (segs[0] == "root")
+        {
+            o = A.Root();
+            i = 1;
+        }
+        else
+        {
+            var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "Hex");
+            Type? t = null;
+            for (i = segs.Count; i >= 1 && t == null; i--)
+                t = asm?.GetType(string.Join(".", segs.Take(i)));
+            if (t == null) return "type not found: " + words[0];
+            i++; // the loop stepped one past the matching prefix
+            if (i >= segs.Count) return TypeMembers(t, statics: true);
+            var sm = t.GetMember(segs[i], Members).FirstOrDefault(x => x is FieldInfo or PropertyInfo);
+            if (sm == null) return $"{t.FullName}.{segs[i]} not found\n" + TypeMembers(t, statics: true);
+            o = sm is FieldInfo f ? f.GetValue(null) : ((PropertyInfo)sm).GetValue(null);
+            i++;
+        }
+        for (; i < segs.Count; i++)
+        {
+            if (o == null) return $"null at {string.Join(".", segs.Take(i))}";
+            string s = segs[i];
+            if (s.StartsWith("["))
+            {
+                var items = OldenEraSymbols.Items(o);
+                int idx = int.Parse(s[1..^1]);
+                if (idx < 0 || idx >= items.Count) return $"index {idx} out of range (count {items.Count})";
+                o = items[idx];
+                continue;
+            }
+            o = MethodTrace.Real(o);
+            var mem = o.GetType().GetMember(s, Members).FirstOrDefault(x => x is FieldInfo or PropertyInfo);
+            if (mem == null) return $"{o.GetType().FullName}.{s} not found\n" + TypeMembers(o.GetType(), statics: false);
+            o = mem is FieldInfo fi ? fi.GetValue(o) : ((PropertyInfo)mem).GetValue(o);
+        }
+        return Show(o, max, only);
+    }
+
+    /// <summary>Chosen members of an object ("node,sideId" or a path "party.units"), on one line.</summary>
+    static string Project(object? item, string[] members)
+    {
+        if (item == null) return "null";
+        return string.Join(" ", members.Select(path =>
+        {
+            object? v = item;
+            try
+            {
+                foreach (var name in path.Split('.'))
+                {
+                    if (v == null) break;
+                    v = MethodTrace.Real(v);
+                    var mem = v.GetType().GetMember(name, Members).FirstOrDefault(x => x is FieldInfo or PropertyInfo);
+                    v = mem is FieldInfo fi ? fi.GetValue(v) : mem is PropertyInfo pi ? pi.GetValue(v) : "?";
+                }
+                return $"{path}={MethodTrace.Short(v)}";
+            }
+            catch (Exception ex) { return $"{path}=error {ex.GetType().Name}"; }
+        }));
+    }
+
+    static List<string> Segments(string path)
+    {
+        var list = new List<string>();
+        foreach (var part in path.Split('.'))
+        {
+            int b = part.IndexOf('[');
+            if (b < 0) { list.Add(part); continue; }
+            if (b > 0) list.Add(part[..b]);
+            foreach (var ix in part[b..].Split('[', StringSplitOptions.RemoveEmptyEntries)) list.Add("[" + ix);
+        }
+        return list;
+    }
+
+    static string TypeMembers(Type t, bool statics)
+    {
+        var flags = BindingFlags.Public | BindingFlags.DeclaredOnly | (statics ? BindingFlags.Static : BindingFlags.Instance);
+        var sb = new StringBuilder($"{t.FullName} : {t.BaseType?.FullName}\n");
+        foreach (var p in t.GetProperties(flags).Where(p => p.GetIndexParameters().Length == 0))
+            sb.Append($"  {p.PropertyType.Name} {p.Name}\n");
+        foreach (var mi in t.GetMethods(flags).Where(x => !x.IsSpecialName))
+            sb.Append($"  {mi.ReturnType.Name} {mi.Name}({string.Join(", ", mi.GetParameters().Select(x => x.ParameterType.Name))})\n");
+        return sb.ToString();
+    }
+
+    static string Show(object? o, int max, string[]? only = null)
+    {
+        if (o == null) return "null";
+        var t = o.GetType();
+        if (t.IsPrimitive || t.IsEnum || o is string) return o.ToString() ?? "";
+        IReadOnlyList<object?>? items = null;
+        try { items = OldenEraSymbols.Items(o); } catch (InvalidOperationException) { }
+        if (items == null) return MethodTrace.Describe(o);
+        var sb = new StringBuilder($"{MethodTrace.Describe(o)}\ncount {items.Count}\n");
+        for (int k = 0; k < Math.Min(max, items.Count); k++)
+            sb.Append($"[{k}] {(only == null ? MethodTrace.Describe(items[k]) : Project(items[k], only))}\n");
+        return sb.ToString();
     }
 }

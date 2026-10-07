@@ -14,6 +14,12 @@ namespace WoG.Core.H3Data;
 public sealed class H3Tables
 {
     public IReadOnlyList<WoGArtifact> Artifacts { get; private set; } = Array.Empty<WoGArtifact>();
+    /// <summary>Creature types (WoG's zcrtrait.txt, else crtraits.txt): names, costs and stats; town/level are not in it.</summary>
+    public IReadOnlyList<WoGCreature> Creatures { get; private set; } = Array.Empty<WoGCreature>();
+    /// <summary>Spell names by H3 spell number (sptraits.txt: adventure, combat, then creature abilities).</summary>
+    public IReadOnlyList<string> Spells { get; private set; } = Array.Empty<string>();
+    /// <summary>Secondary skills by H3 number: name and the basic/advanced/expert descriptions (sstraits.txt).</summary>
+    public IReadOnlyList<string[]> SecondarySkills { get; private set; } = Array.Empty<string[]>();
     /// <summary>Where each table came from (for the log).</summary>
     public Dictionary<string, string> Sources { get; } = new(StringComparer.OrdinalIgnoreCase);
 
@@ -22,6 +28,14 @@ public sealed class H3Tables
         var t = new H3Tables();
         var art = vfs.Read("artraits.txt", out var from);
         if (art != null) { t.Artifacts = ParseArtifacts(H3Text.Decode(art)); t.Sources["artraits.txt"] = from!; }
+        string crName = "zcrtrait.txt";
+        var cr = vfs.Read(crName, out from);
+        if (cr == null) { crName = "crtraits.txt"; cr = vfs.Read(crName, out from); }
+        if (cr != null) { t.Creatures = ParseCreatures(H3Text.Decode(cr)); t.Sources[crName] = from!; }
+        var sp = vfs.Read("sptraits.txt", out from);
+        if (sp != null) { t.Spells = ParseSpells(H3Text.Decode(sp)); t.Sources["sptraits.txt"] = from!; }
+        var ss = vfs.Read("sstraits.txt", out from);
+        if (ss != null) { t.SecondarySkills = ParseSkills(H3Text.Decode(ss)); t.Sources["sstraits.txt"] = from!; }
         return t;
     }
 
@@ -61,6 +75,42 @@ public sealed class H3Tables
     {
         "S" => 1, "T" => 2, "N" => 4, "J" => 8, "R" => 16, _ => 0,
     };
+
+    /// <summary>
+    /// crtraits.txt / zcrtrait.txt: two header rows, then Singular, Plural, the 7 costs (wood, mercury, ore, sulfur,
+    /// crystal, gems, gold), Fight Value, AI Value, Growth, Horde Growth, Hit Points, Speed, Attack, Defense, damage
+    /// low/high, Shots, Spells, adventure map count low/high, Ability Text, Attributes.
+    /// </summary>
+    public static List<WoGCreature> ParseCreatures(string text)
+    {
+        var list = new List<WoGCreature>();
+        foreach (var r in H3Text.Records(text).Skip(2))
+        {
+            if (r.Length < 2 || r[0].Trim().Length == 0) continue;
+            var c = new WoGCreature
+            {
+                Id = list.Count, Name = r[0], NamePlural = r[1],
+                FightValue = H3Text.Int(r, 9), AiValue = H3Text.Int(r, 10), Growth = H3Text.Int(r, 11), HordeGrowth = H3Text.Int(r, 12),
+                HitPoints = H3Text.Int(r, 13), Speed = H3Text.Int(r, 14), Attack = H3Text.Int(r, 15), Defence = H3Text.Int(r, 16),
+                DamageLow = H3Text.Int(r, 17), DamageHigh = H3Text.Int(r, 18), Shots = H3Text.Int(r, 19), Casts = H3Text.Int(r, 20),
+                AdvMapLow = H3Text.Int(r, 21), AdvMapHigh = H3Text.Int(r, 22), Ability = r.Length > 23 ? r[23] : "",
+            };
+            for (int i = 0; i < WoGLimits.ResourceCount; i++) c.Cost[i] = H3Text.Int(r, 2 + i);
+            list.Add(c);
+        }
+        return list;
+    }
+
+    /// <summary>sptraits.txt: header rows and section titles have no level; every row with a level is the next spell.</summary>
+    public static List<string> ParseSpells(string text) =>
+        H3Text.Records(text).Skip(2)
+            .Where(r => r.Length > 2 && r[0].Trim().Length > 0 && int.TryParse(r[2].Trim(), out _))
+            .Select(r => r[0]).ToList();
+
+    /// <summary>sstraits.txt: two header rows, then Name, Basic, Advanced, Expert.</summary>
+    public static List<string[]> ParseSkills(string text) =>
+        H3Text.Records(text).Skip(2).Where(r => r.Length > 0 && r[0].Trim().Length > 0)
+            .Select(r => new[] { r[0], r.Length > 1 ? r[1] : "", r.Length > 2 ? r[2] : "", r.Length > 3 ? r[3] : "" }).ToList();
 
     public static List<WoGArtifact> ParseArtifacts(string text)
     {

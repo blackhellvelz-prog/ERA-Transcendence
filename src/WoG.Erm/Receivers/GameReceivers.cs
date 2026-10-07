@@ -5,6 +5,7 @@ using WoG.Core.Compat;
 using WoG.Core.H3Data;
 using WoG.Core.Model;
 using WoG.Core.Options;
+using WoG.Core.State;
 using WoG.Erm.Runtime;
 using WoG.Erm.Syntax;
 
@@ -105,8 +106,15 @@ public sealed class UnReceiver : ErmReceiverBase
         Declare("A", CompatLevel.PartiallySupported,
             "UN:A — artifact types come from the ERA installation's artraits.txt and are kept per game; Olden Era items are not linked to them yet, so changes do not affect the game's items, and the map ban does not affect map generation");
         Declare("V", CompatLevel.FullySupported, "UN:V — WoG/ERM versions of the dialect (ERA 400/3931, WoG 358/281); a single-player game: no network, no cheat tracking (0)");
+        Declare("X", CompatLevel.FullySupported, "UN:X — map size; Olden Era maps have no underground (levels 0)");
+        Declare("U", CompatLevel.PartiallySupported,
+            "UN:U — Olden Era map objects with an H3 type (Compatibility/id-maps/object.json; Olden Era-only objects have types from 1000); a monster squad of several unit types counts as its first unit");
+        Declare("N", CompatLevel.PartiallySupported,
+            "UN:N — names of artifacts, spells, creatures and secondary skills from the ERA installation's text tables; N5/N6 ini values (written under BepInEx/config/WoG/era-root); N2 building names are not read yet");
+        Declare("R", CompatLevel.PartiallySupported,
+            "UN:R — R1-R4 redraws: Olden Era redraws its screens itself; R5-R7 (mouse pointer shape, delay) are cosmetic and do nothing");
         Declare("C", CompatLevel.Unsupported, "UN:C writes to H3 memory addresses — impossible on a different engine");
-        Declare("BDEFGHIJKLMNOQRSTUWXYZ", CompatLevel.Unsupported, "UN map/object/global commands are not mapped yet");
+        Declare("BDEFGHIJKLMOQSTWYZ", CompatLevel.Unsupported, "UN map/object/global commands are not mapped yet");
     }
 
     protected override void Run(ErmCall c)
@@ -116,6 +124,10 @@ public sealed class UnReceiver : ErmReceiverBase
             case 'P': Options(c); break;
             case 'A': Artifact(c); break;
             case 'V': Versions(c); break;
+            case 'X': MapSize(c); break;
+            case 'U': FindObjects(c); break;
+            case 'N': Names(c); break;
+            case 'R': Redraw(c); break;
             default: throw ErmCall.WrongCommand(c.Letter);
         }
     }
@@ -234,6 +246,191 @@ public sealed class UnReceiver : ErmReceiverBase
         int cheatMenu = 0, cheated = 0;
         c.Apply(ref cheatMenu, 5);
         c.Apply(ref cheated, 6);
+    }
+
+    /// <summary>UN:N#/z/… — a name into a z variable (N0 artifact, N1 spell, N2 building, N3 creature, N4 skill), N5/N6 ini.</summary>
+    static void Names(ErmCall c)
+    {
+        c.RequireMin(3);
+        int zi = 0;
+        c.Apply(ref zi, 1);
+        if (zi == 0 || zi < -20 || zi > 1000) throw new ErmRuntimeException("\"!!UN:N\"-z var index out of range (-20...-1,1...1000).");
+        int v = -1;
+        c.Apply(ref v, 2);
+        if (v < 0) throw new ErmRuntimeException("\"!!UN:N\"-incorrect type of object (<0).");
+        var s = c.Rt.Services;
+        var h3 = s.H3;
+        void Table(int count, string file)
+        {
+            if (count == 0) throw new ErmUnsupportedException($"UN:N needs {file} of the ERA installation, and none was found");
+            if (v >= count) throw new ErmRuntimeException($"\"!!UN:N\"-wrong number ({v}, the table has {count}).");
+        }
+        switch (c.N(0))
+        {
+            case 0:
+                Table(h3.Artifacts.Count, "artraits.txt");
+                c.SetZ(zi, s.Artifact(v)!.Name);
+                break;
+            case 1:
+                Table(h3.Spells.Count, "sptraits.txt");
+                c.SetZ(zi, h3.Spells[v]);
+                break;
+            case 2:
+                throw new ErmUnsupportedException("UN:N2 — building names: the H3 building tables are not read yet");
+            case 3:
+            {
+                c.RequireMin(4);
+                int plural = -1;
+                c.Apply(ref plural, 3);
+                if (plural < 0) throw new ErmRuntimeException("\"!!UN:N\"-incorrect additioal type of object (<0).");
+                Table(h3.Creatures.Count, "zcrtrait.txt");
+                c.SetZ(zi, plural != 0 ? h3.Creatures[v].NamePlural : h3.Creatures[v].Name);
+                break;
+            }
+            case 4:
+                Table(h3.SecondarySkills.Count, "sstraits.txt");
+                c.SetZ(zi, h3.SecondarySkills[v][0]);
+                break;
+            case 5:
+            case 6:
+            {
+                // WoG's WriteStrINI/ReadStrINI (Windows profile functions): key = the option number, section "Common",
+                // file .\WoG.ini unless z variables name them. Era's ini layer keeps the files; writing saves at once.
+                string section = "Common", file = "WoG.ini";
+                if (c.Num > 3) { int sz = 0; c.Apply(ref sz, 3); section = c.GetZ(sz); }
+                if (c.Num > 4) { int fz = 0; c.Apply(ref fz, 4); file = c.GetZ(fz); }
+                if (file.StartsWith(@".\") || file.StartsWith("./")) file = file[2..];
+                string key = v.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                var ini = c.Rt.Ini;
+                if (c.N(0) == 5)
+                {
+                    ini.WriteStrToIni(key, c.GetZ(zi), section, file);
+                    ini.SaveIni(file);
+                }
+                else if (ini.ReadStrFromIni(key, section, file, out var value)) c.SetZ(zi, value);
+                break;
+            }
+            default:
+                throw new ErmRuntimeException("\"!!UN:N\"-wrong first parameter.");
+        }
+    }
+
+    /// <summary>UN:R# — screen redraws (Olden Era keeps its screens current), mouse pointer and delay (cosmetic).</summary>
+    static void Redraw(ErmCall c)
+    {
+        switch (c.N(0))
+        {
+            case 1: case 2: case 4:
+                break;
+            case 3:
+            {
+                if (c.Num < 2) throw new ErmRuntimeException("\"!!UN:R3\"-insufficient parameters.");
+                int h = c.N(1);
+                if (h < -1 || h >= WoGLimits.HeroCount) throw new ErmRuntimeException("\"!!UN:R3\"-wrong hero number.");
+                break;
+            }
+            case 5:
+                if (c.Num < 3) throw new ErmRuntimeException("\"!!UN:R5\"-insufficient parameters.");
+                break;
+            case 6:
+                if (c.Num < 2) throw new ErmRuntimeException("\"!!UN:R6\"-insufficient parameters.");
+                break;
+            case 7:
+                if (c.Num < 2) throw new ErmRuntimeException("\"!!UN:R7\"-insufficient parameters.");
+                break;
+            default:
+                throw new ErmRuntimeException("\"!!UN:R\"-wrong parameter.");
+        }
+    }
+
+    /// <summary>UN:X?size/?levels — the map size cannot be set.</summary>
+    static void MapSize(ErmCall c)
+    {
+        c.RequireExactly(2);
+        if (!c.IsGetOrCheck(0)) throw new ErmRuntimeException("\"!!UN:X\"-try to set X(Y).");
+        if (!c.IsGetOrCheck(1)) throw new ErmRuntimeException("\"!!UN:X\"-try to set L.");
+        var (size, levels) = c.Need(c.Rt.Services.Game.Map.GetSize());
+        c.Apply(ref size, 0);
+        c.Apply(ref levels, 1);
+    }
+
+    static ObjectSearch Search(ErmCall c)
+    {
+        var map = c.Rt.Services.Game.Map;
+        var (size, levels) = c.Need(map.GetSize());
+        return new ObjectSearch(size, levels, c.Need(map.GetObjects()));
+    }
+
+    /// <summary>UN:Utype/subtype/?count, UN:Utype/subtype/number/vIndex (number −1/−2: next/previous after v[vIndex..]).</summary>
+    static void FindObjects(ErmCall c)
+    {
+        c.RequireMin(3);
+        int t = 0, st = 0;
+        if (c.Apply(ref t, 0) || c.Apply(ref st, 1)) throw new ErmRuntimeException("\"!!UN:U\"-cannot check or get Type and Subtype.");
+        var search = Search(c);
+        if (c.Num == 3)
+        {
+            int n = search.Count(t, st);
+            if (!c.Apply(ref n, 2)) throw new ErmRuntimeException("\"!!UN:U\"-cannot set number of objects.");
+            return;
+        }
+        int number = 0, v = 0;
+        if (c.Apply(ref number, 2)) throw new ErmRuntimeException("\"!!UN:U\"-cannot get or check number of object.");
+        if (number == 0) throw new ErmRuntimeException("\"!!UN:U\"-wrong object number (0). Must be>0, -1 or -2");
+        if (c.Apply(ref v, 3)) throw new ErmRuntimeException("\"!!UN:U\"-cannot get or check number of V variable.");
+        if (c.IsEra)
+        {
+            EraFindObjects(c, search, t, st, number, v);
+            return;
+        }
+        if (v < 1 || v > 9998) throw new ErmRuntimeException("\"!!UN:U\"-wrong V var number (1...9998).");
+        var vars = c.Rt.Services.State.Erm.V;
+        MapPos? found = number < 0
+            ? search.FindNext(t, st, vars[v - 1], vars[v], vars[v + 1], number)
+            : search.Find(t, st, number);
+        if (found == null)
+            throw new ErmRuntimeException(number < 0 ? "\"!!UN:U\"-cannot find more objects." : "\"!!UN:U\"-cannot get object coordinates.");
+        vars[v - 1] = found.Value.X;
+        vars[v] = found.Value.Y;
+        vars[v + 1] = found.Value.L;
+    }
+
+    /// <summary>
+    /// Era's Hook_UN_U (Erm.pas): UN:U(type)/(subtype)/(number)/(x)/(y)/(z) takes and returns the coordinates in
+    /// three integer variables; with the v-index form the range check is Era's; an object that is not found is no
+    /// error — x becomes −1 (y and z keep their values).
+    /// </summary>
+    static void EraFindObjects(ErmCall c, ObjectSearch search, int t, int st, int number, int firstVar)
+    {
+        var rt = c.Rt;
+        var vars = rt.Services.State.Erm.V;
+        bool six = c.Num >= 6;
+        int cx, cy, cz;
+        if (six)
+        {
+            for (int i = 3; i <= 5; i++)
+            {
+                var p = c.P(i);
+                if (p.Mode != ErmParamMode.Set || p.Var == null || p.Var.Kind is ErmVarKind.Z or ErmVarKind.Str or ErmVarKind.AssocS or ErmVarKind.E or ErmVarKind.Flag)
+                    throw new ErmRuntimeException("\"UN:U\" - Invalid parameters for search coordinates" + firstVar);
+            }
+            (cx, cy, cz) = (c.N(3), c.N(4), c.N(5));
+        }
+        else
+        {
+            if (firstVar < 1 || firstVar > 9998) throw new ErmRuntimeException("\"UN:U\" - Invalid v-var index. Expected 1..9998, got " + firstVar);
+            (cx, cy, cz) = (vars[firstVar - 1], vars[firstVar], vars[firstVar + 1]);
+        }
+        var found = number < 0 ? search.FindNext(t, st, cx, cy, cz, number) : search.Find(t, st, number);
+        if (found is { } f) (cx, cy, cz) = (f.X, f.Y, f.L);
+        else cx = -1;
+        if (six)
+        {
+            rt.EraSetInt(c.P(3), cx);
+            rt.EraSetInt(c.P(4), cy);
+            rt.EraSetInt(c.P(5), cz);
+        }
+        else (vars[firstVar - 1], vars[firstVar], vars[firstVar + 1]) = (cx, cy, cz);
     }
 
     /// <summary>Era's ERA_VERSION_INT (GameExt.pas) of the Era version this port follows (3.9.31).</summary>

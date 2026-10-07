@@ -92,6 +92,15 @@ public interface ICreatureTypeAdapter
 
 public interface IMapAdapter
 {
+    /// <summary>Map width (H3 maps are square) and levels as H3 counts them: 0 = surface only, 1 = with underground.</summary>
+    AdapterResult<(int Size, int Levels)> GetSize();
+    /// <summary>
+    /// The objects ERM can see, each at its H3 position (its entrance square), in the order H3 scans the map: left to
+    /// right, top to bottom, surface before underground.
+    /// </summary>
+    AdapterResult<IReadOnlyList<WoGMapObject>> GetObjects();
+    /// <summary>A square: the object on it, its entrance/blocked bits and its terrain.</summary>
+    AdapterResult<MapSquare> GetSquare(MapPos pos);
     AdapterResult<(int type, int subtype)> GetObjectAt(MapPos pos);
     AdapterResult<int> GetObjectOwner(MapPos pos);
     AdapterResult SetObjectOwner(MapPos pos, int owner);

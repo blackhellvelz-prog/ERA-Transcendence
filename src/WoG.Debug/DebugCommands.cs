@@ -17,6 +17,8 @@ public interface IDebugEngine
     string NewDay();
     /// <summary>Game symbols: bound/resolved/verified, and which hooks fired.</summary>
     string Symbols();
+    /// <summary>Reads any game object by a member path, for reverse engineering in a running game.</summary>
+    string Peek(string args) => "peek is not supported by this engine";
 }
 
 /// <summary>
@@ -50,7 +52,9 @@ public sealed class DebugCommands
         "  symbols                      game symbols and hook calls\n" +
         "  selftest [interactive] [id-prefix]  run the WoG/ERA self-test (Markdown report)\n" +
         "  compat                       commands the engine could not perform so far\n" +
-        "  vars v|z <from> <to>         ERM variables; vars i <name> for i^name^\n";
+        "  vars v|z <from> <to>         ERM variables; vars i <name> for i^name^\n" +
+        "  peek <path> [max]            read a game object: root.heroes.list[0].node, Type.staticMember.member...\n" +
+        "                               (a type alone: its static members; a list: its first max items)\n";
 
     public string Execute(string text)
     {
@@ -72,6 +76,7 @@ public sealed class DebugCommands
                 "selftest" => RunSelfTest(rest),
                 "compat" => host.Compat.ToMarkdown(),
                 "vars" => Vars(rest),
+                "peek" => engine?.Peek(rest) ?? "no engine",
                 _ => "unknown command '" + cmd + "'\n" + Help,
             };
         }

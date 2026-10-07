@@ -95,6 +95,9 @@ public sealed class WoGCreature
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";
+    public string NamePlural { get; set; } = "";
+    /// <summary>The ability text of the creature info window.</summary>
+    public string Ability { get; set; } = "";
     public int Town { get; set; } = -1;
     /// <summary>0-based level ("SubGroup"): 0 = level 1 … 6 = level 7 (8th level also 6).</summary>
     public int Level { get; set; }
@@ -177,9 +180,21 @@ public sealed class WoGTown
     public WoGArmy Garrison { get; set; } = new();
 }
 
+/// <summary>
+/// One map square as H3's MapItem shows it to ERM (OB:T/U, TR): the object on it (type 0 = none), the yellow
+/// (entrance) and red (blocked) bits, terrain type (Format TR: 0 dirt … 8 water, 9 rock) and road type (0 none).
+/// </summary>
+public readonly record struct MapSquare(int ObjectType, int ObjectSubtype, bool Entrance, bool Blocked, int Land, int Road,
+    MapPos ObjectEntrance)
+{
+    public static MapSquare Empty(int land) => new(0, 0, false, false, land, 0, MapPos.None);
+}
+
 public sealed class WoGMapObject
 {
     public MapPos Position { get; set; } = MapPos.None;
+    /// <summary>The engine's object id (sid) behind it, for diagnostics; null on the headless engine.</summary>
+    public string? Sid { get; set; }
     public int Type { get; set; }
     public int SubType { get; set; }
     public int Owner { get; set; } = -1;

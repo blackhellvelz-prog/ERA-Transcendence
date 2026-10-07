@@ -27,6 +27,13 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
     public Dictionary<int, WoGCreature> CreatureList { get; } = new();
     public Dictionary<int, WoGTown> TownList { get; } = new();
     public Dictionary<int, WoGMapObject> Objects { get; } = new();
+    /// <summary>Map width (square) and H3 levels (0 = surface only, 1 = with underground).</summary>
+    public int MapSize { get; set; } = 72;
+    public int MapLevels { get; set; } = 1;
+    /// <summary>Terrain per square (Format TR); missing squares are grass.</summary>
+    public Dictionary<int, int> Terrain { get; } = new();
+    /// <summary>Squares covered by objects besides their entrance (object position), key = MapPos.Pack().</summary>
+    public Dictionary<int, MapPos> Blocked { get; } = new();
     public int[,] Resources { get; } = new int[WoGLimits.PlayerCount, WoGLimits.ResourceCount];
     public bool[] Human { get; } = new bool[WoGLimits.PlayerCount];
     public bool[] Local { get; } = new bool[WoGLimits.PlayerCount];
@@ -275,6 +282,23 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
     }
 
     // ---- map / towns ------------------------------------------------------------------------
+
+    public AdapterResult<(int Size, int Levels)> GetSize() => AdapterResult<(int, int)>.Ok((MapSize, MapLevels));
+
+    public AdapterResult<IReadOnlyList<WoGMapObject>> GetObjects() =>
+        AdapterResult<IReadOnlyList<WoGMapObject>>.Ok(Objects.Values.OrderBy(o => o.Position.L).ThenBy(o => o.Position.Y).ThenBy(o => o.Position.X).ToList());
+
+    public AdapterResult<MapSquare> GetSquare(MapPos pos)
+    {
+        if (pos.X < 0 || pos.Y < 0 || pos.X >= MapSize || pos.Y >= MapSize || pos.L < 0 || pos.L > MapLevels)
+            return AdapterResult<MapSquare>.Failed($"square {pos} is outside the map");
+        int land = Terrain.TryGetValue(pos.Pack(), out int t) ? t : 2;
+        if (Objects.TryGetValue(pos.Pack(), out var o))
+            return AdapterResult<MapSquare>.Ok(new MapSquare(o.Type, o.SubType, true, true, land, 0, o.Position));
+        if (Blocked.TryGetValue(pos.Pack(), out var owner) && Objects.TryGetValue(owner.Pack(), out var b))
+            return AdapterResult<MapSquare>.Ok(new MapSquare(b.Type, b.SubType, false, true, land, 0, b.Position));
+        return AdapterResult<MapSquare>.Ok(MapSquare.Empty(land));
+    }
 
     public AdapterResult<(int type, int subtype)> GetObjectAt(MapPos pos) =>
         Objects.TryGetValue(pos.Pack(), out var o) ? AdapterResult<(int, int)>.Ok((o.Type, o.SubType)) : AdapterResult<(int, int)>.Failed("no object");

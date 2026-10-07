@@ -71,6 +71,8 @@ public sealed class ReceiverRegistry
         reg.Register(new McReceiver());
         reg.Register(new IfReceiver());
         reg.Register(new UnReceiver());
+        reg.Register(new ObReceiver());
+        reg.Register(new TrReceiver());
         reg.Register(new TmReceiver());
         reg.Register(new HeReceiver());
         reg.Register(new OwReceiver());
@@ -102,6 +104,8 @@ public sealed class ReceiverRegistry
         reg.Register(new McReceiver());
         reg.Register(new IfReceiver());
         reg.Register(new UnReceiver());
+        reg.Register(new ObReceiver());
+        reg.Register(new TrReceiver());
         reg.Register(new TmReceiver());
         reg.Register(new HeReceiver());
         reg.Register(new OwReceiver());
@@ -151,7 +155,27 @@ public sealed class ReceiverRegistry
             "UN:A — типы артефактов берутся из artraits.txt установки ERA и хранятся в каждой игре; с предметами Olden Era они пока не связаны, поэтому изменения не влияют на предметы игры, а запрет на карте не влияет на генерацию карты",
         ["UN:V — WoG/ERM versions of the dialect (ERA 400/3931, WoG 358/281); a single-player game: no network, no cheat tracking (0)"] =
             "UN:V — версии WoG/ERM диалекта (ERA 400/3931, WoG 358/281); одиночная игра: сети нет, читы не отслеживаются (0)",
-        ["UN map/object/global commands are not mapped yet"] ="команды UN для карты/объектов/глобальные ещё не отображены",
+        ["UN:X — map size; Olden Era maps have no underground (levels 0)"] =
+            "UN:X — размер карты; у карт Olden Era нет подземелья (уровней 0)",
+        ["UN:U — Olden Era map objects with an H3 type (Compatibility/id-maps/object.json; Olden Era-only objects have types from 1000); a monster squad of several unit types counts as its first unit"] =
+            "UN:U — объекты карты Olden Era с типом H3 (Compatibility/id-maps/object.json; объекты только Olden Era имеют типы от 1000); отряд монстров из нескольких типов юнитов считается по первому юниту",
+        ["OB:T/U — the type and subtype of the object on a square (Format OB via id-maps/object.json); they cannot be changed"] =
+            "OB:T/U — тип и подтип объекта на клетке (Format OB через id-maps/object.json); изменить их нельзя",
+        ["OB:C — the control word is H3's object setup data: different engine"] =
+            "OB:C — управляющее слово — это данные настройки объекта H3: другой движок",
+        ["OB:D/E/R/S/M/H/B — disabling objects, auto-answers and hints need the object visit hook (not verified yet)"] =
+            "OB:D/E/R/S/M/H/B — запрет объектов, автоответы и подсказки требуют хука посещения объекта (ещё не проверен)",
+        ["TR:T/P/E — terrain (Olden Era biomes as the H3 terrain of the matching town), road, blocked (red) and entrance (yellow) squares; read only; rivers are 0"] =
+            "TR:T/P/E — почва (биомы Olden Era как почва H3 соответствующего города), дорога, занятые (красные) и входные (жёлтые) клетки; только чтение; реки 0",
+        ["TR:G — H3 terrain overlays (magic plains, cursed ground…) have no Olden Era equivalent mapped"] =
+            "TR:G — наложения почвы H3 (магические равнины, проклятая земля…) не имеют отображённого аналога в Olden Era",
+        ["TR:V — square visibility (fog of war) is not mapped yet"] =
+            "TR:V — видимость клетки (туман войны) пока не отображена",
+        ["UN:N — names of artifacts, spells, creatures and secondary skills from the ERA installation's text tables; N5/N6 ini values (written under BepInEx/config/WoG/era-root); N2 building names are not read yet"] =
+            "UN:N — названия артефактов, заклинаний, существ и вторичных навыков из текстовых таблиц установки ERA; значения ini N5/N6 (пишутся в BepInEx/config/WoG/era-root); названия построек N2 пока не читаются",
+        ["UN:R — R1-R4 redraws: Olden Era redraws its screens itself; R5-R7 (mouse pointer shape, delay) are cosmetic and do nothing"] =
+            "UN:R — перерисовка R1-R4: Olden Era сама обновляет свои экраны; R5-R7 (вид указателя мыши, задержка) косметические и ничего не делают",
+        ["UN map/object/global commands are not mapped yet"] = "команды UN для карты/объектов/глобальные ещё не отображены",
         ["values go through the adapter; OE primary stats differ (see the matrix)"] = "значения идут через адаптер; первичные статы OE отличаются (см. матрицу)",
         ["ids via IdMap; display-slot forms are not supported"] = "id через IdMap; формы со слотами отображения не поддерживаются",
         ["not mapped yet"] = "ещё не отображено",

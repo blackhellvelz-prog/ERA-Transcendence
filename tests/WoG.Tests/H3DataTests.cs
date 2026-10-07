@@ -228,6 +228,46 @@ public class H3DataTests : IDisposable
     }
 
     [Fact]
+    public void Un_n_gives_names_from_the_tables_and_keeps_ini_values()
+    {
+        var t = new EraTestHost().Script("t.erm", "ZVSE2\n" +
+            "!?FU(Go);\n" +
+            "!!UN:N0/1/5;\n" +            // artifact 5
+            "!!UN:N1/2/1;\n" +            // spell 1 (the section title row is skipped)
+            "!!UN:N3/3/1/0;\n!!UN:N3/4/1/1;\n" +
+            "!!UN:N4/5/0;\n" +
+            "!!VRz6:S^stored text^;\n!!UN:N5/6/42;\n" +
+            "!!VRz7:S^default^;\n!!UN:N6/7/42;\n!!UN:N6/8/43;\n" +
+            "!!UN:R1;\n!!UN:R5/1/1;\n!!UN:R7/0/1;\n!!UN:R3/-1;\n" +
+            "!?FU(Bad);\n!!UN:N1/1/99;\n");
+        string data = Path.Combine(t.ModDir, "Data");
+        File.WriteAllText(Path.Combine(data, "artraits.txt"), Artraits());
+        File.WriteAllText(Path.Combine(data, "zcrtrait.txt"),
+            "Name\t\tCost\r\nSingular\tPlural\tWood\r\nPikeman\tPikemen\t0\t0\t0\t0\t0\t0\t60\t100\t80\t14\t0\t10\t4\t4\t5\t1\t3\t0\t0\t20\t50\tImmune\t0\r\n" +
+            "Halberdier\tHalberdiers\t0\t0\t0\t0\t0\t0\t75\r\n");
+        File.WriteAllText(Path.Combine(data, "sptraits.txt"),
+            "\t\t\tSchool\r\nName\tAbbreviated Name\tLevel\r\n\t\t\r\nAdventure Spells\t\t\r\nSummon Boat\tSummon\t1\r\nScuttle Boat\tScuttle\t2\r\n");
+        File.WriteAllText(Path.Combine(data, "sstraits.txt"), "\tDescription\r\nName\tBasic\tAdvanced\tExpert\r\nPathfinding\tb\ta\te\r\n");
+        t.Start();
+        string write = Path.Combine(root, "write");
+        t.Host.SetEraFolders(null, write);
+        t.Call("Go");
+        Assert.Equal("", t.ErrorText);
+        Assert.Equal("Art 5", t.Z(1));
+        Assert.Equal("Scuttle Boat", t.Z(2));
+        Assert.Equal(("Halberdier", "Halberdiers"), (t.Z(3), t.Z(4)));
+        Assert.Equal("Pathfinding", t.Z(5));
+        Assert.Equal("stored text", t.Z(7));
+        Assert.Equal("", t.Z(8));                   // a missing value leaves the z variable as it was
+        Assert.Contains("42=stored text", File.ReadAllText(Path.Combine(write, "WoG.ini")));
+        Assert.Equal(60, t.Host.H3.Creatures[0].Cost[6]);
+        Assert.Equal(10, t.Host.H3.Creatures[0].HitPoints);
+        t.Call("Bad");
+        Assert.Contains("wrong number", t.ErrorText);
+        t.Dispose();
+    }
+
+    [Fact]
     public void Un_a_without_an_artifact_table_is_reported_unsupported()
     {
         using var t = new EraTestHost().Script("t.erm", "ZVSE2\n!?FU(Go);\n!!UN:A5/1/?v1;\n!!UN:A5/?v2;\n").Start();

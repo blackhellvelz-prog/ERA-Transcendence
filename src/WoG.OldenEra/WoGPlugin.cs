@@ -9,6 +9,7 @@ using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using WoG.Core.Events;
+using WoG.Core.Ids;
 using WoG.Core.Visual;
 using WoG.Erm.Runtime;
 using WoG.Erm.Syntax;
@@ -147,7 +148,17 @@ public sealed class WoGPlugin : BasePlugin
         string dir = Path.Combine(cfgDir, "id-maps");
         if (!Directory.Exists(dir)) return;
         foreach (var f in Directory.GetFiles(dir, "*.json"))
-            host.State.Ids.LoadDomainFile(Path.GetFileNameWithoutExtension(f), f);
+        {
+            string domain = Path.GetFileNameWithoutExtension(f);
+            if (domain == "object") continue; // one-way sid → type/subtype table, loaded by the adapter
+            host.State.Ids.LoadDomainFile(domain, f);
+        }
+        string objects = Path.Combine(dir, "object.json");
+        if (File.Exists(objects) && Adapter != null)
+        {
+            Adapter.ObjectTypes = ObjectTypeMap.Load(objects);
+            L?.LogInfo($"WoG: {Adapter.ObjectTypes.Count} Olden Era map object types mapped (id-maps/object.json)");
+        }
     }
 
     void HookPostfix(Harmony h, OldenEraSymbols s, string key, string patch) => Hook(h, s, key, patch, prefix: false);
@@ -332,6 +343,7 @@ internal static class FrameHook
     /// <summary>Runs every frame; does its work at most four times a second.</summary>
     static void Tick()
     {
+        OldenEraGameAdapter.Frame++;
         var now = DateTime.UtcNow;
         if (now < next) return;
         next = now.AddMilliseconds(250);

@@ -65,7 +65,7 @@ startup: `UN:C` (H3 memory), `SN:E` (H3 code), `FU:D` (network), `UN:A/R/X/N/U/V
 | `MR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `MT` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `MW` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
-| `OB` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `OB` | yes | `BDEHMRS` UNSUPPORTED (OB:D/E/R/S/M/H/B — disabling objects, auto-answers and hints need the object visit hook (not verified yet)); `C` UNSUPPORTED (OB:C — the control word is H3's object setup data: different engine); `TU` PARTIALLY SUPPORTED (OB:T/U — the type and subtype of the object on a square (Format OB via id-maps/object.json); they cannot be changed) |
 | `OW` | yes | `ACGIR` PARTIALLY SUPPORTED (resource ids via IdMap); `DHKNOSTVW` UNSUPPORTED (not mapped yet) |
 | `PA` | no | UNSUPPORTED — PA — receiver of the "receiver pa.era" plugin (closed-source ERA DLL) |
 | `PM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
@@ -85,8 +85,8 @@ startup: `UN:C` (H3 memory), `SN:E` (H3 code), `FU:D` (network), `UN:A/R/X/N/U/V
 | `SY` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `TL` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `TM` | yes | `DES` FULLY SUPPORTED |
-| `TR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
-| `UN` | yes | `A` PARTIALLY SUPPORTED (UN:A — artifact types come from the ERA installation's artraits.txt and are kept per game; Olden Era items are not linked to them yet, so changes do not affect the game's items, and the map ban does not affect map generation); `BDEFGHIJKLMNOQRSTUWXYZ` UNSUPPORTED (UN map/object/global commands are not mapped yet); `C` UNSUPPORTED (UN:C writes to H3 memory addresses — impossible on a different engine); `P` FULLY SUPPORTED; `V` FULLY SUPPORTED (UN:V — WoG/ERM versions of the dialect (ERA 400/3931, WoG 358/281); a single-player game: no network, no cheat tracking (0)) |
+| `TR` | yes | `EPT` PARTIALLY SUPPORTED (TR:T/P/E — terrain (Olden Era biomes as the H3 terrain of the matching town), road, blocked (red) and entrance (yellow) squares; read only; rivers are 0); `G` UNSUPPORTED (TR:G — H3 terrain overlays (magic plains, cursed ground…) have no Olden Era equivalent mapped); `V` UNSUPPORTED (TR:V — square visibility (fog of war) is not mapped yet) |
+| `UN` | yes | `A` PARTIALLY SUPPORTED (UN:A — artifact types come from the ERA installation's artraits.txt and are kept per game; Olden Era items are not linked to them yet, so changes do not affect the game's items, and the map ban does not affect map generation); `BDEFGHIJKLMOQSTWYZ` UNSUPPORTED (UN map/object/global commands are not mapped yet); `C` UNSUPPORTED (UN:C writes to H3 memory addresses — impossible on a different engine); `N` PARTIALLY SUPPORTED (UN:N — names of artifacts, spells, creatures and secondary skills from the ERA installation's text tables; N5/N6 ini values (written under BepInEx/config/WoG/era-root); N2 building names are not read yet); `P` FULLY SUPPORTED; `R` PARTIALLY SUPPORTED (UN:R — R1-R4 redraws: Olden Era redraws its screens itself; R5-R7 (mouse pointer shape, delay) are cosmetic and do nothing); `U` PARTIALLY SUPPORTED (UN:U — Olden Era map objects with an H3 type (Compatibility/id-maps/object.json; Olden Era-only objects have types from 1000); a monster squad of several unit types counts as its first unit); `V` FULLY SUPPORTED (UN:V — WoG/ERM versions of the dialect (ERA 400/3931, WoG 358/281); a single-player game: no network, no cheat tracking (0)); `X` FULLY SUPPORTED (UN:X — map size; Olden Era maps have no underground (levels 0)) |
 | `UR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `VC` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `VR` | yes | `%&*+-:BCFHMRSTUVXZ\|~` FULLY SUPPORTED |

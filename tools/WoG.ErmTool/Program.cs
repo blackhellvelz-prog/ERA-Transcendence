@@ -17,6 +17,7 @@ using WoG.Host;
 //                                     (default language en; --lang ru prints the Russian copy)
 //   idmap-creatures <Core.zip> <creature.json>  fill the creature id map from the game's units (CreatureMap.cs)
 //   probe-symbols <BepInEx/interop>   list Olden Era types/members matching the symbols the adapter needs
+//   idmap-objects <Core.zip> <object.json> [artifact.json]  fill the map object type map (ObjectMap.cs)
 //   h3data <ERA folder> [id...]      read the H3/WoG tables of an ERA installation (Mods/list.txt order) the way the
 //                                     plugin does; print where each came from and the given artifact ids
 //   era-pp  <out dir> <mod dir>...   Era: collect scripts of the mods (highest priority first) in Era load order,
@@ -86,6 +87,8 @@ switch (args[0])
         return ProbeSymbols(args[1]);
     case "idmap-creatures":
         return CreatureMap.Run(args[1], args[2]);
+    case "idmap-objects":
+        return ObjectMap.Run(args[1], args[2], args.Length > 3 ? args[3] : null);
     case "h3data":
     {
         string era = args[1];
@@ -95,7 +98,13 @@ switch (args[0])
             .Select(n => Path.Combine(era, "Mods", n)).Where(Directory.Exists).ToList();
         var tables = WoG.Core.H3Data.H3Tables.Load(new WoG.Core.H3Data.EraVfs(era, mods));
         foreach (var kv in tables.Sources) Console.WriteLine($"{kv.Key}: {kv.Value}");
-        Console.WriteLine($"artifacts: {tables.Artifacts.Count}");
+        Console.WriteLine($"artifacts: {tables.Artifacts.Count}, creatures: {tables.Creatures.Count}, spells: {tables.Spells.Count}, secondary skills: {tables.SecondarySkills.Count}");
+        foreach (int i in new[] { 0, 1, 149, 150, 196 })
+            if (i < tables.Creatures.Count) Console.WriteLine($"creature {i}: {tables.Creatures[i].Name} / {tables.Creatures[i].NamePlural} hp {tables.Creatures[i].HitPoints} att {tables.Creatures[i].Attack}");
+        foreach (int i in new[] { 0, 9, 10, 69, 70 })
+            if (i < tables.Spells.Count) Console.WriteLine($"spell {i}: {tables.Spells[i]}");
+        foreach (int i in new[] { 0, 27 })
+            if (i < tables.SecondarySkills.Count) Console.WriteLine($"skill {i}: {tables.SecondarySkills[i][0]}");
         foreach (var a in args.Skip(2).Select(int.Parse))
         {
             if (a < 0 || a >= tables.Artifacts.Count) { Console.WriteLine($"{a}: none"); continue; }

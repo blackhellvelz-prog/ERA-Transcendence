@@ -274,3 +274,51 @@ combinations.
    `UN:X/U/I/O/S/H`, `HE:P`, `OB`, `CA`.
 2. `UN:N/G` from the H3 tables (names of spells, creatures, skills, buildings), `UN:R/J`.
 3. Link H3 artifacts to Olden Era items (id map "artifact") so `HE:A` and the UN:A changes act on the game.
+
+## 2026-10-07 — session 2, continued: the adventure map for ERM
+
+The user named the core ERA set most other mods need: WoG, Era Erm Framework, WoG Rus, WoG Scripts, WoG Scripts Rus,
+WoG Fix Lite, ERA Scripts. It is measured on its own (`WoG.ErmTool run --era` with exactly these) and fixed first.
+
+### Done
+* **Map layer of the adapter** `[V-game]`: map size, hero positions, map objects, squares. Olden Era's map is a node
+  grid (node = x + z·sizeX) with z growing to the north and no underground; H3 counts y from the top, so
+  y = sizeZ − 1 − z. Objects: `Map.bzjn.bzsr` (2581 on an 80×80 map, scenery included); each has entrance nodes
+  (`bzrf`) and occupied nodes (`bzrg`). A pick-up (one occupied node ringed by entrances: resource, chest, artifact,
+  prison) stands on its own node, as in H3; a building at its first entrance in H3 scan order — every object has one
+  ERM position. Monster squads (`Data.squads`) are type 54 with the creature number of the first unit; heroes on the
+  map are type 34. The map is read once per game frame (one ERM call runs within a frame).
+* **`Compatibility/id-maps/object.json`** (`WoG.ErmTool idmap-objects <Core.zip> <object.json>`): Olden Era object sid →
+  H3 type/subtype (Format OB), chosen by what the object does (DB/objects_logic), not by its name: mines by
+  `resName`, windmill → Windmill, watchtower → Redwood Observatory, mana well → Magic Well, forge → Black Market,
+  dwellings → the town dwelling of the level (Format CG), portals → Two-Way Monoliths, … 243 of 486 interactive
+  objects have an H3 type; the others get types from 1000. Only sids and numbers — no game data.
+* **ERM**: `UN:X` (size; levels 0), `UN:U` (WoG's CalcObjects/FindObjects/FindNextObjects order and errors, and Era's
+  `UN:U(type)/(sub)/(dir)/(x)/(y)/(z)` form where "not found" is x = −1), `OB:T/U` (a hero on the square is type 34
+  unless `T?$/1`), `TR:T/P/E` (biome → H3 terrain of the matching town, road, red/yellow bits, the 3-parameter entrance
+  form), `HE:P` (read), `UN:N` (names from zcrtrait/sptraits/sstraits/artraits of the installation, N5/N6 ini
+  values), `UN:R` (redraws: Olden Era redraws itself; pointer and delay are cosmetic).
+* H3 tables now also hold creatures (all zcrtrait.txt stats, for MA later), spells and secondary skills.
+* WoG Debug: `peek <path> [max] [field,field]` reads any game object in a running game (how all of the above was
+  found); the bridge reads only `*.txt` commands (a half-written file was picked up before).
+
+### Found (non-obvious)
+1. With `UN:X` working, the stdlibs of WoG Scripts and ERA Scripts scan every square at game start (`OB:T/U`,
+   `TR:E/P`) — 6400 iterations; this is what the core set needed most after the data layer.
+2. In the user's ERA the Russian creature, spell and skill tables come from "WoG Rus" (`era rus.pac`); artifact texts
+   stay English (`hmm35wog.pac`). ERA's spell table has 201 rows (WoG spell slots after 80).
+3. `gem_fixes.erm` relies on Era's UN:U extension; WoG's v-index check made it an error before.
+4. Core set at start + day 1 now: `UN:C` 70, `SN:E` 55 (raw H3 memory, exe functions, hooks — library functions such as
+   `GetMaxMonsterId`, `WOG_CheckRandomMap`, `WOG_GameMgr_GetPlayer_Team` need native implementations), `SN:L` 3,
+   `IF:G` 2, `UN:J` 1, `SN:B` 1; no ERM errors with all 17 mods.
+
+### Verification
+164 xUnit tests (+8). In game (ARCADE, 80×80): `UN:X` 80/0; `UN:U` 4 gold mines, 7 towns, 55 resources, 7 dwellings;
+the human hero stands on its town's entrance (59,57,0 = node 1819); `OB:T` there = 34 (the hero), `TR:E` = 0,
+`TR:T` grass + road; a full 80×80 `OB:T`+`TR:E` scan in about a second; start of a new game with all 17 mods: no ERM
+errors.
+
+### Next steps
+1. Object visit hook (`object.interact`) → `!?OB`/`!?HM` triggers, OB:D/E/R/S; battle start/end; hero level-up.
+2. Native implementations of the stdlib functions built on `UN:C`/`SN:E`.
+3. Monsters (`MO`), towns (`CA`), mines (`MN`), `MA` from the creature tables.

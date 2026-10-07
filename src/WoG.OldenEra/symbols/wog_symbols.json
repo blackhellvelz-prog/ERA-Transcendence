@@ -265,6 +265,167 @@
       "Member": "bbqg",
       "Status": "verified",
       "Note": "0.81.04: ecc.bbqg(string resource, int amount) → bool; the AI pays a building with it (gold 2500, wood 5, ore 5) | verified 2026-10-07: spends and updates the top bar (-500 shown)"
+    },
+    "map.root": {
+      "Assembly": "Hex",
+      "Type": "dbx",
+      "Member": "me.cfjj.cnlq",
+      "Status": "verified",
+      "Note": "0.81.04: dbx.me.cfjj = adventure world (fbu); cnlq = Hex.Map.Map | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+    },
+    "map.sizeX": {
+      "Assembly": "Hex",
+      "Type": "Hex.Map.Map",
+      "Member": "csns",
+      "Status": "verified",
+      "Note": "0.81.04: Map.csns = MapData.sizeX_ (80) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+    },
+    "map.sizeZ": {
+      "Assembly": "Hex",
+      "Type": "Hex.Map.Map",
+      "Member": "csnt",
+      "Status": "verified",
+      "Note": "0.81.04: Map.csnt = MapData.sizeZ_ (80) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+    },
+    "map.objects": {
+      "Assembly": "Hex",
+      "Type": "Hex.Map.Map",
+      "Member": "bzjn.bzsr",
+      "Status": "verified",
+      "Note": "0.81.04: MapObjects.bzsr: List<bxp>, every placed object incl. scenery (2581) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+    },
+    "mapobj.id": {
+      "Assembly": "Hex",
+      "Type": "bxp",
+      "Member": "bzrb",
+      "Status": "verified",
+      "Note": "0.81.04: bxp.bzrb: map object id = DataObject.idMapObject | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+    },
+    "mapobj.node": {
+      "Assembly": "Hex",
+      "Type": "bxp",
+      "Member": "bzrc",
+      "Status": "verified",
+      "Note": "0.81.04: bxp.bzrc: pivot node (human_city id 1 at 2655) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+    },
+    "mapobj.entrances": {
+      "Assembly": "Hex",
+      "Type": "bxp",
+      "Member": "bzrf",
+      "Status": "verified",
+      "Note": "0.81.04: bxp.bzrf: List<int> of entrance nodes (mine_gold: 2260, 2181, 2180) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+    },
+    "mapobj.sid": {
+      "Assembly": "Hex",
+      "Type": "bxp",
+      "Member": "bzra.bzsi.csoi",
+      "Status": "verified",
+      "Note": "0.81.04: bxp.bzra = object type (bxr), bzsi = Hex.Map.ObjectConfig, csoi = sid (mine_gold) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+    },
+    "object.list": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Data",
+      "Member": "objects.cnja",
+      "Status": "verified",
+      "Note": "0.81.04: DataObjects.cnja: List<DataObject>, all interactive objects (214) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+    },
+    "object.mapId": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataObject",
+      "Member": "idMapObject",
+      "Status": "verified",
+      "Note": "0.81.04: map object id (human_city: 1) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+    },
+    "object.owner": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataObject",
+      "Member": "ownerSide",
+      "Status": "verified",
+      "Note": "0.81.04: owner side id, -1 neutral (human_city 0, nature_city 1) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+    },
+    "hero.position": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "node",
+      "Status": "verified",
+      "Note": "0.81.04: Hero.node: map node; -1 off the map (human hero at 2495 = 2 rows south of its town 2655) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+    },
+    "squad.list": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Data",
+      "Member": "squads.list",
+      "Status": "verified",
+      "Note": "0.81.04: DataSquads.list: List<DataSquad> | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (100 squads)"
+    },
+    "squad.node": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataSquad",
+      "Member": "node",
+      "Status": "verified",
+      "Note": "0.81.04: map node of the squad | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (100 squads)"
+    },
+    "squad.units": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataSquad",
+      "Member": "units",
+      "Status": "verified",
+      "Note": "0.81.04: List<DataSquadUnit>: unit stacks (blade_dancer_upg 34, blade_dancer_upg_alt 34, blade_dancer 55) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (100 squads)"
+    },
+    "squad.released": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataSquad",
+      "Member": "released",
+      "Status": "verified",
+      "Note": "0.81.04: true once the squad is gone [UNVERIFIED: after a won battle] | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (100 squads)"
+    },
+    "squadunit.sid": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataSquadUnit",
+      "Member": "sid",
+      "Status": "verified",
+      "Note": "0.81.04: unit sid | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (100 squads)"
+    },
+    "squadunit.amount": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataSquadUnit",
+      "Member": "amount",
+      "Status": "verified",
+      "Note": "0.81.04: unit count | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (100 squads)"
+    },
+    "mapobj.blocked": {
+      "Assembly": "Hex",
+      "Type": "bxp",
+      "Member": "bzrg",
+      "Status": "verified",
+      "Note": "0.81.04: bxp.bzrg: List<int> of occupied nodes, the list twice (mine_gold pivot 1414: 1414 1415 1334 1335; resource_gold: its own node 1416) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "map.data": {
+      "Assembly": "Hex",
+      "Type": "Hex.Map.Map",
+      "Member": "bzje",
+      "Status": "verified",
+      "Note": "0.81.04: Map.bzje = Hex.Map.MapData | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "map.tiles": {
+      "Assembly": "Hex",
+      "Type": "Hex.Map.MapData",
+      "Member": "tilesMap",
+      "Status": "verified",
+      "Note": "0.81.04: byte per node: DB/map/tiles id 1..7 (1 grass, 2 sand, 4 snow, 7 dirt on an ARCADE map) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "map.water": {
+      "Assembly": "Hex",
+      "Type": "Hex.Map.MapData",
+      "Member": "waterMap",
+      "Status": "verified",
+      "Note": "0.81.04: byte per node: 0 none, else DB/map/waters id | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "map.roads": {
+      "Assembly": "Hex",
+      "Type": "Hex.Map.MapData",
+      "Member": "roadsMap",
+      "Status": "verified",
+      "Note": "0.81.04: byte per node: 0 none, else DB/map/roads id (2 on an ARCADE map) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish"
     }
   }
 }

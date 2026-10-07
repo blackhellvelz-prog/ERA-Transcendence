@@ -181,6 +181,15 @@ public sealed class ErmCall
         return false;
     }
 
+    /// <summary>A z variable by index (z1..z1000, local z-1.., ERA's ERT strings), without interpolation.</summary>
+    public string GetZ(int index) => Rt.IsEra ? Rt.EraZRaw(index) : Rt.GetStringRaw(index);
+
+    public void SetZ(int index, string value)
+    {
+        if (Rt.IsEra) Rt.SetEraZ(index, value);
+        else Rt.SetString(index, value);
+    }
+
     public void RequireMin(int min)
     {
         if (Num < min) throw new ErmRuntimeException($"wrong number of parameters (at least {min})");

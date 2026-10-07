@@ -82,6 +82,18 @@ public sealed class OldenEraSymbols
         "hero.position", "hero.move", "hero.skills", "hero.spells", "hero.items", "hero.name", "hero.kill",
         "stack.create", "player.activeHero", "player.heroes",
         "map.objects", "town.list", "town.buildings", "battle.stacks", "battle.summon",
+        "map.root",                  // static path to the adventure map (Hex.Map.Map)
+        "map.sizeX", "map.sizeZ",    // map → width / height in nodes (node = x + z·sizeX)
+        "mapobj.id", "mapobj.node",  // map object → its map object id / pivot node
+        "mapobj.entrances",          // map object → nodes a hero visits it from
+        "mapobj.blocked",            // map object → nodes it occupies
+        "map.data", "map.tiles", "map.water", "map.roads", // map → MapData → per-node biome / water / road ids
+        "mapobj.sid",                // map object → object config sid (object.json)
+        "object.list",               // root → session objects (interactive objects with game data)
+        "object.mapId", "object.owner", // session object → map object id / owner side id (-1 neutral)
+        "squad.list",                // root → wandering monster squads
+        "squad.node", "squad.units", "squad.released", // squad → node / unit stacks / defeated
+        "squadunit.sid", "squadunit.amount",           // squad unit → unit sid / count
     };
 
     public static OldenEraSymbols Load(string path)

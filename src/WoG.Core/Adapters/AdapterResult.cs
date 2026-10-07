@@ -41,6 +41,10 @@ public readonly struct AdapterResult<T>
     public static AdapterResult<T> Unsupported(string reason) => new(AdapterStatus.Unsupported, default!, reason);
     public static AdapterResult<T> Failed(string reason) => new(AdapterStatus.Failed, default!, reason);
 
+    /// <summary>This failed or unsupported result as a result of another type (the reason is kept).</summary>
+    public AdapterResult<U> Error<U>() =>
+        Status == AdapterStatus.Unsupported ? AdapterResult<U>.Unsupported(Reason ?? "") : AdapterResult<U>.Failed(Reason ?? "");
+
     public AdapterResult AsPlain() => Status switch
     {
         AdapterStatus.Ok => AdapterResult.Ok,
