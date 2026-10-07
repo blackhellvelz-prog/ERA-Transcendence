@@ -1,99 +1,101 @@
-# Совместимость ERM: ресиверы и команды
+**English** | [Русский](ERM_Compatibility.ru.md)
 
-**Этот файл генерируется** из реестра ресиверов рантайма:
-`dotnet run --project tools/WoG.ErmTool -- compat`. Не правьте таблицу вручную — меняйте `Declare(...)` в
+# ERM Compatibility: Receivers and Commands
+
+**This file is generated** from the runtime's receiver registry:
+`dotnet run --project tools/WoG.ErmTool -- compat`. Do not edit the table by hand — change `Declare(...)` in
 `src/WoG.Erm/Receivers/*.cs`.
 
-Как читать:
-* «Реализован: да» — ресивер исполняется рантаймом; для каждой буквы команды указан статус. Буквы, не
-  перечисленные в строке, выдают ошибку «wrong command», как в WoG.
-* «Реализован: нет» — ресивер распознаётся парсером (скрипты с ним грузятся), но при выполнении команда
-  записывается в отчёт совместимости как UNSUPPORTED, выполнение строки продолжается. Ничего не подделывается.
-* Статус относится к **Olden Era**: например, `MA` реализован в рантайме полностью, но на Olden Era он
-  PARTIALLY SUPPORTED, потому что модель статов движка другая.
+How to read it:
+* "Implemented: yes" — the receiver is executed by the runtime; the status is given for each command letter.
+  Letters not listed in the row produce a "wrong command" error, as in WoG.
+* "Implemented: no" — the receiver is recognized by the parser (scripts that use it load), but when executed
+  the command is recorded in the compatibility report as UNSUPPORTED and execution of the line continues.
+  Nothing is faked.
+* The status refers to **Olden Era**: for example, `MA` is fully implemented in the runtime, but on Olden Era
+  it is PARTIALLY SUPPORTED because the engine's stat model is different.
 
-Какие ресиверы реально нужны скриптам WoG — см. столбец использований в
-`WoG_ReverseEngineering/03_ERM_Receivers.md`. Прогон всех 78 скриптов 3.58f как новой игры на эталонном
-движке (`WoG.ErmTool run`) сейчас упирается в: `HT:P/W`, `OW:T`, `UN:A/B/R/V/X`, `IF:D/F` и строки ERT
-(`z > 1000`) — это ближайшие задачи по расширению.
+Which receivers WoG scripts actually need — see the usage column in
+`WoG_ReverseEngineering/03_ERM_Receivers.md`. A run of all 78 3.58f scripts as a new game on the reference
+engine (`WoG.ErmTool run`) currently runs into: `HT:P/W`, `OW:T`, `UN:A/B/R/V/X`, `IF:D/F` and ERT strings
+(`z > 1000`) — these are the next tasks for extending the runtime.
 
-| Ресивер | Реализован | Команды и статус |
+| Receiver | Implemented | Commands and status |
 |---|---|---|
-| `AI` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `AR` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `BA` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `BF` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `BG` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `BH` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `BM` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `BU` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CA` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CB` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CD` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CE` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CH` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CI` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CM` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CO` | да | `ABDEHNPSTX` EMULATED (командиры — эмулируемая сущность в Olden Era) |
-| `DG` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `DL` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `DO` | да | `P` FULLY SUPPORTED |
-| `DW` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `EA` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `EX` | да | `AENRT` EMULATED (опыт — внешнее состояние WoG, применяемое к стекам OE); `C` UNSUPPORTED (объединение стеков ещё не реализовано) |
-| `FC` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `FR` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `FU` | да | `CEPX` FULLY SUPPORTED; `D` UNSUPPORTED (FU:D — сетевой вызов (мультиплеер вне рамок проекта)) |
-| `GD` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `GE` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `GR` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `HD` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `HE` | да | `ACS` PARTIALLY SUPPORTED (id через IdMap; формы со слотами отображения не поддерживаются); `BDGHLRTUVXY` UNSUPPORTED (ещё не отображено); `EFIKMNOPW` PARTIALLY SUPPORTED (значения идут через адаптер; первичные статы OE отличаются (см. матрицу)) |
-| `HL` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `HO` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `HT` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `IF` | да | `ARSVW` FULLY SUPPORTED; `BDEFGLNPTX` UNSUPPORTED (особые диалоги WoG (картинки, сфинкс, флажки, множественный выбор) требуют своего UI-слоя); `MQ` PARTIALLY SUPPORTED (текстовые сообщения и вопросы да/нет; варианты с картинками требуют своего UI) |
-| `IP` | нет | UNSUPPORTED — сетевой ERM вне рамок проекта (только одиночная игра) |
-| `KT` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `LD` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `LE` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `LN` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MA` | да | `ABCDEFGHILMNOPRSUVX` PARTIALLY SUPPORTED (модель статов движка отличается (initiative/speed, нет выстрелов)) |
-| `MC` | да | `S` FULLY SUPPORTED |
-| `MF` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `ML` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MM` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MN` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MO` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MP` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MR` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MT` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MW` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `OB` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `OW` | да | `ACGIR` PARTIALLY SUPPORTED (id ресурсов через IdMap); `DHKNOSTVW` UNSUPPORTED (ещё не отображено) |
-| `PM` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `PO` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `QW` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SC` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SG` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SK` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SN` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SP` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SR` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SS` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `ST` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SW` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SY` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `TL` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `TM` | да | `DES` FULLY SUPPORTED |
-| `TR` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `UN` | да | `ABDEFGHIJKLMNOQRSTUVWXYZ` UNSUPPORTED (команды UN для карты/объектов/глобальные ещё не отображены); `C` UNSUPPORTED (UN:C пишет по адресам памяти H3 — на другом движке невозможно); `P` FULLY SUPPORTED |
-| `UR` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `UX` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `VC` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `VR` | да | `%&*+-:CHMRSTUVX^\|` FULLY SUPPORTED |
-| `WG` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `WH` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `WM` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `WT` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-
+| `AI` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `AR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `BA` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `BF` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `BG` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `BH` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `BM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `BU` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CA` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CB` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CD` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CE` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CH` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CI` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CO` | yes | `ABDEHNPSTX` EMULATED (commanders are an emulated entity in Olden Era) |
+| `DG` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `DL` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `DO` | yes | `P` FULLY SUPPORTED |
+| `DW` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `EA` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `EX` | yes | `AENRT` EMULATED (experience is external WoG state applied to OE stacks); `C` UNSUPPORTED (stack merging is not implemented yet) |
+| `FC` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `FR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `FU` | yes | `CEPX` FULLY SUPPORTED; `D` UNSUPPORTED (FU:D — network call (multiplayer is out of scope)) |
+| `GD` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `GE` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `GR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `HD` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `HE` | yes | `ACS` PARTIALLY SUPPORTED (ids via IdMap; display-slot forms are not supported); `BDGHLRTUVXY` UNSUPPORTED (not mapped yet); `EFIKMNOPW` PARTIALLY SUPPORTED (values go through the adapter; OE primary stats differ (see the matrix)) |
+| `HL` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `HO` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `HT` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `IF` | yes | `ARSVW` FULLY SUPPORTED; `BDEFGLNPTX` UNSUPPORTED (special WoG dialogs (pictures, sphinx, checkboxes, multiple choice) need a custom UI layer); `MQ` PARTIALLY SUPPORTED (text messages and yes/no questions; variants with pictures need custom UI) |
+| `IP` | no | UNSUPPORTED — network ERM is out of scope (single-player only) |
+| `KT` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `LD` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `LE` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `LN` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MA` | yes | `ABCDEFGHILMNOPRSUVX` PARTIALLY SUPPORTED (the engine's stat model differs (initiative/speed, no shots)) |
+| `MC` | yes | `S` FULLY SUPPORTED |
+| `MF` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `ML` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MN` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MO` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MP` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MT` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MW` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `OB` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `OW` | yes | `ACGIR` PARTIALLY SUPPORTED (resource ids via IdMap); `DHKNOSTVW` UNSUPPORTED (not mapped yet) |
+| `PM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `PO` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `QW` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SC` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SG` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SK` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SN` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SP` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SS` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `ST` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SW` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SY` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `TL` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `TM` | yes | `DES` FULLY SUPPORTED |
+| `TR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `UN` | yes | `ABDEFGHIJKLMNOQRSTUVWXYZ` UNSUPPORTED (UN map/object/global commands are not mapped yet); `C` UNSUPPORTED (UN:C writes to H3 memory addresses — impossible on a different engine); `P` FULLY SUPPORTED |
+| `UR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `UX` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `VC` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `VR` | yes | `%&*+-:CHMRSTUVX^\|` FULLY SUPPORTED |
+| `WG` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `WH` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `WM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `WT` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |

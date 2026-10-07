@@ -76,9 +76,9 @@ public static class EraApi
         int colon = name.IndexOf(':');
         string api = colon >= 0 ? name.Substring(colon + 1) : name;
         if (colon >= 0 && !string.Equals(name.Substring(0, colon), "era", StringComparison.OrdinalIgnoreCase))
-            throw new ErmUnsupportedException($"SN:F^{name}^ — функция плагина ERA (DLL): другой движок");
+            throw new ErmUnsupportedException($"SN:F^{name}^ — ERA plugin function (DLL): different engine");
         if (!Table.TryGetValue(api, out var fn))
-            throw new ErmUnsupportedException($"SN:F^{name}^ — функция API Era не перенесена");
+            throw new ErmUnsupportedException($"SN:F^{name}^ — Era API function is not ported");
         int result = fn(c, rt);
         if (floatRes) rt.Services.State.Erm.V[0] = result; // e1 for float results is not used by any project script
         else rt.Services.State.Erm.V[0] = result;            // v1

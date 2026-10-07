@@ -1,124 +1,130 @@
-# MODLOG — журнал работ
+# MODLOG — work log
 
-Журнал по методике `mod-any-game` (universal-modder): пути, версии, форматы, что не сработало и почему,
-следующий шаг.
+Log following the `mod-any-game` (universal-modder) methodology: paths, versions, formats, what did not work and
+why, next step.
 
-## 2026-10-06 — сессия 1
+## 2026-10-06 — session 1
 
-### Задача
-Порт WoG 3.58 на Heroes of Might and Magic: Olden Era (полный текст задания — в истории сессии). Игра:
-Olden Era, Steam 3105440, ранний доступ с 30.04.2026, Unity IL2CPP. Платформа: Windows (Linux через Proton —
-BepInEx 6 для игры существует). Онлайн/античит: только одиночная игра.
+### Task
+Port WoG 3.58 to Heroes of Might and Magic: Olden Era (the full task text is in the session history). Game:
+Olden Era, Steam 3105440, early access since April 30, 2026, Unity IL2CPP. Platform: Windows (Linux via Proton —
+BepInEx 6 exists for the game). Online/anti-cheat: single-player only.
 
-### Разведка (knowledge base universal-modder)
-* В базе знаний universal-modder заметок по Olden Era/Heroes нет. Плейбук Unity (`references/engines/unity.md`)
-  применим: путь BepInEx 6 IL2CPP + Harmony.
-* `um scan` недоступен (в контейнере нет игры) — факты об игре собраны из рабочего кода сообщества (см.
-  `OldenEra_ReverseEngineering/00_Sources_and_Verification.md`).
+### Recon (universal-modder knowledge base)
+* The universal-modder knowledge base has no notes on Olden Era/Heroes. The Unity playbook
+  (`references/engines/unity.md`) applies: the BepInEx 6 IL2CPP + Harmony route.
+* `um scan` is unavailable (the game is not in the container) — facts about the game were collected from working
+  community code (see `OldenEra_ReverseEngineering/00_Sources_and_Verification.md`).
 
-### Выбранный путь и почему
-* Данные (`Core.zip` + zip-оверлей) — для статического контента (клоны юнитов, баффы).
-* Плагин BepInEx 6 IL2CPP — для всего динамического (ERM, командиры, опыт, хуки боя, сейвы): скриптинг
-  сценариев Olden Era слишком беден для ERM (нет переменных/циклов/функций, нет хуков боя).
-* Ядро WoG — отдельно и без зависимостей от движка: тестируемо без игры, переносимо.
+### Chosen route and why
+* Data (`Core.zip` + zip overlay) — for static content (unit clones, buffs).
+* BepInEx 6 IL2CPP plugin — for everything dynamic (ERM, commanders, experience, combat hooks, saves): Olden Era's
+  scenario scripting is too limited for ERM (no variables/loops/functions, no combat hooks).
+* The WoG core is separate and has no engine dependencies: testable without the game, portable.
 
-### Найдено (неочевидное)
-1. Исходники WoG доступны: `GrayFace/wog` (ветка 3.59 alpha от 3.58f) — `erm.cpp`, `npc.cpp`, `crexpo.cpp`.
-2. Событие 30000 — это `TM1`, хотя `FU` принимает номер 30000: в WoG кадр функции создаётся только для
-   `Event < 30000` (поймано тестом `Trigger_local_y_minus_are_zeroed_per_section`).
-3. `VR:U` проверяет «оканчивается на», а не «содержит»; односимвольный поиск не находит ничего.
-4. Сравнение строк `StrCmpExt` — по словам, без регистра, несимметрично для пустой строки.
-5. Комментарий о спец-бонусах командиров в `npc.cpp` устарел; правда — в функциях, проверяющих маски, и в
-   `ToHint`. Золото за опыт даёт класс 5 (код), а не Инферно 3 (комментарий); 50 %, а не 25 %.
-6. `CO:A` проваливается в `CO:N` (нет `break`); `CO:B3` пишет бит не в ту маску — воспроизводится по флагу.
-7. `!@` в новой игре **обрывает** разбор файла; в загруженной (с `ZVSE` после) включает инструкции.
-8. Формат пресетов опций (`SaveSetupState`) — в закрытой `ZvsLib1.dll`, не подтверждён.
-9. Olden Era: IL2CPP + обфускация, сборка `Hex`; имена вроде `qp/bufc/bufo` меняются с обновлениями.
-   Решение — символы в JSON с самопроверкой (как в gme-mod), пересборка после обновлений не нужна.
-10. Локализация OE: `{"tokens":[{"sid","text"}]}` с BOM; архивы без сжатия.
+### Findings (non-obvious)
+1. The WoG sources are available: `GrayFace/wog` (the 3.59 alpha branch, based on 3.58f) — `erm.cpp`, `npc.cpp`,
+   `crexpo.cpp`.
+2. Event 30000 is `TM1`, even though `FU` accepts the number 30000: in WoG a function frame is created only for
+   `Event < 30000` (caught by the test `Trigger_local_y_minus_are_zeroed_per_section`).
+3. `VR:U` checks "ends with", not "contains"; a single-character search finds nothing.
+4. String comparison in `StrCmpExt` is word-by-word, case-insensitive, and asymmetric for the empty string.
+5. The comment about commander special bonuses in `npc.cpp` is outdated; the truth is in the functions that check
+   the masks and in `ToHint`. Gold for experience is granted by class 5 (code), not Inferno 3 (comment); 50%, not
+   25%.
+6. `CO:A` falls through into `CO:N` (no `break`); `CO:B3` writes the bit to the wrong mask — reproduced behind a
+   flag.
+7. In a new game `!@` **terminates** parsing of the file; in a loaded game (with `ZVSE` after it) it enables
+   instructions.
+8. The option preset format (`SaveSetupState`) lives in the closed-source `ZvsLib1.dll`; not confirmed.
+9. Olden Era: IL2CPP + obfuscation, assembly `Hex`; names like `qp/bufc/bufo` change with updates.
+   Solution — symbols in JSON with self-checking (as in gme-mod); no rebuild is needed after updates.
+10. OE localization: `{"tokens":[{"sid","text"}]}` with BOM; archives are uncompressed.
 
-### Проверка (оракулы)
-* 102 теста xUnit (парсер, семантика ERM, командиры, опыт стеков, сохранение, опции, оверлей, визуалы).
-* Корпус 3.58f: 78 файлов, 1561 секция, ~25 тыс. строк — 0 ошибок разбора; загрузка как новой игры — 0 ошибок
-  выполнения. Корпус 3.59: 117 файлов, 44 464 строки — 0 ошибок.
-* В игре — **ничего** (нет копии игры).
+### Verification (oracles)
+* 102 xUnit tests (parser, ERM semantics, commanders, stack experience, saving, options, overlay, visuals).
+* 3.58f corpus: 78 files, 1561 sections, ~25K lines — 0 parse errors; loading as a new game — 0 runtime
+  errors. 3.59 corpus: 117 files, 44,464 lines — 0 errors.
+* In game — **nothing** (no copy of the game).
 
-### Не сработало / ограничения
-* `dotnet new classlib -f net6.0` не работает в SDK 8 без шаблона net6 — создаётся net8 и перенацеливается.
-* `JsonNode.DeepClone` нет в .NET 6 — клон через сериализацию.
-* Строки ERT (`z>1000`) пока не загружаются (формат `.ert` не разобран).
+### What did not work / limitations
+* `dotnet new classlib -f net6.0` does not work in SDK 8 without the net6 template — a net8 project is created
+  and retargeted.
+* `JsonNode.DeepClone` does not exist in .NET 6 — cloning goes through serialization.
+* ERT strings (`z>1000`) are not loaded yet (the `.ert` format has not been decoded).
 
-### Следующие шаги
-1. На машине с игрой: `07_InGame_RE_Plan.md` → `wog_symbols.json` (символы героев, хода, объектов, боя, сейвов).
-2. Отобразить ресиверы, которые нужны скриптам при старте: `HT`, `OW:T`, `UN:A/B/R/V/X`, `IF:D/F`, ERT.
-3. Заполнить `Compatibility/id-maps/creature.json` (выбор юнитов OE для существ H3 по роли/уровню).
-4. Боевой адаптер: баффы рангов + хуки шансовых эффектов; юнит командира.
-5. UI: окно командира, диалог WoG Options.
+### Next steps
+1. On the machine with the game: `07_InGame_RE_Plan.md` → `wog_symbols.json` (symbols for heroes, turns, objects,
+   combat, saves).
+2. Map the receivers the scripts need at startup: `HT`, `OW:T`, `UN:A/B/R/V/X`, `IF:D/F`, ERT.
+3. Fill in `Compatibility/id-maps/creature.json` (choosing OE units for H3 creatures by role/level).
+4. Combat adapter: rank buffs + hooks for chance-based effects; commander unit.
+5. UI: commander window, WoG Options dialog.
 
-### Как откатить
-Плагин ставится отдельной папкой `BepInEx/plugins/WoG/`; удалить её. Оверлей — удалить `wog_core.zip` рядом с
-`Core.zip`. Перед первым запуском — резервная копия сейвов и `Core.zip`.
+### How to roll back
+The plugin is installed as a separate folder, `BepInEx/plugins/WoG/`; delete it. Overlay — delete `wog_core.zip`
+next to `Core.zip`. Before the first launch — back up the saves and `Core.zip`.
 
-## 2026-10-06 — сессия 1, продолжение: подготовка к работе на машине с игрой
+## 2026-10-06 — session 1, continued: preparing to work on the machine with the game
 
-* Пользователь на компьютере с Olden Era, но облачная сессия до него не достаёт. Два пути: локальный Claude Code
-  в папке репозитория (лучше — можно сразу проверять в игре) или сбор данных скриптом.
-* Добавлен `tools/oe-recon/collect.ps1` — сбор данных только на чтение (см. `07_InGame_RE_Plan.md`, п. 0.1).
-* Не сработало / учтено:
-  - файл `.ps1` с кириллицей **обязан** быть в UTF-8 с BOM: Windows PowerShell 5.1 читает файл без BOM в
-    кодировке ANSI (cp1251), и байты UTF-8 букв «Б», «В», «Г», «Д» превращаются в типографские кавычки
-    `‘ ’ “ ”`, которые PowerShell считает кавычками — скрипт не разбирается;
-  - `(if …)` внутри выражения — синтаксическая ошибка, нужно `$(if …)`;
-  - `Format-Table | Out-String` без `-Width` в окружении без консоли даёт пустую строку.
-* Проверка: парсер PowerShell 7.4 — 0 ошибок; прогон на поддельной папке игры (`Core.zip` с JSON-массивом,
-  `{"array":[…]}`, битым файлом и `//`-комментарием) — архив собирается, битый файл попадает в `parse-errors.txt`.
-  На настоящей игре и в Windows PowerShell 5.1 скрипт ещё не запускался.
+* The user is at a computer with Olden Era, but the cloud session cannot reach it. Two routes: local Claude Code
+  in the repository folder (better — changes can be verified in game right away) or data collection by a script.
+* Added `tools/oe-recon/collect.ps1` — read-only data collection (see `07_InGame_RE_Plan.md`, item 0.1).
+* Did not work / taken into account:
+  - a `.ps1` file containing Cyrillic **must** be UTF-8 with BOM: Windows PowerShell 5.1 reads a file without a
+    BOM in the ANSI code page (cp1251), and the UTF-8 bytes of the letters "Б", "В", "Г", "Д" turn into
+    typographic quotes `‘ ’ “ ”`, which PowerShell treats as quotes — the script fails to parse;
+  - `(if …)` inside an expression is a syntax error; `$(if …)` is required;
+  - `Format-Table | Out-String` without `-Width` returns an empty string in an environment without a console.
+* Verification: PowerShell 7.4 parser — 0 errors; a run on a fake game folder (`Core.zip` with a JSON array,
+  `{"array":[…]}`, a corrupted file and a `//` comment) — the archive is built, the corrupted file ends up in
+  `parse-errors.txt`. The script has not yet been run on the real game or in Windows PowerShell 5.1.
 
-## 2026-10-07 — сессия 1, продолжение: цель — HoMM3 ERA
+## 2026-10-07 — session 1, continued: target — HoMM3 ERA
 
-### Решение
-Пользователь: «Если есть более продвинутая версия WOG — ERA, давай лучше её». Цель проекта — ERA
-(`ERA-Projects/era-project-eng`/`-rus` 2.291, движок `ethernidee/era` 3.9.31). WoG 3.58 — нижний слой ERA,
-сделанное для него сохраняется.
+### Decision
+The user: "If there is a more advanced version of WOG — ERA, let's go with that instead" («Если есть более
+продвинутая версия WOG — ERA, давай лучше её»). The project target is ERA (`ERA-Projects/era-project-eng`/`-rus`
+2.291, engine `ethernidee/era` 3.9.31). WoG 3.58 is the bottom layer of ERA; the work done for it is kept.
 
-### Разведка
-* ERA = WoG 3.58f (+ «3.59 TE») + `era.dll` (новый интерпретатор ERM, ERM 2.0, моды, переводы, сейвы) +
-  закрытые плагины + скрипты (WoG Scripts переписаны под ERM 2.0, ERA Scripts, Era Erm Framework).
-* Первая проверка: парсер WoG на скриптах ERA падает почти на каждом файле (`!?FU(Имя)` и т. д.).
-* Ключ: ERA не разбирает ERM 2.0 напрямую — `PreprocessErm` (Erm.pas) переводит текст в классический ERM,
-  который разбирает компилятор WoG с перехваченными функциями. Поэтому порт = препроцессор (построчно) +
-  грамматика параметров ERA + интерпретатор `ProcessErm` ERA.
-* Библиотека движка `ethernidee/b2` (`TextScan`, `StrLib`) нужна, чтобы повторить сканер препроцессора.
+### Recon
+* ERA = WoG 3.58f (+ "3.59 TE") + `era.dll` (new ERM interpreter, ERM 2.0, mods, translations, saves) +
+  closed-source plugins + scripts (WoG Scripts rewritten for ERM 2.0, ERA Scripts, Era Erm Framework).
+* First check: the WoG parser fails on almost every ERA script file (`!?FU(Имя)`, etc.).
+* Key point: ERA does not parse ERM 2.0 directly — `PreprocessErm` (Erm.pas) translates the text into classic ERM,
+  which is then parsed by the WoG compiler with hooked functions. Hence the port = preprocessor (line by line) +
+  ERA's parameter grammar + ERA's `ProcessErm` interpreter.
+* The engine library `ethernidee/b2` (`TextScan`, `StrLib`) is needed to replicate the preprocessor's scanner.
 
-### Найдено (неочевидное)
-1. Одна заглавная буква `(F)` — **константа**, а не функция (правило `DetectIdentType`); имена функций —
-   смешанный регистр. Однобуквенный индекс `f..t` в `arr[i]` — всегда быстрая переменная.
-2. В ERA y1..y100, e1..e100, `x`, быстрые `f..t`, z-1..z-10, f996–1000, v997–1000 — локальны для **события**
-   (сохраняются/восстанавливаются), а не для секции; `ErmLegacySupport` (в поставке 1) добавляет обнуление
-   y-1..-100 в каждой секции классических триггеров.
-3. `VR:U` в ERA — «содержит» без учёта регистра (в WoG — «оканчивается на»); строки в условиях сравниваются
-   побайтно; z1..z1000 при выводе **не** интерполируются (в WoG — да).
-4. Ошибки ERA, воспроизведённые портом: `d|` в параметрах `SN` выполняет AND; `SN:K` с целым GET отдаёт код
-   *первого* символа; проверка типа в `VR:+` для строк никогда не срабатывает (приоритет `not`); освобождение
-   диапазона локальных переменных в препроцессоре оставляет его в списке; вставленные вспомогательные
-   команды сдвигают метки.
-5. `SN:F` вызывает экспортные функции `era.dll`; скрипты проекта используют ~30 из них — нужные перенесены
-   (`EraApi`), в т. ч. `ExtendArrayLifetime` (без неё массивы функций стандартной библиотеки исчезают).
-6. Порядок загрузки определяет номера функций (95000+), поэтому повторён `GetOrderedPrioritizedFileList`.
+### Findings (non-obvious)
+1. A single uppercase letter `(F)` is a **constant**, not a function (the `DetectIdentType` rule); function names
+   are mixed case. A single-letter index `f..t` in `arr[i]` is always a quick variable.
+2. In ERA, y1..y100, e1..e100, `x`, the quick variables `f..t`, z-1..z-10, f996–1000, v997–1000 are local to the
+   **event** (saved/restored), not to the section; `ErmLegacySupport` (set to 1 as shipped) adds zeroing of
+   y-1..-100 in every section of classic triggers.
+3. In ERA, `VR:U` is a case-insensitive "contains" (in WoG — "ends with"); strings in conditions are compared byte
+   by byte; z1..z1000 are **not** interpolated on output (in WoG they are).
+4. ERA bugs reproduced by the port: `d|` in `SN` parameters performs AND; `SN:K` with an integer GET returns the
+   code of the *first* character; the type check in `VR:+` for strings never fires (`not` precedence); freeing a
+   range of local variables in the preprocessor leaves it in the list; inserted helper commands shift labels.
+5. `SN:F` calls exported functions of `era.dll`; the project's scripts use ~30 of them — the needed ones have been
+   ported (`EraApi`), including `ExtendArrayLifetime` (without it, the arrays of standard library functions
+   disappear).
+6. The load order determines function numbers (95000+), so `GetOrderedPrioritizedFileList` was replicated.
 
-### Проверка
-* 132 теста xUnit (из них 30 — ERA: препроцессор, грамматика, семантика, сохранение).
-* Корпус ERA 2.291 (183 скрипта): препроцессор 0 ошибок; разбор 0 ошибок; новая игра + 7 дней — 0 ошибок
-  выполнения. Корпусы WoG 3.58f/3.59 — без регрессий.
-* В игре — по-прежнему ничего.
+### Verification
+* 132 xUnit tests (30 of them for ERA: preprocessor, grammar, semantics, saving).
+* ERA 2.291 corpus (183 scripts): preprocessor 0 errors; parsing 0 errors; new game + 7 days — 0 runtime errors.
+  WoG 3.58f/3.59 corpora — no regressions.
+* In game — still nothing.
 
-### Не сработало / ограничения
-* Сортировка имён файлов — приближение `AnsiCompareText` Windows.
-* `SN:E`/`UN:C`/`SN:B` — код и память H3; плагины — закрытые DLL. Помечены UNSUPPORTED.
-* Прочие моды проекта (Game Enhancement Mod, Advanced Classes и т. д.) ещё не прогонялись.
+### What did not work / limitations
+* File name sorting is an approximation of Windows `AnsiCompareText`.
+* `SN:E`/`UN:C`/`SN:B` — H3 code and memory; plugins are closed-source DLLs. Marked UNSUPPORTED.
+* The project's other mods (Game Enhancement Mod, Advanced Classes, etc.) have not been run yet.
 
-### Следующие шаги
-1. На машине с игрой: `tools/oe-recon/collect.ps1`, затем символы Olden Era (`07_InGame_RE_Plan.md`).
-2. Подключить моды ERA в плагине (`WoGHost.AddEraMods`), хуки событий ERA (бой, экраны, клавиши).
-3. Ресиверы, нужные корпусу ERA: `UN` (карта), `BM/BU/BG/BA` (бой), `CA`, `PO`, `OB`, `DL` (диалоги).
-4. Прогнать остальные моды ERA Project; описать и реализовать заново плагины (`SS` и т. д.).
+### Next steps
+1. On the machine with the game: `tools/oe-recon/collect.ps1`, then Olden Era symbols (`07_InGame_RE_Plan.md`).
+2. Hook up ERA mods in the plugin (`WoGHost.AddEraMods`) and ERA event hooks (combat, screens, keys).
+3. Receivers needed by the ERA corpus: `UN` (map), `BM/BU/BG/BA` (combat), `CA`, `PO`, `OB`, `DL` (dialogs).
+4. Run the remaining ERA Project mods; document and reimplement the plugins (`SS`, etc.).

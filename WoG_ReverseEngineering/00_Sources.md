@@ -1,43 +1,43 @@
-# Реверс-инжиниринг WoG 3.58 — источники и их происхождение
+# WoG 3.58 Reverse Engineering — Sources and Their Provenance
 
-Всё в этой папке выведено из первоисточников. Если утверждение получено чтением кода, указаны файл и
-функция — чтобы любой мог перепроверить. Ничего не взято «по памяти».
+Everything in this folder is derived from primary sources. Where a claim was obtained by reading code, the file and
+function are given so that anyone can re-check it. Nothing is taken "from memory".
 
-## Использованные первоисточники
+## Primary sources used
 
-| # | Источник | Что даёт | Примечания |
-|---|----------|----------|------------|
-| S1 | GitHub `GrayFace/wog`, папка `T1/` (C++), README: *«Heroes 3.5: In the Wake of Gods 3.59 alpha»* | Исходный код движкового расширения WoG: интерпретатор ERM (`erm.cpp`), командиры (`npc.cpp`), опыт стеков (`crexpo.cpp`, `crexpo.h`), диалог WoG Options (`wogsetup.cpp`), флаги опций (`erm.h`) | Это ветка **3.59 alpha**, выросшая из исходников 3.58f. Всё, что появилось только в 3.59, помечено в документах как **[3.59]** — по changelog'ам `T1/docs/ChangeLog*.txt` и комментариям `// 3.59` в коде. Файлы в кодировке cp1251 (комментарии на русском). |
-| S2 | `GrayFace/wog`, папка `Mods/WoG/ERM/` (216 файлов) | Скрипты WoG (`script00.erm` … `script76.erm` + текстовые `.ert`), заголовок `ZVSE` | Версии 3.59 (используют `!!SS` и т.п.) — используются как второй корпус для парсера. |
-| S3 | Справка ERM (`Help/ERM-Help.chm` в `ERA-Projects/era-project-eng`) | Официальный справочник ресиверов/триггеров (справка команды WoG, дополненная Era), 306 страниц | Era-страницы (`triggers_ERA`, `trigger_ERA_*`) в эталон WoG 3.58 не входят. |
-| S4 | `Help/wog features.html` (тот же репозиторий) — *«New Features Added to the In the Wake of Gods AddOn»*, Timothy Pulver, 2004 | Описание возможностей для игрока: монстры 8-го уровня, командиры, опыт стеков, новые артефакты, 77 скриптов WoG (00–76) | |
-| S5 | `ethernidee/era` (`Erm.pas`, `Triggers.pas`, `AdvErm.pas`) | Независимая переработка/расширение ERM (Era). Подтверждает диапазоны id триггеров и модель типов параметров | Era добавляет триггеры 77001+, которых **нет** в WoG 3.58 — они упомянуты только чтобы их распознавать и отклонять. |
-| S6 | `vcmi/vcmi` `config/commanders.json`; `vcmi-mods/wake-of-gods` `Mods/stackExperience/Content/config/*.json` | Независимая реализация командиров и опыта стеков (VCMI) — для перекрёстной проверки чисел из S1 | |
-| S7 | `alexandersorokin/heroes3-era-wogify`, папка `Mods/WoG Wogify Scripts 3.58f/Data/s` | Скрипты 3.58f (78 файлов) в упаковке Era | **Основной корпус**: статистика использования ресиверов и тест парсера. |
+| # | Source | What it provides | Notes |
+|---|--------|------------------|-------|
+| S1 | GitHub `GrayFace/wog`, folder `T1/` (C++), README: *"Heroes 3.5: In the Wake of Gods 3.59 alpha"* | Source code of the WoG engine extension: the ERM interpreter (`erm.cpp`), commanders (`npc.cpp`), stack experience (`crexpo.cpp`, `crexpo.h`), the WoG Options dialog (`wogsetup.cpp`), option flags (`erm.h`) | This is the **3.59 alpha** branch, which grew out of the 3.58f sources. Everything that appeared only in 3.59 is marked in the documents as **[3.59]** — based on the changelogs `T1/docs/ChangeLog*.txt` and the `// 3.59` comments in the code. The files are cp1251-encoded (comments in Russian). |
+| S2 | `GrayFace/wog`, folder `Mods/WoG/ERM/` (216 files) | WoG scripts (`script00.erm` … `script76.erm` + text `.ert` files), `ZVSE` header | These are 3.59 versions (they use `!!SS`, etc.) — used as a second corpus for the parser. |
+| S3 | ERM help (`Help/ERM-Help.chm` in `ERA-Projects/era-project-eng`) | Official reference of receivers/triggers (the WoG team's help, extended by Era), 306 pages | The Era pages (`triggers_ERA`, `trigger_ERA_*`) are not part of the WoG 3.58 reference. |
+| S4 | `Help/wog features.html` (same repository) — *"New Features Added to the In the Wake of Gods AddOn"*, Timothy Pulver, 2004 | Player-facing description of the features: level-8 monsters, commanders, stack experience, new artifacts, 77 WoG scripts (00–76) | |
+| S5 | `ethernidee/era` (`Erm.pas`, `Triggers.pas`, `AdvErm.pas`) | An independent rework/extension of ERM (Era). Confirms the trigger id ranges and the parameter type model | Era adds triggers 77001+, which do **not** exist in WoG 3.58 — they are mentioned only so that they can be recognized and rejected. |
+| S6 | `vcmi/vcmi` `config/commanders.json`; `vcmi-mods/wake-of-gods` `Mods/stackExperience/Content/config/*.json` | An independent implementation of commanders and stack experience (VCMI) — for cross-checking the numbers from S1 | |
+| S7 | `alexandersorokin/heroes3-era-wogify`, folder `Mods/WoG Wogify Scripts 3.58f/Data/s` | 3.58f scripts (78 files) packaged for Era | **Main corpus**: receiver usage statistics and the parser test. |
 
-## Политика версий
+## Version policy
 
-* **Эталонное поведение = WoG 3.58f.**
-* Где в S1 есть изменения 3.59, документируется поведение 3.58, а поведение 3.59 указывается как
-  необязательный диалект (`ErmDialect.Wog359Alpha` в коде). Рантайм ERM по умолчанию работает по
-  семантике 3.58, но умеет разбирать добавления 3.59 (`!!la`/`!!go`, локальные функции `FU-1…-100`,
-  числовые макросы, `z-11…z-20`), т.к. их используют многие поздние скрипты.
-* Поведение Era (S5) никогда не берётся за эталон, если оно расходится с S1.
+* **Reference behavior = WoG 3.58f.**
+* Where S1 contains 3.59 changes, the 3.58 behavior is documented, and the 3.59 behavior is noted as an
+  optional dialect (`ErmDialect.Wog359Alpha` in the code). By default the ERM runtime follows 3.58
+  semantics, but it can parse the 3.59 additions (`!!la`/`!!go`, local functions `FU-1…-100`,
+  numeric macros, `z-11…z-20`), since many later scripts use them.
+* Era behavior (S5) is never taken as the reference where it diverges from S1.
 
-## Чего в источниках нет (и что поэтому не утверждается)
+## What the sources do not contain (and is therefore not claimed)
 
-* Собственных (до-WoG) правил исполняемого файла H3 в S1 нет. Там, где WoG перехватывает родную функцию
-  H3 по адресу (например `0x4E3620`), документирована только сторона WoG. Родное поведение взято из
-  справки ERM (S3) и помечено *«по справке»*.
-* Файлы данных `CREXPMOD.TXT`, `CREXPBON.TXT`, `ZCRTRAIT.TXT`, `ZSETUP00.TXT` поставляются с установкой
-  WoG, а не с S1. Загрузчики и формат файлов документированы по S1; числовое содержимое читается во время
-  работы из установки самого пользователя (принцип «свои файлы игры», см. `Compatibility/Architecture.md`).
-  S6 — перекрёстная проверка этих чисел.
-* Функции `SaveSetupState`/`LoadSetupState` (пресеты опций) реализованы в закрытой `ZvsLib1.dll` —
-  формат файла пресета **не подтверждён**.
+* S1 does not contain the H3 executable's own (pre-WoG) rules. Where WoG hooks a native H3 function
+  by address (for example `0x4E3620`), only the WoG side is documented. The native behavior is taken from the
+  ERM help (S3) and marked *"per the help"*.
+* The data files `CREXPMOD.TXT`, `CREXPBON.TXT`, `ZCRTRAIT.TXT`, `ZSETUP00.TXT` ship with the WoG
+  installation, not with S1. The loaders and the file formats are documented from S1; the numeric contents are read
+  at runtime from the user's own installation (the "your own game files" principle, see `Compatibility/Architecture.md`).
+  S6 serves as a cross-check of these numbers.
+* The functions `SaveSetupState`/`LoadSetupState` (option presets) are implemented in the closed-source `ZvsLib1.dll` —
+  the preset file format is **not confirmed**.
 
-## Правовая гигиена
+## Legal hygiene
 
-В репозиторий не коммитятся бинарники, файлы данных, скрипты и страницы справки WoG/H3. Документы
-описывают поведение своими словами со ссылками на файлы/функции. Тестам, которым нужны настоящие скрипты,
-путь к ним передаётся переменной окружения `WOG_SCRIPTS_DIR`.
+No WoG/H3 binaries, data files, scripts or help pages are committed to the repository. The documents
+describe the behavior in their own words, with references to files/functions. Tests that need the real scripts
+receive the path to them through the `WOG_SCRIPTS_DIR` environment variable.

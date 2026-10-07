@@ -1,95 +1,96 @@
-# Совместимость ERM в ERA: ресиверы и команды
+**English** | [Русский](ERM_Compatibility_ERA.ru.md)
 
-**Этот файл генерируется** из реестра ресиверов рантайма в режиме ERA:
-`dotnet run --project tools/WoG.ErmTool -- compat --era`. Не правьте таблицу вручную — меняйте `Declare(...)`
-в `src/WoG.Erm/Receivers/*.cs`. Таблица для классического WoG 3.58 — `ERM_Compatibility.md`.
+# ERM Compatibility in ERA: Receivers and Commands
 
-Отличия режима ERA от WoG: `VR`, `FU`, `DO` заменены переписанными ERA версиями (`EraReceivers.cs`), добавлен
-`SN` (`SnReceiver`, функции API Era — `EraApi.cs`), `if/el/en/re/br/co` исполняет сам интерпретатор
-(`EraProcess.cs`). Остальные ресиверы — WoG, но параметры, `Apply` и строки работают по правилам ERA
-(`ErmCall`, `EraValues.cs`).
+**This file is generated** from the runtime's receiver registry in ERA mode:
+`dotnet run --project tools/WoG.ErmTool -- compat --era`. Do not edit the table by hand — change `Declare(...)`
+in `src/WoG.Erm/Receivers/*.cs`. The table for classic WoG 3.58 is `ERM_Compatibility.md`.
 
-Как читать — так же, как `ERM_Compatibility.md`: «нет» = скрипты грузятся, команда записывается в отчёт как
-UNSUPPORTED, выполнение продолжается; ничего не подделывается. Статус относится к **Olden Era**.
+Differences of ERA mode from WoG: `VR`, `FU`, `DO` are replaced with the versions rewritten by ERA
+(`EraReceivers.cs`), `SN` is added (`SnReceiver`, Era API functions — `EraApi.cs`), `if/el/en/re/br/co` are
+executed by the interpreter itself (`EraProcess.cs`). The remaining receivers are WoG's, but parameters,
+`Apply` and strings work by ERA rules (`ErmCall`, `EraValues.cs`).
 
-Прогон всего проекта ERA (183 скрипта) как новой игры на эталонном движке — 0 ошибок. Неподдержанное при
-старте: `UN:C` (память H3), `SN:E` (код H3), `FU:D` (сеть), `UN:A/R/X/N/U/V/J` (карта и объекты),
+How to read it — the same as `ERM_Compatibility.md`: "no" = scripts load, the command is recorded in the report
+as UNSUPPORTED, execution continues; nothing is faked. The status refers to **Olden Era**.
+
+A run of the whole ERA project (183 scripts) as a new game on the reference engine — 0 errors. Unsupported at
+startup: `UN:C` (H3 memory), `SN:E` (H3 code), `FU:D` (network), `UN:A/R/X/N/U/V/J` (map and objects),
 `SN:L/B`, `IF:G`.
 
-| Ресивер | Реализован | Команды и статус |
+| Receiver | Implemented | Commands and status |
 |---|---|---|
-| `AI` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `AR` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `BA` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `BF` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `BG` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `BH` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `BM` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `BU` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CA` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CB` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CD` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CE` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CH` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CM` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `CO` | да | `ABDEHNPSTX` EMULATED (командиры — эмулируемая сущность в Olden Era) |
-| `DL` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `DO` | да | `P` FULLY SUPPORTED |
-| `DW` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `EA` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `EX` | да | `AENRT` EMULATED (опыт — внешнее состояние WoG, применяемое к стекам OE); `C` UNSUPPORTED (объединение стеков ещё не реализовано) |
-| `FR` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `FU` | да | `AEPS` FULLY SUPPORTED; `D` UNSUPPORTED (FU:D — сетевой вызов (мультиплеер вне рамок проекта)) |
-| `GD` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `GE` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `GR` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `HE` | да | `ACS` PARTIALLY SUPPORTED (id через IdMap; формы со слотами отображения не поддерживаются); `BDGHLRTUVXY` UNSUPPORTED (ещё не отображено); `EFIKMNOPW` PARTIALLY SUPPORTED (значения идут через адаптер; первичные статы OE отличаются (см. матрицу)) |
-| `HL` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `HO` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `HT` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `IF` | да | `ARSVW` FULLY SUPPORTED; `BDEFGLNPTX` UNSUPPORTED (особые диалоги WoG (картинки, сфинкс, флажки, множественный выбор) требуют своего UI-слоя); `MQ` PARTIALLY SUPPORTED (текстовые сообщения и вопросы да/нет; варианты с картинками требуют своего UI) |
-| `IP` | нет | UNSUPPORTED — сетевой ERM вне рамок проекта (только одиночная игра) |
-| `KT` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `LE` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `LN` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MA` | да | `ABCDEFGHILMNOPRSUVX` PARTIALLY SUPPORTED (модель статов движка отличается (initiative/speed, нет выстрелов)) |
-| `MC` | да | `S` FULLY SUPPORTED |
-| `MF` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `ML` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MM` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MN` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MO` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MP` | нет | UNSUPPORTED — MP — музыка H3 (mp3): у Olden Era своя музыка |
-| `MR` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MT` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `MW` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `OB` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `OW` | да | `ACGIR` PARTIALLY SUPPORTED (id ресурсов через IdMap); `DHKNOSTVW` UNSUPPORTED (ещё не отображено) |
-| `PA` | нет | UNSUPPORTED — PA — ресивер плагина «receiver pa.era» (закрытая DLL ERA) |
-| `PM` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `PO` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `QU` | нет | UNSUPPORTED — QU — ресивер плагина «receiver qu.era» (закрытая DLL ERA) |
-| `QW` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `RD` | нет | UNSUPPORTED — RD — окно найма существ H3 (Dwellings.pas): нужен UI-адаптер |
-| `SC` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SG` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SK` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SN` | да | `ABL` UNSUPPORTED (SN:L/A/B — загрузка DLL, адреса и память процесса H3: другой движок); `CDGIKMQTVWX` FULLY SUPPORTED; `E` UNSUPPORTED (SN:E — вызов функции по адресу в exe H3: другой движок); `F` PARTIALLY SUPPORTED (SN:F — функции API Era: перенесены те, что используют скрипты проекта ERA (см. EraApi); функции DLL/Win32 — нет); `H` UNSUPPORTED (SN:H — подсказки объектов/монстров: нужен UI-адаптер Olden Era); `O` UNSUPPORTED (SN:O — клетка входа объекта: нужен адаптер карты); `P` UNSUPPORTED (SN:P — проигрывание звука H3: звуки Olden Era другие); `R` UNSUPPORTED (SN:R — подмена ресурсов H3 (lod/def): ресурсы Olden Era другие); `S` UNSUPPORTED (SN:S — имя звука в !?SN: звуковой триггер не перенесён) |
-| `SP` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SR` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SS` | нет | UNSUPPORTED — SS — ресивер плагина вторичных навыков (закрытая DLL ERA) |
-| `ST` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SW` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `SY` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `TL` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `TM` | да | `DES` FULLY SUPPORTED |
-| `TR` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `UN` | да | `ABDEFGHIJKLMNOQRSTUVWXYZ` UNSUPPORTED (команды UN для карты/объектов/глобальные ещё не отображены); `C` UNSUPPORTED (UN:C пишет по адресам памяти H3 — на другом движке невозможно); `P` FULLY SUPPORTED |
-| `UR` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `VC` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `VR` | да | `%&*+-:BCFHMRSTUVXZ\|~` FULLY SUPPORTED |
-| `WG` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `WH` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `WM` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `WT` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-
+| `AI` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `AR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `BA` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `BF` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `BG` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `BH` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `BM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `BU` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CA` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CB` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CD` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CE` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CH` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `CO` | yes | `ABDEHNPSTX` EMULATED (commanders are an emulated entity in Olden Era) |
+| `DL` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `DO` | yes | `P` FULLY SUPPORTED |
+| `DW` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `EA` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `EX` | yes | `AENRT` EMULATED (experience is external WoG state applied to OE stacks); `C` UNSUPPORTED (stack merging is not implemented yet) |
+| `FR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `FU` | yes | `AEPS` FULLY SUPPORTED; `D` UNSUPPORTED (FU:D — network call (multiplayer is out of scope)) |
+| `GD` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `GE` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `GR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `HE` | yes | `ACS` PARTIALLY SUPPORTED (ids via IdMap; display-slot forms are not supported); `BDGHLRTUVXY` UNSUPPORTED (not mapped yet); `EFIKMNOPW` PARTIALLY SUPPORTED (values go through the adapter; OE primary stats differ (see the matrix)) |
+| `HL` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `HO` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `HT` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `IF` | yes | `ARSVW` FULLY SUPPORTED; `BDEFGLNPTX` UNSUPPORTED (special WoG dialogs (pictures, sphinx, checkboxes, multiple choice) need a custom UI layer); `MQ` PARTIALLY SUPPORTED (text messages and yes/no questions; variants with pictures need custom UI) |
+| `IP` | no | UNSUPPORTED — network ERM is out of scope (single-player only) |
+| `KT` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `LE` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `LN` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MA` | yes | `ABCDEFGHILMNOPRSUVX` PARTIALLY SUPPORTED (the engine's stat model differs (initiative/speed, no shots)) |
+| `MC` | yes | `S` FULLY SUPPORTED |
+| `MF` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `ML` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MN` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MO` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MP` | no | UNSUPPORTED — MP — H3 music (mp3): Olden Era has its own music |
+| `MR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MT` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MW` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `OB` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `OW` | yes | `ACGIR` PARTIALLY SUPPORTED (resource ids via IdMap); `DHKNOSTVW` UNSUPPORTED (not mapped yet) |
+| `PA` | no | UNSUPPORTED — PA — receiver of the "receiver pa.era" plugin (closed-source ERA DLL) |
+| `PM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `PO` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `QU` | no | UNSUPPORTED — QU — receiver of the "receiver qu.era" plugin (closed-source ERA DLL) |
+| `QW` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `RD` | no | UNSUPPORTED — RD — H3 creature recruitment window (Dwellings.pas): needs a UI adapter |
+| `SC` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SG` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SK` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SN` | yes | `ABL` UNSUPPORTED (SN:L/A/B — DLL loading, addresses and H3 process memory: different engine); `CDGIKMQTVWX` FULLY SUPPORTED; `E` UNSUPPORTED (SN:E — calling a function by address in the H3 exe: different engine); `F` PARTIALLY SUPPORTED (SN:F — Era API functions: those used by the ERA Project scripts are ported (see EraApi); DLL/Win32 functions are not); `H` UNSUPPORTED (SN:H — object/monster hints: needs an Olden Era UI adapter); `O` UNSUPPORTED (SN:O — object entrance tile: needs a map adapter); `P` UNSUPPORTED (SN:P — H3 sound playback: Olden Era sounds are different); `R` UNSUPPORTED (SN:R — H3 resource redirection (lod/def): Olden Era resources are different); `S` UNSUPPORTED (SN:S — sound name in !?SN: the sound trigger is not ported) |
+| `SP` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SS` | no | UNSUPPORTED — SS — receiver of the secondary skills plugin (closed-source ERA DLL) |
+| `ST` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SW` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `SY` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `TL` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `TM` | yes | `DES` FULLY SUPPORTED |
+| `TR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `UN` | yes | `ABDEFGHIJKLMNOQRSTUVWXYZ` UNSUPPORTED (UN map/object/global commands are not mapped yet); `C` UNSUPPORTED (UN:C writes to H3 memory addresses — impossible on a different engine); `P` FULLY SUPPORTED |
+| `UR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `VC` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `VR` | yes | `%&*+-:BCFHMRSTUVXZ\|~` FULLY SUPPORTED |
+| `WG` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `WH` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `WM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `WT` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |

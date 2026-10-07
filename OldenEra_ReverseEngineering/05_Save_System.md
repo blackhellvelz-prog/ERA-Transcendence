@@ -1,35 +1,35 @@
-# Olden Era — система сохранений
+# Olden Era — save system
 
-## Известно
+## Known
 
-* Действие сценария `AutoSave` форсирует автосохранение; «действия сразу после AutoSave не сохраняются»
-  **[V-community]** — сохранение — это снимок между тиками логики.
-* Счётчики и сюжетные счётчики сохраняются игрой (переживают сохранение/загрузку, сюжетные — и переход между
-  миссиями) **[V-community]**.
-* Соглашение Unity: сейвы и `Player.log` лежат в `%USERPROFILE%\AppData\LocalLow\<company>\<product>\`
-  (из `app.info`) **[UNVERIFIED для этой игры]**.
+* The `AutoSave` scenario action forces an autosave; "actions immediately after AutoSave are not saved"
+  **[V-community]** — a save is a snapshot taken between logic ticks.
+* Counters and story counters are saved by the game (they survive save/load, and story counters also survive the
+  transition between missions) **[V-community]**.
+* Unity convention: saves and `Player.log` live in `%USERPROFILE%\AppData\LocalLow\<company>\<product>\`
+  (from `app.info`) **[UNVERIFIED for this game]**.
 
-## Неизвестно — нужно установить на реальной установке
+## Unknown — must be established on a real installation
 
-* Формат файла сейва (бинарный/JSON/сжатый), расположение, есть ли место для расширений.
-* Управляемые методы записи/чтения сейва (нужны как точки хуков Harmony).
+* Save file format (binary/JSON/compressed), location, and whether there is room for extensions.
+* Managed methods that write/read the save (needed as Harmony hook points).
 
-## Стратегия, не зависящая от неизвестного (реализована)
+## Strategy that does not depend on the unknowns (implemented)
 
-Состояние WoG **никогда** не хранится только в памяти и **не** зависит от формата игры:
+WoG state is **never** kept only in memory and does **not** depend on the game's format:
 
-1. При каждом сохранении игры (постфикс Harmony на метод сохранения — символ `save.write`; запасной вариант —
-   наблюдение за папкой сейвов) плагин пишет блок состояния WoG рядом с сейвом: полный `WoGGameState`
-   (опции, переменные ERM, командиры, опыт стеков, данные объектов, таймеры, макросы, IdMap), сериализованный
-   `WoGSaveSerializer` с номером схемы и SHA-256.
-2. При загрузке, после того как игра восстановила своё состояние, плагин читает соответствующий блок,
-   проверяет контрольную сумму и принадлежность сейву, затем генерирует `!?GM0`. Принадлежность = имя файла
-   сейва **плюс** отпечаток родного состояния, которое плагин может прочитать (день, id карты, id/уровни
-   героев). Улучшение после проверки: хранить GUID в счётчике сценария, который входит в родной сейв
-   **[UNVERIFIED: доступны ли счётчики из плагина]**, — тогда связь переживёт переименование файлов.
-3. Нет блока / не совпал → состояние WoG сбрасывается в «новую игру» с видимым предупреждением; молча — никогда.
+1. On every game save (a Harmony postfix on the save method — symbol `save.write`; fallback —
+   watching the saves folder) the plugin writes a WoG state block next to the save: the full `WoGGameState`
+   (options, ERM variables, commanders, stack experience, object data, timers, macros, IdMap), serialized by
+   `WoGSaveSerializer` with a schema number and SHA-256.
+2. On load, after the game has restored its own state, the plugin reads the corresponding block,
+   verifies the checksum and that it belongs to this save, then raises `!?GM0`. Ownership = the save file
+   name **plus** a fingerprint of the native state the plugin can read (day, map id, hero ids/levels).
+   Improvement once verified: store a GUID in a scenario counter that is part of the native save
+   **[UNVERIFIED: whether counters are accessible from the plugin]** — then the link will survive file renames.
+3. No block / mismatch → WoG state is reset to "new game" with a visible warning; never silently.
 
-**Текущее состояние кода:** `Hooks.SavePostfix/LoadPostfix` в `WoGPlugin.cs` пишут/читают один файл
-`BepInEx/config/WoG/last.wog.json`, потому что раскладка аргументов метода сохранения (имя слота) ещё не
-известна. После нахождения символа `save.write` имя файла будет браться из аргумента — это отмечено в
-`07_InGame_RE_Plan.md`. Сериализация, проверка целостности и порядок загрузки уже реализованы и покрыты тестами.
+**Current state of the code:** `Hooks.SavePostfix/LoadPostfix` in `WoGPlugin.cs` write/read a single file,
+`BepInEx/config/WoG/last.wog.json`, because the argument layout of the save method (slot name) is not yet
+known. Once the `save.write` symbol is found, the file name will be taken from the argument — this is noted in
+`07_InGame_RE_Plan.md`. Serialization, integrity checking and load ordering are already implemented and covered by tests.

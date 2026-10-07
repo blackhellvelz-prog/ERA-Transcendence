@@ -1,242 +1,242 @@
-# Язык ERM — спецификация по результатам реверс-инжиниринга (WoG 3.58f)
+# ERM language — reverse-engineered specification (WoG 3.58f)
 
-Первоисточник: `T1/erm.cpp` из S1 (см. `00_Sources.md`). Имена функций ниже относятся к этому файлу.
-Именно эту спецификацию реализует `src/WoG.Erm`; в каждом разделе указан реализующий C#-тип.
+Primary source: `T1/erm.cpp` from S1 (see `00_Sources.md`). Function names below refer to that file.
+This is exactly the specification that `src/WoG.Erm` implements; each section names the implementing C# type.
 
-## 1. Файл скрипта
+## 1. Script file
 
-* Скрипт — обычный текст (cp1251). Он обрабатывается, только если первые непробельные символы — `ZVSE`
-  (`CheckERM`). Всё остальное — свободный текст.
-* Парсер (`ParseERM`) ищет символ `!` (`SkipUntil2` с `c='!'`). **Всё, что не является командой, —
-  комментарий.** Специального синтаксиса комментариев нет; `[...]` и `**` — просто договорённость.
-  Следствие: `!` внутри «комментария» начинает команду. Это воспроизведено точно.
-* Символ после `!` определяет конструкцию:
+* A script is plain text (cp1251). It is processed only if the first non-whitespace characters are `ZVSE`
+  (`CheckERM`). Everything else is free text.
+* The parser (`ParseERM`) searches for the `!` character (`SkipUntil2` with `c='!'`). **Everything that is not a
+  command is a comment.** There is no special comment syntax; `[...]` and `**` are just a convention.
+  Consequence: a `!` inside a "comment" starts a command. This is reproduced exactly.
+* The character after `!` determines the construct:
 
-| Текст | Конструкция | Смысл |
-|-------|-------------|-------|
-| `!?XX…;` | триггер | начинает новую секцию триггера (пре-триггер) |
-| `!$XX…;` | пост-триггер | срабатывает *после* родного действия (только где в таблице триггеров есть `post=true`: `!$OB`, `!$LE`, **[3.59]** `!$HL`) |
-| `!!XX…:…;` | ресивер | команда, выполняемая при срабатывании объемлющего триггера |
-| `!#XX…:…;` | инструкция | ресивер, выполняемый **один раз при загрузке скрипта и только для новой игры** (`GameWasLoaded==0`) |
-| `!@` | маркер пост-инструкций | в **новой** игре разбор файла на нём **заканчивается**; в **загруженной** игре, если за ним стоит `ZVSE`, инструкции после маркера выполняются (`PostInst=true`) |
-| что-то другое | пропускается | |
+| Text | Construct | Meaning |
+|------|-----------|---------|
+| `!?XX…;` | trigger | starts a new trigger section (pre-trigger) |
+| `!$XX…;` | post-trigger | fires *after* the native action (only where the trigger table has `post=true`: `!$OB`, `!$LE`, **[3.59]** `!$HL`) |
+| `!!XX…:…;` | receiver | command executed when the enclosing trigger fires |
+| `!#XX…:…;` | instruction | receiver executed **once at script load and only for a new game** (`GameWasLoaded==0`) |
+| `!@` | post-instruction marker | in a **new** game, parsing of the file **stops** at it; in a **loaded** game, if it is followed by `ZVSE`, the instructions after the marker are executed (`PostInst=true`) |
+| anything else | skipped | |
 
-* Ресивер до первого триггера в файле — фатальная ошибка для файла (`LastAddedTrigger==0 → l_exit`).
-* Идентификаторы триггеров и ресиверов — две буквы с учётом регистра (`Word` читается прямо из текста,
-  поэтому `HE` ≠ `he`). Строчные — ресиверы управления потоком: `if`, `el`, `en` и **[3.59]** `la`, `go`.
-* Если в конце файла осталось меньше 4 символов после `!`, разбор завершается (`M.i >= M.m.l-4`).
+* A receiver before the first trigger in a file is a fatal error for the file (`LastAddedTrigger==0 → l_exit`).
+* Trigger and receiver identifiers are two case-sensitive letters (`Word` is read directly from the text,
+  so `HE` ≠ `he`). Lowercase ones are the control-flow receivers: `if`, `el`, `en` and **[3.59]** `la`, `go`.
+* If fewer than 4 characters remain at the end of the file after `!`, parsing ends (`M.i >= M.m.l-4`).
 
 C#: `ErmParser`, `ErmScript`, `ErmTriggerSection`, `ErmReceiverLine`.
 
-## 2. Заголовок триггера
+## 2. Trigger header
 
-`!?ID p1/p2/…[&усл…][|усл…];`
+`!?ID p1/p2/…[&cond…][|cond…];`
 
-* Параметры разбираются `GetNumAutoFl` (до 16, через `/`, затем необязательный блок условий).
-* Параметры заголовка вычисляются при разборе с `immed=0`: если параметр — переменная, в номер события
-  идёт её **индекс**, а не значение (`!?FUv5;` = `!?FU5;`). На практике скрипты используют константы.
-* Каждый триггер превращается в числовой *идентификатор события* (`InitTrigger`, `ERM_Triggers[]`),
-  см. `02_ERM_Triggers.md`. При срабатывании ищутся все секции с этим id.
-* Условия триггера проверяются **в момент срабатывания**, а не при разборе (`ProcessERM → CheckFlags`).
-* Неизвестный тип триггера → предупреждение, секция пропускается, разбор продолжается. Неверные
-  параметры известного триггера → ошибка, **остаток файла игнорируется**.
+* Parameters are parsed by `GetNumAutoFl` (up to 16, separated by `/`, followed by an optional condition block).
+* Header parameters are evaluated at parse time with `immed=0`: if a parameter is a variable, the event number
+  receives its **index**, not its value (`!?FUv5;` = `!?FU5;`). In practice scripts use constants.
+* Each trigger is turned into a numeric *event identifier* (`InitTrigger`, `ERM_Triggers[]`),
+  see `02_ERM_Triggers.md`. When the trigger fires, all sections with that id are looked up.
+* Trigger conditions are checked **at the moment the trigger fires**, not at parse time (`ProcessERM → CheckFlags`).
+* Unknown trigger type → warning, the section is skipped, parsing continues. Invalid
+  parameters of a known trigger → error, **the rest of the file is ignored**.
 
-## 3. Ресивер / инструкция
+## 3. Receiver / instruction
 
-`!!ID p1/p2/…[&усл…][|усл…]:КОМАНДА парам КОМАНДА парам …;`
+`!!ID p1/p2/…[&cond…][|cond…]:CMD params CMD params …;`
 
-* Часть до `:` — *селектор объекта* ресивера (номер героя, позиция x/y/l, номер функции…). Число и
-  смысл параметров селектора зависят от ресивера (`InitReciever`, `ERM_Addition[].Type`):
+* The part before `:` is the receiver's *object selector* (hero number, position x/y/l, function number…). The
+  number and meaning of the selector parameters depend on the receiver (`InitReciever`, `ERM_Addition[].Type`):
 
-| `Type` | Форма селектора | Ресиверы |
-|--------|-----------------|----------|
-| 0 | одно значение | `CD`,`MA`,`UN`,`OW`,`BA`,`BF`,`BU`,`BG`,`QW`,`HL`,`CM`,`MM`,`MP`,`AI`,`VC`,`SN`,`MR`,`MF`,`TL`,`LD`,`HD`,`UX`,`CI`,`FC`,`DG` |
-| 1 | одно значение или ссылка на переменную (хранится как `VarNum`, вычисляется при выполнении) | `VR`,`TM`,`MC`,`BM`,`BH`,`MW`,`CO`,`DL`,`SS` |
-| 2 | позиция `x/y/l` (3) или 1, 2, 4, 5 значений | `OB`,`MN`,`SC`,`CH`,`WT`,`KT`,`FR`,`LN`,`ST`,`WG`,`SK`,`SP`,`WM`,`SW`,`MT`,`GD`,`ML`,`DW`,`WH`,`SY`,`GR`,`SR`,`SG`,`UR`,`CA`,`TR`,`PO`,`PM`,`EX`,`EA`,`CB` |
-| 3 | ровно одно число | `FU`,`HO`,`IP` |
-| 4 | цикл: `DO#/от/до/шаг` (4 значения) | `DO` |
-| 5 | ровно 2 значения | `HT` |
-| inline | обрабатываются в `ProcessMes` | `GE`,`LE`,`CE`,`MO`,`AR`,`HE`,`IF` |
+| `Type` | Selector shape | Receivers |
+|--------|----------------|-----------|
+| 0 | one value | `CD`,`MA`,`UN`,`OW`,`BA`,`BF`,`BU`,`BG`,`QW`,`HL`,`CM`,`MM`,`MP`,`AI`,`VC`,`SN`,`MR`,`MF`,`TL`,`LD`,`HD`,`UX`,`CI`,`FC`,`DG` |
+| 1 | one value or a variable reference (stored as `VarNum`, evaluated at execution time) | `VR`,`TM`,`MC`,`BM`,`BH`,`MW`,`CO`,`DL`,`SS` |
+| 2 | position `x/y/l` (3) or 1, 2, 4, 5 values | `OB`,`MN`,`SC`,`CH`,`WT`,`KT`,`FR`,`LN`,`ST`,`WG`,`SK`,`SP`,`WM`,`SW`,`MT`,`GD`,`ML`,`DW`,`WH`,`SY`,`GR`,`SR`,`SG`,`UR`,`CA`,`TR`,`PO`,`PM`,`EX`,`EA`,`CB` |
+| 3 | exactly one number | `FU`,`HO`,`IP` |
+| 4 | loop: `DO#/from/to/step` (4 values) | `DO` |
+| 5 | exactly 2 values | `HT` |
+| inline | handled in `ProcessMes` | `GE`,`LE`,`CE`,`MO`,`AR`,`HE`,`IF` |
 
-  Примечание: у ресивера без параметров селектора (`!!UN:…`) всё равно `Num==1`, потому что
-  `GetNumAutoSelf` всегда возвращает хотя бы один (пустой) параметр со значением 0.
-* Значения селектора хранятся как `VarNum` и **вычисляются при выполнении** (`GetVarVal(&sp->Par[0])`),
-  поэтому `!!HEv5:…` обращается к герою, номер которого лежит в `v5` *в момент выполнения строки*.
-* Неизвестный ресивер: сообщение при загрузке, строка игнорируется (остаток строки становится обычным
-  текстом), разбор файла продолжается.
-* После `:` идут *команды*. Команда — одна буква и параметры (`ProcessCmd`): `GetNumAuto` с `c=1`
-  читает параметры через `/` до символа, который не может продолжить параметр. Затем следующая буква
-  команды. Пробелы пропускаются. Список заканчивается `;`.
-  Пример: `!!HE-1:Ed500Fd1/d1/0/0;` = команда `E` (`d500`), затем `F` (`d1/d1/0/0`).
-* Если команда завершилась ошибкой, остальные команды этой строки пропускаются, выводится сообщение;
-  выполнение продолжается со следующей строки (`ProcessCmd → l_exit`).
+  Note: a receiver without selector parameters (`!!UN:…`) still has `Num==1`, because
+  `GetNumAutoSelf` always returns at least one (empty) parameter with the value 0.
+* Selector values are stored as `VarNum` and **evaluated at execution time** (`GetVarVal(&sp->Par[0])`),
+  so `!!HEv5:…` addresses the hero whose number is in `v5` *at the moment the line executes*.
+* Unknown receiver: a message at load time, the line is ignored (the rest of the line becomes plain
+  text), parsing of the file continues.
+* After `:` come the *commands*. A command is one letter plus parameters (`ProcessCmd`): `GetNumAuto` with `c=1`
+  reads `/`-separated parameters up to a character that cannot continue a parameter. Then comes the next
+  command letter. Whitespace is skipped. The list ends with `;`.
+  Example: `!!HE-1:Ed500Fd1/d1/0/0;` = command `E` (`d500`), then `F` (`d1/d1/0/0`).
+* If a command fails, the remaining commands of this line are skipped and a message is shown;
+  execution continues with the next line (`ProcessCmd → l_exit`).
 
-## 4. Синтаксис параметра (`GetNum`)
+## 4. Parameter syntax (`GetNum`)
 
-Параметр — последовательность префиксов и значение:
+A parameter is a sequence of prefixes followed by a value:
 
-| Префикс | Действие |
-|---------|----------|
-| `?` | **get**: записать текущее значение в переменную, стоящую после (`Check=1`) |
-| `d` | **добавить** (дельта): `новое = старое + значение` (`PutVal: *dp = *dp*f + n`, при `d` `f=1`, без `d` `f=0`) |
-| `<` `=` `>` (и сочетания `<=`,`>=`,`<>`) | **проверка**: сравнить текущее значение со значением параметра и записать результат во **флаг 1** (`Apply → ERMFlags[0]`) |
-| `c` (внутри числа) | прибавить к значению номер текущего игрового дня (`GetSubNum`, `GetCurDate()`) |
+| Prefix | Action |
+|--------|--------|
+| `?` | **get**: write the current value into the variable that follows (`Check=1`) |
+| `d` | **add** (delta): `new = old + value` (`PutVal: *dp = *dp*f + n`; with `d`, `f=1`; without `d`, `f=0`) |
+| `<` `=` `>` (and the combinations `<=`,`>=`,`<>`) | **check**: compare the current value with the parameter value and write the result to **flag 1** (`Apply → ERMFlags[0]`) |
+| `c` (inside a number) | add the number of the current game day to the value (`GetSubNum`, `GetCurDate()`) |
 
-Коды сравнения (`GetCmpCode`): биты `<`=1, `=`=2, `>`=4 → `<`=5, `=`=2, `<=`=7, `>`=4, `<>`=3, `>=`=6.
+Comparison codes (`GetCmpCode`): bits `<`=1, `=`=2, `>`=4 → `<`=5, `=`=2, `<=`=7, `>`=4, `<>`=3, `>=`=6.
 
-Значения:
+Values:
 
-| Форма | Смысл |
-|-------|-------|
-| `123`, `-5`, `+5` | целая константа |
-| `f` … `t` | «быстрые» переменные (15 целых) |
-| `v#` | глобальная целая `v1…v10000` |
-| `w#` | переменная героя `w1…w200` текущего *w-героя* (`IF:W`) |
-| `x#` | параметр функции `x1…x16` |
-| `y#` | локальная переменная функции `y1…y100`; `y-1…y-100` — локальные переменные триггера |
-| `z#` | строка `z1…z1000` (512 байт), локальные `z-1…z-10` (**[3.59]** `z-1…z-20`); `z>1000` — текст ERT |
-| `e#` | вещественная `e1…e100` (локальная функции), `e-1…e-100` (локальная триггера) |
-| `v<перем>` | **косвенная адресация**: `vy5` = `v[y5]`, `vf` = `v[f]`; любая целая переменная может индексировать любую (`IType`) |
-| `$имя$` | макрос (`MC`), заменяется переменной, к которой он привязан |
-| `^текст^` | строковый литерал (читает сама команда, а не `GetNum`; `GetNum` возвращает 0 и оставляет курсор на `^`) |
+| Form | Meaning |
+|------|---------|
+| `123`, `-5`, `+5` | integer constant |
+| `f` … `t` | quick variables (15 integers) |
+| `v#` | global integer `v1…v10000` |
+| `w#` | hero variable `w1…w200` of the current *w-hero* (`IF:W`) |
+| `x#` | function parameter `x1…x16` |
+| `y#` | function local variable `y1…y100`; `y-1…y-100` are trigger local variables |
+| `z#` | string `z1…z1000` (512 bytes), local `z-1…z-10` (**[3.59]** `z-1…z-20`); `z>1000` is ERT text |
+| `e#` | floating-point `e1…e100` (function-local), `e-1…e-100` (trigger-local) |
+| `v<var>` | **indirect addressing**: `vy5` = `v[y5]`, `vf` = `v[f]`; any integer variable can index any other (`IType`) |
+| `$name$` | macro (`MC`), replaced by the variable it is bound to |
+| `^text^` | string literal (read by the command itself, not by `GetNum`; `GetNum` returns 0 and leaves the cursor on `^`) |
 
-Правила (из `GetNum` / `Apply`):
+Rules (from `GetNum` / `Apply`):
 
-* `?` и сравнение вместе нельзя (ошибка).
-* `?` требует переменную (`?5` — ошибка «cannot get flag»).
-* Для **set** значение переменной читается *в момент выполнения команды* (`immed=1` в `GetNumAuto`).
-* `?z5` — особый случай 3.58: ведёт себя как `PutVal` с индексом 5 в качестве значения.
-* `Apply` возвращает 1, если был get/check; многие команды тогда не выполняют свою «запись».
-* Диапазоны (`CheckVarIndex`): флаги 1…1000, f…t 1…15, v 1…10000, w 1…200, x 1…16, y −100…−1,1…100,
-  z −20…−1,1…1000 (+id ERT), e −100…−1,1…100. Выход за диапазон ⇒ ошибка, команда прерывается.
+* `?` and a comparison cannot be combined (error).
+* `?` requires a variable (`?5` is an error: "cannot get flag").
+* For **set**, the variable's value is read *at the moment the command executes* (`immed=1` in `GetNumAuto`).
+* `?z5` is a special case in 3.58: it behaves like `PutVal` with the index 5 as the value.
+* `Apply` returns 1 if a get/check took place; many commands then skip their "write".
+* Ranges (`CheckVarIndex`): flags 1…1000, f…t 1…15, v 1…10000, w 1…200, x 1…16, y −100…−1,1…100,
+  z −20…−1,1…1000 (+ERT ids), e −100…−1,1…100. Out of range ⇒ error, the command is aborted.
 
-C#: `ErmParam`, `ErmVarRef`, `ErmParamMode` (`Set`, `Get`, `Check`, флаг `Add`), `WoGVariables`.
+C#: `ErmParam`, `ErmVarRef`, `ErmParamMode` (`Set`, `Get`, `Check`, `Add` flag), `WoGVariables`.
 
-## 5. Условия (`GetFlags`, `CheckFlags`)
+## 5. Conditions (`GetFlags`, `CheckFlags`)
 
-`&a/b/c` — список И, `|a/b/c` — список ИЛИ; оба необязательны, до 16 элементов, часть И идёт первой.
+`&a/b/c` is an AND list, `|a/b/c` is an OR list; both are optional, up to 16 items, the AND part comes first.
 
-Элемент — это
+An item is
 
-* **проверка флага**: `5` (флаг 5 установлен), `-5` (флаг 5 сброшен), флаги 1…1000;
-* **сравнение**: `<перем><оп><перем-или-число>`, например `v10>=3`, `y-1<>0`, `z2=z3` (строки — только
-  `=`/`<>`, сравнение `StrCmpExt`: по словам, без учёта регистра ASCII и количества пробелов); если с
-  любой стороны `e` — сравнение вещественное.
+* a **flag check**: `5` (flag 5 is set), `-5` (flag 5 is cleared), flags 1…1000;
+* a **comparison**: `<var><op><var-or-number>`, for example `v10>=3`, `y-1<>0`, `z2=z3` (strings: only
+  `=`/`<>`, compared with `StrCmpExt`: word by word, ignoring ASCII case and the number of spaces); if
+  either side is `e`, the comparison is floating-point.
 
-Вычисление (`CheckFlags`) — воспроизведено точно:
+Evaluation (`CheckFlags`) — reproduced exactly:
 
-1. Нет ни И, ни ИЛИ ⇒ **истина**.
-2. Есть часть И: если **все** истинны ⇒ **истина**; если хоть один ложен ⇒ переход к части ИЛИ.
-3. Часть ИЛИ: если **хоть один** истинен ⇒ **истина**.
-4. Иначе ⇒ **ложь**. (`&1|2` = `1 ИЛИ 2`; `&1/3|2` = `(1 И 3) ИЛИ 2`.)
+1. Neither an AND nor an OR part ⇒ **true**.
+2. AND part present: if **all** items are true ⇒ **true**; if at least one is false ⇒ go to the OR part.
+3. OR part: if **at least one** item is true ⇒ **true**.
+4. Otherwise ⇒ **false**. (`&1|2` = `1 OR 2`; `&1/3|2` = `(1 AND 3) OR 2`.)
 
-Ошибка внутри условия делает его **ложным**.
+An error inside a condition makes it **false**.
 
-## 6. Модель выполнения (`ProcessERM`)
+## 6. Execution model (`ProcessERM`)
 
-Когда игра генерирует событие *E* (с контекстом: текущий герой, позиция, игрок…):
+When the game raises event *E* (with a context: current hero, position, player…):
 
-1. Находятся все секции с id *E* в **порядке загрузки** (скрипты по порядку загрузки, внутри файла —
-   сверху вниз).
-2. Перед первой выполняемой секцией создаётся кадр локальных переменных (`StoreVars`):
-   * события-функции (`FU` 1…29999, локальные функции): `y1…y100`, `e1…e100` начинаются с 0;
-     `z-1…z-10` **копируются** у вызывающего (обратная совместимость), `z-11…z-20` очищаются **[3.59]**;
-   * прочие события: `z-1…z-20` очищаются.
-   Кадр снимается после последней секции события *E* — локальные переменные общие для всех секций
-   одного срабатывания.
-   **Важно:** событие 30000 — это уже `TM1`, хотя `FU` принимает номер 30000 (коллизия в WoG); для
-   кадров решает условие `Event < 30000`.
-3. Для каждой секции из контекста ставятся флаги 999 и 1000 и `v998…v1000` (`ERMFlags[999]`,
-   `ERMFlags[998]`, `ERMVar2[997..999]` — массивы с нуля): `флаг1000` = текущий игрок — человек (или
-   переопределение `GM_ai`), `флаг999` = текущий игрок сидит за этим ПК (`IsThis`),
-   `v998/v999/v1000` = x/y/l позиции события.
-4. Проверяются условия секции. Если ложь — секция пропускается.
-5. Для событий-не-функций `y-1…y-100` и `e-1…e-100` обнуляются **для каждой секции**.
-6. Строки выполняются по порядку; здесь же обрабатываются `if/el/en` и `la/go` (§7). `FU:E` завершает
-   секцию (с параметром — пропуск/возврат на N секций).
-7. Секции могут синхронно порождать другие события (`FU:P`, перемещение героя `HE:P` и т.д.) —
-   это вложенный `ProcessERM` со своими локальными переменными.
+1. All sections with id *E* are found in **load order** (scripts in load order; within a file,
+   top to bottom).
+2. Before the first section that executes, a frame of local variables is created (`StoreVars`):
+   * function events (`FU` 1…29999, local functions): `y1…y100`, `e1…e100` start at 0;
+     `z-1…z-10` are **copied** from the caller (backward compatibility), `z-11…z-20` are cleared **[3.59]**;
+   * other events: `z-1…z-20` are cleared.
+   The frame is removed after the last section of event *E* — local variables are shared by all sections of
+   one firing.
+   **Important:** event 30000 is already `TM1`, even though `FU` accepts the number 30000 (a collision in WoG);
+   for frames the deciding condition is `Event < 30000`.
+3. For each section, flags 999 and 1000 and `v998…v1000` are set from the context (`ERMFlags[999]`,
+   `ERMFlags[998]`, `ERMVar2[997..999]` — zero-based arrays): `flag1000` = the current player is human (or
+   the `GM_ai` override), `flag999` = the current player is sitting at this PC (`IsThis`),
+   `v998/v999/v1000` = x/y/l of the event position.
+4. The section's conditions are checked. If they are false, the section is skipped.
+5. For non-function events, `y-1…y-100` and `e-1…e-100` are zeroed **for every section**.
+6. Lines are executed in order; `if/el/en` and `la/go` are processed here as well (§7). `FU:E` ends the
+   section (with a parameter — skip/return by N sections).
+7. Sections can synchronously raise other events (`FU:P`, hero movement `HE:P`, etc.) —
+   this is a nested `ProcessERM` with its own local variables.
 
-## 7. Управление потоком
+## 7. Control flow
 
-* `!!if&усл:;` / `!!el&усл:;` (или `!!el:;`) / `!!en:;` (`CheckConditions`, `_IfStruct_`): обычные
-  if / else-if / else. Вложенные `if` внутри ложной ветви становятся «призрачными». Лишний `en` —
-  ошибка; незакрытый `if` в конце секции — ошибка «no ENDIF for IF». В 3.58 глубина вложенности
-  ограничена; **[3.59]** — без ограничений.
-* `!!DO#/от/до/шаг:P параметры;` — цикл, вызывающий функцию `#`, счётчик в `x16`:
-  `for (x16=от; x16<=до; x16+=шаг)`. Параметры как у `FU:P`; локальные `y`/`e` вызываемой функции
-  сохраняются между итерациями (кадр создаётся один раз). Параметры `=` перечитываются на каждой
-  итерации; параметры `?` записываются после цикла (и после каждой итерации, если есть параметр `=`).
-* `!!FU#:P параметры;` — вызов функции `#` (1…30000; **[3.59]** −1…−100 — локальные для файла):
-  `x1…x16` сохраняются, заполняются параметрами (недостающие = 0), функция выполняется, `x`
-  восстанавливаются; параметры `?перем` получают итоговые значения `x` вызванной функции.
-* `!!FU:E;` — выйти из текущей секции.
-* `!!FU:X#/$` **[3.59]** — как был передан аргумент #.
-* **[3.59]** `!!la#;` — метка, `!!go#;` — переход (0…49) внутри секции.
+* `!!if&cond:;` / `!!el&cond:;` (or `!!el:;`) / `!!en:;` (`CheckConditions`, `_IfStruct_`): ordinary
+  if / else-if / else. Nested `if`s inside a false branch become "ghosts". An extra `en` is an
+  error; an unclosed `if` at the end of a section is the error "no ENDIF for IF". In 3.58 the nesting depth is
+  limited; **[3.59]** — unlimited.
+* `!!DO#/from/to/step:P params;` — a loop that calls function `#`, with the counter in `x16`:
+  `for (x16=from; x16<=to; x16+=step)`. Parameters work as in `FU:P`; the called function's local `y`/`e`
+  are preserved between iterations (the frame is created once). `=` parameters are re-read on every
+  iteration; `?` parameters are written after the loop (and after every iteration if there is an `=` parameter).
+* `!!FU#:P params;` — call function `#` (1…30000; **[3.59]** −1…−100 are file-local functions):
+  `x1…x16` are saved and filled with the parameters (missing ones = 0), the function executes, `x` are
+  restored; `?var` parameters receive the final `x` values of the called function.
+* `!!FU:E;` — exit the current section.
+* `!!FU:X#/$` **[3.59]** — how argument # was passed.
+* **[3.59]** `!!la#;` — label, `!!go#;` — jump (0…49) within a section.
 
-## 8. Строки и подстановки (`_Message2ERM`)
+## 8. Strings and substitutions (`_Message2ERM`)
 
-Текст (`IF:M`, `VR:S^…^` и т.п.) проходит **5 проходов** подстановки `%`, поэтому подставленное значение
-само может содержать коды:
+Text (`IF:M`, `VR:S^…^`, etc.) goes through **5 passes** of `%` substitution, so a substituted value
+can itself contain codes:
 
-| Код | Значение |
-|-----|----------|
+| Code | Value |
+|------|-------|
 | `%%` | `%` |
-| `%V#`, `%Vf`…`%Vt` | целая переменная |
-| `%W#`,`%X#`,`%Y#` (`%Y-#`) | целая переменная |
-| `%E#` (`%E-#`) | вещественная, ровно 3 знака после точки (`f2a`: `1.5 → 1.500`) |
-| `%Z#` (`%Z-#`) | строковая переменная / строка ERT |
-| `%F#` | значение флага 0/1 |
-| `%Dd`,`%Dw`,`%Dm`,`%Da` | день недели, неделя, месяц, абсолютный день `((m-1)*4+w-1)*7+d` |
-| `%Gc` | название цвета текущего игрока |
-| `%$макрос$` | значение макроса |
-| `%` + другое | копируется как есть |
+| `%V#`, `%Vf`…`%Vt` | integer variable |
+| `%W#`,`%X#`,`%Y#` (`%Y-#`) | integer variable |
+| `%E#` (`%E-#`) | floating-point, exactly 3 digits after the decimal point (`f2a`: `1.5 → 1.500`) |
+| `%Z#` (`%Z-#`) | string variable / ERT string |
+| `%F#` | flag value 0/1 |
+| `%Dd`,`%Dw`,`%Dm`,`%Da` | day of the week, week, month, absolute day `((m-1)*4+w-1)*7+d` |
+| `%Gc` | name of the current player's color |
+| `%$macro$` | macro value |
+| `%` + anything else | copied as is |
 
-## 9. Переменные — время жизни и сохранение
+## 9. Variables — lifetime and saving
 
-| Вид | Диапазон | Область | Пишется в сейв (`SaveERM`) |
-|-----|----------|---------|----------------------------|
-| флаги | 1…1000 | глобальная | **да** |
-| `f…t` | 15 | глобальная | **да** |
-| `v` | 1…10000 | глобальная | **да** (+ имена макросов) |
-| `w` | 1…200 × 156 героев | на героя | **да** (+ текущий `ERMW`) |
-| `x` | 1…16 | на вызов | нет |
-| `y` | 1…100 / −1…−100 | на вызов функции / на секцию | нет |
-| `e` | 1…100 / −1…−100 | на вызов функции / на секцию | **нет** |
-| `z` | 1…1000 | глобальная | **да** |
-| `z` | −1…−20 | на вызов / на секцию | нет |
-| макросы (`MC`) | — | глобальная | **да** |
-| таймеры (`TM`) | 1…100 | глобальная | **да** |
-| ERM-данные объектов (подсказки), героев, журнал заданий, переопределения артефактов/монстров/навыков, WoG-опции (первая половина `PL_WoGOptions`) | — | глобальная | **да** |
+| Kind | Range | Scope | Written to the saved game (`SaveERM`) |
+|------|-------|-------|---------------------------------------|
+| flags | 1…1000 | global | **yes** |
+| `f…t` | 15 | global | **yes** |
+| `v` | 1…10000 | global | **yes** (+ macro names) |
+| `w` | 1…200 × 156 heroes | per hero | **yes** (+ current `ERMW`) |
+| `x` | 1…16 | per call | no |
+| `y` | 1…100 / −1…−100 | per function call / per section | no |
+| `e` | 1…100 / −1…−100 | per function call / per section | **no** |
+| `z` | 1…1000 | global | **yes** |
+| `z` | −1…−20 | per call / per section | no |
+| macros (`MC`) | — | global | **yes** |
+| timers (`TM`) | 1…100 | global | **yes** |
+| ERM data of objects (hints) and heroes, the quest log, artifact/monster/skill overrides, WoG options (first half of `PL_WoGOptions`) | — | global | **yes** |
 
-Следствие для порта: слой сохранения WoG обязан сохранять ровно это; `x`/`y`/`e`/локальные `z` никогда не
-пишутся — поэтому сохранение не может произойти посреди секции триггера.
+Consequence for the port: the WoG save layer must save exactly this; `x`/`y`/`e`/local `z` are never
+written — which is why a save cannot happen in the middle of a trigger section.
 
-## 10. Поведение при ошибках
+## 10. Error behavior
 
-* Ошибка разбора строки: строка выводится в сообщении и пропускается; ошибочный заголовок триггера или
-  ресивер вне триггера отключают остаток файла (`ParseERM → l_exit`).
-* Ошибки выполнения (`MError`, `MError2`): сообщение с именем ресивера/команды, остаток строки
-  отбрасывается, выполнение продолжается со следующей строки. Опция `PL_ERMErrDis` (904) прячет диалоги;
-  ошибки всё равно пишутся в `WOGERMLOG.TXT`.
-* Деление на ноль в `VR:` выводит «Sorry. Division by zero :-)» и прерывает команду (значение не меняется).
+* Line parse error: the line is shown in a message and skipped; a faulty trigger header or a
+  receiver outside a trigger disables the rest of the file (`ParseERM → l_exit`).
+* Runtime errors (`MError`, `MError2`): a message with the receiver/command name, the rest of the line
+  is discarded, execution continues with the next line. The `PL_ERMErrDis` option (904) hides the dialogs;
+  errors are still written to `WOGERMLOG.TXT`.
+* Division by zero in `VR:` shows "Sorry. Division by zero :-)" and aborts the command (the value does not change).
 
-## 11. Воспроизведённые пограничные случаи
+## 11. Reproduced edge cases
 
-1. `!!VR:S` в целую переменную с параметром `?` копирует *в* параметр (`Apply` вернул 1 ⇒ записи нет).
-2. Целочисленная арифметика 32-битная со знаком, по правилам C (`/` округляет к нулю, знак `%` — как у
-   делимого). `&`, `|`, `X` — побитовые.
-3. `VR:R` прибавляет `Random(0,n)` (включительно); `VR:T` — генератор, засеянный по времени.
-4. `VR:+` для строк — конкатенация (не более 511 символов), `VR:S` обрезает до 511.
-5. Элемент условия, начинающийся с числа, — всегда проверка флага; `&5>3` — не сравнение. WoG оставляет
-   курсор на `>` и неверно разбирает остаток строки; наш парсер сообщает синтаксическую ошибку.
-6. Индексация переменной недопустимым индексом прерывает команду.
-7. `y-*`/`e-*` обнуляются для каждой секции — значения не «перетекают» между секциями одного события;
-   `y1…y100` между секциями одного события-не-функции перетекают (общий кадр).
-8. У функции нет своих `y-1…y-100`/`e-1…e-100`: внутри `!?FU` они адресуют локальный кадр триггера
-   вызывающего (для функций создаются только положительные `y`/`e`).
-9. **`VR:U` на самом деле проверяет «строка оканчивается на…», а не «содержит»**: `Search4Substring`
-   сравнивает обрезанную искомую строку с *полным остатком* исходной (`StrCmp` — полное равенство).
-   Искомая строка из одного символа не находится никогда. Воспроизведено точно.
-10. Сравнение строк `StrCmpExt` несимметрично: пустая строка не равна строке из пробелов, а наоборот —
-    равна.
+1. `!!VR:S` into an integer variable with a `?` parameter copies *into* the parameter (`Apply` returned 1 ⇒ no write).
+2. Integer arithmetic is 32-bit signed and follows C rules (`/` rounds toward zero, the sign of `%` follows the
+   dividend). `&`, `|`, `X` are bitwise.
+3. `VR:R` adds `Random(0,n)` (inclusive); `VR:T` is a time-seeded generator.
+4. `VR:+` for strings is concatenation (at most 511 characters), `VR:S` truncates to 511.
+5. A condition item that starts with a number is always a flag check; `&5>3` is not a comparison. WoG leaves the
+   cursor on `>` and misparses the rest of the line; our parser reports a syntax error.
+6. Indexing a variable with an invalid index aborts the command.
+7. `y-*`/`e-*` are zeroed for every section — values do not "leak" between sections of one event;
+   `y1…y100` do leak between sections of one non-function event (shared frame).
+8. A function has no `y-1…y-100`/`e-1…e-100` of its own: inside `!?FU` they address the caller's
+   trigger-local frame (only the positive `y`/`e` are created for functions).
+9. **`VR:U` actually checks "the string ends with…", not "contains"**: `Search4Substring`
+   compares the trimmed search string with the *entire remainder* of the source string (`StrCmp` — full equality).
+   A one-character search string is never found. Reproduced exactly.
+10. `StrCmpExt` string comparison is asymmetric: an empty string is not equal to a string of spaces, but in the
+    reverse direction they compare as equal.

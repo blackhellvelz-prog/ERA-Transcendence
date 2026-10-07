@@ -1,67 +1,72 @@
-# Инструкции для Claude Code в этом репозитории
+# Instructions for Claude Code in this repository
 
-## Проект
+## Project
 
-Порт **HoMM3 ERA** (WoG 3.58f + движок Era 3.9.31 + ERM 2.0 + скрипты ERA Project) на **Heroes of Might and
-Magic: Olden Era** (Unity IL2CPP, BepInEx 6). Полное задание пользователя и все решения — в `MODLOG.md`,
-текущее состояние и план — в `HANDOFF.md`, обзор — в `README.md`. Прочитай эти три файла в начале работы.
+A port of **HoMM3 ERA** (WoG 3.58f + Era 3.9.31 engine + ERM 2.0 + ERA Project scripts) to **Heroes of Might and
+Magic: Olden Era** (Unity IL2CPP, BepInEx 6). The user's full assignment and all decisions are in `MODLOG.md`,
+the current state and plan are in `HANDOFF.md`, and the overview is in `README.md`. Read these three files at the
+start of work.
 
-Работа ведётся по скиллу `mod-any-game` (лежит в `.claude/skills/mod-any-game`, из
-`rehan-remade/universal-modder`): разведка → самый дешёвый путь → первоисточники → вертикальный срез →
-проверка оракулом → журнал.
+Work follows the `mod-any-game` skill (located in `.claude/skills/mod-any-game`, from
+`rehan-remade/universal-modder`): recon → cheapest route → primary sources → vertical slice →
+oracle check → log.
 
-## Правила пользователя (обязательные)
+## User rules (mandatory)
 
-* **Документация — на русском** (все `.md`). Комментарии в коде — на английском, как в остальном коде.
-* Сначала функциональность, потом графика. Не подделывать геймплей: чего нет — честно `Unsupported` в отчёте
-  совместимости, ничего не «делать вид».
-* Не предполагать возможности Olden Era — проверять (метки `[V-code] [V-data] [V-community] [UNVERIFIED]`).
-  Не предполагать поведение ERA/WoG — читать исходники (`ethernidee/era`, `GrayFace/wog`) и проверять на
-  корпусе скриптов.
-* Ассеты: переиспользовать ассеты Olden Era, перекрашивать раньше, чем моделировать; заглушки разрешены;
-  новые 3D-модели — только если без них нельзя.
-* Только одиночная игра. Никакого обхода античитов. Файлы игр (ERA/WoG/H3/Olden Era) и производные данные
-  **не коммитить** и не распространять — порт читает их из установки пользователя.
-* Перед изменениями в папке игры: резервная копия сейвов и `HeroesOldenEra_Data/StreamingAssets/Core.zip`.
-  Перед установкой загрузчика (BepInEx) или изменением настроек игры — **спросить пользователя**.
-* Каждое заметное открытие и неудача — в `MODLOG.md` (что, почему, как проверено, как откатить).
+* **Documentation: English is primary (`X.md`); a Russian copy lives next to it (`X.ru.md`)** and must be kept in
+  sync — update both in the same change. Code comments are English. Generated tables
+  (`Compatibility/ERM_Compatibility*.md` and their `.ru.md` twins) come from
+  `WoG.ErmTool compat [--era] [--lang ru]`.
+* Functionality first, graphics later. Do not fake gameplay: whatever is missing is honestly `Unsupported` in the
+  compatibility report; never "pretend" anything.
+* Do not assume Olden Era capabilities — verify them (tags `[V-code] [V-data] [V-community] [UNVERIFIED]`).
+  Do not assume ERA/WoG behavior — read the sources (`ethernidee/era`, `GrayFace/wog`) and check against the
+  script corpus.
+* Assets: reuse Olden Era assets, recolor before modeling; placeholders are allowed;
+  new 3D models only when there is no way around them.
+* Single-player only. No anti-cheat bypassing. Game files (ERA/WoG/H3/Olden Era) and derived data must
+  **not be committed** or distributed — the port reads them from the user's installation.
+* Before changes in the game folder: back up saved games and `HeroesOldenEra_Data/StreamingAssets/Core.zip`.
+  Before installing a loader (BepInEx) or changing game settings — **ask the user**.
+* Every notable finding and failure goes into `MODLOG.md` (what, why, how it was verified, how to roll it back).
 
-## Код
+## Code
 
-| Где | Что |
+| Where | What |
 |-----|-----|
-| `src/WoG.Core` | состояние (`WoGGameState`, `EraState`), модель, опции, события, сохранение, IdMap, интерфейсы адаптера |
-| `src/WoG.Erm` | ERM: `Syntax/` парсер (WoG и `ErmParserEra.cs`), `Era/` препроцессор ERM 2.0, события, порядок загрузки; `Runtime/` интерпретатор (`EraProcess.cs`, `EraValues.cs` — режим ERA); `Receivers/` ресиверы (`EraReceivers.cs`, `EraApi.cs`) |
-| `src/WoG.Commanders`, `src/WoG.CreatureExperience` | командиры и опыт стеков (порт `npc.cpp`, `crexpo.cpp`) |
-| `src/WoG.Host` | `WoGHost`: связывает всё; `AddEraMods` + `StartNewGame/SaveTo/LoadFrom` |
-| `src/WoG.Headless` | эталонный движок в памяти для тестов |
-| `src/WoG.OldenEra` | плагин BepInEx 6 IL2CPP: символы игры из `wog_symbols.json`, адаптер, хуки Harmony |
-| `src/WoG.OldenEra.Data` | оверлей `Core.zip` (клоны юнитов, баффы, локализация) |
+| `src/WoG.Core` | state (`WoGGameState`, `EraState`), model, options, events, saving, IdMap, adapter interfaces |
+| `src/WoG.Erm` | ERM: `Syntax/` parser (WoG and `ErmParserEra.cs`), `Era/` ERM 2.0 preprocessor, events, load order; `Runtime/` interpreter (`EraProcess.cs`, `EraValues.cs` — ERA mode); `Receivers/` receivers (`EraReceivers.cs`, `EraApi.cs`) |
+| `src/WoG.Commanders`, `src/WoG.CreatureExperience` | commanders and stack experience (port of `npc.cpp`, `crexpo.cpp`) |
+| `src/WoG.Host` | `WoGHost`: ties everything together; `AddEraMods` + `StartNewGame/SaveTo/LoadFrom` |
+| `src/WoG.Headless` | in-memory headless reference engine for tests |
+| `src/WoG.OldenEra` | BepInEx 6 IL2CPP plugin: game symbols from `wog_symbols.json`, adapter, Harmony hooks |
+| `src/WoG.OldenEra.Data` | `Core.zip` overlay (unit clones, buffs, localization) |
 | `tools/WoG.ErmTool` | `parse`, `run [--era]`, `compat [--era]`, `era-pp`, `probe-symbols` |
-| `tools/oe-recon/collect.ps1` | сбор данных об установке Olden Era (только чтение) |
-| `tools/fetch-references/` | скачать исходники для справки в `../research` |
+| `tools/oe-recon/collect.ps1` | collects data about the Olden Era installation (read-only) |
+| `tools/fetch-references/` | downloads reference sources into `../research` |
 
-Режим ERA: `ErmRuntimeOptions.Dialect = ErmDialect.Era`. Принцип — построчный перенос функций Era
-(`PreprocessErm`, `Hook_ZvsGetNum`, `ProcessErm`, `VR_*`, `SN_*`) с сохранением их ошибок; каждый перенос
-подписан именем исходной функции в комментарии.
+ERA mode: `ErmRuntimeOptions.Dialect = ErmDialect.Era`. The principle is a line-by-line port of Era functions
+(`PreprocessErm`, `Hook_ZvsGetNum`, `ProcessErm`, `VR_*`, `SN_*`) that preserves their bugs; each ported piece is
+labeled with the name of the original function in a comment.
 
-## Команды
+## Commands
 
 ```bash
 dotnet build WoGOldenEra.sln
 dotnet test tests/WoG.Tests
-# корпуса (после tools/fetch-references):
+# corpora (after tools/fetch-references):
 ERA_MODS_DIR=../research/era-eng/Mods dotnet test tests/WoG.Tests --filter EraCorpus
 WOG_SCRIPTS_DIR="../research/wogify/Mods/WoG Wogify Scripts 3.58f/Data/s" dotnet test tests/WoG.Tests --filter CorpusTests
 M=../research/era-eng/Mods
 dotnet run --project tools/WoG.ErmTool -- run --era "$M/Era Erm Framework" "$M/ERA Scripts" "$M/WoG Scripts" "$M/WoG"
-dotnet run --project tools/WoG.ErmTool -- compat --era > /tmp/t.md   # обновить Compatibility/ERM_Compatibility_ERA.md
+dotnet run --project tools/WoG.ErmTool -- compat --era > Compatibility/ERM_Compatibility_ERA.md
+dotnet run --project tools/WoG.ErmTool -- compat --era --lang ru > Compatibility/ERM_Compatibility_ERA.ru.md
 ```
 
-Перед коммитом: сборка без предупреждений, все тесты зелёные, корпус ERA без ошибок. Таблицы
-`Compatibility/ERM_Compatibility*.md` генерируются — правь `Declare(...)` в ресиверах, а не таблицы.
+Before committing: the build has no warnings, all tests are green, the ERA corpus runs without errors. The
+`Compatibility/ERM_Compatibility*.md` tables are generated — edit `Declare(...)` in the receivers, not the tables.
 
 ## Git
 
-Рабочая ветка: `claude/wog-olden-era-port` (`origin` = `github.com/blackhellvelz-prog/ModsClaudeVelz`).
-PR не создавать, пока пользователь не попросит.
+Working branch: `claude/wog-olden-era-port` (`origin` = `github.com/blackhellvelz-prog/ModsClaudeVelz`).
+Do not create a PR until the user asks for one.

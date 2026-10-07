@@ -1,75 +1,75 @@
-# HoMM3 ERA: что это и почему цель проекта теперь ERA
+# HoMM3 ERA: what it is and why the project's target is now ERA
 
-## Решение
+## Decision
 
-Пользователь попросил переносить не WoG 3.58, а **ERA** — более развитую сборку на основе WoG
-(`ERA-Projects/era-project-eng`, `ERA-Projects/era-project-rus`). Эталоном поведения теперь служит ERA.
-WoG 3.58 остаётся «нижним слоем»: ERA построена на WoG, и всё, что уже сделано для WoG (командиры, опыт
-стеков, WoG Options, ресиверы WoG), используется дальше.
+The user asked to port not WoG 3.58 but **ERA**, a more advanced build based on WoG
+(`ERA-Projects/era-project-eng`, `ERA-Projects/era-project-rus`). ERA is now the behavioral reference.
+WoG 3.58 remains the "lower layer": ERA is built on WoG, and everything already done for WoG (commanders,
+stack experience, WoG Options, WoG receivers) continues to be used.
 
-## Что такое ERA
+## What ERA is
 
-ERA (Era Project, автор движка — Berserker / Alexander Shostak, `ethernidee`) — платформа модов для
-Heroes III поверх WoG:
+ERA (Era Project; engine author: Berserker / Alexander Shostak, `ethernidee`) is a mod platform for
+Heroes III built on top of WoG:
 
-| Слой | Что это | Где взять исходник поведения |
-|------|---------|------------------------------|
-| Движок Era 3.9.31 (`era.dll`) | новый интерпретатор ERM (ERM 2.0), загрузка скриптов и модов, сохранения, переводы, API для плагинов | `github.com/ethernidee/era` (Delphi): `Erm.pas`, `AdvErm.pas`, `Triggers.pas`, `Trans.pas`, `Extern.pas`, `Stores.pas` |
-| WoG (мод `WoG`) | WoG 3.58f + исправления, «WoG 3.59 TE» в строке версии | исходники WoG (`GrayFace/wog`), см. `WoG_ReverseEngineering/` |
-| Скрипты WoG (мод `WoG Scripts`) | ~90 скриптов WoG 3.58f, переписанных под ERA (ERM 2.0, именованные функции) | репозиторий ERA Project |
-| ERA Scripts (мод `ERA Scripts`) | ~90 новых скриптов-опций (банк, охота за головами, третий класс и т. д.) | репозиторий ERA Project |
-| Era Erm Framework | стандартная библиотека ERM (`lib\9999 era - stdlib.erm`, константы) | репозиторий ERA Project |
-| Плагины (`*.era`, `*.dll` в `EraPlugins`) | закрытые бинарники: новые ресиверы (`SS`, `PA`, `QU`), диалоги WoG, расширения объектов | исходников нет |
-| Прочие моды проекта | Game Enhancement Mod, Advanced Classes, Mixed Neutrals и др. | репозиторий ERA Project |
+| Layer | What it is | Where to get the behavior source |
+|-------|------------|----------------------------------|
+| Era 3.9.31 engine (`era.dll`) | new ERM interpreter (ERM 2.0), loading of scripts and mods, saved games, translations, plugin API | `github.com/ethernidee/era` (Delphi): `Erm.pas`, `AdvErm.pas`, `Triggers.pas`, `Trans.pas`, `Extern.pas`, `Stores.pas` |
+| WoG (`WoG` mod) | WoG 3.58f + fixes, "WoG 3.59 TE" in the version string | WoG sources (`GrayFace/wog`), see `WoG_ReverseEngineering/` |
+| WoG scripts (`WoG Scripts` mod) | ~90 WoG 3.58f scripts rewritten for ERA (ERM 2.0, named functions) | ERA Project repository |
+| ERA Scripts (`ERA Scripts` mod) | ~90 new option scripts (bank, bounty hunting, third class, etc.) | ERA Project repository |
+| Era Erm Framework | ERM standard library (`lib\9999 era - stdlib.erm`, constants) | ERA Project repository |
+| Plugins (`*.era`, `*.dll` in `EraPlugins`) | closed binaries: new receivers (`SS`, `PA`, `QU`), WoG dialogs, object extensions | no sources |
+| Other project mods | Game Enhancement Mod, Advanced Classes, Mixed Neutrals, etc. | ERA Project repository |
 
-Исследованные версии (их стоит проверять при обновлениях):
+Versions examined (re-check them when updating):
 
-| Источник | Версия / коммит | Дата |
-|----------|-----------------|------|
-| `ethernidee/era` | `8c2fd47` (`ERA_VERSION_STR = '3.9.31'`) | 23.09.2026 |
-| `ERA-Projects/era-project-eng` | `1229a9b` («2.291 update») | 06.10.2026 |
-| `ERA-Projects/era-project-rus` | `48d9717` («2.291 update») | 06.10.2026 |
-| `ethernidee/b2` (библиотека движка: `TextScan`, `StrLib`) | `b26cfca` | 23.09.2026 |
+| Source | Version / commit | Date |
+|--------|------------------|------|
+| `ethernidee/era` | `8c2fd47` (`ERA_VERSION_STR = '3.9.31'`) | 2026-09-23 |
+| `ERA-Projects/era-project-eng` | `1229a9b` ("2.291 update") | 2026-10-06 |
+| `ERA-Projects/era-project-rus` | `48d9717` ("2.291 update") | 2026-10-06 |
+| `ethernidee/b2` (engine library: `TextScan`, `StrLib`) | `b26cfca` | 2026-09-23 |
 
-Лицензии: ERA Project — MIT (`LICENSE` в репозитории). В репозиториях движка Era и B2 лицензии нет:
-исходники только **читаются**, поведение реализовано заново на C#. Код Era в наш репозиторий не копируется,
-файлы ERA/WoG/H3 не распространяются — порт читает их из установки пользователя.
+Licenses: ERA Project is MIT (`LICENSE` in the repository). The Era engine and B2 repositories have no license:
+their sources are only **read**, and the behavior is reimplemented from scratch in C#. No Era code is copied into
+our repository, and no ERA/WoG/H3 files are distributed: the port reads them from the user's installation.
 
-## Что ERA добавляет к WoG (и что из этого переносится)
+## What ERA adds to WoG (and what of it is ported)
 
-| Возможность ERA | Перенос | Где в коде |
-|-----------------|---------|------------|
-| ERM 2.0: именованные функции, локальные переменные, массивы, константы, метки | **полностью** (препроцессор ERA портирован построчно) | `src/WoG.Erm/Era/EraPreprocessor.cs` |
-| Новый разбор параметров (`d-`, `d*`, `d|`… строки как параметры, `i^…^`, `s^…^`) | **полностью** | `src/WoG.Erm/Syntax/ErmParserEra.cs` |
-| Новый интерпретатор: локальные переменные на событие, `re/br/co`, `el&…`, `SN:G`, `SN:Q`, `*_Quit` | **полностью** | `src/WoG.Erm/Runtime/EraProcess.cs` |
-| Значения, условия, интерполяция `%…` ERA | **полностью** | `src/WoG.Erm/Runtime/EraValues.cs` |
-| Переписанные `VR`, `FU`, `DO`; новый `SN` | `VR/FU/DO` полностью; `SN` — всё, кроме вызовов кода H3 | `src/WoG.Erm/Receivers/EraReceivers.cs` |
-| Около 110 именованных событий (`OnEveryDay`, `OnGameEnter`, …) | таблица id перенесена; генерация событий — по мере появления хуков Olden Era | `src/WoG.Erm/Era/EraEvents.cs` |
-| Порядок загрузки скриптов модов, файлы `.ert`, переводы `Lang\*.json` | **полностью** | `EraScriptSet.cs`, `WoGHost.PrepareEraScripts`, `EraLang` |
-| Сохранение: именованные переменные, массивы, строки ERT, имена функций | **полностью** (в файл состояния порта) | `src/WoG.Core/State/EraState.cs` |
-| `SN:F` — вызов функций API Era | частично: функции, которые вызывают скрипты проекта | `src/WoG.Erm/Receivers/EraApi.cs` |
-| `SN:E`, `UN:C`, `SN:B/L/A` — вызов кода и память процесса H3 | **невозможно** (другой движок) | помечено UNSUPPORTED |
-| Плагины (`SS`, `PA`, `QU`, диалоги WoG, HD-мод) | нет исходников | UNSUPPORTED до отдельной реализации |
+| ERA feature | Port | Where in the code |
+|-------------|------|-------------------|
+| ERM 2.0: named functions, local variables, arrays, constants, labels | **fully** (the ERA preprocessor is ported line by line) | `src/WoG.Erm/Era/EraPreprocessor.cs` |
+| New parameter parsing (`d-`, `d*`, `d\|`… strings as parameters, `i^…^`, `s^…^`) | **fully** | `src/WoG.Erm/Syntax/ErmParserEra.cs` |
+| New interpreter: per-event local variables, `re/br/co`, `el&…`, `SN:G`, `SN:Q`, `*_Quit` | **fully** | `src/WoG.Erm/Runtime/EraProcess.cs` |
+| ERA values, conditions, `%…` interpolation | **fully** | `src/WoG.Erm/Runtime/EraValues.cs` |
+| Rewritten `VR`, `FU`, `DO`; new `SN` | `VR/FU/DO` fully; `SN`: everything except calls into H3 code | `src/WoG.Erm/Receivers/EraReceivers.cs` |
+| About 110 named events (`OnEveryDay`, `OnGameEnter`, …) | id table ported; event generation follows as Olden Era hooks become available | `src/WoG.Erm/Era/EraEvents.cs` |
+| Mod script load order, `.ert` files, `Lang\*.json` translations | **fully** | `EraScriptSet.cs`, `WoGHost.PrepareEraScripts`, `EraLang` |
+| Saving: named variables, arrays, ERT strings, function names | **fully** (into the port's state file) | `src/WoG.Core/State/EraState.cs` |
+| `SN:F`: calling Era API functions | partially: the functions that the project's scripts call | `src/WoG.Erm/Receivers/EraApi.cs` |
+| `SN:E`, `UN:C`, `SN:B/L/A`: calling H3 code and H3 process memory | **impossible** (different engine) | marked UNSUPPORTED |
+| Plugins (`SS`, `PA`, `QU`, WoG dialogs, HD mod) | no sources | UNSUPPORTED until a separate implementation |
 
-## Проверка на настоящем корпусе ERA
+## Verification on the real ERA corpus
 
-* Препроцессор: 183 скрипта модов `Era Erm Framework`, `ERA Scripts`, `WoG Scripts`, `WoG` — **0 ошибок**;
-  1115 имён функций, 1991 константа.
-* Парсер: 2277 секций, 37 958 строк команд — **0 ошибок**.
-* Новая игра + 7 дней на эталонном (headless) движке — **0 ошибок выполнения**. Неподдержанные вызовы при
-  старте: `UN:C` (70, память H3), `SN:E` (55, код H3), `FU:D` (28, сеть), `UN:A/R/X/N/U/V/J` (35, ещё не
-  отображены на карту Olden Era), `SN:L/B` (4), `IF:G` (2).
-* Тест `EraCorpusTests` (переменная `ERA_MODS_DIR` → папка `Mods` проекта ERA) повторяет этот прогон.
+* Preprocessor: 183 scripts from the mods `Era Erm Framework`, `ERA Scripts`, `WoG Scripts`, `WoG`: **0 errors**;
+  1115 function names, 1991 constants.
+* Parser: 2277 sections, 37,958 command lines: **0 errors**.
+* New game + 7 days on the headless reference engine: **0 runtime errors**. Unsupported calls at
+  startup: `UN:C` (70, H3 memory), `SN:E` (55, H3 code), `FU:D` (28, network), `UN:A/R/X/N/U/V/J` (35, not yet
+  mapped onto the Olden Era map), `SN:L/B` (4), `IF:G` (2).
+* The `EraCorpusTests` test (variable `ERA_MODS_DIR` → the ERA project's `Mods` folder) repeats this run.
 
-Самые частые ресиверы корпуса ERA (после препроцессора): `VR` 13 039, `FU` 4021, `en` 3317, `UN` 2855,
+Most frequent receivers in the ERA corpus (after the preprocessor): `VR` 13,039, `FU` 4021, `en` 3317, `UN` 2855,
 `if` 2618, `SN` 2244, `HE` 2021, `IF` 1547, `el` 1002, `MA` 795, `re` 698, `BM` 586, `OW` 547, `CA` 382,
 `DO` 304, `PO` 207, `co` 161, `CM` 161, `DL` 145, `br` 128, `OB` 121, `BU` 96, `CO` 91, `BG` 84, `BA` 84.
-Подкоманды `SN`: `M` 412, `H` 361, `T` 351, `E` 311, `W` 302, `F` 162, `X` 52, `V` 50, `B` 44, `P` 43,
+`SN` subcommands: `M` 412, `H` 361, `T` 351, `E` 311, `W` 302, `F` 162, `X` 52, `V` 50, `B` 44, `P` 43,
 `D` 39, `Q` 35, `K` 25, `R` 24, `O` 15, `L` 9, `A` 7, `G` 1, `C` 1.
 
-## Документы этой папки
+## Documents in this folder
 
-* `01_ERM2_Preprocessor.md` — препроцессор ERM 2.0: имена, локальные переменные, константы, метки.
-* `02_ERA_Semantics.md` — чем интерпретатор ERA отличается от WoG: параметры, условия, поток управления,
-  локальные переменные, функции, строки, `VR`, `SN`, API.
-* `03_ERA_Events_Loading_Save.md` — события ERA, порядок загрузки модов и скриптов, переводы, ERT, сохранение.
+* `01_ERM2_Preprocessor.md` — the ERM 2.0 preprocessor: names, local variables, constants, labels.
+* `02_ERA_Semantics.md` — how the ERA interpreter differs from WoG: parameters, conditions, control flow,
+  local variables, functions, strings, `VR`, `SN`, API.
+* `03_ERA_Events_Loading_Save.md` — ERA events, mod and script load order, translations, ERT, saving.

@@ -1,33 +1,33 @@
-# Реверс-инжиниринг Olden Era — источники и уровни проверки
+# Olden Era Reverse Engineering — Sources and Verification Levels
 
-Heroes of Might and Magic: Olden Era (Unfrozen / Ubisoft), Steam app **3105440**, ранний доступ с
-**30.04.2026**. Структура установки: `…/Heroes of Might and Magic Olden Era/HeroesOldenEra_Data/…`.
+Heroes of Might and Magic: Olden Era (Unfrozen / Ubisoft), Steam app **3105440**, in early access since
+**2026-04-30**. Install layout: `…/Heroes of Might and Magic Olden Era/HeroesOldenEra_Data/…`.
 
-## Честное заявление об объёме
+## Honest scope statement
 
-Эта работа выполнена в облачном контейнере **без копии Olden Era**. Ничего здесь не получено запуском или
-дизассемблированием игры в этой сессии. Поэтому у каждого факта об Olden Era есть метка способа проверки:
+This work was done in a cloud container **without a copy of Olden Era**. Nothing here was obtained by running or
+disassembling the game in this session. Therefore every fact about Olden Era carries a tag that states how it was verified:
 
-| Метка | Значение |
-|-------|----------|
-| **[V-code]** | Проверено по исходному коду работающего мода/инструмента сообщества, который работает с настоящей игрой (иначе код бы не работал) |
-| **[V-data]** | Проверено инструментами, которые разбирают настоящий `Core.zip` и документируют найденные ключи («сверено с N реальными файлами») |
-| **[V-community]** | Утверждается моддерами, проверявшими это в игре (Steam/Nexus/документация инструментов), независимо не проверено |
-| **[UNVERIFIED]** | Правдоподобно, нужно по архитектуре, но должно быть подтверждено на реальной установке — см. `07_InGame_RE_Plan.md` |
+| Tag | Meaning |
+|-----|---------|
+| **[V-code]** | Verified against the source code of a working community mod/tool that operates on the real game (otherwise the code would not work) |
+| **[V-data]** | Verified by tools that parse the real `Core.zip` and document the keys they found ("checked against N real files") |
+| **[V-community]** | Claimed by modders who checked it in game (Steam/Nexus/tool documentation); not independently verified |
+| **[UNVERIFIED]** | Plausible and required by the architecture, but must be confirmed on a real install — see `07_InGame_RE_Plan.md` |
 
-Правило 7 проекта («не предполагать возможностей Olden Era») соблюдается через эти метки: слой совместимости
-опирается только на факты **[V-*]**; пункты **[UNVERIFIED]** закрыты проверками (символы со статусом
-`verified`), которые до подтверждения возвращают *unsupported*.
+Project rule 7 ("do not assume Olden Era capabilities") is enforced through these tags: the compatibility layer
+relies only on **[V-*]** facts; **[UNVERIFIED]** items are gated behind checks (symbols with status
+`verified`) that return *unsupported* until confirmed.
 
-## Источники
+## Sources
 
-| # | Источник | Для чего |
-|---|----------|----------|
-| O1 | `mimiasei/map-editor-json-tool` (GitHub; «HoMM Olden Era Scenario Editor», v0.9.1, обновлён 06.10.2026) | Реестр скриптинга сценариев (55 условий, 114 действий — из официального Notion Unfrozen «Conditions/Actions and their parameters — Full list»), структура `Core.zip`, клонирование контента, формат карт, импорт карт H3 |
-| O2 | Папка `gme-mod/` из O1 — плагин **BepInEx 6 IL2CPP** для встроенного редактора карт (`GameApi.cs`, `Plugin.cs`) | Факты о движке: IL2CPP, обфускация, имена сборок, реальные имена типов (`Hex.MapEditor.BhNewGenMap`, `Hex.MapEditor.BhMapEditor`), сборка BepInEx `6.0.0-be.785`, `net6.0` |
-| O3 | Страницы Nexus Mods для Olden Era: «BepInEx 6 (with version-independent deobfuscation)», «CheatPanel – BepInEx 6 IL2CPP», «Mod Configuration Panel», «Hero Creator and Editor» | Экосистема модов **[V-community]** |
-| O4 | Обсуждение Steam «Modding Game Files» (app 3105440) | Игроки правят «JSON core files», упоминание `hex.dll` + dnSpy **[V-community]**, противоречит O2 — см. `01_Engine_and_Runtime.md` |
-| O5 | `KhanDevelopsGames/Olden-Era---Template-Generator`, `ignis-sec/HoMM-OE-Template-Editor` | Формат шаблонов случайных карт (`.rmg.json`) |
+| # | Source | Used for |
+|---|--------|----------|
+| O1 | `mimiasei/map-editor-json-tool` (GitHub; "HoMM Olden Era Scenario Editor", v0.9.1, updated 2026-10-06) | Scenario scripting registry (55 conditions, 114 actions — from Unfrozen's official Notion page "Conditions/Actions and their parameters — Full list"), `Core.zip` structure, content cloning, map format, H3 map import |
+| O2 | The `gme-mod/` folder from O1 — a **BepInEx 6 IL2CPP** plugin for the built-in map editor (`GameApi.cs`, `Plugin.cs`) | Engine facts: IL2CPP, obfuscation, assembly names, real type names (`Hex.MapEditor.BhNewGenMap`, `Hex.MapEditor.BhMapEditor`), BepInEx build `6.0.0-be.785`, `net6.0` |
+| O3 | Nexus Mods pages for Olden Era: "BepInEx 6 (with version-independent deobfuscation)", "CheatPanel – BepInEx 6 IL2CPP", "Mod Configuration Panel", "Hero Creator and Editor" | Mod ecosystem **[V-community]** |
+| O4 | Steam discussion "Modding Game Files" (app 3105440) | Players edit "JSON core files"; mentions `hex.dll` + dnSpy **[V-community]**; contradicts O2 — see `01_Engine_and_Runtime.md` |
+| O5 | `KhanDevelopsGames/Olden-Era---Template-Generator`, `ignis-sec/HoMM-OE-Template-Editor` | Random map template format (`.rmg.json`) |
 
-Не использовался: `Weolcan/homm-olden-era-community-mods` («Official Release & Review Guide» — SEO-контент,
-а не инструмент; проверять нечего).
+Not used: `Weolcan/homm-olden-era-community-mods` ("Official Release & Review Guide" — SEO content,
+not a tool; there is nothing to verify).

@@ -11,7 +11,7 @@ public sealed class CoReceiver : ErmReceiverBase
 {
     public CoReceiver() : base("CO")
     {
-        Declare("EDTHPSANXB", CompatLevel.Emulated, "командиры — эмулируемая сущность в Olden Era");
+        Declare("EDTHPSANXB", CompatLevel.Emulated, "commanders are an emulated entity in Olden Era");
     }
 
     protected override void Run(ErmCall c)
@@ -283,8 +283,8 @@ public sealed class ExReceiver : ErmReceiverBase
 {
     public ExReceiver() : base("EX")
     {
-        Declare("ENTAR", CompatLevel.Emulated, "опыт — внешнее состояние WoG, применяемое к стекам OE");
-        Declare("C", CompatLevel.Unsupported, "объединение стеков ещё не реализовано");
+        Declare("ENTAR", CompatLevel.Emulated, "experience is external WoG state applied to OE stacks");
+        Declare("C", CompatLevel.Unsupported, "stack merging is not implemented yet");
     }
 
     protected override void Run(ErmCall c)

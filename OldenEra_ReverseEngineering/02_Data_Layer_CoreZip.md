@@ -1,65 +1,65 @@
-# Olden Era — слой данных (`Core.zip`)
+# Olden Era — data layer (`Core.zip`)
 
-Весь игровой контент — JSON внутри `HeroesOldenEra_Data/StreamingAssets/Core.zip` **[V-data]** (O1 читает его
-через JSZip и перечисляет папки ниже). Обновления игры перезаписывают `Core.zip`.
+All game content is JSON inside `HeroesOldenEra_Data/StreamingAssets/Core.zip` **[V-data]** (O1 reads it
+via JSZip and enumerates the folders below). Game updates overwrite `Core.zip`.
 
-## 1. Механизм оверлея
+## 1. Overlay mechanism
 
-* Дополнительные `.zip`, положенные **рядом с `Core.zip`**, подмешиваются поверх него при запуске
-  **[V-community]** (README O1: «The engine merges your ZIP on top of `Core.zip` at runtime»; его свои герои,
-  объекты карты, артефакты и баффы, поставляемые так, появляются во встроенном редакторе карт и работают —
-  по комментариям к типам O1, задачи #139/#146/#150/#165, проверено в игре).
-* Новый контент добавляется **клонированием существующего определения под новым id** («clone a real
-  definition, mint a new id, ship it»). Клон логики объекта карты **обязан** лежать в той же подпапке семейства
-  `objects_logic`, что и исходник — «общая подпапка ломает объект» **[V-community]**. Для юнитов порт кладёт
-  клон в папку исходника (`OverlayBuilder.CloneUnit`) — то же правило по аналогии, **[UNVERIFIED]**.
-* Действует ли оверлей глобально или только для своей карты — **[UNVERIFIED]**; O1 всегда поставляет его к
-  карте. Генератор порта выпускает один `wog_core.zip` и проверяет глобальность отдельной пробой.
-* Локализация: `Lang/<язык>/texts/<файл>.json` = `{"tokens":[{"sid","text"}]}` с UTF-8 BOM; архив без сжатия
-  (STORE) — как у O1 **[V-code]**. Отсутствующий ключ показывается сырым sid **[V-data]**.
+* Additional `.zip` files placed **next to `Core.zip`** are merged on top of it at startup
+  **[V-community]** (O1 README: "The engine merges your ZIP on top of `Core.zip` at runtime"; its own heroes,
+  map objects, artifacts and buffs shipped this way appear in the built-in map editor and work —
+  per O1's type comments, issues #139/#146/#150/#165, verified in game).
+* New content is added by **cloning an existing definition under a new id** ("clone a real
+  definition, mint a new id, ship it"). A clone of a map object's logic **must** live in the same `objects_logic`
+  family subfolder as the original — "a shared subfolder breaks the object" **[V-community]**. For units, the port places
+  the clone in the original's folder (`OverlayBuilder.CloneUnit`) — the same rule by analogy, **[UNVERIFIED]**.
+* Whether the overlay applies globally or only to its own map is **[UNVERIFIED]**; O1 always ships it alongside a
+  map. The port's generator emits a single `wog_core.zip` and checks global scope with a separate probe.
+* Localization: `Lang/<language>/texts/<file>.json` = `{"tokens":[{"sid","text"}]}` with a UTF-8 BOM; the archive is
+  uncompressed (STORE), as in O1 **[V-code]**. A missing key is displayed as the raw sid **[V-data]**.
 
-## 2. Карта папок
+## 2. Folder map
 
-| Путь в zip | Содержимое | Форма (по документации O1) |
-|------------|------------|----------------------------|
-| `DB/units/units_logics/<фракция>/*.json` | существа | `id`, `fraction`, `tier`, `icon`, `stats{hp, offence, defence, damageMin, damageMax, initiative, speed, luck, moral, actionPoints, numCounters, energyPerCast, energyPerRound, energyPerTakeDamage}`, `unitCost{costResArray[{name,cost}]}`, способности |
-| `DB/heroes/<фракция>/*.json`, `DB/heroes/custom_maps/` | герои (108 в 6 фракциях + кампания) | `id,name,description,motto,mesh,mounts,icon,fraction,nativeBiome,classType (might/magic),skillsRollVariant,costGold,startLevel,startSquad[{sid,min,max}],specialization,stats{viewRadius,statsNum,magicCastsPerRound,enableTactics,tacticsPlacementSize,offence,defence,spellPower,intelligence,luck,moral},statsRolls,startSkills[{sid,skillLevel}],startMagics[{sidConfig,level,isLearned}]` |
-| `DB/heroes_specializations/*.json` | специализации героев | |
-| `DB/heroes_skills/skills/*.json` | вторичные навыки («subskills») | |
-| `DB/magics/*.json` | заклинания | |
-| `DB/items/items/*.json` | артефакты (плоские массивы) | `id,name,description,narrativeDescription,icon,slot_,rarity,bonuses,goodsValue,…` (в т.ч. `battleSubskillBonus` со ссылками на баффы) |
-| `DB/buffs/*.json` | баффы / эффекты (19 файлов, 414 баффов) | см. `04_Buffs_and_Battle.md` |
-| `DB/fractions/*.json` | фракции | порядок и названия |
-| `DB/squads/**` | шаблоны нейтральных отрядов | |
-| `DB/map/objects/{1_environments,2_animals,3_resources,4_interactables,5_fxs,6_artifacts,7_spawns,8_test,9_blocks}.json` | шаблоны объектов карты | `id,name,tag,isInteractable,prefs (ссылки на 3D-префабы),geometry,generatorConfig` — **поля иконки нет** |
-| `DB/objects_logic/<семейство>/**` (`cities/*_city.json`, `res_mines/mines.json`, `event_banks/**` …) | поведение интерактивных объектов | |
-| `DB/map/trigger_zones/zones.json`, `waters`, `rivers`, `roads`, `tiles` | слои карты | |
-| `DB/dialogs/dialogs/**` | ~769 диалогов | `{"array":[flow]}` |
-| `DB/res/resources_info.json` | ресурсы | |
-| `DB/difficulties_lobby.json` | пресеты сложности | |
-| `Lang/<язык>/texts/*.json` | локализация (16 языков) | |
+| Path in zip | Contents | Shape (per O1 documentation) |
+|-------------|----------|------------------------------|
+| `DB/units/units_logics/<faction>/*.json` | creatures | `id`, `fraction`, `tier`, `icon`, `stats{hp, offence, defence, damageMin, damageMax, initiative, speed, luck, moral, actionPoints, numCounters, energyPerCast, energyPerRound, energyPerTakeDamage}`, `unitCost{costResArray[{name,cost}]}`, abilities |
+| `DB/heroes/<faction>/*.json`, `DB/heroes/custom_maps/` | heroes (108 across 6 factions + campaign) | `id,name,description,motto,mesh,mounts,icon,fraction,nativeBiome,classType (might/magic),skillsRollVariant,costGold,startLevel,startSquad[{sid,min,max}],specialization,stats{viewRadius,statsNum,magicCastsPerRound,enableTactics,tacticsPlacementSize,offence,defence,spellPower,intelligence,luck,moral},statsRolls,startSkills[{sid,skillLevel}],startMagics[{sidConfig,level,isLearned}]` |
+| `DB/heroes_specializations/*.json` | hero specializations | |
+| `DB/heroes_skills/skills/*.json` | secondary skills ("subskills") | |
+| `DB/magics/*.json` | spells | |
+| `DB/items/items/*.json` | artifacts (flat arrays) | `id,name,description,narrativeDescription,icon,slot_,rarity,bonuses,goodsValue,…` (including `battleSubskillBonus` with references to buffs) |
+| `DB/buffs/*.json` | buffs / effects (19 files, 414 buffs) | see `04_Buffs_and_Battle.md` |
+| `DB/fractions/*.json` | factions | order and names |
+| `DB/squads/**` | neutral squad templates | |
+| `DB/map/objects/{1_environments,2_animals,3_resources,4_interactables,5_fxs,6_artifacts,7_spawns,8_test,9_blocks}.json` | map object templates | `id,name,tag,isInteractable,prefs (references to 3D prefabs),geometry,generatorConfig` — **there is no icon field** |
+| `DB/objects_logic/<family>/**` (`cities/*_city.json`, `res_mines/mines.json`, `event_banks/**` …) | behavior of interactive objects | |
+| `DB/map/trigger_zones/zones.json`, `waters`, `rivers`, `roads`, `tiles` | map layers | |
+| `DB/dialogs/dialogs/**` | ~769 dialogs | `{"array":[flow]}` |
+| `DB/res/resources_info.json` | resources | |
+| `DB/difficulties_lobby.json` | difficulty presets | |
+| `Lang/<language>/texts/*.json` | localization (16 languages) | |
 
-Объёмы **[V-data]**: 146 id существ (6 фракций × 21 вместе с апгрейдом и альтернативным апгрейдом + 19
-нейтральных), 108 героев, 158 интерактивных объектов карты.
-Фракции: **Temple, Necropolis, Grove, Dungeon, Hive, Schism** (+ нейтралы). У каждого существа есть база,
-`_upg` и `_upg_alt`.
+Counts **[V-data]**: 146 creature ids (6 factions × 21 including the upgrade and the alternate upgrade + 19
+neutrals), 108 heroes, 158 interactive map objects.
+Factions: **Temple, Necropolis, Grove, Dungeon, Hive, Schism** (+ neutrals). Every creature has a base form,
+`_upg` and `_upg_alt`.
 
-## 3. Карты
+## 3. Maps
 
-* Бинарный файл `.map` = gzip + JSON-блоки с префиксом длины LEB128 **[V-data]**; O1 читает и пишет его.
-* Скрипт сценария — `.json` рядом с `.map` с тем же именем **[V-community]**; он обязателен, как только у
-  любого объекта есть скриптовые действия (иначе карта не загружается).
-* O1 умеет импортировать карты Heroes III `.h3m` в карты Olden Era (ландшафт, города, герои, монстры, шахты,
-  жилища, артефакты, порталы, глобальные события) **[V-code]** — пригодно для переноса геометрии карт WoG;
-  ERM таких карт исполняет наш рантайм ERM, а не этот импортёр.
+* The binary `.map` file = gzip + JSON blocks with a LEB128 length prefix **[V-data]**; O1 reads and writes it.
+* The scenario script is a `.json` next to the `.map` with the same name **[V-community]**; it is mandatory as soon as
+  any object has scripted actions (otherwise the map does not load).
+* O1 can import Heroes III `.h3m` maps into Olden Era maps (terrain, towns, heroes, monsters, mines,
+  dwellings, artifacts, portals, global events) **[V-code]** — suitable for carrying over the geometry of WoG maps;
+  the ERM of such maps is executed by our ERM runtime, not by this importer.
 
-## 4. Что слой данных может дать WoG
+## 4. What the data layer can give WoG
 
-| Задача | Через данные? |
-|--------|---------------|
-| Новые *типы* существ (8-й уровень, нейтралы WoG) как клоны существующих моделей с новыми статами | **Да** — клон юнита, новый id, та же модель (перекраска = замена материала, нужна работа с ассетами) |
-| Новые артефакты с бонусами к статам | **Да** — клон предмета, правка `bonuses`; общность ограничена тем, что выражают `bonuses`/баффы |
-| Новые баффы (бонусы рангов опыта стеков как стат-баффы) | **Да** — `OverlayBuilder.StatBuff`, `StackExperienceBuffs` |
-| Новые объекты карты со своим поведением | **Частично** — клон объекта (+семейство логики); своё поведение — скриптами или плагином |
-| Состояние экземпляра (опыт *этого* стека, уровень командира) | **Нет** — только статические определения; нужен рантайм (плагин) |
-| Правила, меняющиеся опциями во время игры | **Нет** — нужен плагин |
+| Task | Via data? |
+|------|-----------|
+| New creature *types* (8th tier, WoG neutrals) as clones of existing models with new stats | **Yes** — unit clone, new id, same model (recolor = material swap, requires asset work) |
+| New artifacts with stat bonuses | **Yes** — item clone, edit `bonuses`; generality is limited to what `bonuses`/buffs can express |
+| New buffs (stack experience rank bonuses as stat buffs) | **Yes** — `OverlayBuilder.StatBuff`, `StackExperienceBuffs` |
+| New map objects with their own behavior | **Partially** — object clone (+ logic family); custom behavior via scripts or a plugin |
+| Instance state (experience of *this* stack, commander level) | **No** — static definitions only; requires a runtime (plugin) |
+| Rules that change via options during play | **No** — requires a plugin |

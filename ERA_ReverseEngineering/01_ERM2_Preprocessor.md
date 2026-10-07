@@ -1,69 +1,71 @@
-# Препроцессор ERM 2.0 (Era `PreprocessErm`)
+# ERM 2.0 Preprocessor (Era `PreprocessErm`)
 
-Источник: `Erm.pas`, функция `PreprocessErm` (Era 3.9.31), сканер `TextScan.TTextScanner` из библиотеки B2.
-Порт: `src/WoG.Erm/Era/EraPreprocessor.cs`. Портировано **построчно, вместе с ошибками**: на одном и том же
-тексте получается тот же результат. Тесты: `EraPreprocessorTests`.
+Source: `Erm.pas`, function `PreprocessErm` (Era 3.9.31), scanner `TextScan.TTextScanner` from the B2 library.
+Port: `src/WoG.Erm/Era/EraPreprocessor.cs`. Ported **line by line, bugs included**: the same input text
+yields the same result. Tests: `EraPreprocessorTests`.
 
-## Место в конвейере
+## Place in the pipeline
 
-ERA не разбирает «ERM 2.0» напрямую. Каждый скрипт при загрузке проходит текстовую замену, на выходе —
-классический ERM, который дальше разбирает компилятор WoG (с перехваченными Era функциями разбора
-параметров). В порте так же: `EraPreprocessor.Process` → `ErmParser` (диалект `Era`) → рантайм.
+ERA does not parse "ERM 2.0" directly. On load, every script goes through text substitution, and the output is
+classic ERM, which is then parsed by the WoG compiler (with its parameter-parsing functions hooked by Era).
+The port works the same way: `EraPreprocessor.Process` → `ErmParser` (`Era` dialect) → runtime.
 
-## Что заменяется
+## What gets replaced
 
-| Конструкция | Где работает | Во что превращается |
-|-------------|--------------|---------------------|
-| `(ИмяФункции)` | во всех скриптах | номер функции: имена событий ERA имеют свои номера (`OnEveryDay` = 77018…), остальные получают номера с 95000 по порядку первого появления |
-| `(имя:y)`, `(имя:x)`, `(имя:z)`, `(имя:e)` | только `ZVSE2` | объявление локальной переменной; выдаёт `y5`, `x3`, `z-1` и т. п. |
-| `(имя)` | только `ZVSE2` | уже объявленная локальная переменная |
-| `(массив[N]:y)` | только `ZVSE2` | объявление массива из N переменных подряд |
-| `(массив[2])`, `(массив[-1])` | только `ZVSE2` | элемент (отрицательный индекс — с конца) |
-| `(массив[i])`, `(массив[переменная])` | только `ZVSE2` | перед командой вставляется `!!VRyT:S<начало> +<индекс> F<начало>/<конец>/0/0;`, сама ссылка становится `yyT` |
-| `(@имя)` | только `ZVSE2` | номер переменной (адрес) вместо значения |
-| `(-имя)` | только `ZVSE2` | освобождение локальной переменной (исчезает из текста) |
-| `(КОНСТАНТА)` | только `ZVSE2` | значение глобальной константы |
-| `!#DC(ИМЯ) = 10;` / `!#DC(ИМЯ) = (ДРУГАЯ);` | только `ZVSE2` | объявление константы; сама строка удаляется (остаётся `;`) |
-| `!#VA(...);` | только `ZVSE2` | «пустая» команда для объявлений переменных; удаляется целиком |
-| `(FILE)`, `(LINE)`, `(CODE)` | только `ZVSE2` | имя скрипта (в `^…^`), номер строки, текст текущей строки (до 100 символов, экранированный) |
-| `[:метка]` (вне команды) | все | объявление метки — номер следующей команды секции; текст удаляется |
-| `[метка]` (внутри команды) | все | номер команды (используется в `SN:G`); метки видны только в своей секции |
-| `!!!` | все | превращается в `!` (команда отключена) |
-| `%(имя)` в строке `^…^` | `ZVSE2` | `%y5` (значение локальной переменной) |
-| `%y(имя)` в строке | `ZVSE2` | `%yy5` (косвенная адресация через локальную переменную) |
-| `%s(…)`, `%i(…)`, `%T(…)` | все | **не трогаются** — их понимает интерполяция ERA во время выполнения |
+| Construct | Where it applies | What it becomes |
+|-----------|------------------|-----------------|
+| `(FunctionName)` | in all scripts | function number: ERA event names have their own numbers (`OnEveryDay` = 77018…), all others get numbers starting at 95000, in order of first appearance |
+| `(name:y)`, `(name:x)`, `(name:z)`, `(name:e)` | `ZVSE2` only | local variable declaration; yields `y5`, `x3`, `z-1`, etc. |
+| `(name)` | `ZVSE2` only | an already declared local variable |
+| `(array[N]:y)` | `ZVSE2` only | declaration of an array of N consecutive variables |
+| `(array[2])`, `(array[-1])` | `ZVSE2` only | an element (a negative index counts from the end) |
+| `(array[i])`, `(array[variable])` | `ZVSE2` only | `!!VRyT:S<start> +<index> F<start>/<end>/0/0;` is inserted before the command, and the reference itself becomes `yyT` |
+| `(@name)` | `ZVSE2` only | the variable's number (address) instead of its value |
+| `(-name)` | `ZVSE2` only | frees the local variable (disappears from the text) |
+| `(CONSTANT)` | `ZVSE2` only | the value of a global constant |
+| `!#DC(NAME) = 10;` / `!#DC(NAME) = (OTHER);` | `ZVSE2` only | constant declaration; the line itself is removed (a `;` remains) |
+| `!#VA(...);` | `ZVSE2` only | a "dummy" command for variable declarations; removed entirely |
+| `(FILE)`, `(LINE)`, `(CODE)` | `ZVSE2` only | script name (in `^…^`), line number, text of the current line (up to 100 characters, escaped) |
+| `[:label]` (outside a command) | all | label declaration: the number of the next command in the section; the text is removed |
+| `[label]` (inside a command) | all | command number (used in `SN:G`); labels are visible only within their own section |
+| `!!!` | all | becomes `!` (command disabled) |
+| `%(name)` in a `^…^` string | `ZVSE2` | `%y5` (value of the local variable) |
+| `%y(name)` in a string | `ZVSE2` | `%yy5` (indirect addressing through the local variable) |
+| `%s(…)`, `%i(…)`, `%T(…)` | all | **left untouched**: ERA's interpolation understands them at runtime |
 
-## Правила распознавания имени в скобках (`DetectIdentType`)
+## Rules for recognizing a name in parentheses (`DetectIdentType`)
 
-* Первая буква заглавная и все символы `A-Z 0-9 _` → **константа** (поэтому функция `(F)` или `(E)` —
-  ошибка «неизвестная константа», а `(Fn)` — функция).
-* Первая буква заглавная, есть строчные → **функция**.
-* Начинается с `@` или `-` → **переменная**.
-* Первая буква строчная: если нет `_` или есть `[` → **переменная**; иначе (есть `_`) → **функция**.
-* Имя локальной переменной — только `[a-z][a-zA-Z0-9]*`.
-* Индекс массива из одной буквы `f`…`t` — **всегда** быстрая переменная, даже если объявлена локальная с
-  таким именем (`(arr[i])` → индекс `i`).
+* First letter uppercase and all characters in `A-Z 0-9 _` → **constant** (so a function named `(F)` or `(E)` is
+  an "unknown constant" error, while `(Fn)` is a function).
+* First letter uppercase, contains lowercase letters → **function**.
+* Starts with `@` or `-` → **variable**.
+* First letter lowercase: if there is no `_` or there is a `[` → **variable**; otherwise (contains `_`) → **function**.
+* A local variable name can only be `[a-z][a-zA-Z0-9]*`.
+* A single-letter array index `f`…`t` is **always** a quick variable, even if a local variable with that name
+  has been declared (`(arr[i])` → index `i`).
 
-## Пулы локальных переменных
+## Local variable pools
 
-Сбрасываются в начале каждого триггера (`!?`/`!$`) в скриптах `ZVSE2`:
+Reset at the start of every trigger (`!?`/`!$`) in `ZVSE2` scripts:
 
-| Тип | Пул | Пример |
-|-----|-----|--------|
-| `y` | `y1`…`y100` | `(a:y)` → `y1`, следующая → `y2` |
+| Type | Pool | Example |
+|------|------|---------|
+| `y` | `y1`…`y100` | `(a:y)` → `y1`, the next one → `y2` |
 | `x` | `x1`…`x16` | |
-| `e` | `e2`…`e101` (так в коде: начало 2, размер 100) | |
-| `z` | `z-1`…`z-10` (отрицательный пул: массив `[3]` занимает `z-3, z-2, z-1`) | `(s:z)` → `z-1` |
+| `e` | `e2`…`e101` (as in the code: start 2, size 100) | |
+| `z` | `z-1`…`z-10` (negative pool: an array `[3]` occupies `z-3, z-2, z-1`) | `(s:z)` → `z-1` |
 
-Свободные диапазоны хранятся списком. Особенность ERA: при выделении диапазона ровно нужной длины, который
-стоит в списке не первым, он не удаляется из списка (ошибка в переменной `PrevRange`). Порт воспроизводит.
+Free ranges are kept in a list. An ERA quirk: when a range of exactly the required length is allocated and it is
+not the first one in the list, it is not removed from the list (a bug involving the `PrevRange` variable). The port
+reproduces this.
 
-## Особенности, которые важно знать при переносе скриптов
+## Quirks to know when porting scripts
 
-* Номера функций зависят от **порядка загрузки** скриптов: первое упоминание имени даёт следующий номер.
-  Поэтому порядок загрузки модов воспроизведён точно (см. `03_ERA_Events_Loading_Save.md`), а таблица имён
-  сохраняется вместе с игрой.
-* Регистрация имени функции создаёт и именованную переменную `i^Имя^` = номер функции.
-* Вспомогательные команды для индексов-переменных вставляются без увеличения счётчика команд, поэтому
-  метки после них «съезжают». Так в ERA; порт повторяет.
-* Ошибки препроцессора в ERA показываются в окне, обработка продолжается; в порте они попадают в диагностику.
+* Function numbers depend on the **load order** of scripts: the first mention of a name gets the next number.
+  That is why mod load order is reproduced exactly (see `03_ERA_Events_Loading_Save.md`), and the name table
+  is stored in the saved game.
+* Registering a function name also creates a named variable `i^Name^` = the function number.
+* Helper commands for variable indexes are inserted without incrementing the command counter, so labels after
+  them "shift". That is how ERA behaves; the port replicates it.
+* In ERA, preprocessor errors are shown in a message window and processing continues; in the port they go into
+  the diagnostics.

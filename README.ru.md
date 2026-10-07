@@ -7,6 +7,8 @@ ERA Project) — на **Heroes of Might and Magic: Olden Era**. Цель — н�
 поведения ERA: язык ERM 2.0, командиры, опыт стеков, WoG Options, скрипты WoG и ERA — так точно, как позволяет
 движок Olden Era.
 
+Английская (основная) версия: [README.md](README.md). У каждого документа в репозитории есть английский оригинал `X.md` и русская копия `X.ru.md`.
+
 Сначала целью был WoG 3.58; по решению пользователя цель — ERA (`ERA-Projects/era-project-eng`,
 `era-project-rus`). ERA построена на WoG, поэтому вся работа по WoG 3.58 используется дальше как нижний слой.
 
@@ -56,11 +58,13 @@ WOG_SCRIPTS_DIR="/путь/к/WoG/Data/s" dotnet test tests/WoG.Tests --filter C
 M="/путь/к/era-project-eng/Mods"
 dotnet run --project tools/WoG.ErmTool -- run --era "$M/Era Erm Framework" "$M/ERA Scripts" "$M/WoG Scripts" "$M/WoG"
 dotnet run --project tools/WoG.ErmTool -- era-pp /tmp/era-pp "$M/Era Erm Framework" "$M/ERA Scripts" "$M/WoG Scripts" "$M/WoG"
-dotnet run --project tools/WoG.ErmTool -- compat --era    # таблица Compatibility/ERM_Compatibility_ERA.ru.md
+dotnet run --project tools/WoG.ErmTool -- compat --era > Compatibility/ERM_Compatibility_ERA.md                # таблица (английская)
+dotnet run --project tools/WoG.ErmTool -- compat --era --lang ru > Compatibility/ERM_Compatibility_ERA.ru.md   # русская копия таблицы
 
 # WoG 3.58
 dotnet run --project tools/WoG.ErmTool -- run "/путь/к/WoG/Data/s"
-dotnet run --project tools/WoG.ErmTool -- compat          # таблица Compatibility/ERM_Compatibility.ru.md
+dotnet run --project tools/WoG.ErmTool -- compat > Compatibility/ERM_Compatibility.md                          # таблица (английская)
+dotnet run --project tools/WoG.ErmTool -- compat --lang ru > Compatibility/ERM_Compatibility.ru.md             # русская копия таблицы
 ```
 
 ## Установка в игру (для этапа проверки)
@@ -76,6 +80,9 @@ dotnet run --project tools/WoG.ErmTool -- compat          # таблица Compa
 установок самого пользователя.
 
 ## Карта документации
+
+Каждый документ есть на двух языках: английский оригинал `X.md` (основной) и синхронизированная русская копия
+`X.ru.md` рядом с ним. Комментарии в коде — на английском.
 
 * `ERA_ReverseEngineering/` — 00 обзор и решение · 01 препроцессор ERM 2.0 · 02 семантика ERA · 03 события,
   загрузка модов, переводы, ERT, сохранение.

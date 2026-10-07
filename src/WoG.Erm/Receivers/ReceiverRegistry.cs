@@ -64,7 +64,7 @@ public sealed class ReceiverRegistry
     {
         var reg = new ReceiverRegistry();
         foreach (var id in ErmParser.KnownReceivers358.Concat(ErmParser.KnownReceivers359))
-            reg.Register(new UnsupportedReceiver(id, "ресивер ещё не отображён на целевой движок"));
+            reg.Register(new UnsupportedReceiver(id, "receiver is not mapped to the target engine yet"));
         reg.Register(new VrReceiver());
         reg.Register(new FuReceiver());
         reg.Register(new DoReceiver());
@@ -82,7 +82,7 @@ public sealed class ReceiverRegistry
         reg.Register(new NoOpReceiver("if"));
         reg.Register(new NoOpReceiver("el"));
         reg.Register(new NoOpReceiver("en"));
-        reg.Register(new UnsupportedReceiver("IP", "сетевой ERM вне рамок проекта (только одиночная игра)"));
+        reg.Register(new UnsupportedReceiver("IP", "network ERM is out of scope (single-player only)"));
         return reg;
     }
 
@@ -94,7 +94,7 @@ public sealed class ReceiverRegistry
     {
         var reg = new ReceiverRegistry();
         foreach (var id in ErmParser.KnownReceivers358.Concat(ErmParser.KnownReceiversEra))
-            reg.Register(new UnsupportedReceiver(id, "ресивер ещё не отображён на целевой движок"));
+            reg.Register(new UnsupportedReceiver(id, "receiver is not mapped to the target engine yet"));
         reg.Register(new EraVrReceiver());
         reg.Register(new EraFuReceiver());
         reg.Register(new EraDoReceiver());
@@ -109,32 +109,85 @@ public sealed class ReceiverRegistry
         reg.Register(new CoReceiver());
         reg.Register(new ExReceiver());
         foreach (var id in new[] { "if", "el", "en", "re", "br", "co" }) reg.Register(new NoOpReceiver(id));
-        reg.Register(new UnsupportedReceiver("IP", "сетевой ERM вне рамок проекта (только одиночная игра)"));
-        reg.Register(new UnsupportedReceiver("MP", "MP — музыка H3 (mp3): у Olden Era своя музыка"));
-        reg.Register(new UnsupportedReceiver("RD", "RD — окно найма существ H3 (Dwellings.pas): нужен UI-адаптер"));
-        reg.Register(new UnsupportedReceiver("SS", "SS — ресивер плагина вторичных навыков (закрытая DLL ERA)"));
-        reg.Register(new UnsupportedReceiver("PA", "PA — ресивер плагина «receiver pa.era» (закрытая DLL ERA)"));
-        reg.Register(new UnsupportedReceiver("QU", "QU — ресивер плагина «receiver qu.era» (закрытая DLL ERA)"));
+        reg.Register(new UnsupportedReceiver("IP", "network ERM is out of scope (single-player only)"));
+        reg.Register(new UnsupportedReceiver("MP", "MP — H3 music (mp3): Olden Era has its own music"));
+        reg.Register(new UnsupportedReceiver("RD", "RD — H3 creature recruitment window (Dwellings.pas): needs a UI adapter"));
+        reg.Register(new UnsupportedReceiver("SS", "SS — receiver of the secondary skills plugin (closed-source ERA DLL)"));
+        reg.Register(new UnsupportedReceiver("PA", "PA — receiver of the \"receiver pa.era\" plugin (closed-source ERA DLL)"));
+        reg.Register(new UnsupportedReceiver("QU", "QU — receiver of the \"receiver qu.era\" plugin (closed-source ERA DLL)"));
         return reg;
     }
 
-    /// <summary>Markdown table of receiver/command support (feeds Compatibility/ERM_Compatibility.md).</summary>
-    public string ToMarkdown()
+    /// <summary>
+    /// Russian texts of the declared notes and reasons, keyed by the English text in the code. Used only for the
+    /// Russian copy of the generated tables (Compatibility/ERM_Compatibility*.ru.md); a note without an entry is
+    /// printed in English. Every note/reason of <see cref="CreateDefault"/> and <see cref="CreateEra"/> must be here.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, string> RussianNotes = new Dictionary<string, string>(StringComparer.Ordinal)
     {
+        // ReceiverRegistry
+        ["receiver is not mapped to the target engine yet"] = "ресивер ещё не отображён на целевой движок",
+        ["network ERM is out of scope (single-player only)"] = "сетевой ERM вне рамок проекта (только одиночная игра)",
+        ["MP — H3 music (mp3): Olden Era has its own music"] = "MP — музыка H3 (mp3): у Olden Era своя музыка",
+        ["RD — H3 creature recruitment window (Dwellings.pas): needs a UI adapter"] = "RD — окно найма существ H3 (Dwellings.pas): нужен UI-адаптер",
+        ["SS — receiver of the secondary skills plugin (closed-source ERA DLL)"] = "SS — ресивер плагина вторичных навыков (закрытая DLL ERA)",
+        ["PA — receiver of the \"receiver pa.era\" plugin (closed-source ERA DLL)"] = "PA — ресивер плагина «receiver pa.era» (закрытая DLL ERA)",
+        ["QU — receiver of the \"receiver qu.era\" plugin (closed-source ERA DLL)"] = "QU — ресивер плагина «receiver qu.era» (закрытая DLL ERA)",
+        // CoreReceivers, EraReceivers
+        ["FU:D — network call (multiplayer is out of scope)"] = "FU:D — сетевой вызов (мультиплеер вне рамок проекта)",
+        ["SN:H — object/monster hints: needs an Olden Era UI adapter"] = "SN:H — подсказки объектов/монстров: нужен UI-адаптер Olden Era",
+        ["SN:O — object entrance tile: needs a map adapter"] = "SN:O — клетка входа объекта: нужен адаптер карты",
+        ["SN:P — H3 sound playback: Olden Era sounds are different"] = "SN:P — проигрывание звука H3: звуки Olden Era другие",
+        ["SN:S — sound name in !?SN: the sound trigger is not ported"] = "SN:S — имя звука в !?SN: звуковой триггер не перенесён",
+        ["SN:R — H3 resource redirection (lod/def): Olden Era resources are different"] = "SN:R — подмена ресурсов H3 (lod/def): ресурсы Olden Era другие",
+        ["SN:F — Era API functions: those used by the ERA Project scripts are ported (see EraApi); DLL/Win32 functions are not"] = "SN:F — функции API Era: перенесены те, что используют скрипты проекта ERA (см. EraApi); функции DLL/Win32 — нет",
+        ["SN:E — calling a function by address in the H3 exe: different engine"] = "SN:E — вызов функции по адресу в exe H3: другой движок",
+        ["SN:L/A/B — DLL loading, addresses and H3 process memory: different engine"] = "SN:L/A/B — загрузка DLL, адреса и память процесса H3: другой движок",
+        // GameReceivers
+        ["text messages and yes/no questions; variants with pictures need custom UI"] = "текстовые сообщения и вопросы да/нет; варианты с картинками требуют своего UI",
+        ["special WoG dialogs (pictures, sphinx, checkboxes, multiple choice) need a custom UI layer"] = "особые диалоги WoG (картинки, сфинкс, флажки, множественный выбор) требуют своего UI-слоя",
+        ["UN:C writes to H3 memory addresses — impossible on a different engine"] = "UN:C пишет по адресам памяти H3 — на другом движке невозможно",
+        ["UN map/object/global commands are not mapped yet"] = "команды UN для карты/объектов/глобальные ещё не отображены",
+        ["values go through the adapter; OE primary stats differ (see the matrix)"] = "значения идут через адаптер; первичные статы OE отличаются (см. матрицу)",
+        ["ids via IdMap; display-slot forms are not supported"] = "id через IdMap; формы со слотами отображения не поддерживаются",
+        ["not mapped yet"] = "ещё не отображено",
+        ["resource ids via IdMap"] = "id ресурсов через IdMap",
+        ["the engine's stat model differs (initiative/speed, no shots)"] = "модель статов движка отличается (initiative/speed, нет выстрелов)",
+        // ModuleReceivers
+        ["commanders are an emulated entity in Olden Era"] = "командиры — эмулируемая сущность в Olden Era",
+        ["experience is external WoG state applied to OE stacks"] = "опыт — внешнее состояние WoG, применяемое к стекам OE",
+        ["stack merging is not implemented yet"] = "объединение стеков ещё не реализовано",
+    };
+
+    /// <summary>
+    /// Markdown table of receiver/command support (feeds Compatibility/ERM_Compatibility*.md).
+    /// <paramref name="lang"/>: "en" (default) or "ru" (headers, yes/no and notes in Russian; status words stay English).
+    /// </summary>
+    public string ToMarkdown(string lang = "en")
+    {
+        bool ru = lang switch
+        {
+            "en" => false,
+            "ru" => true,
+            _ => throw new ArgumentException($"unknown language '{lang}' (expected en or ru)", nameof(lang)),
+        };
+        string Note(string note) => ru && RussianNotes.TryGetValue(note, out var t) ? t : note;
+        string yes = ru ? "да" : "yes", no = ru ? "нет" : "no";
         var sb = new StringBuilder();
-        sb.Append("| Ресивер | Реализован | Команды и статус |\n|---|---|---|\n");
+        sb.Append(ru ? "| Ресивер | Реализован | Команды и статус |\n" : "| Receiver | Implemented | Commands and status |\n");
+        sb.Append("|---|---|---|\n");
         foreach (var r in map.Values.OrderBy(r => r.Id, StringComparer.Ordinal))
         {
             if (r is NoOpReceiver) continue;
             if (r is UnsupportedReceiver u)
             {
-                sb.Append($"| `{r.Id}` | нет | UNSUPPORTED — {u.Reason} |\n");
+                sb.Append($"| `{r.Id}` | {no} | UNSUPPORTED — {Note(u.Reason)} |\n");
                 continue;
             }
             var cmds = string.Join("; ", r.Support.OrderBy(k => k.Key)
                 .GroupBy(k => (k.Value.Level, k.Value.Note))
-                .Select(g => $"`{string.Concat(g.Select(x => x.Key)).Replace("|", "\\|")}` {Level(g.Key.Level)}{(g.Key.Note.Length > 0 ? " (" + g.Key.Note + ")" : "")}"));
-            sb.Append($"| `{r.Id}` | да | {cmds} |\n");
+                .Select(g => $"`{string.Concat(g.Select(x => x.Key)).Replace("|", "\\|")}` {Level(g.Key.Level)}{(g.Key.Note.Length > 0 ? " (" + Note(g.Key.Note) + ")" : "")}"));
+            sb.Append($"| `{r.Id}` | {yes} | {cmds} |\n");
         }
         return sb.ToString();
     }

@@ -1,11 +1,13 @@
-# Таблицы отображения id (WoG/H3 ↔ Olden Era)
+# id mapping tables (WoG/H3 ↔ Olden Era)
 
-Плагин читает `*.json` из `BepInEx/config/WoG/id-maps/`; имя файла = домен (`creature`, `hero`, `artifact`,
-`spell`, `skill`, `resource`). Формат строки: `{"wog": номер в H3/WoG, "engine": "sid в Olden Era" | null, …}`.
-Строки с `engine: null` не отображены — команды ERM с такими id сообщают *unsupported*, ничего не подменяется.
+The plugin reads `*.json` from `BepInEx/config/WoG/id-maps/`; the file name = the domain (`creature`, `hero`,
+`artifact`, `spell`, `skill`, `resource`). Row format: `{"wog": number in H3/WoG, "engine": "sid in Olden Era" | null, …}`.
+Rows with `engine: null` are not mapped — ERM commands with such ids report *unsupported*, and nothing is substituted.
 
-* `creature.json` — 150 существ H3 SoD (0…149) с фракцией и уровнем (номера и ключи — из конфигурации VCMI,
-  S6). Существа WoG 150–196 (8-й уровень, командиры 174–191 и др.) будут добавлены вместе с клонами в оверлее.
-  Поле `visual` — ключ визуала по политике ассетов (существующая модель OE → перекраска → …).
-* Подбор `engine` (какой юнит Olden Era представляет существо H3) — проектное решение, которое нужно делать с
-  оглядкой на роль и уровень существа; до этого строки не заполнены, чтобы не выдавать догадки за отображение.
+* `creature.json` — 150 H3 SoD creatures (0…149) with faction and level (numbers and keys come from the VCMI
+  configuration, S6). WoG creatures 150–196 (8th level, commanders 174–191, etc.) will be added together with the
+  unit clones in the overlay. The `visual` field is the visual key under the asset policy (existing OE model →
+  recolor → …).
+* Choosing `engine` (which Olden Era unit represents an H3 creature) is a design decision that has to be made with
+  the creature's role and level in mind; until then the rows are left empty so that guesses are not passed off as
+  a mapping.

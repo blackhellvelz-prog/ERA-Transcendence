@@ -12,14 +12,16 @@ using WoG.Host;
 //   parse   <dir|file> [--359]       parse ERM files, print diagnostics and statistics
 //   run     <dir>      [--359]       load scripts as a new game on the headless engine; print the compatibility report
 //   run --era <mod dir>...           same for ERA: mods highest priority first (Era load order, preprocessor, Lang)
-//   compat                            print the receiver/command support table (Compatibility/ERM_Compatibility.md)
+//   compat [--era] [--lang ru]        print the whole generated page Compatibility/ERM_Compatibility[_ERA][.ru].md:
+//                                     language switch, title, introduction and the receiver/command support table
+//                                     (default language en; --lang ru prints the Russian copy)
 //   probe-symbols <BepInEx/interop>   list Olden Era types/members matching the symbols the adapter needs
 //   era-pp  <out dir> <mod dir>...   Era: collect scripts of the mods (highest priority first) in Era load order,
 //                                     run the Era preprocessor, write the results, print diagnostics
 
 if (args.Length == 0)
 {
-    Console.WriteLine("usage: parse <path> [--359] | run <dir> [--359] | compat | probe-symbols <interop dir>");
+    Console.WriteLine("usage: parse <path> [--359] | run <dir> [--359] | compat [--era] [--lang ru] | probe-symbols <interop dir>");
     return 1;
 }
 
@@ -66,8 +68,15 @@ switch (args[0])
     }
     case "compat":
     {
+        int langAt = Array.IndexOf(args, "--lang");
+        string lang = langAt < 0 ? "en" : langAt + 1 < args.Length ? args[langAt + 1] : "";
+        if (lang != "en" && lang != "ru")
+        {
+            Console.Error.WriteLine("compat: --lang must be en or ru");
+            return 1;
+        }
         var host = new WoGHost(new HeadlessGame(), new VisualResolver(new NoAssets()), null, new ErmRuntimeOptions { Dialect = dialect });
-        Console.WriteLine(host.Erm!.Receivers.ToMarkdown());
+        Console.Write(CompatPage(dialect == ErmDialect.Era, lang, host.Erm!.Receivers.ToMarkdown(lang)));
         return 0;
     }
     case "probe-symbols":
@@ -99,6 +108,97 @@ switch (args[0])
 
 static string[] Files(string path) =>
     File.Exists(path) ? new[] { path } : Directory.GetFiles(path, "*.erm");
+
+// The whole generated page Compatibility/ERM_Compatibility[_ERA][.ru].md: language switch, title and introduction,
+// then the receiver/command table. Output uses "\n" line endings on every platform.
+static string CompatPage(bool era, string lang, string table)
+{
+    string name = era ? "ERM_Compatibility_ERA" : "ERM_Compatibility";
+    string languageSwitch = lang == "ru" ? $"[English]({name}.md) | **Русский**" : $"**English** | [Русский]({name}.ru.md)";
+    string intro = (era, lang) switch
+    {
+        (false, "en") => """
+            # ERM Compatibility: Receivers and Commands
+
+            **This file is generated** from the runtime's receiver registry:
+            `dotnet run --project tools/WoG.ErmTool -- compat`. Do not edit the table by hand — change `Declare(...)` in
+            `src/WoG.Erm/Receivers/*.cs`.
+
+            How to read it:
+            * "Implemented: yes" — the receiver is executed by the runtime; the status is given for each command letter.
+              Letters not listed in the row produce a "wrong command" error, as in WoG.
+            * "Implemented: no" — the receiver is recognized by the parser (scripts that use it load), but when executed
+              the command is recorded in the compatibility report as UNSUPPORTED and execution of the line continues.
+              Nothing is faked.
+            * The status refers to **Olden Era**: for example, `MA` is fully implemented in the runtime, but on Olden Era
+              it is PARTIALLY SUPPORTED because the engine's stat model is different.
+
+            Which receivers WoG scripts actually need — see the usage column in
+            `WoG_ReverseEngineering/03_ERM_Receivers.md`. A run of all 78 3.58f scripts as a new game on the reference
+            engine (`WoG.ErmTool run`) currently runs into: `HT:P/W`, `OW:T`, `UN:A/B/R/V/X`, `IF:D/F` and ERT strings
+            (`z > 1000`) — these are the next tasks for extending the runtime.
+            """,
+        (false, _) => """
+            # Совместимость ERM: ресиверы и команды
+
+            **Этот файл генерируется** из реестра ресиверов рантайма:
+            `dotnet run --project tools/WoG.ErmTool -- compat --lang ru`. Не правьте таблицу вручную — меняйте `Declare(...)` в
+            `src/WoG.Erm/Receivers/*.cs`.
+
+            Как читать:
+            * «Реализован: да» — ресивер исполняется рантаймом; для каждой буквы команды указан статус. Буквы, не
+              перечисленные в строке, выдают ошибку «wrong command», как в WoG.
+            * «Реализован: нет» — ресивер распознаётся парсером (скрипты с ним грузятся), но при выполнении команда
+              записывается в отчёт совместимости как UNSUPPORTED, выполнение строки продолжается. Ничего не подделывается.
+            * Статус относится к **Olden Era**: например, `MA` реализован в рантайме полностью, но на Olden Era он
+              PARTIALLY SUPPORTED, потому что модель статов движка другая.
+
+            Какие ресиверы реально нужны скриптам WoG — см. столбец использований в
+            `WoG_ReverseEngineering/03_ERM_Receivers.ru.md`. Прогон всех 78 скриптов 3.58f как новой игры на эталонном
+            движке (`WoG.ErmTool run`) сейчас упирается в: `HT:P/W`, `OW:T`, `UN:A/B/R/V/X`, `IF:D/F` и строки ERT
+            (`z > 1000`) — это ближайшие задачи по расширению.
+            """,
+        (true, "en") => """
+            # ERM Compatibility in ERA: Receivers and Commands
+
+            **This file is generated** from the runtime's receiver registry in ERA mode:
+            `dotnet run --project tools/WoG.ErmTool -- compat --era`. Do not edit the table by hand — change `Declare(...)`
+            in `src/WoG.Erm/Receivers/*.cs`. The table for classic WoG 3.58 is `ERM_Compatibility.md`.
+
+            Differences of ERA mode from WoG: `VR`, `FU`, `DO` are replaced with the versions rewritten by ERA
+            (`EraReceivers.cs`), `SN` is added (`SnReceiver`, Era API functions — `EraApi.cs`), `if/el/en/re/br/co` are
+            executed by the interpreter itself (`EraProcess.cs`). The remaining receivers are WoG's, but parameters,
+            `Apply` and strings work by ERA rules (`ErmCall`, `EraValues.cs`).
+
+            How to read it — the same as `ERM_Compatibility.md`: "no" = scripts load, the command is recorded in the report
+            as UNSUPPORTED, execution continues; nothing is faked. The status refers to **Olden Era**.
+
+            A run of the whole ERA project (183 scripts) as a new game on the reference engine — 0 errors. Unsupported at
+            startup: `UN:C` (H3 memory), `SN:E` (H3 code), `FU:D` (network), `UN:A/R/X/N/U/V/J` (map and objects),
+            `SN:L/B`, `IF:G`.
+            """,
+        (true, _) => """
+            # Совместимость ERM в ERA: ресиверы и команды
+
+            **Этот файл генерируется** из реестра ресиверов рантайма в режиме ERA:
+            `dotnet run --project tools/WoG.ErmTool -- compat --era --lang ru`. Не правьте таблицу вручную — меняйте `Declare(...)`
+            в `src/WoG.Erm/Receivers/*.cs`. Таблица для классического WoG 3.58 — `ERM_Compatibility.ru.md`.
+
+            Отличия режима ERA от WoG: `VR`, `FU`, `DO` заменены переписанными ERA версиями (`EraReceivers.cs`), добавлен
+            `SN` (`SnReceiver`, функции API Era — `EraApi.cs`), `if/el/en/re/br/co` исполняет сам интерпретатор
+            (`EraProcess.cs`). Остальные ресиверы — WoG, но параметры, `Apply` и строки работают по правилам ERA
+            (`ErmCall`, `EraValues.cs`).
+
+            Как читать — так же, как `ERM_Compatibility.ru.md`: «нет» = скрипты грузятся, команда записывается в отчёт как
+            UNSUPPORTED, выполнение продолжается; ничего не подделывается. Статус относится к **Olden Era**.
+
+            Прогон всего проекта ERA (183 скрипта) как новой игры на эталонном движке — 0 ошибок. Неподдержанное при
+            старте: `UN:C` (память H3), `SN:E` (код H3), `FU:D` (сеть), `UN:A/R/X/N/U/V/J` (карта и объекты),
+            `SN:L/B`, `IF:G`.
+            """,
+    };
+    return languageSwitch + "\n\n" + intro.Replace("\r\n", "\n").TrimEnd('\n') + "\n\n" + table;
+}
 
 // Scans the IL2CPP interop assemblies BepInEx generates (BepInEx/interop/*.dll) for the shapes listed in
 // OldenEra_ReverseEngineering/07_InGame_RE_Plan.md. Uses metadata-only loading: no game code runs.

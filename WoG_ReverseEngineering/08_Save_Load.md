@@ -1,49 +1,49 @@
-# Сохранение/загрузка состояния WoG
+# Saving/loading WoG state
 
-Источники: `SaveERM`/`LoadERM` (`erm.cpp`), `SaveNPC`/`LoadNPC` (`npc.cpp`), `CrExpoSet::Save`, `CrExpMod::Save`,
+Sources: `SaveERM`/`LoadERM` (`erm.cpp`), `SaveNPC`/`LoadNPC` (`npc.cpp`), `CrExpoSet::Save`, `CrExpMod::Save`,
 `CrExpBon::Save` (`crexpo.cpp`), `GameBeforeSave`/`GameAfterLoad` (`erm.cpp`).
 
-## 1. Что WoG пишет в сейв (в таком порядке внутри ERM-блока)
+## 1. What WoG writes to the save (in this order inside the ERM block)
 
-1. Метка `"LERM"`, состояние Lua, менеджер строк.
-2. `f…t` (`ERMVar`) + имена их макросов.
-3. `v1…v10000` + имена макросов.
-4. Текущий w-герой (`ERMW`), `w`-переменные всех героев + имена макросов.
-5. Флаги 1…1000.
-6. Таблица макросов (`ERMMacroName`, `ERMMacroVal`).
-7. ERM-данные объектов (`ERM_Object[]`).
-8. `z1…z1000` + имена макросов.
-9. Таймеры `TM1…100` (+ последний авто-таймер).
-10. ERM-данные героев (`ERM_Hero`).
-11. Переопределения «неделя/месяц …» и их сообщения.
-12. Данные клеток (`Square`, `Square2`), таблица подсказок `HTable`, журнал заданий.
-13. Переопределения артефактов (имена, цена, слот, тип, сборные, запрет, заклинание).
-14. Таблица апгрейдов монстров, опция 8-го уровня, настройки мифрила/сундуков.
-15. **WoG-опции, строка 0** (первая половина `PL_WoGOptions`).
-16. Имена вторичных навыков, имена монстров, специализации героев (+ имена).
-17. 3.58: задержка ИИ, флаг автосохранения. 3.59: текстовые константы, разрешён ли Грааль.
+1. The `"LERM"` label, Lua state, string manager.
+2. `f…t` (`ERMVar`) + the names of their macros.
+3. `v1…v10000` + macro names.
+4. The current w-hero (`ERMW`), the `w` variables of all heroes + macro names.
+5. Flags 1…1000.
+6. The macro table (`ERMMacroName`, `ERMMacroVal`).
+7. ERM data of objects (`ERM_Object[]`).
+8. `z1…z1000` + macro names.
+9. Timers `TM1…100` (+ the last auto-timer).
+10. ERM data of heroes (`ERM_Hero`).
+11. "Week/month …" overrides and their messages.
+12. Tile data (`Square`, `Square2`), the `HTable` hint table, the quest log.
+13. Artifact overrides (names, cost, slot, type, combination artifacts, ban, spell).
+14. The monster upgrade table, the 8th-level option, mithril/chest settings.
+15. **WoG Options, row 0** (the first half of `PL_WoGOptions`).
+16. Secondary skill names, monster names, hero specialties (+ names).
+17. 3.58: AI delay, autosave flag. 3.59: text constants, whether the Grail is enabled.
 
-Отдельно: командиры (весь `NPCs[]`), записи опыта стеков + `PlayerMult` + таблицы ИИ, параметры `CREXPMOD` по
-типам, таблицы `CREXPBON`, данные существ, изменённые через `MA`.
+Separately: commanders (the whole `NPCs[]`), stack experience records + `PlayerMult` + AI tables, `CREXPMOD`
+parameters per type, `CREXPBON` tables, creature data modified via `MA`.
 
-## 2. Что намеренно **не** сохраняется
+## 2. What is intentionally **not** saved
 
-`x`, `y`, `e`, локальные `z-*` — поэтому сохранение не может произойти внутри секции триггера. Разобранные
-скрипты при загрузке читаются заново из файлов карты/ERM; инструкции (`!#`) при загрузке **не** выполняются
-(кроме тех, что после маркера `!@ZVSE`); `!?PI` при загрузке не срабатывает.
+`x`, `y`, `e`, local `z-*` — which is why a save cannot happen inside a trigger section. Parsed scripts are
+re-read from the map/ERM files on load; instructions (`!#`) are **not** executed on load (except those after the
+`!@ZVSE` marker); `!?PI` does not fire on load.
 
-## 3. Порядок загрузки
+## 3. Load order
 
-Родная загрузка игры → восстановление блоков WoG → повторный разбор скриптов без инструкций →
-**`!?GM0`** («сразу после загрузки, до показа карты»). Перед сохранением — **`!?GM1`**.
+Native game load → restore the WoG blocks → re-parse the scripts without instructions →
+**`!?GM0`** ("right after loading, before the map is shown"). Before saving — **`!?GM1`**.
 
-## 4. Требования к порту (реализовано в `WoG.Core.Save` и `WoGHost`)
+## 4. Requirements for the port (implemented in `WoG.Core.Save` and `WoGHost`)
 
-* Версионированный блок состояния WoG (`WoGSaveSerializer`: JSON + номер схемы + SHA-256), записываемый рядом
-  с сейвом Olden Era (см. `OldenEra_ReverseEngineering/05_Save_System.md`).
-* Отображение идентичностей: WoG привязывает записи к номерам героев H3 / позициям; порт — к стабильным id
-  Olden Era (sid героя, entity объекта, слот армии) через `IdMap`, хранимый в том же блоке.
-* Воспроизведён порядок загрузки: восстановить состояние → разобрать скрипты без инструкций → `GM0`
-  (тест `Host_save_load_keeps_erm_state_and_fires_GM_triggers`).
-* Тест «туда-обратно»: состояние → сохранение → загрузка → идентичное состояние
-  (`Round_trip_preserves_all_wog_state`); испорченный или чужой блок отвергается.
+* A versioned WoG state block (`WoGSaveSerializer`: JSON + schema number + SHA-256), written next to the
+  Olden Era save (see `OldenEra_ReverseEngineering/05_Save_System.md`).
+* Identity mapping: WoG binds records to H3 hero numbers / positions; the port binds them to stable Olden Era
+  ids (hero sid, object entity, army slot) via an `IdMap` stored in the same block.
+* The load order is reproduced: restore state → parse the scripts without instructions → `GM0`
+  (test `Host_save_load_keeps_erm_state_and_fires_GM_triggers`).
+* Round-trip test: state → save → load → identical state
+  (`Round_trip_preserves_all_wog_state`); a corrupted or foreign block is rejected.

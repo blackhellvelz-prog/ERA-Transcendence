@@ -469,7 +469,7 @@ public sealed class EraFuReceiver : ErmReceiverBase
     public EraFuReceiver() : base("FU")
     {
         Declare("PEAS", CompatLevel.FullySupported);
-        Declare("D", CompatLevel.Unsupported, "FU:D — сетевой вызов (мультиплеер вне рамок проекта)");
+        Declare("D", CompatLevel.Unsupported, "FU:D — network call (multiplayer is out of scope)");
     }
 
     protected override void Run(ErmCall c)
@@ -559,14 +559,14 @@ public sealed class SnReceiver : ErmReceiverBase
     public SnReceiver() : base("SN")
     {
         Declare("WMVKXTCGQID", CompatLevel.FullySupported);
-        Declare("H", CompatLevel.Unsupported, "SN:H — подсказки объектов/монстров: нужен UI-адаптер Olden Era");
-        Declare("O", CompatLevel.Unsupported, "SN:O — клетка входа объекта: нужен адаптер карты");
-        Declare("P", CompatLevel.Unsupported, "SN:P — проигрывание звука H3: звуки Olden Era другие");
-        Declare("S", CompatLevel.Unsupported, "SN:S — имя звука в !?SN: звуковой триггер не перенесён");
-        Declare("R", CompatLevel.Unsupported, "SN:R — подмена ресурсов H3 (lod/def): ресурсы Olden Era другие");
-        Declare("F", CompatLevel.PartiallySupported, "SN:F — функции API Era: перенесены те, что используют скрипты проекта ERA (см. EraApi); функции DLL/Win32 — нет");
-        Declare("E", CompatLevel.Unsupported, "SN:E — вызов функции по адресу в exe H3: другой движок");
-        Declare("LAB", CompatLevel.Unsupported, "SN:L/A/B — загрузка DLL, адреса и память процесса H3: другой движок");
+        Declare("H", CompatLevel.Unsupported, "SN:H — object/monster hints: needs an Olden Era UI adapter");
+        Declare("O", CompatLevel.Unsupported, "SN:O — object entrance tile: needs a map adapter");
+        Declare("P", CompatLevel.Unsupported, "SN:P — H3 sound playback: Olden Era sounds are different");
+        Declare("S", CompatLevel.Unsupported, "SN:S — sound name in !?SN: the sound trigger is not ported");
+        Declare("R", CompatLevel.Unsupported, "SN:R — H3 resource redirection (lod/def): Olden Era resources are different");
+        Declare("F", CompatLevel.PartiallySupported, "SN:F — Era API functions: those used by the ERA Project scripts are ported (see EraApi); DLL/Win32 functions are not");
+        Declare("E", CompatLevel.Unsupported, "SN:E — calling a function by address in the H3 exe: different engine");
+        Declare("LAB", CompatLevel.Unsupported, "SN:L/A/B — DLL loading, addresses and H3 process memory: different engine");
     }
 
     protected override void Run(ErmCall c)
@@ -730,7 +730,7 @@ public sealed class SnReceiver : ErmReceiverBase
             {
                 if (IsStr(c, 0) || c.IsGet(0) || IsStr(c, 1)) throw Invalid();
                 var slot = GetSlot(st, c.N(0));
-                if (c.IsGet(1)) throw new ErmUnsupportedException("SN:M#/?addr/# — адрес элемента массива в памяти H3");
+                if (c.IsGet(1)) throw new ErmUnsupportedException("SN:M#/?addr/# — address of an array element in H3 memory");
                 int ind = c.N(1);
                 if (ind < 0) ind += slot.Count;
                 if (c.IsGet(1) || ind < 0 || ind >= slot.Count) throw new ErmRuntimeException($"Invalid array index {c.N(1)} for array {c.N(0)} of length {slot.Count}");
@@ -756,7 +756,7 @@ public sealed class SnReceiver : ErmReceiverBase
                     if (c.IsGet(1)) RetInt(c, 1, s.Count);
                     if (c.IsGet(2)) RetInt(c, 2, s.IsString ? 1 : 0);
                     if (c.IsGet(3)) RetInt(c, 3, (int)s.Storage);
-                    if (c.Num >= 5 && c.IsGet(4)) throw new ErmUnsupportedException("SN:M — адрес массива в памяти H3");
+                    if (c.Num >= 5 && c.IsGet(4)) throw new ErmUnsupportedException("SN:M — address of an array in H3 memory");
                     break;
                 }
                 int id = c.N(0), count = c.N(1), type = c.N(2), storage = c.N(3);
@@ -837,7 +837,7 @@ public sealed class SnReceiver : ErmReceiverBase
                 }
                 else
                 {
-                    if (!IsStr(c, 2)) throw new ErmUnsupportedException("SN:K#/#/# — запись символа по адресу из числа");
+                    if (!IsStr(c, 2)) throw new ErmUnsupportedException("SN:K#/#/# — writing a character to an address given as a number");
                     string ch = Text(c, 2);
                     var chars = s.ToCharArray();
                     if (ind < chars.Length) chars[ind] = ch.Length > 0 ? ch[0] : '\0';
@@ -849,7 +849,7 @@ public sealed class SnReceiver : ErmReceiverBase
                 break;
             }
             case 4:
-                throw new ErmUnsupportedException("SN:K#/#/#/# — копирование памяти процесса H3");
+                throw new ErmUnsupportedException("SN:K#/#/#/# — copying H3 process memory");
             default:
                 throw new ErmRuntimeException("Invalid number of command parameters");
         }

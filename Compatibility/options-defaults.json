@@ -1,753 +1,828 @@
 [
  {
   "index": 0,
-  "name": "Внешние жилища 8-го уровня: стандарт",
-  "description": "опция движка (erm.h)",
+  "name": "Level 8 dwellings function as normal",
+  "nameRu": "Внешние жилища 8-го уровня: стандарт",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "города",
-   "жилища"
+   "towns",
+   "dwellings"
   ]
  },
  {
   "index": 1,
-  "name": "Нет усиленных башен (инверт.)",
-  "description": "опция движка (erm.h)",
+  "name": "Arrow towers gain experience (inverted: 1 = off)",
+  "nameRu": "Нет усиленных башен (инверт.)",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "города",
-   "бой"
+   "towns",
+   "battle"
   ]
  },
  {
   "index": 2,
-  "name": "Монстры не уходят (инверт.)",
-  "description": "опция движка (erm.h)",
+  "name": "Troops can be left by Ctrl+right-clicking (inverted: 1 = off)",
+  "nameRu": "Монстры не уходят (инверт.)",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "армии"
+   "armies"
   ]
  },
  {
   "index": 3,
-  "name": "Нет командиров (инверт.)",
-  "description": "опция движка (erm.h)",
+  "name": "Commanders are enabled (inverted: 1 = off)",
+  "nameRu": "Нет командиров (инверт.)",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "командиры"
+   "commanders"
   ]
  },
  {
   "index": 4,
-  "name": "Нет сноса городов (инверт.)",
-  "description": "опция движка (erm.h)",
+  "name": "Demolish town buildings by right-clicking (inverted: 1 = off)",
+  "nameRu": "Нет сноса городов (инверт.)",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "города"
+   "towns"
   ]
  },
  {
   "index": 5,
-  "name": "Применять WoG к не-WoG картам",
-  "description": "опция движка (erm.h)",
+  "name": "Apply WoG to non-WoG maps",
+  "nameRu": "Применять WoG к не-WoG картам",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "скрипты",
-   "карта"
+   "scripts",
+   "map"
   ]
  },
  {
   "index": 6,
-  "name": "Командиров нанимать в городе",
-  "description": "опция движка (erm.h)",
+  "name": "Commanders must be hired",
+  "nameRu": "Командиров нанимать в городе",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "командиры",
-   "города"
+   "commanders",
+   "towns"
   ]
  },
  {
   "index": 7,
-  "name": "Жилища накапливают существ",
-  "description": "опция движка (erm.h)",
+  "name": "Creature Dwellings accumulate creatures",
+  "nameRu": "Жилища накапливают существ",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "жилища"
+   "dwellings"
   ]
  },
  {
   "index": 8,
-  "name": "Охрана жилищ накапливается",
-  "description": "опция движка (erm.h)",
+  "name": "Creature Dwellings accumulate guards",
+  "nameRu": "Охрана жилищ накапливается",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "жилища"
+   "dwellings"
   ]
  },
  {
   "index": 9,
-  "name": "Кентавры/эльфы",
-  "description": "опция движка (erm.h)",
+  "name": "Sylvan Centaur creation is allowed",
+  "nameRu": "Кентавры/эльфы",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "существа"
+   "creatures"
   ]
  },
  {
   "index": 10,
-  "name": "Стиль ухода монстров",
-  "description": "опция движка (erm.h)",
+  "name": "Troops left will rejoin their owner",
+  "nameRu": "Стиль ухода монстров",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "армии"
+   "armies"
   ]
  },
  {
   "index": 11,
-  "name": "Скрипт: palace of dreams",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Palace of Dreams",
+  "nameRu": "Скрипт: palace of dreams",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 12,
-  "name": "Скрипт: living skull",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Living Skull",
+  "nameRu": "Скрипт: living skull",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 13,
-  "name": "Скрипт: tavern gambling game",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Tavern Card Game",
+  "nameRu": "Скрипт: tavern gambling game",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 14,
-  "name": "Скрипт: altar of transformation",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Altar of Transformation",
+  "nameRu": "Скрипт: altar of transformation",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 15,
-  "name": "Скрипт: mysterious creature dwelling",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Mysterious Creature Dwelling",
+  "nameRu": "Скрипт: mysterious creature dwelling",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 16,
-  "name": "Скрипт: battle academy",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Battle Academy",
+  "nameRu": "Скрипт: battle academy",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 17,
-  "name": "Скрипт: potion fountains",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Potion Fountains",
+  "nameRu": "Скрипт: potion fountains",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 18,
-  "name": "Скрипт: alms house",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Alms House",
+  "nameRu": "Скрипт: alms house",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 19,
-  "name": "Скрипт: masters of life",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Masters of Life",
+  "nameRu": "Скрипт: masters of life",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 20,
-  "name": "Скрипт: week of monsters",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Week of Monsters",
+  "nameRu": "Скрипт: week of monsters",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 21,
-  "name": "Скрипт: freelancers guild",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Freelancer's Guild",
+  "nameRu": "Скрипт: freelancers guild",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 22,
-  "name": "Скрипт: monster mutterings",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Monster Mutterings",
+  "nameRu": "Скрипт: monster mutterings",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 23,
-  "name": "Скрипт: secondary skill text",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Secondary Skill Text",
+  "nameRu": "Скрипт: secondary skill text",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 24,
-  "name": "Скрипт: enhanced dwelling hint text",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Enhanced dwelling hint text",
+  "nameRu": "Скрипт: enhanced dwelling hint text",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 26,
-  "name": "Скрипт: artificer",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Artificer",
+  "nameRu": "Скрипт: artificer",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 27,
-  "name": "Скрипт: spell book",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Spell Book",
+  "nameRu": "Скрипт: spell book",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 28,
-  "name": "Скрипт: school of wizardry",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: School of Wizardry",
+  "nameRu": "Скрипт: school of wizardry",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 29,
-  "name": "Скрипт: chest",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: New Treasure Chest",
+  "nameRu": "Скрипт: chest",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 30,
-  "name": "Скрипт: adventure cave",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Adventure Cave",
+  "nameRu": "Скрипт: adventure cave",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 31,
-  "name": "Скрипт: treasure chest 2",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: New Treasure Chest 2",
+  "nameRu": "Скрипт: treasure chest 2",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 32,
-  "name": "Скрипт: summoning stones",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Summoning Stones",
+  "nameRu": "Скрипт: summoning stones",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 33,
-  "name": "Скрипт: living scrolls",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Living Scrolls",
+  "nameRu": "Скрипт: living scrolls",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 34,
-  "name": "Скрипт: cards of prophecy",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Cards of Prophecy",
+  "nameRu": "Скрипт: cards of prophecy",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 35,
-  "name": "Скрипт: rebalanced factions",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Rebalanced Factions",
+  "nameRu": "Скрипт: rebalanced factions",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 36,
-  "name": "Скрипт: tobyn's scripts",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Tobyn's Scripts",
+  "nameRu": "Скрипт: tobyn's scripts",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 38,
-  "name": "Скрипт: karmic battles",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Karmic Battles",
+  "nameRu": "Скрипт: karmic battles",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 39,
-  "name": "Скрипт: hero specialization boost",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Hero Specialization Boost",
+  "nameRu": "Скрипт: hero specialization boost",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 40,
-  "name": "Скрипт: first money",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: First Money",
+  "nameRu": "Скрипт: first money",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 41,
-  "name": "Скрипт: battle extender",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Battle Extender",
+  "nameRu": "Скрипт: battle extender",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 42,
-  "name": "Скрипт: garrisons",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Garrisons",
+  "nameRu": "Скрипт: garrisons",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 43,
-  "name": "Скрипт: obelisk runes",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Obelisk Runes",
+  "nameRu": "Скрипт: obelisk runes",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 44,
-  "name": "Скрипт: emerald tower",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Emerald Tower",
+  "nameRu": "Скрипт: emerald tower",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 45,
-  "name": "Скрипт: castle upgrading",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Castle Upgrading",
+  "nameRu": "Скрипт: castle upgrading",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 46,
-  "name": "Скрипт: berserker flies",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Berserker Flies",
+  "nameRu": "Скрипт: berserker flies",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 47,
-  "name": "Скрипт: creature relationships",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Creature Relationships",
+  "nameRu": "Скрипт: creature relationships",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 49,
-  "name": "Скрипт: henchmen",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Henchmen",
+  "nameRu": "Скрипт: henchmen",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 50,
-  "name": "Скрипт: neutral town",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Neutral Town",
+  "nameRu": "Скрипт: neutral town",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 51,
-  "name": "Скрипт: enhanced commanders",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Enhanced Commanders",
+  "nameRu": "Скрипт: enhanced commanders",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 52,
-  "name": "Скрипт: mirror of the home-way",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Mirror of the Home-Way",
+  "nameRu": "Скрипт: mirror of the home-way",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 53,
-  "name": "Скрипт: neutral units",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Neutral Units",
+  "nameRu": "Скрипт: neutral units",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 54,
-  "name": "Скрипт: enhanced war machines 1",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Enhanced War Machines I",
+  "nameRu": "Скрипт: enhanced war machines 1",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 55,
-  "name": "Скрипт: enhanced war machines 2",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Enhanced War Machines II",
+  "nameRu": "Скрипт: enhanced war machines 2",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 56,
-  "name": "Скрипт: split decision",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Split Decision",
+  "nameRu": "Скрипт: split decision",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 58,
-  "name": "Скрипт: espionage",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Scouting III (Espionage)",
+  "nameRu": "Скрипт: espionage",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 59,
-  "name": "Скрипт: piercing shot",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Piercing Shot",
+  "nameRu": "Скрипт: piercing shot",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 60,
-  "name": "Скрипт: forgotten shrine",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Forgotten Shrine",
+  "nameRu": "Скрипт: forgotten shrine",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 61,
-  "name": "Скрипт: protection from the elements",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Enhanced Protection from the Elements",
+  "nameRu": "Скрипт: protection from the elements",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 63,
-  "name": "Скрипт: passable terrain",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Passable Terrain",
+  "nameRu": "Скрипт: passable terrain",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 65,
-  "name": "Скрипт: monolith costs",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Monolith Toll",
+  "nameRu": "Скрипт: monolith costs",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 66,
-  "name": "Скрипт: commander witch huts",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Commander Witch Huts",
+  "nameRu": "Скрипт: commander witch huts",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 68,
-  "name": "Скрипт: new battlefields",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: New Battlefields",
+  "nameRu": "Скрипт: new battlefields",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 69,
-  "name": "Скрипт: custom alliances",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Custom Alliances",
+  "nameRu": "Скрипт: custom alliances",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 70,
-  "name": "Скрипт: death chamber",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Death Chamber",
+  "nameRu": "Скрипт: death chamber",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 71,
-  "name": "Скрипт: enhanced artifacts",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Enhanced Artifacts",
+  "nameRu": "Скрипт: enhanced artifacts",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 72,
-  "name": "Скрипт: random hero",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Random Hero",
+  "nameRu": "Скрипт: random hero",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 73,
-  "name": "Скрипт: enhanced war machines 3",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Enhanced War Machines III",
+  "nameRu": "Скрипт: enhanced war machines 3",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 74,
-  "name": "Скрипт: summon elementals",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Summon Elementals",
+  "nameRu": "Скрипт: summon elementals",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 76,
-  "name": "Скрипт: commander sanctuary",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: Commander Sanctuary",
+  "nameRu": "Скрипт: commander sanctuary",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 77,
-  "name": "Скрипт: cheat menu",
-  "description": "предположительно выключатель скрипта (первая опция 11..77, которую он читает); проверить по ZSETUP00.TXT",
+  "name": "Script: WoG Cheat Menu",
+  "nameRu": "Скрипт: cheat menu",
+  "description": "presumably the script's on/off switch (the first option in 11..77 that it reads); verify against ZSETUP00.TXT",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "скрипты"
+   "scripts"
   ]
  },
  {
   "index": 900,
-  "name": "Опыт стеков включён",
-  "description": "опция движка (erm.h)",
+  "name": "Troop Stacks gain Experience",
+  "nameRu": "Опыт стеков включён",
+  "description": "engine option (erm.h)",
   "default": 1,
   "defaultVerified": false,
   "systems": [
-   "опыт стеков",
-   "бой"
+   "stack-experience",
+   "battle"
   ]
  },
  {
   "index": 901,
-  "name": "Стиль деления опыта (0..3)",
-  "description": "опция движка (erm.h)",
+  "name": "Stack experience sharing style (0..3)",
+  "nameRu": "Стиль деления опыта (0..3)",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "опыт стеков"
+   "stack-experience"
   ]
  },
  {
   "index": 902,
-  "name": "Оставлять артефакты при гибели",
-  "description": "опция движка (erm.h)",
+  "name": "Leave artifacts on death",
+  "nameRu": "Оставлять артефакты при гибели",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "артефакты"
+   "artifacts"
   ]
  },
  {
   "index": 903,
-  "name": "Читы запрещены",
-  "description": "опция движка (erm.h)",
+  "name": "Disable Cheat Codes and Menu",
+  "nameRu": "Читы запрещены",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "читы"
+   "cheats"
   ]
  },
  {
   "index": 904,
-  "name": "Скрывать диалоги ошибок ERM",
-  "description": "опция движка (erm.h)",
+  "name": "Suppress ERM error dialogs",
+  "nameRu": "Скрывать диалоги ошибок ERM",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
@@ -756,8 +831,9 @@
  },
  {
   "index": 905,
-  "name": "Состояние ошибки ERM",
-  "description": "опция движка (erm.h)",
+  "name": "ERM error state",
+  "nameRu": "Состояние ошибки ERM",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
@@ -766,22 +842,24 @@
  },
  {
   "index": 906,
-  "name": "Получение опыта стеками выключено",
-  "description": "опция движка (erm.h)",
+  "name": "Stack experience gain disabled",
+  "nameRu": "Получение опыта стеками выключено",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "опыт стеков"
+   "stack-experience"
   ]
  },
  {
   "index": 907,
-  "name": "Настройка новых героев",
-  "description": "опция движка (erm.h)",
+  "name": "Enable new \"cover of darkness\" and \"builder\" heroes",
+  "nameRu": "Настройка новых героев",
+  "description": "engine option (erm.h)",
   "default": 0,
   "defaultVerified": false,
   "systems": [
-   "герои"
+   "heroes"
   ]
  }
 ]

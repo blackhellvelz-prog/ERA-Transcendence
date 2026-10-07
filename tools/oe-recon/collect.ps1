@@ -1,13 +1,23 @@
 ﻿<#
-  Сбор данных об установке Olden Era для порта WoG — ТОЛЬКО ЧТЕНИЕ.
-  Ничего не меняет в папке игры и в сейвах; ничего не отправляет в сеть.
+  Collects data about an Olden Era install for the WoG port - READ-ONLY.
+  Changes nothing in the game folder or in saves; sends nothing over the network.
 
+  Run (Windows PowerShell 5.1 or PowerShell 7):
+    powershell -ExecutionPolicy Bypass -File tools\oe-recon\collect.ps1
+  Optional:
+    -GamePath "D:\Steam\steamapps\common\Heroes of Might and Magic Olden Era"
+    -SkipProbe        do not run WoG.ErmTool probe-symbols (needs the .NET 8 SDK)
+
+  Output: oe-recon-<date>.zip on the Desktop. Send it to the chat.
+  It contains names, ids and numbers from the game files and logs; it is not committed to the public repository.
+
+  RU: Сбор данных об установке Olden Era для порта WoG — ТОЛЬКО ЧТЕНИЕ.
+  Ничего не меняет в папке игры и в сейвах; ничего не отправляет в сеть.
   Запуск (Windows PowerShell 5.1 или PowerShell 7):
     powershell -ExecutionPolicy Bypass -File tools\oe-recon\collect.ps1
   Необязательно:
-    -GamePath "D:\Steam\steamapps\common\Heroes of Might and Magic Olden Era"
-    -SkipProbe        не запускать WoG.ErmTool probe-symbols (нужен .NET 8 SDK)
-
+    -GamePath "путь\к\папке\игры"   если игра не нашлась автоматически
+    -SkipProbe                      не запускать WoG.ErmTool probe-symbols (нужен .NET 8 SDK)
   Результат: oe-recon-<дата>.zip на рабочем столе. Пришлите его в чат.
   Внутри — имена, id и числа из файлов игры и логов; в публичный репозиторий это не коммитится.
 #>
@@ -26,8 +36,8 @@ function Say([string]$t) { Write-Host $t; Add-Content -Path $report -Value $t -E
 Say "=== Olden Era recon $stamp ==="
 Say ("PowerShell " + $PSVersionTable.PSVersion + " | " + [Environment]::OSVersion.VersionString)
 
-# ---------------------------------------------------------------- 1. Найти игру
-$AppId = "3105440"   # Steam App ID Olden Era
+# ---------------------------------------------------------------- 1. Find the game
+$AppId = "3105440"   # Olden Era Steam App ID
 function Test-GameDir([string]$d) {
     if (-not $d -or -not (Test-Path $d)) { return $false }
     return [bool](Get-ChildItem -Path $d -Directory -Filter "*_Data" -ErrorAction SilentlyContinue |
@@ -51,7 +61,7 @@ function Find-Game {
     $libs += @("C:\Program Files (x86)\Steam", "C:\Program Files\Steam", "D:\Steam", "D:\SteamLibrary", "E:\SteamLibrary", "F:\SteamLibrary")
     $candidates = @()
     foreach ($lib in $libs | Select-Object -Unique) {
-        # точное имя папки — из манифеста Steam (installdir)
+        # exact folder name comes from the Steam manifest (installdir)
         $acf = Join-Path $lib "steamapps\appmanifest_$AppId.acf"
         if (Test-Path $acf) {
             $m = [regex]::Match((Get-Content $acf -Raw), '"installdir"\s+"([^"]+)"')
@@ -71,21 +81,21 @@ function Find-Game {
 
 if (-not $GamePath) { $GamePath = Find-Game }
 if (-not (Test-GameDir $GamePath)) {
-    Say "ОШИБКА: папка игры не найдена. Запустите снова с -GamePath ""путь\к\папке\игры"" (там, где лежит .exe)."
+    Say "ERROR: game folder not found. Run again with -GamePath ""path\to\game\folder"" (the folder that contains the .exe)."
     exit 1
 }
-Say "Игра: $GamePath"
+Say "Game: $GamePath"
 $data = (Get-ChildItem -Path $GamePath -Directory -Filter "*_Data" |
     Where-Object { Test-Path (Join-Path $_.FullName "StreamingAssets") } | Select-Object -First 1).FullName
-Say "Папка данных: $data"
+Say "Data folder: $data"
 
-# ---------------------------------------------------------------- 2. Движок
+# ---------------------------------------------------------------- 2. Engine
 Say ""
-Say "--- Движок ---"
+Say "--- Engine ---"
 Get-ChildItem -Path $GamePath -File | Select-Object Name, Length, LastWriteTime |
     Format-Table -AutoSize | Out-String -Width 200 | ForEach-Object { Say $_ }
 $up = Join-Path $GamePath "UnityPlayer.dll"
-if (Test-Path $up) { Say ("UnityPlayer.dll версия: " + (Get-Item $up).VersionInfo.FileVersion) }
+if (Test-Path $up) { Say ("UnityPlayer.dll version: " + (Get-Item $up).VersionInfo.FileVersion) }
 Say ("IL2CPP (GameAssembly.dll): " + (Test-Path (Join-Path $GamePath "GameAssembly.dll")))
 Say ("global-metadata.dat: " + (Test-Path (Join-Path $data "il2cpp_data\Metadata\global-metadata.dat")))
 Say ("Mono (Managed\Assembly-CSharp.dll): " + (Test-Path (Join-Path $data "Managed\Assembly-CSharp.dll")))
@@ -106,7 +116,7 @@ if (Test-Path $sa) {
 Say ""
 Say "--- BepInEx ---"
 $bep = Join-Path $GamePath "BepInEx"
-Say ("Папка BepInEx: " + (Test-Path $bep))
+Say ("BepInEx folder: " + (Test-Path $bep))
 Say ("winhttp.dll (doorstop): " + (Test-Path (Join-Path $GamePath "winhttp.dll")))
 if (Test-Path $bep) {
     $core = Join-Path $bep "core"
@@ -115,9 +125,9 @@ if (Test-Path $bep) {
     $interop = Join-Path $bep "interop"
     if (Test-Path $interop) {
         $dlls = Get-ChildItem -Path $interop -Filter *.dll
-        Say ("interop: " + $dlls.Count + " сборок")
+        Say ("interop: " + $dlls.Count + " assemblies")
         $dlls | Select-Object Name, Length | Format-Table -AutoSize | Out-String -Width 200 | Set-Content -Path (Join-Path $out "interop-list.txt") -Encoding UTF8
-    } else { Say "interop: нет (BepInEx ещё не запускался с игрой)" }
+    } else { Say "interop: none (BepInEx has not been run with the game yet)" }
     Get-ChildItem -Path (Join-Path $bep "plugins") -Recurse -File -ErrorAction SilentlyContinue |
         ForEach-Object { Say ("plugin: " + $_.FullName.Substring($bep.Length)) }
     $log = Join-Path $bep "LogOutput.log"
@@ -132,8 +142,8 @@ if (Test-Path $coreZip) {
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $zip = [System.IO.Compression.ZipFile]::OpenRead($coreZip)
     try {
-        Say ("Записей: " + $zip.Entries.Count + ", размер " + (Get-Item $coreZip).Length)
-        # дерево папок (3 уровня) с числом файлов
+        Say ("Entries: " + $zip.Entries.Count + ", size " + (Get-Item $coreZip).Length)
+        # folder tree (3 levels) with file counts
         $zip.Entries | ForEach-Object {
             $p = $_.FullName.Split('/')
             if ($p.Length -gt 1) { ($p[0..([Math]::Min(3, $p.Length - 2))] -join '/') }
@@ -145,7 +155,7 @@ if (Test-Path $coreZip) {
             try { return $sr.ReadToEnd() } finally { $sr.Dispose() }
         }
         function Parse-Json([string]$t) {
-            # ConvertFrom-Json в PS 5.1 не понимает комментарии — убираем строки //
+            # ConvertFrom-Json in PS 5.1 does not understand comments - strip // lines
             $t = [regex]::Replace($t, '(?m)^\s*//.*$', '')
             return ($t | ConvertFrom-Json)
         }
@@ -156,7 +166,7 @@ if (Test-Path $coreZip) {
             return @($node)
         }
 
-        # юниты: id, фракция, уровень, основные статы
+        # units: id, faction, tier, main stats
         $units = New-Object System.Collections.Generic.List[object]
         $bad = New-Object System.Collections.Generic.List[string]
         $sampleSaved = $false
@@ -176,9 +186,9 @@ if (Test-Path $coreZip) {
             } catch { $bad.Add($e.FullName + " : " + $_.Exception.Message) }
         }
         $units | Export-Csv -Path (Join-Path $out "units.csv") -NoTypeInformation -Encoding UTF8
-        Say ("Юнитов: " + $units.Count + $(if ($bad.Count) { ", не разобрано файлов: " + $bad.Count } else { "" }))
+        Say ("Units: " + $units.Count + $(if ($bad.Count) { ", files failed to parse: " + $bad.Count } else { "" }))
 
-        # герои
+        # heroes
         $heroes = New-Object System.Collections.Generic.List[object]
         foreach ($e in $zip.Entries | Where-Object { $_.FullName -like "DB/heroes/*.json" }) {
             try {
@@ -189,9 +199,9 @@ if (Test-Path $coreZip) {
             } catch { $bad.Add($e.FullName + " : " + $_.Exception.Message) }
         }
         $heroes | Export-Csv -Path (Join-Path $out "heroes.csv") -NoTypeInformation -Encoding UTF8
-        Say ("Героев: " + $heroes.Count)
+        Say ("Heroes: " + $heroes.Count)
 
-        # артефакты, навыки, заклинания, баффы — только id и пара полей
+        # artifacts, skills, spells, buffs - only the id and a couple of fields
         foreach ($spec in @(
             @{ glob = "DB/items/items/*.json"; name = "items.csv"; f = { param($x) [pscustomobject]@{ id = $x.id; slot = $x.slot_; rarity = $x.rarity } } },
             @{ glob = "DB/heroes_skills/skills/*.json"; name = "skills.csv"; f = { param($x) [pscustomobject]@{ id = $x.id } } },
@@ -208,11 +218,11 @@ if (Test-Path $coreZip) {
         }
         if ($bad.Count) { $bad | Set-Content -Path (Join-Path $out "parse-errors.txt") -Encoding UTF8 }
     } finally { $zip.Dispose() }
-} else { Say "Core.zip не найден в $sa" }
+} else { Say "Core.zip not found in $sa" }
 
-# ---------------------------------------------------------------- 5. Сейвы и логи (только имена/размеры/заголовок)
+# ---------------------------------------------------------------- 5. Saves and logs (names/sizes/header only)
 Say ""
-Say "--- Сейвы и логи ---"
+Say "--- Saves and logs ---"
 $lowRoots = @()
 if ($company -and $product) { $lowRoots += (Join-Path $env:USERPROFILE "AppData\LocalLow\$company\$product") }
 $lowRoots += (Get-ChildItem -Path (Join-Path $env:USERPROFILE "AppData\LocalLow") -Directory -ErrorAction SilentlyContinue |
@@ -220,7 +230,7 @@ $lowRoots += (Get-ChildItem -Path (Join-Path $env:USERPROFILE "AppData\LocalLow"
     Where-Object { $_.Name -like "*Olden*" -or $_.Name -like "*Heroes*" } | ForEach-Object { $_.FullName })
 foreach ($root in $lowRoots | Select-Object -Unique) {
     if (-not $root -or -not (Test-Path $root)) { continue }
-    Say "Папка: $root"
+    Say "Folder: $root"
     Get-ChildItem -Path $root -Recurse -File -ErrorAction SilentlyContinue | Select-Object -First 300 | ForEach-Object {
         $hdr = ""
         try {
@@ -237,25 +247,25 @@ foreach ($root in $lowRoots | Select-Object -Unique) {
     }
 }
 
-# ---------------------------------------------------------------- 6. Символы (нужен BepInEx interop + .NET 8 SDK)
+# ---------------------------------------------------------------- 6. Symbols (needs BepInEx interop + .NET 8 SDK)
 if (-not $SkipProbe) {
     Say ""
     Say "--- probe-symbols ---"
     $interop = Join-Path $GamePath "BepInEx\interop"
     $tool = Join-Path $PSScriptRoot "..\WoG.ErmTool"
     $dotnet = Get-Command dotnet -ErrorAction SilentlyContinue
-    if (-not (Test-Path (Join-Path $tool "WoG.ErmTool.csproj"))) { Say "пропущено: скрипт запущен не из клона репозитория (нет tools\WoG.ErmTool)" }
-    elseif (-not (Test-Path $interop)) { Say "пропущено: нет BepInEx\interop (поставьте BepInEx 6 IL2CPP be.785 и запустите игру один раз)" }
-    elseif (-not $dotnet) { Say "пропущено: нет dotnet (установите .NET 8 SDK: https://dotnet.microsoft.com/download)" }
+    if (-not (Test-Path (Join-Path $tool "WoG.ErmTool.csproj"))) { Say "skipped: the script is not running from a repository clone (no tools\WoG.ErmTool)" }
+    elseif (-not (Test-Path $interop)) { Say "skipped: no BepInEx\interop (install BepInEx 6 IL2CPP be.785 and run the game once)" }
+    elseif (-not $dotnet) { Say "skipped: dotnet not found (install the .NET 8 SDK: https://dotnet.microsoft.com/download)" }
     else {
         & dotnet run --project $tool -- probe-symbols $interop *> (Join-Path $out "symbols.txt")
-        Say ("symbols.txt: " + (Get-Item (Join-Path $out "symbols.txt")).Length + " байт")
+        Say ("symbols.txt: " + (Get-Item (Join-Path $out "symbols.txt")).Length + " bytes")
     }
 }
 
-# ---------------------------------------------------------------- 7. Упаковать
+# ---------------------------------------------------------------- 7. Pack
 $zipOut = Join-Path ([Environment]::GetFolderPath("Desktop")) "oe-recon-$stamp.zip"
 Compress-Archive -Path (Join-Path $out "*") -DestinationPath $zipOut -Force
 Say ""
-Say "ГОТОВО: $zipOut"
-Say "Пришлите этот файл в чат. Папку игры и сейвы скрипт не менял."
+Say "DONE: $zipOut"
+Say "Send this file to the chat. The script did not change the game folder or the saves."

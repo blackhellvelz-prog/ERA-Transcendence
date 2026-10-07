@@ -1,11 +1,11 @@
-# Olden Era — скриптинг сценариев (скрипты карт)
+# Olden Era — scenario scripting (map scripts)
 
-Источник: O1 `src/schema/conditions.ts` / `actions.ts` (реестр переписан с официальных страниц Notion Unfrozen
-«Conditions and their parameters — Full list» и «Actions and their parameters — Full list») и руководства O1.
-Метка: **[V-community]** (реестр) / **[V-data]** (форма файла). Имена типов и описания в таблицах оставлены
-на английском, как в официальном реестре, — это идентификаторы, которые читает игра.
+Source: O1 `src/schema/conditions.ts` / `actions.ts` (the registry was transcribed from the official Unfrozen Notion
+pages "Conditions and their parameters — Full list" and "Actions and their parameters — Full list") and the O1 guides.
+Tag: **[V-community]** (registry) / **[V-data]** (file shape). Type names and descriptions in the tables are kept in
+the original English, as in the official registry — these are the identifiers the game reads.
 
-## 1. Форма файла
+## 1. File shape
 
 ```json
 { "counters": [{"sid": "...", "value": 0}],
@@ -15,33 +15,33 @@
                    "actions":[{"a":"GiveRes","p":["gold","500"]}], "repeat": false}]}]}]}
 ```
 
-## 2. Семантика (по руководствам O1, проверено сообществом)
+## 2. Semantics (per the O1 guides, community-verified)
 
-* Условия — **одноразовые слушатели**: `And` срабатывает, когда каждое условие сработало хотя бы раз (не
-  обязательно одновременно). `TriggerClear`/`TriggerClearCustom` взводят их заново. `repeat: true` — повтор.
-* Триггеры подквеста выполняются в порядке объявления; действия — по порядку и **мгновенно** (ждут только
-  диалоги). Одно ошибочное действие молча отключает **все** действия своего триггера.
-* У действия может быть `"break": true` (прервать остальные действия) — для ветвления после `DialogIf*`.
-* **Счётчики** — единственные переменные: именованные целые, локальные для карты; **сюжетные счётчики**
-  переживают переход между миссиями кампании. Арифметики кроме `+`, `-`, `=`, случайного значения нет; нет
-  строк и массивов.
-* **Прерывания** — единственный хук, который может *приостановить/заменить* родную логику, и только вокруг
-  боёв героя с героем: `BeforeIamVsHero`, `AfterIamWinVsHero`, `BeforeHeroVsHero`, `AfterHeroWinVsHero`.
-  Срабатывают каждый раз, пока не отключены.
-* Триггеры взаимодействия с объектами («Actions Before/After» у объектов в редакторе) существуют и
-  соответствуют условиям `ObjectInteractionBefore/After`.
+* Conditions are **one-shot listeners**: `And` fires once every condition has fired at least once (not
+  necessarily at the same time). `TriggerClear`/`TriggerClearCustom` re-arm them. `repeat: true` means repeat.
+* Subquest triggers run in declaration order; actions run in order and **instantly** (only dialogs
+  wait). A single faulty action silently disables **all** actions of its trigger.
+* An action can carry `"break": true` (abort the remaining actions) — used for branching after `DialogIf*`.
+* **Counters** are the only variables: named integers, local to the map; **story counters**
+  survive the transition between campaign missions. There is no arithmetic other than `+`, `-`, `=` and a random
+  value; there are no strings and no arrays.
+* **Interruptions** are the only hook that can *suspend/replace* native logic, and only around
+  hero-vs-hero battles: `BeforeIamVsHero`, `AfterIamWinVsHero`, `BeforeHeroVsHero`, `AfterHeroWinVsHero`.
+  They fire every time until disabled.
+* Object interaction triggers ("Actions Before/After" on objects in the editor) exist and
+  correspond to the `ObjectInteractionBefore/After` conditions.
 
-## 3. Оценка применительно к ERM
+## 3. Assessment with respect to ERM
 
-Система сценариев — **декларативная таблица «событие → действие»**. Разместить в ней рантайм ERM нельзя:
-нет циклов, функций, общих переменных, выражений, хуков боя ниже уровня «герой против героя», доступа к
-отдельным стекам/существам, интерфейса кроме диалогов. Её **можно** использовать как запасной вариант только
-на данных для небольшого подмножества ERM и как источник проверенных имён действий, когда игрой управляет
-плагин (те же действия существуют как код движка — их реализации можно вызывать через найденный диспетчер).
+The scenario system is a **declarative "event → action" table**. The ERM runtime cannot be hosted in it:
+there are no loops, no functions, no shared variables, no expressions, no combat hooks below the "hero vs. hero"
+level, no access to individual stacks/creatures, and no UI other than dialogs. It **can** be used as a data-only
+fallback for a small subset of ERM, and as a source of verified action names when the game is driven by a
+plugin (the same actions exist as engine code — their implementations can be called through the dispatcher that was found).
 
-## 4. Условия (55)
+## 4. Conditions (55)
 
-| Тип | Категория | Название | Параметры | Описание (оригинал, англ.) |
+| Type | Category | Name | Parameters | Description (original, in English) |
 |---|---|---|---|---|
 | `Counter` |  | Counter Check | Counter SID; Operator; Value | Triggers when the value of a local counter with the specified SID satisfies the inequality for the first time. |
 | `CompareCounters` |  | Compare Two Counters | Counter SID 1; Operator; Counter SID 2 | Triggers when, after changing either of the two specified counters, their values satisfy the inequality for the first time. |
@@ -99,9 +99,9 @@
 | `TutorialBattleEnergy` |  | Tutorial: Battle Energy |  | Triggers when the player accumulates 1 energy cell for the first time. |
 | `TutorialUnitUI` |  | Tutorial: Open Unit View |  | Triggers when the player opens the detailed unit view window for the first time. |
 
-## 5. Действия (114)
+## 5. Actions (114)
 
-| Тип | Категория | Название | Параметры | Описание (оригинал, англ.) |
+| Type | Category | Name | Parameters | Description (original, in English) |
 |---|---|---|---|---|
 | `NextQuest` | Quest Management | Next Quest | Quest SID | Disables the current quest and activates the quest with the specified SID. Leave SID blank to simply disable the current quest. Only one new quest can be enabled at a time. |
 | `EndQuest` | Quest Management | End Quest(s) | Quest SID 1; Quest SID 2; Quest SID 3 | Disables ALL quests with the specified SIDs. |

@@ -1,85 +1,92 @@
 # Heroes of Might and Magic: Olden Era — HoMM3 ERA (In the Wake of Gods)
 
-Порт **HoMM3 ERA** — развитой сборки *In the Wake of Gods* (WoG 3.58f + движок Era 3.9.31 + ERM 2.0 + скрипты
-ERA Project) — на **Heroes of Might and Magic: Olden Era**. Цель — не «мод по мотивам», а воспроизведение
-поведения ERA: язык ERM 2.0, командиры, опыт стеков, WoG Options, скрипты WoG и ERA — так точно, как позволяет
-движок Olden Era.
+A port of **HoMM3 ERA** — the advanced build of *In the Wake of Gods* (WoG 3.58f + the Era 3.9.31 engine + ERM 2.0 +
+ERA Project scripts) — to **Heroes of Might and Magic: Olden Era**. The goal is not a "mod inspired by" ERA, but a
+reproduction of ERA's behavior: the ERM 2.0 language, commanders, stack experience, WoG Options, WoG and ERA scripts —
+as precisely as the Olden Era engine allows.
 
-Сначала целью был WoG 3.58; по решению пользователя цель — ERA (`ERA-Projects/era-project-eng`,
-`era-project-rus`). ERA построена на WoG, поэтому вся работа по WoG 3.58 используется дальше как нижний слой.
+Russian version: [README.ru.md](README.ru.md). Every document in this repository has a Russian twin next to it (`*.ru.md`).
 
-Работа ведётся по методике скилла `mod-any-game` из репозитория
-[rehan-remade/universal-modder](https://github.com/rehan-remade/universal-modder): разведка движка → выбор
-самого дешёвого пути → чтение первоисточников → вертикальный срез → проверка оракулом → журнал (`MODLOG.md`).
+Initially the target was WoG 3.58; by the user's decision the target is ERA (`ERA-Projects/era-project-eng`,
+`era-project-rus`). ERA is built on WoG, so all the WoG 3.58 work continues to be used as the lower layer.
 
-## Что уже есть
+The work follows the methodology of the `mod-any-game` skill from the
+[rehan-remade/universal-modder](https://github.com/rehan-remade/universal-modder) repository: engine recon → choosing
+the cheapest route → reading primary sources → vertical slice → oracle check → log (`MODLOG.md`).
 
-| Часть | Состояние |
-|-------|-----------|
-| Реверс-инжиниринг ERA (`ERA_ReverseEngineering/`) | по исходникам движка Era 3.9.31 (`ethernidee/era`) и корпусу ERA Project 2.291 |
-| Реверс-инжиниринг WoG 3.58 (`WoG_ReverseEngineering/`) | по исходному коду WoG (`GrayFace/wog`), справке ERM и 78 скриптам 3.58f |
-| Реверс-инжиниринг Olden Era (`OldenEra_ReverseEngineering/`) | по рабочим модам/инструментам сообщества; каждый факт помечен уровнем проверки; план проверки в игре |
-| Матрица совместимости (`Compatibility/`) | по каждой фиче: стратегия, статус, ограничения; таблицы ERM (WoG и ERA) генерируются из кода |
-| Ядро (`src/WoG.Core`) | состояние, модель, опции, события, сохранение (JSON + SHA-256), состояние ERA (`EraState`), IdMap, визуальный резолвер |
-| ERM (`src/WoG.Erm`) | парсер и интерпретатор WoG 3.58/3.59 **и ERA**: препроцессор ERM 2.0, параметры/условия/поток управления/функции ERA, `VR`/`FU`/`DO`/`SN` ERA, переводы, ERT |
-| Командиры (`src/WoG.Commanders`) | таблицы и формулы `npc.cpp`: уровни, навыки, спец-бонусы, артефакты, найм/воскрешение, профиль в бою |
-| Опыт стеков (`src/WoG.CreatureExperience`) | ранги, получение опыта после боя, слияние, бонусы, загрузчики `CREXPMOD/CREXPBON.TXT` |
-| Плагин Olden Era (`src/WoG.OldenEra`) | BepInEx 6 IL2CPP, собирается против настоящего API; символы игры — из конфига; всё непроверенное выключено и сообщает *unsupported* |
-| Оверлей данных (`src/WoG.OldenEra.Data`) | чтение `Core.zip`, клоны юнитов, баффы рангов опыта, локализация в формате OE |
-| Тесты (`tests/WoG.Tests`) | 132 теста xUnit; тесты корпусов прогоняют настоящие скрипты WoG и ERA |
-| Инструменты (`tools/`) | `WoG.ErmTool`: `parse`, `run`, `compat`, `era-pp`, `probe-symbols`; `oe-recon/collect.ps1` — сбор данных об установке Olden Era |
+## What is already here
 
-Проверка на настоящих скриптах:
-* ERA Project 2.291 (моды `Era Erm Framework`, `ERA Scripts`, `WoG Scripts`, `WoG`; 183 скрипта, 37 958 строк
-  команд): препроцессор, разбор и запуск новой игры + 7 дней — **0 ошибок**;
-* WoG 3.58f (78 файлов) и WoG 3.59 (117 файлов): разбор и запуск — 0 ошибок.
+| Part | Status |
+|------|--------|
+| ERA reverse engineering (`ERA_ReverseEngineering/`) | from the Era 3.9.31 engine sources (`ethernidee/era`) and the ERA Project 2.291 corpus |
+| WoG 3.58 reverse engineering (`WoG_ReverseEngineering/`) | from the WoG source code (`GrayFace/wog`), the ERM help and the 78 scripts of 3.58f |
+| Olden Era reverse engineering (`OldenEra_ReverseEngineering/`) | from working community mods/tools; every fact is tagged with its verification level; an in-game verification plan |
+| Compatibility matrix (`Compatibility/`) | for every feature: strategy, status, limitations; the ERM tables (WoG and ERA) are generated from code |
+| Core (`src/WoG.Core`) | state, model, options, events, saving (JSON + SHA-256), ERA state (`EraState`), IdMap, visual resolver |
+| ERM (`src/WoG.Erm`) | parser and interpreter for WoG 3.58/3.59 **and ERA**: ERM 2.0 preprocessor, ERA parameters/conditions/control flow/functions, ERA `VR`/`FU`/`DO`/`SN`, translations, ERT |
+| Commanders (`src/WoG.Commanders`) | the `npc.cpp` tables and formulas: levels, skills, special bonuses, artifacts, hiring/resurrection, battle profile |
+| Stack experience (`src/WoG.CreatureExperience`) | ranks, gaining experience after battle, merging, bonuses, `CREXPMOD/CREXPBON.TXT` loaders |
+| Olden Era plugin (`src/WoG.OldenEra`) | BepInEx 6 IL2CPP, builds against the real API; game symbols come from a config; everything unverified is disabled and reports *unsupported* |
+| Data overlay (`src/WoG.OldenEra.Data`) | reading `Core.zip`, unit clones, experience-rank buffs, localization in the OE format |
+| Tests (`tests/WoG.Tests`) | 132 xUnit tests; the corpus tests run the real WoG and ERA scripts |
+| Tools (`tools/`) | `WoG.ErmTool`: `parse`, `run`, `compat`, `era-pp`, `probe-symbols`; `oe-recon/collect.ps1` — collects data about an Olden Era installation |
 
-**Главное ограничение:** работа выполнена без копии Olden Era. Ничего ещё **не проверено в игре**.
-Следующий шаг — `OldenEra_ReverseEngineering/07_InGame_RE_Plan.md` на машине с игрой (лучше всего — локальный
-Claude Code в папке репозитория, см. `HANDOFF.md`).
+Verification on real scripts:
+* ERA Project 2.291 (the mods `Era Erm Framework`, `ERA Scripts`, `WoG Scripts`, `WoG`; 183 scripts, 37,958 lines
+  of commands): preprocessing, parsing and running a new game + 7 days — **0 errors**;
+* WoG 3.58f (78 files) and WoG 3.59 (117 files): parsing and running — 0 errors.
 
-## Сборка и тесты
+**Main limitation:** the work was done without a copy of Olden Era. Nothing has been **verified in game** yet.
+The next step is `OldenEra_ReverseEngineering/07_InGame_RE_Plan.md` on a machine with the game (best of all — a local
+Claude Code in the repository folder, see `HANDOFF.md`).
 
-Нужен .NET SDK 8 (библиотеки нацелены на `net6.0`, чтобы грузиться в BepInEx 6 IL2CPP).
+## Build and tests
+
+Requires the .NET 8 SDK (the libraries target `net6.0` so that they load in BepInEx 6 IL2CPP).
 
 ```bash
 dotnet build WoGOldenEra.sln
 dotnet test tests/WoG.Tests
 
-# соответствие на настоящих скриптах (скрипты в репозиторий не кладутся):
-ERA_MODS_DIR="/путь/к/era-project-eng/Mods" dotnet test tests/WoG.Tests --filter EraCorpus
-WOG_SCRIPTS_DIR="/путь/к/WoG/Data/s" dotnet test tests/WoG.Tests --filter CorpusTests
+# conformance on real scripts (the scripts are not committed to the repository):
+ERA_MODS_DIR="/path/to/era-project-eng/Mods" dotnet test tests/WoG.Tests --filter EraCorpus
+WOG_SCRIPTS_DIR="/path/to/WoG/Data/s" dotnet test tests/WoG.Tests --filter CorpusTests
 
-# ERA: новая игра на эталонном движке + отчёт совместимости (моды — от большего приоритета к меньшему)
-M="/путь/к/era-project-eng/Mods"
+# ERA: a new game on the headless reference engine + compatibility report (mods from highest to lowest priority)
+M="/path/to/era-project-eng/Mods"
 dotnet run --project tools/WoG.ErmTool -- run --era "$M/Era Erm Framework" "$M/ERA Scripts" "$M/WoG Scripts" "$M/WoG"
 dotnet run --project tools/WoG.ErmTool -- era-pp /tmp/era-pp "$M/Era Erm Framework" "$M/ERA Scripts" "$M/WoG Scripts" "$M/WoG"
-dotnet run --project tools/WoG.ErmTool -- compat --era    # таблица Compatibility/ERM_Compatibility_ERA.md
+dotnet run --project tools/WoG.ErmTool -- compat --era > Compatibility/ERM_Compatibility_ERA.md                # table (English)
+dotnet run --project tools/WoG.ErmTool -- compat --era --lang ru > Compatibility/ERM_Compatibility_ERA.ru.md   # Russian copy of the table
 
 # WoG 3.58
-dotnet run --project tools/WoG.ErmTool -- run "/путь/к/WoG/Data/s"
-dotnet run --project tools/WoG.ErmTool -- compat          # таблица Compatibility/ERM_Compatibility.md
+dotnet run --project tools/WoG.ErmTool -- run "/path/to/WoG/Data/s"
+dotnet run --project tools/WoG.ErmTool -- compat > Compatibility/ERM_Compatibility.md                          # table (English)
+dotnet run --project tools/WoG.ErmTool -- compat --lang ru > Compatibility/ERM_Compatibility.ru.md             # Russian copy of the table
 ```
 
-## Установка в игру (для этапа проверки)
+## Installing into the game (for the verification stage)
 
-1. Установить BepInEx 6 IL2CPP be.785 в папку Olden Era, запустить игру один раз.
-2. Скопировать `src/WoG.OldenEra/bin/.../WoG.*.dll` в `BepInEx/plugins/WoG/`.
-3. Первый запуск создаст `BepInEx/config/wog_symbols.json` (шаблон) — заполнить по плану RE.
-4. Скрипты — в `BepInEx/config/WoG/scripts/`; таблицы id — в `BepInEx/config/WoG/id-maps/`.
-   (Подключение модов ERA целиком через `WoGHost.AddEraMods` в плагине — следующий шаг.)
-5. Журнал — `BepInEx/LogOutput.log` (строки `WoG …`, `[ERM] …`, `Game API not found: …`).
+1. Install BepInEx 6 IL2CPP be.785 into the Olden Era folder and launch the game once.
+2. Copy `src/WoG.OldenEra/bin/.../WoG.*.dll` to `BepInEx/plugins/WoG/`.
+3. The first launch creates `BepInEx/config/wog_symbols.json` (a template) — fill it in according to the RE plan.
+4. Scripts go into `BepInEx/config/WoG/scripts/`; id tables go into `BepInEx/config/WoG/id-maps/`.
+   (Loading whole ERA mods through `WoGHost.AddEraMods` in the plugin is the next step.)
+5. Log: `BepInEx/LogOutput.log` (lines `WoG …`, `[ERM] …`, `Game API not found: …`).
 
-Только одиночная игра. Файлы игры не распространяются: всё, что берётся из ERA/WoG/H3/Olden Era, читается из
-установок самого пользователя.
+Single-player only. Game files are not distributed: everything taken from ERA/WoG/H3/Olden Era is read from the
+user's own installations.
 
-## Карта документации
+## Documentation map
 
-* `ERA_ReverseEngineering/` — 00 обзор и решение · 01 препроцессор ERM 2.0 · 02 семантика ERA · 03 события,
-  загрузка модов, переводы, ERT, сохранение.
-* `WoG_ReverseEngineering/` — 00 источники · 01 язык ERM · 02 триггеры · 03 ресиверы · 04 командиры ·
-  05 опыт стеков · 06 WoG Options · 07 бой/карта/города/фичи · 08 сохранение.
-* `OldenEra_ReverseEngineering/` — 00 источники и метки проверки · 01 движок · 02 данные `Core.zip` ·
-  03 скриптинг сценариев · 04 баффы и бой · 05 сейвы · 06 что доступно · 07 план проверки в игре.
-* `Compatibility/` — архитектура · матрица · ERM по командам (WoG и ERA) · `id-maps/` · `options-defaults.json`.
-* `MODLOG.md` — журнал работ; `HANDOFF.md` — как продолжить работу на своём компьютере.
+Every document exists in two languages: the English original `X.md` (primary) and a synchronized Russian copy
+`X.ru.md` next to it. Code comments are in English.
+
+* `ERA_ReverseEngineering/` — 00 overview and decision · 01 ERM 2.0 preprocessor · 02 ERA semantics · 03 events,
+  mod loading, translations, ERT, saving.
+* `WoG_ReverseEngineering/` — 00 sources · 01 ERM language · 02 triggers · 03 receivers · 04 commanders ·
+  05 stack experience · 06 WoG Options · 07 battle/map/towns/features · 08 saving.
+* `OldenEra_ReverseEngineering/` — 00 sources and verification tags · 01 engine · 02 `Core.zip` data ·
+  03 scenario scripting · 04 buffs and battle · 05 saves · 06 what is available · 07 in-game verification plan.
+* `Compatibility/` — architecture · matrix · ERM by command (WoG and ERA) · `id-maps/` · `options-defaults.json`.
+* `MODLOG.md` — work log; `HANDOFF.md` — how to continue the work on your own computer.

@@ -1,61 +1,62 @@
-# WoG Options — модель по результатам реверс-инжиниринга
+# WoG Options — Reverse-Engineered Model
 
-Источники: `T1/erm.h` (макросы `PL_*`), `T1/wogsetup.cpp` (диалог опций, загрузка/сохранение), `T1/erm.cpp`
-(`ERM_Universal` команда `P`, `SaveERM`, `FindERM`, `ResetWog*`), скрипты 3.58f (S7) — какую опцию читает
-каждый скрипт. Реализация — `src/WoG.Core/Options`.
+Sources: `T1/erm.h` (`PL_*` macros), `T1/wogsetup.cpp` (options dialog, loading/saving), `T1/erm.cpp`
+(`ERM_Universal` command `P`, `SaveERM`, `FindERM`, `ResetWog*`), 3.58f scripts (S7) — which option each
+script reads. Implementation — `src/WoG.Core/Options`.
 
-## 1. Хранение
+## 1. Storage
 
-* `int PL_WoGOptions[2][1000]` (`PL_WONUM = 1000`). Строка 0 — действующие опции; строка 1 — состояние
-  диалога (из пресета пользователя), используется для *Restore*/*Cancel*.
-* В диалоге 8 страниц × 4 группы × до 20 элементов. Каждый элемент привязан к одному индексу опции
-  (`InternalVars[стр][группа][элем]`); привязка и тексты берутся из `ZSETUP00.TXT` установки WoG (в S1 его
-  нет). Группа радиокнопок хранит номер выбранного элемента в одной опции.
-* **Инвертированные опции:** индексы **1…4** хранятся с обратным знаком относительно галочки
-  (`if (ind>0 && ind<5) value = !checked`) — это флаги «Нет …» (`PL_TowerStd`, `PL_MLeaveStd`, `PL_NoNPC`,
+* `int PL_WoGOptions[2][1000]` (`PL_WONUM = 1000`). Row 0 holds the active options; row 1 holds the dialog
+  state (from the user's preset) and is used for *Restore*/*Cancel*.
+* The dialog has 8 pages × 4 groups × up to 20 items. Each item is bound to one option index
+  (`InternalVars[page][group][item]`); the binding and the texts come from the WoG installation's `ZSETUP00.TXT`
+  (it is not in S1). A radio-button group stores the number of the selected item in a single option.
+* **Inverted options:** indices **1…4** are stored with the opposite sign relative to the checkbox
+  (`if (ind>0 && ind<5) value = !checked`) — these are "No …" flags (`PL_TowerStd`, `PL_MLeaveStd`, `PL_NoNPC`,
   `PL_NoTownDem`).
-* Зависимости между галочками зашиты в `CheckDepend()` (например, если *[0][2][4]* выключена, пять зависимых
-  элементов становятся серыми). В порте — данные (`OptionDependency`, запланировано).
-* Сохранение: первая половина `PL_WoGOptions` (строка 0) пишется в каждый сейв (`SaveERM`). Пресеты
-  пишутся/читаются в файлы `.dat` (`SaveSetupState`, по умолчанию `WoGSetupEx.dat`) — реализовано в закрытой
-  `ZvsLib1.dll`, формат **не подтверждён**.
-* **Значения по умолчанию:** при новой игре WoG копирует строку 1 (выбор игрока в диалоге, загруженный из
-  пресета) в строку 0 (`ResetWogify`). Жёсткой таблицы умолчаний в движке нет. Поэтому встроенные умолчания
-  порта помечены как *допущения* (`DefaultVerified = false`), а при наличии пресета пользователя берутся из него.
-* Скрипты читают и пишут опции через `!!UN:P#/$` (любой индекс 0…999). Запись в 3 или 6 сразу
-  включает/выключает командиров у всех героев; запись в 0…10 и 900…907 обновляет и «копии для сброса»
-  (`PL_OptionReset`, `PL_OptionReset2`), чтобы значение пережило вызовы `ResetWoG*`.
+* Dependencies between checkboxes are hard-coded in `CheckDepend()` (for example, if *[0][2][4]* is unchecked,
+  five dependent items are grayed out). In the port this is data (`OptionDependency`, planned).
+* Saving: the first half of `PL_WoGOptions` (row 0) is written into every saved game (`SaveERM`). Presets are
+  written to/read from `.dat` files (`SaveSetupState`, `WoGSetupEx.dat` by default) — implemented in the
+  closed-source `ZvsLib1.dll`; the format is **not confirmed**.
+* **Default values:** on a new game WoG copies row 1 (the player's choice in the dialog, loaded from the
+  preset) into row 0 (`ResetWogify`). The engine has no hard-coded table of defaults. Therefore the port's
+  built-in defaults are marked as *assumptions* (`DefaultVerified = false`), and when a user preset exists
+  they are taken from it.
+* Scripts read and write options via `!!UN:P#/$` (any index 0…999). Writing to 3 or 6 immediately
+  enables/disables commanders for all heroes; writing to 0…10 and 900…907 also updates the "reset copies"
+  (`PL_OptionReset`, `PL_OptionReset2`), so that the value survives calls to `ResetWoG*`.
 
-## 2. Опции движка (зашиты в код)
+## 2. Engine options (hard-coded)
 
-| Индекс | Макрос | Смысл |
+| Index | Macro | Meaning |
 |--------|--------|-------|
-| 0 | `PL_ExtDwellStd` | стандартное поведение внешних жилищ 8-го уровня |
-| 1 | `PL_TowerStd` | (инв.) усиленные башни городов |
-| 2 | `PL_MLeaveStd` | (инв.) монстры могут покидать армию |
-| 3 | `PL_NoNPC` | (инв.) **командиры включены** |
-| 4 | `PL_NoTownDem` | (инв.) снос городов разрешён |
-| 5 | `PL_ApplyWoG` | применять WoG к не-WoG картам (уровень вогификации) |
-| 6 | `PL_NPC2Hire` | командиров нужно нанимать в городе |
-| 7 | `PL_DwellAccum` | жилища накапливают существ |
-| 8 | `PL_GuardAccum` | охрана жилищ накапливается |
-| 9 | `PL_CentElf` | настройка кентавров/эльфов |
-| 10 | `PL_MLeaveStyle` | стиль ухода монстров |
-| 900 | `PL_CrExpEnable` | **опыт стеков включён** |
-| 901 | `PL_CrExpStyle` | стиль деления опыта 0…3 |
-| 902 | `PL_LeaveArt` | оставлять артефакты при гибели |
-| 903 | `PL_CheatDis` | читы запрещены |
-| 904 | `PL_ERMErrDis` | не показывать диалоги ошибок ERM |
-| 905 | `PL_ERMError` | состояние ошибки ERM |
-| 906 | `PL_ExpGainDis` | получение опыта стеками выключено |
-| 907 | `PL_NewHero` | настройка новых героев |
+| 0 | `PL_ExtDwellStd` | standard behavior of external level-8 dwellings |
+| 1 | `PL_TowerStd` | (inv.) enhanced town towers |
+| 2 | `PL_MLeaveStd` | (inv.) monsters can leave the army |
+| 3 | `PL_NoNPC` | (inv.) **commanders enabled** |
+| 4 | `PL_NoTownDem` | (inv.) town demolition allowed |
+| 5 | `PL_ApplyWoG` | apply WoG to non-WoG maps (wogification level) |
+| 6 | `PL_NPC2Hire` | commanders must be hired in a town |
+| 7 | `PL_DwellAccum` | dwellings accumulate creatures |
+| 8 | `PL_GuardAccum` | dwelling guards accumulate |
+| 9 | `PL_CentElf` | centaurs/elves setting |
+| 10 | `PL_MLeaveStyle` | monster leaving style |
+| 900 | `PL_CrExpEnable` | **stack experience enabled** |
+| 901 | `PL_CrExpStyle` | experience splitting style 0…3 |
+| 902 | `PL_LeaveArt` | leave artifacts on death |
+| 903 | `PL_CheatDis` | cheats disabled |
+| 904 | `PL_ERMErrDis` | do not show ERM error dialogs |
+| 905 | `PL_ERMError` | ERM error state |
+| 906 | `PL_ExpGainDis` | stack experience gain disabled |
+| 907 | `PL_NewHero` | new heroes setting |
 
-## 3. Опции скриптов
+## 3. Script options
 
-Каждый скрипт WoG включается своей опцией и обычно читает подопции. В таблице — все индексы опций, которые
-читает каждый скрипт 3.58f (`UN:P#`), извлечено из S7:
+Each WoG script is enabled by its own option and usually reads sub-options. The table lists all option
+indices read by each 3.58f script (`UN:P#`), extracted from S7:
 
-| Файл скрипта (3.58f) | Опции, которые он читает через UN:P |
+| Script file (3.58f) | Options it reads via UN:P |
 |---|---|
 | 1 wog - cheat menu | 77 903 904 905 |
 | 2 wog - commander sanctuary | 3 76 |
@@ -136,17 +137,17 @@
 | 77 wog - map rules | 63 67 101 119 193 230 |
 | 78 wog - wogify | 3 11 12 13 14 15 16 17 18 21 26 27 28 29 30 31 32 44 52 60 63 70 76 104 107 108 109 110 132 133 137 138 139 140 141 142 143 165 176 177 195 196 219 226 227 229 234 236 237 238 241 242 243 245 248 900 901 |
 
-Закономерность: опции **11…77** — выключатели отдельных скриптов (первое число в строке у не-Wogify
-скриптов), **100…249** — подопции (опции карты, запрет заклинаний/артефактов, улучшенные вторичные навыки
-201…214 …), **900…907** — опции движка выше.
+Pattern: options **11…77** are on/off switches for individual scripts (the first number in the row for
+non-Wogify scripts), **100…249** are sub-options (map options, spell/artifact bans, enhanced secondary skills
+201…214 …), **900…907** are the engine options above.
 
-## 4. Требования к порту
+## 4. Port requirements
 
-1. Опции — **отдельные значения**, никогда не сводятся в один переключатель: порт хранит все 1000 индексов
-   (`WoGOptions` = `int[1000]` + метаданные).
-2. Умолчания берутся из `ZSETUP00.TXT` / пресета `.dat` пользователя, если есть; иначе — из
-   `Compatibility/options-defaults.json` (наши документированные умолчания, каждое помечено «проверено» или
-   «допущение»).
-3. Опции сохраняются вместе с игрой (строка 0) и восстанавливаются при загрузке **до** любого `!?GM0`.
-4. Инвертированные индексы 1…4 хранят исходную полярность (скрипты проверяют хранимое значение).
-5. Побочные эффекты `UN:P` для 3/6 воспроизведены в `UnReceiver` + `CommanderService.ApplyOptions`.
+1. Options are **separate values** and are never collapsed into a single switch: the port stores all 1000
+   indices (`WoGOptions` = `int[1000]` + metadata).
+2. Defaults are taken from `ZSETUP00.TXT` / the user's `.dat` preset, if present; otherwise from
+   `Compatibility/options-defaults.json` (our documented defaults, each one marked "verified" or
+   "assumption").
+3. Options are saved together with the game (row 0) and restored on load **before** any `!?GM0`.
+4. Inverted indices 1…4 keep their original polarity (scripts check the stored value).
+5. The side effects of `UN:P` for 3/6 are reproduced in `UnReceiver` + `CommanderService.ApplyOptions`.

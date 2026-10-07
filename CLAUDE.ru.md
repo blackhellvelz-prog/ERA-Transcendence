@@ -14,7 +14,9 @@ Magic: Olden Era** (Unity IL2CPP, BepInEx 6). Полное задание пол
 
 ## Правила пользователя (обязательные)
 
-* **Документация — на русском** (все `.md`). Комментарии в коде — на английском, как в остальном коде.
+* **Документация: основная — на английском (`X.md`), рядом русская копия (`X.ru.md`)**; обновлять обе в одном
+  изменении. Комментарии в коде — на английском. Сгенерированные таблицы (`Compatibility/ERM_Compatibility*.md`
+  и их `.ru.md`) — из `WoG.ErmTool compat [--era] [--lang ru]`.
 * Сначала функциональность, потом графика. Не подделывать геймплей: чего нет — честно `Unsupported` в отчёте
   совместимости, ничего не «делать вид».
 * Не предполагать возможности Olden Era — проверять (метки `[V-code] [V-data] [V-community] [UNVERIFIED]`).
@@ -57,7 +59,8 @@ ERA_MODS_DIR=../research/era-eng/Mods dotnet test tests/WoG.Tests --filter EraCo
 WOG_SCRIPTS_DIR="../research/wogify/Mods/WoG Wogify Scripts 3.58f/Data/s" dotnet test tests/WoG.Tests --filter CorpusTests
 M=../research/era-eng/Mods
 dotnet run --project tools/WoG.ErmTool -- run --era "$M/Era Erm Framework" "$M/ERA Scripts" "$M/WoG Scripts" "$M/WoG"
-dotnet run --project tools/WoG.ErmTool -- compat --era > /tmp/t.md   # обновить Compatibility/ERM_Compatibility_ERA.ru.md
+dotnet run --project tools/WoG.ErmTool -- compat --era > Compatibility/ERM_Compatibility_ERA.md
+dotnet run --project tools/WoG.ErmTool -- compat --era --lang ru > Compatibility/ERM_Compatibility_ERA.ru.md
 ```
 
 Перед коммитом: сборка без предупреждений, все тесты зелёные, корпус ERA без ошибок. Таблицы

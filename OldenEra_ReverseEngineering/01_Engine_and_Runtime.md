@@ -1,32 +1,32 @@
-# Olden Era — движок и среда выполнения
+# Olden Era — Engine and Runtime
 
-## Факты
+## Facts
 
-| Факт | Метка | Доказательство |
-|------|-------|----------------|
-| Движок Unity, папка данных `HeroesOldenEra_Data` | [V-code] | O1 находит `<игра>/HeroesOldenEra_Data/StreamingAssets/Core.zip` и работает |
-| Бэкенд **IL2CPP** | [V-code] | O2 — плагин `BepInEx.Unity.IL2CPP` на `Il2CppInterop`; типы берутся из `BepInEx/interop/*.dll`, генерируемых при первом запуске |
-| Сборка игрового кода называется **`Hex`** | [V-code] | `FindType("Hex", "Hex.MapEditor.BhNewGenMap")` |
-| Пространства имён/классы частично читаемы (`Hex.MapEditor.BhMapEditor`, `BhNewGenMap`, члены `dropdown`, `template`, `seed`, `Start`, `OnBtn`, `Hide`, `Load`, `me`) | [V-code] | O2 |
-| **Обфусцированные** идентификаторы, меняющиеся с обновлениями (тип файлового менеджера `qp`, статический экземпляр `bufc`, индекс файлов `bufo`, список размеров карты `byok`, поля `byom`/`byon`) | [V-code] | README O2: «names change with game updates» |
-| Виртуальная файловая система: статический FileManager со словарём `Dictionary<string виртуальныйПуть, дескриптор>` | [V-code] | комментарий O2 к `bufo` |
-| Интерфейс на `UnityEngine.UI` + `TMPro` (`TMP_Dropdown`) | [V-code] | O2 |
-| BepInEx 6 bleeding edge **be.785** работает; есть сборка BepInEx «с независимой от версии деобфускацией» | [V-code]/[V-community] | csproj O2, O3 |
-| Патчи Harmony на методы игры работают (`EventSystem.Update` как ежекадровый хук) | [V-code] | README O2 |
-| Ранние/другие сборки, возможно, были Mono (`hex.dll` правится в dnSpy) | [V-community], противоречит | O4. Трактуется как ранние сборки EA или другая платформа. Порт поддерживает прежде всего IL2CPP; Mono-сборка была бы строго проще (тот же API плагинов BepInEx 5/6 Mono). |
-| В игру встроен редактор карт | [V-code] | O2 его патчит |
-| Linux/Proton: для игры есть Linux-сборка BepInEx 6 | [V-community] | O3 «Windows and linux version» |
+| Fact | Tag | Evidence |
+|------|-----|----------|
+| Unity engine, data folder `HeroesOldenEra_Data` | [V-code] | O1 finds `<game>/HeroesOldenEra_Data/StreamingAssets/Core.zip` and works |
+| **IL2CPP** backend | [V-code] | O2 is a `BepInEx.Unity.IL2CPP` plugin built on `Il2CppInterop`; types come from `BepInEx/interop/*.dll`, which are generated on first launch |
+| The game-code assembly is named **`Hex`** | [V-code] | `FindType("Hex", "Hex.MapEditor.BhNewGenMap")` |
+| Namespaces/classes are partially readable (`Hex.MapEditor.BhMapEditor`, `BhNewGenMap`, members `dropdown`, `template`, `seed`, `Start`, `OnBtn`, `Hide`, `Load`, `me`) | [V-code] | O2 |
+| **Obfuscated** identifiers that change with updates (file manager type `qp`, static instance `bufc`, file index `bufo`, map size list `byok`, fields `byom`/`byon`) | [V-code] | O2 README: "names change with game updates" |
+| Virtual file system: a static FileManager with a `Dictionary<string virtualPath, descriptor>` dictionary | [V-code] | O2 comment on `bufo` |
+| UI built on `UnityEngine.UI` + `TMPro` (`TMP_Dropdown`) | [V-code] | O2 |
+| BepInEx 6 bleeding edge **be.785** works; there is a BepInEx build "with version-independent deobfuscation" | [V-code]/[V-community] | O2 csproj, O3 |
+| Harmony patches on game methods work (`EventSystem.Update` as a per-frame hook) | [V-code] | O2 README |
+| Earlier/other builds may have been Mono (`hex.dll` is edited in dnSpy) | [V-community], contradicts | O4. Interpreted as early EA builds or a different platform. The port primarily supports IL2CPP; a Mono build would be strictly simpler (the same BepInEx 5/6 Mono plugin API). |
+| The game has a built-in map editor | [V-code] | O2 patches it |
+| Linux/Proton: a Linux build of BepInEx 6 exists for the game | [V-community] | O3 "Windows and linux version" |
 
-## Следствия для порта
+## Implications for the port
 
-1. **Путь нативного расширения = плагин BepInEx 6 IL2CPP + Harmony.** Это единственный проверенный способ
-   выполнять свой код внутри игры. Он даёт: хуки на любой не-встроенный и не-вырезанный управляемый метод;
-   чтение/запись игровых объектов через Il2CppInterop; свои MonoBehaviour (после
+1. **Native extension path = BepInEx 6 IL2CPP plugin + Harmony.** This is the only verified way
+   to run your own code inside the game. It provides: hooks on any managed method that has not been inlined or stripped;
+   reading/writing game objects through Il2CppInterop; custom MonoBehaviours (after
    `ClassInjector.RegisterTypeInIl2Cpp`).
-2. **Обфускация — проблема первого порядка.** По проверенному в O2 шаблону каждый нужный адаптеру символ игры
-   ищется **по имени во время работы** по одной таблице (`OldenEraSymbols`, файл
-   `BepInEx/config/wog_symbols.json`), с самопроверкой при старте, которая отключает только зависимые функции и
-   пишет `Game API not found: …`. После обновления игры меняется только этот JSON — пересборка не нужна.
-3. **Целевой фреймворк плагина:** `net6.0`, ссылки только на NuGet-пакеты BepInEx (никаких DLL игры в
-   репозитории). Проект `src/WoG.OldenEra` собирается против настоящего API BepInEx 6.0.0-be.785.
-4. Античит: для одиночной игры не сообщается; мультиплеер модифицировать нельзя (правило проекта).
+2. **Obfuscation is a first-order problem.** Following the pattern verified in O2, every game symbol the adapter needs
+   is looked up **by name at runtime** from a single table (`OldenEraSymbols`, file
+   `BepInEx/config/wog_symbols.json`), with a startup self-check that disables only the dependent features and
+   logs `Game API not found: …`. After a game update only this JSON changes — no rebuild is needed.
+3. **Plugin target framework:** `net6.0`, references only to BepInEx NuGet packages (no game DLLs in the
+   repository). The `src/WoG.OldenEra` project builds against the real BepInEx 6.0.0-be.785 API.
+4. Anti-cheat: none reported for single-player; multiplayer must not be modded (project rule).
