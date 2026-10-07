@@ -73,6 +73,7 @@ public sealed class OldenEraSymbols
         "hero.army", "stack.unitSid", "stack.count",
         "stack.slot",                // army unit → slot position
         "unit.db", "unit.stats",
+        "unit.config",               // session unit → its type config (UnitLogicConfig), resolved from the unit's sid
         "ui.message", "ui.question",
         "turn.start",                // method: start of a day (Harmony postfix → PlayerDayStarted for every player)
         "object.interact",           // method: hero interacts with a map object (prefix/postfix → OB triggers)
@@ -230,6 +231,14 @@ public sealed class OldenEraSymbols
         var m = target.GetType().GetMember(name, All).FirstOrDefault(x => x is FieldInfo or PropertyInfo)
                 ?? throw new InvalidOperationException($"{target.GetType().FullName}.{name} not found");
         return Get(m, target);
+    }
+
+    /// <summary>Writes a member of an object by name (for config values chosen at run time, e.g. a unit stat).</summary>
+    public static void WriteMember(object target, string name, object value)
+    {
+        var m = target.GetType().GetMember(name, All).FirstOrDefault(x => x is FieldInfo or PropertyInfo)
+                ?? throw new InvalidOperationException($"{target.GetType().FullName}.{name} not found");
+        Set(m, target, value);
     }
 
     /// <summary>Calls a public instance method of a game object by name with arguments of matching count.</summary>

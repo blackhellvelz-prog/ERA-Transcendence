@@ -475,6 +475,13 @@
       "Member": "bura",
       "Status": "verified",
       "Note": "0.81.04: xb = SideEndBattle argument; bura = side id | verified 2026-10-07 (0.81.04) with a WoG Debug trace of zb.Invoke during moves, visits, an accepted battle simulation and a fought battle"
+    },
+    "unit.config": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Unit",
+      "Member": "ctzt",
+      "Status": "verified",
+      "Note": "0.81.04: Unit.ctzt = Hex.Configs.UnitLogicConfig of the unit's sid (cnkj is a cache that stays null); stats (offence, defence, hp, damageMin/Max, speed, initiative), tier, fraction, upgradeSid, squadValue, unitCost.costResArray (name, cost) | verified 2026-10-07 with WoG Debug peek on the hero's army: esquire 4/4/12, 2-3, speed 4, 85 gold"
     }
   }
 }

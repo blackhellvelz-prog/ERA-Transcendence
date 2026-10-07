@@ -183,13 +183,15 @@ public sealed class ReceiverRegistry
             "BA:M — армии сторон боя пока не отображены",
         ["BA:D/B — cancelling a battle and its background are not mapped yet"] =
             "BA:D/B — отмена боя и его фон пока не отображены",
+        ["MA — creatures with an Olden Era unit change the game's unit type (attack, defence, hit points, speed, damage, cost, unit value; level, town and upgrade read only); creatures without one use the ERA installation's zcrtrait.txt and change nothing in the game; changes are saved with the game"] =
+            "MA — у существ с юнитом Olden Era меняется тип юнита в игре (атака, защита, здоровье, скорость, урон, стоимость, ценность; уровень, город и улучшение только чтение); существа без него берутся из zcrtrait.txt установки ERA и в игре ничего не меняют; изменения сохраняются вместе с игрой",
+        ["MA:N/G/R/H/V/B/X — shots, growth, adventure-map counts, casts and flags exist only for creatures without an Olden Era unit (from zcrtrait.txt); Olden Era units have no such stats"] =
+            "MA:N/G/R/H/V/B/X — выстрелы, прирост, численность на карте, заклинания и флаги есть только у существ без юнита Olden Era (из zcrtrait.txt); у юнитов Olden Era таких характеристик нет",
         ["UN map/object/global commands are not mapped yet"] = "команды UN для карты/объектов/глобальные ещё не отображены",
         ["values go through the adapter; OE primary stats differ (see the matrix)"] = "значения идут через адаптер; первичные статы OE отличаются (см. матрицу)",
         ["ids via IdMap; display-slot forms are not supported"] = "id через IdMap; формы со слотами отображения не поддерживаются",
         ["not mapped yet"] = "ещё не отображено",
         ["resource ids via IdMap"] = "id ресурсов через IdMap",
-        ["the engine's stat model differs (initiative/speed, no shots)"] = "модель статов движка отличается (initiative/speed, нет выстрелов)",
-        // ModuleReceivers
         ["commanders are an emulated entity in Olden Era"] = "командиры — эмулируемая сущность в Olden Era",
         ["experience is external WoG state applied to OE stacks"] = "опыт — внешнее состояние WoG, применяемое к стекам OE",
         ["stack merging is not implemented yet"] = "объединение стеков ещё не реализовано",

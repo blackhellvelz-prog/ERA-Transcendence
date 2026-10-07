@@ -63,8 +63,8 @@ public sealed class WoGGameState
     public Dictionary<int, ErmObjectState> Objects { get; set; } = new();
     /// <summary>PO receiver storage: 4 values per map square. Key = MapPos.Pack().</summary>
     public Dictionary<int, int[]> Squares { get; set; } = new();
-    /// <summary>Creature type data changed by MA (only overrides are stored).</summary>
-    public Dictionary<int, WoGCreature> CreatureOverrides { get; set; } = new();
+    /// <summary>Creature type values changed by MA: type → stat name (or "Cost0".."Cost6") → value.</summary>
+    public Dictionary<int, Dictionary<string, int>> CreatureChanges { get; set; } = new();
     /// <summary>Artifact types changed by UN:A (only changed ones; the rest come from the H3 tables).</summary>
     public Dictionary<int, WoGArtifact> ArtifactOverrides { get; set; } = new();
     /// <summary>Artifacts banned from the map by UN:A#/1 (ArtDisabled).</summary>

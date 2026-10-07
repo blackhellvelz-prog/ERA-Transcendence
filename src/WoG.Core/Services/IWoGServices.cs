@@ -24,6 +24,8 @@ public interface IWoGServices
     IStackExperienceService? StackExperience { get; }
     /// <summary>H3/WoG data tables of the user's ERA installation (empty when there is none).</summary>
     WoG.Core.H3Data.H3Tables H3 { get; }
+    /// <summary>Creature types for MA: the engine's units, else the installation's table; changes kept in the state.</summary>
+    WoG.Core.H3Data.CreatureTable CreatureTypes { get; }
 }
 
 /// <summary>Commander rules (implemented by WoG.Commanders).</summary>

@@ -54,7 +54,7 @@ startup: `UN:C` (H3 memory), `SN:E` (H3 code), `FU:D` (network), `UN:A/R/X/N/U/V
 | `KT` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `LE` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `LN` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
-| `MA` | yes | `ABCDEFGHILMNOPRSUVX` PARTIALLY SUPPORTED (the engine's stat model differs (initiative/speed, no shots)) |
+| `MA` | yes | `ACDEFILMOPSU` PARTIALLY SUPPORTED (MA — creatures with an Olden Era unit change the game's unit type (attack, defence, hit points, speed, damage, cost, unit value; level, town and upgrade read only); creatures without one use the ERA installation's zcrtrait.txt and change nothing in the game; changes are saved with the game); `BGHNRVX` PARTIALLY SUPPORTED (MA:N/G/R/H/V/B/X — shots, growth, adventure-map counts, casts and flags exist only for creatures without an Olden Era unit (from zcrtrait.txt); Olden Era units have no such stats) |
 | `MC` | yes | `S` FULLY SUPPORTED |
 | `MF` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `ML` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |

@@ -737,16 +737,21 @@ public sealed class MaReceiver : ErmReceiverBase
 {
     public MaReceiver() : base("MA")
     {
-        Declare("ADPSMENFIGRHVLOUXBC", CompatLevel.PartiallySupported, "the engine's stat model differs (initiative/speed, no shots)");
+        Declare("ADPSMEFILOUC", CompatLevel.PartiallySupported,
+            "MA — creatures with an Olden Era unit change the game's unit type (attack, defence, hit points, speed, damage, cost, unit value; level, town and upgrade read only); creatures without one use the ERA installation's zcrtrait.txt and change nothing in the game; changes are saved with the game");
+        Declare("NGRHVBX", CompatLevel.PartiallySupported,
+            "MA:N/G/R/H/V/B/X — shots, growth, adventure-map counts, casts and flags exist only for creatures without an Olden Era unit (from zcrtrait.txt); Olden Era units have no such stats");
     }
 
     protected override void Run(ErmCall c)
     {
-        var cr = c.Rt.Services.Game.Creatures;
+        var cr = c.Rt.Services.CreatureTypes;
         if (c.Letter == 'C')
         {
             c.RequireMin(3);
             int type = c.N(0), res = c.N(1);
+            if (!cr.Exists(type)) throw new ErmRuntimeException($"wrong monster type {type}");
+            if (res < 0 || res >= WoGLimits.ResourceCount) throw new ErmRuntimeException("wrong resource number");
             c.ApplyAdapter(cr.GetCost(type, res), v => cr.SetCost(type, res, v), 2);
             return;
         }

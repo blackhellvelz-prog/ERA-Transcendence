@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using WoG.Core.H3Data;
+using WoG.Core.Model;
 using Xunit;
 
 namespace WoG.Tests;
@@ -265,6 +266,53 @@ public class H3DataTests : IDisposable
         t.Call("Bad");
         Assert.Contains("wrong number", t.ErrorText);
         t.Dispose();
+    }
+
+    const string Zcrtrait =
+        "Name\t\tCost\r\nSingular\tPlural\tWood\r\n" +
+        "Pikeman\tPikemen\t0\t0\t0\t0\t0\t0\t60\t100\t80\t14\t0\t10\t4\t4\t5\t1\t3\t0\t0\t20\t50\tImmune\t0\r\n" +
+        "Halberdier\tHalberdiers\t0\t0\t0\t0\t0\t0\t75\t115\t115\t14\t0\t10\t5\t6\t5\t2\t3\t0\t0\t20\t30\tImmune\t0\r\n";
+
+    [Fact]
+    public void Ma_on_a_creature_without_an_engine_unit_uses_the_table_and_keeps_changes_in_the_saved_game()
+    {
+        string save = Path.Combine(root, "ma.wog");
+        EraTestHost Host(string script)
+        {
+            var t = new EraTestHost().Script("t.erm", "ZVSE2\n!?FU(Go);\n" + script);
+            File.WriteAllText(Path.Combine(t.ModDir, "Data", "zcrtrait.txt"), Zcrtrait);
+            t.Host.LoadH3Tables();
+            t.Start();
+            return t;
+        }
+        using (var t = Host("!!MA:A1/?v1;\n!!MA:P1/?v2;\n!!MA:C1/6/?v3;\n!!MA:A1/9;\n!!MA:C1/6/d25;\n!!MA:A1/?v4;\n!!MA:C1/6/?v5;\n!!MA:L1/?v6;\n"))
+        {
+            t.Call("Go");
+            Assert.Equal((6, 10, 75), (t.V(1), t.V(2), t.V(3)));  // Halberdier from zcrtrait.txt
+            Assert.Equal((9, 100), (t.V(4), t.V(5)));
+            Assert.Contains(t.Host.Compat.Entries, e => e.Item == "!!MA:L"); // level is not in the text table
+            Assert.Equal(6, t.Host.H3.Creatures[1].Attack);                   // the table itself is unchanged
+            t.Host.SaveTo(save, "t");
+        }
+        using var u = Host("!!MA:A1/?v1;\n!!MA:C1/6/?v2;\n");
+        u.Host.LoadFrom(save, "t");
+        u.Call("Go");
+        Assert.Equal((9, 100), (u.V(1), u.V(2)));
+    }
+
+    [Fact]
+    public void Ma_changes_of_engine_creatures_are_reapplied_after_loading_and_undone_for_a_new_game()
+    {
+        string save = Path.Combine(root, "ma2.wog");
+        var t = new TestHost().Load("!?FU1;\n!!MA:A0/20;\n").Start();
+        t.Game.CreatureList[0] = new WoGCreature { Id = 0, Attack = 4 };
+        t.Call(1);
+        Assert.Equal(20, t.Game.CreatureList[0].Attack);
+        t.Host.SaveTo(save, "t");
+        t.Host.StartNewGame();                        // a new game: the engine's own value again
+        Assert.Equal(4, t.Game.CreatureList[0].Attack);
+        t.Host.LoadFrom(save, "t");                   // the saved game's MA change is applied again
+        Assert.Equal(20, t.Game.CreatureList[0].Attack);
     }
 
     [Fact]

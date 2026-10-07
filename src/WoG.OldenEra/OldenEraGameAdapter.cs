@@ -398,11 +398,110 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
 
     // ---- creature types (static data lives in Core.zip; runtime edits need the unit DB symbol) ----
 
-    bool ICreatureTypeAdapter.Exists(int type) => currentIds().TryGetEngine("creature", type, out _);
-    public AdapterResult<int> Get(int type, CreatureStat stat) => Missing<int>("unit.db");
-    public AdapterResult Set(int type, CreatureStat stat, int value) => Missing("unit.db");
-    public AdapterResult<int> GetCost(int type, int resource) => Missing<int>("unit.db");
-    public AdapterResult SetCost(int type, int resource, int value) => Missing("unit.db");
+    // ---- creature types ---------------------------------------------------------------------
+    // An Olden Era unit type is a global config (UnitLogicConfig) shared by every unit of that type; a session Unit
+    // resolves it from its sid (Unit.ctzt) [V-game 0.81.04: esquire → offence 4, defence 4, hp 12, damage 2-3,
+    // speed 4, initiative 5, tier 1, fraction human, cost 85 gold]. Changing it changes the type for the whole game, which
+    // is what MA does. H3 stats map by meaning: Attack → offence, Defence → defence, Hit Points → hp, Speed → speed,
+    // damage → damageMin/Max, Level → tier − 1, Town → the faction's H3 town, Upgrade → upgradeSid, Fight/AI value →
+    // squadValue. Shots, casts, growth and adventure-map counts have no Olden Era unit stat.
+
+    readonly Dictionary<string, object?> unitConfigs = new();
+
+    object? UnitConfig(int type)
+    {
+        if (!sym.Has("unit.config") || !sym.Has("stack.create") || !sym.Has("stack.unitSid")) return null;
+        if (!currentIds().TryGetEngine("creature", type, out var sid)) return null;
+        if (unitConfigs.TryGetValue(sid, out var cached)) return cached;
+        object? config = null;
+        try
+        {
+            var unit = Activator.CreateInstance(sym.TypeOf("stack.create"))!;
+            sym.Write("stack.unitSid", unit, sid);
+            config = sym.Read("unit.config", unit);
+        }
+        catch (Exception) { config = null; }
+        unitConfigs[sid] = config;
+        return config;
+    }
+
+    static readonly Dictionary<CreatureStat, string> UnitStatField = new()
+    {
+        [CreatureStat.Attack] = "offence", [CreatureStat.Defence] = "defence", [CreatureStat.HitPoints] = "hp",
+        [CreatureStat.Speed] = "speed", [CreatureStat.DamageLow] = "damageMin", [CreatureStat.DamageHigh] = "damageMax",
+    };
+
+    static readonly Dictionary<string, int> TownOfFraction = new()
+    {
+        ["human"] = 0, ["nature"] = 1, ["demon"] = 3, ["undead"] = 4, ["dungeon"] = 5, ["unfrozen"] = 8,
+    };
+
+    bool ICreatureTypeAdapter.Exists(int type) => UnitConfig(type) != null;
+
+    public AdapterResult<int> Get(int type, CreatureStat stat)
+    {
+        if (UnitConfig(type) is not { } cfg) return AdapterResult<int>.Failed($"creature {type} has no Olden Era unit");
+        if (UnitStatField.TryGetValue(stat, out var field))
+            return AdapterResult<int>.Ok(Convert.ToInt32(OldenEraSymbols.ReadMember(OldenEraSymbols.ReadMember(cfg, "stats")!, field)));
+        switch (stat)
+        {
+            case CreatureStat.Level:
+                return AdapterResult<int>.Ok(Convert.ToInt32(OldenEraSymbols.ReadMember(cfg, "tier")) - 1);
+            case CreatureStat.Town:
+                return AdapterResult<int>.Ok(OldenEraSymbols.ReadMember(cfg, "fraction") is string f && TownOfFraction.TryGetValue(f, out int t) ? t : -1);
+            case CreatureStat.UpgradeTo:
+                return AdapterResult<int>.Ok(OldenEraSymbols.ReadMember(cfg, "upgradeSid") is string up && currentIds().TryGetWoG("creature", up, out int n) ? n : -1);
+            case CreatureStat.FightValue:
+            case CreatureStat.AiValue:
+                return AdapterResult<int>.Ok(Convert.ToInt32(OldenEraSymbols.ReadMember(cfg, "squadValue")));
+            default:
+                return AdapterResult<int>.Unsupported($"Olden Era units have no {stat}");
+        }
+    }
+
+    public AdapterResult Set(int type, CreatureStat stat, int value)
+    {
+        if (UnitConfig(type) is not { } cfg) return AdapterResult.Failed($"creature {type} has no Olden Era unit");
+        if (UnitStatField.TryGetValue(stat, out var field))
+        {
+            OldenEraSymbols.WriteMember(OldenEraSymbols.ReadMember(cfg, "stats")!, field, value);
+            return AdapterResult.Ok;
+        }
+        if (stat is CreatureStat.FightValue or CreatureStat.AiValue)
+        {
+            OldenEraSymbols.WriteMember(cfg, "squadValue", value);
+            return AdapterResult.Ok;
+        }
+        return AdapterResult.Unsupported($"changing {stat} of an Olden Era unit type is not mapped");
+    }
+
+    object? CostEntry(object cfg, int resource)
+    {
+        if (!currentIds().TryGetEngine("resource", resource, out var name)) return null;
+        var cost = OldenEraSymbols.ReadMember(cfg, "unitCost");
+        if (cost == null) return null;
+        foreach (var e in OldenEraSymbols.Items(OldenEraSymbols.ReadMember(cost, "costResArray")))
+            if (e != null && OldenEraSymbols.ReadMember(e, "name") as string == name) return e;
+        return null;
+    }
+
+    public AdapterResult<int> GetCost(int type, int resource)
+    {
+        if (UnitConfig(type) is not { } cfg) return AdapterResult<int>.Failed($"creature {type} has no Olden Era unit");
+        var e = CostEntry(cfg, resource);
+        return AdapterResult<int>.Ok(e == null ? 0 : Convert.ToInt32(OldenEraSymbols.ReadMember(e, "cost")));
+    }
+
+    public AdapterResult SetCost(int type, int resource, int value)
+    {
+        if (UnitConfig(type) is not { } cfg) return AdapterResult.Failed($"creature {type} has no Olden Era unit");
+        var e = CostEntry(cfg, resource);
+        if (e == null)
+            return value == 0 ? AdapterResult.Ok : AdapterResult.Unsupported("adding a resource to an Olden Era unit's cost is not mapped");
+        OldenEraSymbols.WriteMember(e, "cost", value);
+        return AdapterResult.Ok;
+    }
+
 
     // ---- map / towns ------------------------------------------------------------------------
 

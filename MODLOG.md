@@ -373,3 +373,16 @@ In game: picking up wood ran `!?OB79` and `!$OB79` once each (79/0 at 10/38/0, h
 In game with all 17 mods: an accepted battle ran OnBeforeBattleUniversal and OnAfterBattleUniversal once each
 (player 0, hero 105, squad at 57/19/0, quick); Era Erm Framework's `UpdateBattleVars` (BA:Q/P/O/H) no longer reports
 unsupported commands. 166 xUnit tests.
+
+## 2026-10-07 — session 2, continued: creature types (MA)
+
+* Found `[V-game]`: an Olden Era unit type is a global `Hex.Configs.UnitLogicConfig` shared by every unit of that
+  type; a session `Unit` resolves it from its sid through `Unit.ctzt` (`cnkj` is a cache that stays null). It holds
+  `stats` (offence, defence, hp, damageMin/Max, speed, initiative…), `tier`, `fraction`, `upgradeSid`, `squadValue`
+  and `unitCost.costResArray` (name, cost). The adapter gets the config of any type through a temporary `Unit`.
+* `CreatureTable` (core): MA on a creature with an Olden Era unit changes the game's unit type; MA on an H3/WoG
+  creature without one (Tower, Stronghold, Fortress, many WoG creatures) reads zcrtrait.txt of the ERA installation
+  and changes nothing in the game. Changes are kept in the WoG state (saved with the game), applied again after
+  loading, and undone for a new game — the unit configs live as long as the game process.
+* Verified in game: pikeman (esquire) reads attack 4, defence 4, hit points 12, speed 4, 85 gold, level 0, town 0,
+  upgrade 1; `MA:A0/10` makes the live config's offence 10. 168 xUnit tests.

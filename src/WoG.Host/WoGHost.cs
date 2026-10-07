@@ -38,6 +38,7 @@ public sealed class WoGHost : IWoGServices
     public CompatibilityReport Compat { get; } = new();
     public IVisualResolver Visuals { get; }
     public WoG.Core.H3Data.H3Tables H3 { get; private set; } = new();
+    public WoG.Core.H3Data.CreatureTable CreatureTypes { get; }
     public ICommanderService? Commanders => commanders;
     public IStackExperienceService? StackExperience => stackExp;
 
@@ -59,6 +60,7 @@ public sealed class WoGHost : IWoGServices
         ErmRuntimeOptions? ermOptions = null, IWoGRandom? random = null, WoGGameState? state = null)
     {
         Game = game;
+        CreatureTypes = new WoG.Core.H3Data.CreatureTable(() => Game, () => State!, () => H3); // read lazily: State is set below
         Visuals = visuals;
         Modules = modules ?? new WoGModules();
         ErmOptions = ermOptions ?? new ErmRuntimeOptions();
@@ -220,6 +222,7 @@ public sealed class WoGHost : IWoGServices
     /// <summary>New game: load scripts (running instructions), then fire !?PI (post-instruction).</summary>
     public void StartNewGame()
     {
+        CreatureTypes.Restore(); // a new game starts from the engine's own creature types
         if (State.InstructionsDone)
         {
             // Another game already ran in this host (a new map in the same game process): start from a clean
@@ -257,6 +260,8 @@ public sealed class WoGHost : IWoGServices
         if (IsEra && Erm != null && State.InstructionsDone) Erm.Raise(WoG.Erm.Era.EraEvents.GameLeave, ctx);
         State = WoGSaveSerializer.ReadFile(path, identity);
         State.Era.NormalizeAfterLoad();
+        CreatureTypes.Restore();
+        CreatureTypes.Reapply(); // MA changes of the loaded game
         Build();
         if (Erm == null) return;
         if (IsEra)
