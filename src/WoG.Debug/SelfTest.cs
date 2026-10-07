@@ -213,16 +213,73 @@ public static class SelfTest
             },
             new()
             {
-                Id = "game.he.experience", Covers = new[] { "HE:E" },
-                // HE-1 is the hero of the event (none in a debug call), so the active hero is addressed by
-                // number; without an active hero (OW:A unsupported) the case is unsupported, not an HE error.
-                Run = (e, c, u) =>
-                {
-                    var active = c.Run("!!OW:A-1/?v9918;");
-                    return active.Outcome != DebugOutcome.Pass ? active : c.Run("!!HEv9918:E?v9919;");
-                },
-                Check = e => e.Game.Heroes.Get(e.V(9918), HeroStat.Experience) is { IsOk: true } x
-                    ? Expect(e.V(9919), x.Value) : "adapter: " + e.Game.Heroes.Get(e.V(9918), HeroStat.Experience),
+                Id = "game.he.primary", Covers = new[] { "HE:F" },
+                Run = (e, c, u) => WithActiveHero(c, "!!HEv9918:F?v9921/?v9922/?v9923/?v9924;"),
+                Check = e => CompareHero(e, (9921, HeroStat.Attack), (9922, HeroStat.Defence), (9923, HeroStat.Power), (9924, HeroStat.Knowledge)),
+            },
+            new()
+            {
+                Id = "game.he.level", Covers = new[] { "HE:E" },
+                Run = (e, c, u) => WithActiveHero(c, "!!HEv9918:E?v9925/?v9926;"),
+                Check = e => CompareHero(e, (9925, HeroStat.Experience), (9926, HeroStat.Level)),
+            },
+            new()
+            {
+                Id = "game.he.manaMove", Covers = new[] { "HE:I", "HE:W" },
+                Run = (e, c, u) => WithActiveHero(c, "!!HEv9918:I?v9927;\n!!HEv9918:W?v9928;"),
+                Check = e => CompareHero(e, (9927, HeroStat.Mana), (9928, HeroStat.Movement)),
+            },
+            new()
+            {
+                Id = "game.he.owner", Covers = new[] { "HE:O" },
+                Run = (e, c, u) => WithActiveHero(c, "!!HEv9918:O?v9929;"),
+                Check = e => Expect(e.V(9929), e.CurrentPlayer),
+            },
+            new()
+            {
+                Id = "game.he.attack.set", Covers = new[] { "HE:F" }, TouchesGame = true,
+                Before = e => SaveHeroStat(e, HeroStat.Attack),
+                After = e => RestoreHeroStat(e, HeroStat.Attack),
+                Run = (e, c, u) => WithActiveHero(c, "!!HEv9918:Fd1/d0/d0/d0;"),
+                Check = e => e.Saved.TryGetValue("hero", out int h) && e.Saved.TryGetValue("stat", out int a)
+                    ? Expect(e.Game.Heroes.Get(h, HeroStat.Attack).Value, a + 1) : "no active hero",
+            },
+            new()
+            {
+                Id = "game.he.experience.add", Covers = new[] { "HE:E" }, TouchesGame = true,
+                Before = e => SaveHeroStat(e, HeroStat.Experience),
+                After = e => RestoreHeroStat(e, HeroStat.Experience),
+                Run = (e, c, u) => WithActiveHero(c, "!!HEv9918:Ed10;"),
+                Check = e => e.Saved.TryGetValue("hero", out int h) && e.Saved.TryGetValue("stat", out int x)
+                    ? Expect(e.Game.Heroes.Get(h, HeroStat.Experience).Value, x + 10) : "no active hero",
+            },
+            new()
+            {
+                Id = "game.he.army", Covers = new[] { "HE:C" },
+                Run = (e, c, u) => WithActiveHero(c, "!!HEv9918:C0/0/?v9930/?v9931;"),
+                Check = e => e.Game.Heroes.GetStack(e.V(9918), 0) is { IsOk: true } st
+                    ? (e.V(9930) == st.Value.Type && e.V(9931) == st.Value.Count ? null : $"got {e.V(9930)} x{e.V(9931)}, adapter {st.Value.Type} x{st.Value.Count}")
+                    : "adapter: " + e.Game.Heroes.GetStack(e.V(9918), 0),
+            },
+            new()
+            {
+                Id = "game.he.army.count", Covers = new[] { "HE:C" }, TouchesGame = true,
+                Before = e => SaveStack(e, 0),
+                After = e => RestoreStack(e, 0),
+                Run = (e, c, u) => WithActiveHero(c, "!!HEv9918:C0/0/?v9930/d1;"),
+                Check = e => e.Saved.TryGetValue("hero", out int h) && e.Saved.TryGetValue("count", out int n)
+                    ? Expect(e.Game.Heroes.GetStack(h, 0).Value.Count, n + 1) : "no active hero with a stack in slot 0",
+            },
+            new()
+            {
+                Id = "game.he.army.add", Covers = new[] { "HE:C" }, TouchesGame = true,
+                Before = e => SaveStack(e, 6),
+                After = e => RestoreStack(e, 6),
+                // Slot 7 (index 6) gets 3 creatures of the type in slot 0, then the slot is checked through the adapter.
+                Run = (e, c, u) => WithActiveHero(c, "!!HEv9918:C0/0/?v9930/?v9931;\n!!HEv9918:C0/6/v9930/3;"),
+                Check = e => e.Game.Heroes.GetStack(e.V(9918), 6) is { IsOk: true } st
+                    ? (st.Value.Type == e.V(9930) && st.Value.Count == 3 ? null : $"slot 6 = {st.Value.Type} x{st.Value.Count}")
+                    : "adapter: " + e.Game.Heroes.GetStack(e.V(9918), 6),
             },
             new()
             {
@@ -280,6 +337,53 @@ public static class SelfTest
 
     static string? Expect(int actual, int expected) => actual == expected ? null : $"got {actual}, expected {expected}";
     static string? Expect(string actual, string expected) => actual == expected ? null : $"got \"{actual}\", expected \"{expected}\"";
+
+    /// <summary>Puts the current player's active hero into v9918 (OW:A), then runs code that uses it.</summary>
+    static ErmRunResult WithActiveHero(ErmConsole c, string code)
+    {
+        var active = c.Run("!!OW:A-1/?v9918;");
+        return active.Outcome != DebugOutcome.Pass ? active : c.Run(code);
+    }
+
+    /// <summary>Compares v-variables with the hero stats read through the adapter (hero number in v9918).</summary>
+    static string? CompareHero(SelfTestEnv e, params (int v, HeroStat stat)[] pairs)
+    {
+        foreach (var (v, stat) in pairs)
+        {
+            var r = e.Game.Heroes.Get(e.V(9918), stat);
+            if (!r.IsOk) return $"adapter {stat}: {r}";
+            if (e.V(v) != r.Value) return $"{stat}: ERM {e.V(v)}, adapter {r.Value}";
+        }
+        return null;
+    }
+
+    static void SaveHeroStat(SelfTestEnv e, HeroStat stat)
+    {
+        if (e.Game.Players.GetActiveHero(e.CurrentPlayer) is not { IsOk: true } h || h.Value < 0) return;
+        if (e.Game.Heroes.Get(h.Value, stat) is not { IsOk: true } v) return;
+        e.Saved["hero"] = h.Value;
+        e.Saved["stat"] = v.Value;
+    }
+
+    static void RestoreHeroStat(SelfTestEnv e, HeroStat stat)
+    {
+        if (e.Saved.TryGetValue("hero", out int h) && e.Saved.TryGetValue("stat", out int v)) e.Game.Heroes.Set(h, stat, v);
+    }
+
+    static void SaveStack(SelfTestEnv e, int slot)
+    {
+        if (e.Game.Players.GetActiveHero(e.CurrentPlayer) is not { IsOk: true } h || h.Value < 0) return;
+        if (e.Game.Heroes.GetStack(h.Value, slot) is not { IsOk: true } st) return;
+        e.Saved["hero"] = h.Value;
+        e.Saved["type"] = st.Value.Type;
+        e.Saved["count"] = st.Value.Count;
+    }
+
+    static void RestoreStack(SelfTestEnv e, int slot)
+    {
+        if (e.Saved.TryGetValue("hero", out int h) && e.Saved.TryGetValue("type", out int t) && e.Saved.TryGetValue("count", out int n))
+            e.Game.Heroes.SetStack(h, slot, t, n);
+    }
 
     static void SaveResources(SelfTestEnv e)
     {

@@ -18,6 +18,7 @@ public class DebugSelfTestTests
         t.Game.Resources[0, 6] = 1500;
         t.Game.AddHero(0, owner: 0);
         t.Game.ActiveHero[0] = 0;
+        t.Game.SetStack(0, 0, 0, 10); // ten pikemen in slot 0 for the army cases
         return (t, new DebugCommands(t.Host, null));
     }
 

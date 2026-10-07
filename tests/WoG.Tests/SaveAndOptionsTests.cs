@@ -146,10 +146,19 @@ public class RepositoryDataTests
     }
 
     [Fact]
-    public void Creature_id_map_loads_without_inventing_mappings()
+    public void Creature_id_map_follows_the_documented_rules()
     {
+        // Rules: tools/WoG.ErmTool/CreatureMap.cs and Compatibility/id-maps/README.md.
         var map = new WoG.Core.Ids.IdMap();
         map.LoadDomainFile("creature", Path.Combine(Repo(), "Compatibility", "id-maps", "creature.json"));
-        Assert.False(map.TryGetEngine("creature", 0, out _));
+        Assert.True(map.TryGetEngine("creature", 0, out var pikeman));     // castle level 1 base → Temple tier 1 base
+        Assert.Equal("esquire", pikeman);
+        Assert.True(map.TryGetEngine("creature", 13, out var archangel));  // castle level 7 upgrade → "_upg"
+        Assert.Equal("angel_upg", archangel);
+        Assert.False(map.TryGetEngine("creature", 28, out _));             // tower: no Olden Era faction
+        Assert.True(map.TryGetWoG("creature", "esquire_upg_alt", out int alt));
+        Assert.True(alt >= 1000);                                          // Olden Era-only units: 1000 and up
+        var engines = map.Forward["creature"].Values.ToList();
+        Assert.Equal(engines.Count, engines.Distinct().Count());           // one number per unit
     }
 }

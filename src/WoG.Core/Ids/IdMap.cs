@@ -14,11 +14,14 @@ public sealed class IdMap
     public Dictionary<string, Dictionary<int, string>> Forward { get; set; } = new();
 
     readonly Dictionary<string, Dictionary<string, int>> reverse = new();
+    // The reverse table is built on first use: Forward may be filled by deserialization without Set.
+    bool reverseBuilt;
 
     public void Set(string domain, int wogId, string engineId)
     {
         if (!Forward.TryGetValue(domain, out var f)) Forward[domain] = f = new();
         f[wogId] = engineId;
+        if (!reverseBuilt) return;
         if (!reverse.TryGetValue(domain, out var r)) reverse[domain] = r = new();
         r[engineId] = wogId;
     }
@@ -32,7 +35,7 @@ public sealed class IdMap
     public bool TryGetWoG(string domain, string engineId, out int wogId)
     {
         wogId = -1;
-        if (reverse.Count == 0 && Forward.Count > 0) RebuildReverse();
+        if (!reverseBuilt) RebuildReverse();
         return reverse.TryGetValue(domain, out var r) && r.TryGetValue(engineId, out wogId);
     }
 
@@ -44,6 +47,7 @@ public sealed class IdMap
             var r = reverse[domain] = new Dictionary<string, int>();
             foreach (var (k, v) in f) r[v] = k;
         }
+        reverseBuilt = true;
     }
 
     sealed class Entry

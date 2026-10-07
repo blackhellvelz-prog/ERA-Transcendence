@@ -75,8 +75,10 @@ internal static class MethodTrace
             int dot = item.LastIndexOf('.');
             if (dot <= 0) { log.LogWarning("WoG trace: expected Type.Method, got " + item); continue; }
             var type = asm?.GetType(item[..dot]);
-            var methods = type?.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
-                .Where(m => m.Name == item[(dot + 1)..]).ToList();
+            string name = item[(dot + 1)..];
+            // "Type.*": every method the class declares itself (not property accessors), to find which one runs.
+            var methods = type?.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.DeclaredOnly)
+                .Where(m => name == "*" ? !m.IsSpecialName : m.Name == name).ToList();
             if (methods == null || methods.Count == 0) { log.LogWarning("WoG trace: not found " + item); continue; }
             foreach (var m in methods)
             {
@@ -90,18 +92,57 @@ internal static class MethodTrace
     static string Key(MethodBase m) =>
         $"{m.DeclaringType?.FullName}.{m.Name}({string.Join(",", m.GetParameters().Select(p => p.ParameterType.Name))})";
 
-    static void Postfix(MethodBase __originalMethod)
+    static readonly HashSet<string> seenArgs = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Logs a call with its argument values (enums, numbers, strings) and the real IL2CPP class of object arguments
+    /// — each distinct argument signature once, so busy methods (an event bus) do not flood the log.
+    /// </summary>
+    static void Postfix(MethodBase __originalMethod, object[] __args)
     {
         try
         {
             string k = Key(__originalMethod);
             calls.TryGetValue(k, out int n);
             calls[k] = ++n;
-            int day = WoGPlugin.Host?.Game.Clock.AbsoluteDay ?? -1;
-            log?.LogInfo($"WoG trace: {k} call #{n} (WoG day {day})");
+            string args = string.Join(", ", (__args ?? Array.Empty<object>()).Select(Describe));
+            if (!seenArgs.Add(k + "|" + args) && n > 3) return;
+            // No game state is read here: a traced method may run while that state is half built.
+            log?.LogInfo($"WoG trace: {k} call #{n} args: {args}");
         }
         catch (Exception ex) { log?.LogError("WoG trace failed: " + ex.Message); }
     }
+
+    /// <summary>A value as text; an IL2CPP object as its runtime class (the declared type is often a base class).</summary>
+    internal static string Describe(object? a)
+    {
+        if (a == null) return "null";
+        var t = a.GetType();
+        if (t.IsPrimitive || t.IsEnum || a is string) return a.ToString() ?? "";
+        try
+        {
+            var il2cppType = t.GetMethod("GetIl2CppType", Type.EmptyTypes)?.Invoke(a, null);
+            var name = il2cppType?.GetType().GetProperty("FullName")?.GetValue(il2cppType) as string;
+            if (name != null)
+            {
+                // Re-wrap the object as its real class to show that class's own fields (event argument data).
+                var real = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "Hex")?.GetType(name);
+                if (real != null && real != t && a is Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase o)
+                {
+                    var wrapped = Activator.CreateInstance(real, o.Pointer);
+                    var fields = real.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+                        .Where(p => p.GetIndexParameters().Length == 0)
+                        .Select(p => { try { return $"{p.Name}={Short(p.GetValue(wrapped))}"; } catch { return p.Name + "=?"; } });
+                    return $"<{name} {string.Join(" ", fields)}>";
+                }
+                return "<" + name + ">";
+            }
+        }
+        catch { /* not an IL2CPP object */ }
+        return "<" + t.FullName + ">";
+    }
+
+    static string Short(object? v) => v == null ? "null" : v.GetType().IsPrimitive || v is string || v.GetType().IsEnum ? v.ToString()! : v.GetType().Name;
 }
 
 /// <summary>The Olden Era half of WoG Debug: raw state read through the symbols, without ERM.</summary>
@@ -128,12 +169,41 @@ internal sealed class OldenEraDebugEngine : IDebugEngine
             if (p == null) { sb.Append($"  [{i}] null\n"); continue; }
             sb.Append($"  [{i}] name={Try(() => OldenEraSymbols.ReadMember(p, "name"))}");
             sb.Append($" type={Try(() => S.Has("player.isHuman") ? S.Read("player.isHuman", p) : "?")}");
-            sb.Append($" status={Try(() => S.Has("player.alive") ? S.Read("player.alive", p) : "?")}\n");
+            sb.Append($" status={Try(() => S.Has("player.alive") ? S.Read("player.alive", p) : "?")}");
+            sb.Append($" id={Try(() => S.Has("player.id") ? S.Read("player.id", p) : "?")}");
+            sb.Append($" activeHero(raw)={Try(() => S.Has("player.activeHero") ? S.Read("player.activeHero", p) : "?")}");
+            sb.Append($" heroes(raw)=[{Try(() => S.Has("player.heroes") ? string.Join(",", OldenEraSymbols.Items(S.Read("player.heroes", p))) : "?")}]\n");
             if (S.Has("player.resources"))
                 sb.Append("      resources: ").Append(Try(() => Resources(S.Read("player.resources", p)))).Append('\n');
         }
+        if (S.Has("hero.list"))
+        {
+            var heroes = OldenEraSymbols.Items(S.Read("hero.list", root));
+            sb.Append($"heroes: {heroes.Count}\n");
+            foreach (var h in heroes)
+            {
+                if (h == null) continue;
+                int id = Convert.ToInt32(S.Read("hero.id", h));
+                sb.Append($"  hero id={id} wog#={A.HeroNumber(id)} owner(side)={Try(() => S.Read("hero.owner", h))}");
+                sb.Append($" type={Try(() => S.Has("hero.config") ? S.Read("hero.config", h) : "?")}");
+                sb.Append($" status={Try(() => S.Has("hero.status") ? S.Read("hero.status", h) : "?")}");
+                sb.Append($" level={Try(() => S.Read("hero.level", h))} exp={Try(() => S.Read("hero.experience", h))}");
+                sb.Append($" mana={Try(() => S.Read("hero.mana", h))} move={Try(() => S.Read("hero.movement", h))}\n");
+                sb.Append($"      type base: {Try(() => S.Has("hero.statsBase") ? Stats(S.Read("hero.statsBase", h)) : "?")}\n");
+                sb.Append($"      statsByLevel: {Try(() => Stats(OldenEraSymbols.ReadMember(h, "statsByLevel")))}\n");
+                sb.Append($"      additionalStats: {Try(() => Stats(OldenEraSymbols.ReadMember(h, "additionalStats")))}\n");
+                if (S.Has("hero.army"))
+                    sb.Append("      army: ").Append(Try(() => string.Join(", ", OldenEraSymbols.Items(S.Read("hero.army", h)).Where(u => u != null)
+                        .Select(u => $"[{S.Read("stack.slot", u)}] {S.Read("stack.unitSid", u)} x{S.Read("stack.count", u)}")))).Append('\n');
+            }
+        }
         return sb.ToString();
     }
+
+    /// <summary>The primary stats of a hero stat block (offence, defence, spell power, intelligence, luck, moral).</summary>
+    static string Stats(object? block) => block == null ? "null" :
+        string.Join(" ", new[] { "offence", "defence", "spellPower", "intelligence", "luck", "moral" }
+            .Select(n => $"{n}={OldenEraSymbols.ReadMember(block, n)}"));
 
     /// <summary>Every member of the resource heap that has a "value" (name=value), whatever the IdMap says.</summary>
     static string Resources(object? heap)

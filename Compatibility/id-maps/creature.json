@@ -1,1352 +1,1937 @@
 [
- {
-  "wog": 0,
-  "h3": "pikeman",
-  "faction": "castle",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 1,
-  "h3": "halberdier",
-  "faction": "castle",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 2,
-  "h3": "archer",
-  "faction": "castle",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 3,
-  "h3": "marksman",
-  "faction": "castle",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 4,
-  "h3": "griffin",
-  "faction": "castle",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 5,
-  "h3": "royalGriffin",
-  "faction": "castle",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 6,
-  "h3": "swordsman",
-  "faction": "castle",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 7,
-  "h3": "crusader",
-  "faction": "castle",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 8,
-  "h3": "monk",
-  "faction": "castle",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 9,
-  "h3": "zealot",
-  "faction": "castle",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 10,
-  "h3": "cavalier",
-  "faction": "castle",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 11,
-  "h3": "champion",
-  "faction": "castle",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 12,
-  "h3": "angel",
-  "faction": "castle",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 13,
-  "h3": "archangel",
-  "faction": "castle",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 14,
-  "h3": "centaur",
-  "faction": "rampart",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 15,
-  "h3": "centaurCaptain",
-  "faction": "rampart",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 16,
-  "h3": "dwarf",
-  "faction": "rampart",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 17,
-  "h3": "battleDwarf",
-  "faction": "rampart",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 18,
-  "h3": "woodElf",
-  "faction": "rampart",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 19,
-  "h3": "grandElf",
-  "faction": "rampart",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 20,
-  "h3": "pegasus",
-  "faction": "rampart",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 21,
-  "h3": "silverPegasus",
-  "faction": "rampart",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 22,
-  "h3": "dendroidGuard",
-  "faction": "rampart",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 23,
-  "h3": "dendroidSoldier",
-  "faction": "rampart",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 24,
-  "h3": "unicorn",
-  "faction": "rampart",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 25,
-  "h3": "warUnicorn",
-  "faction": "rampart",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 26,
-  "h3": "greenDragon",
-  "faction": "rampart",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 27,
-  "h3": "goldDragon",
-  "faction": "rampart",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 28,
-  "h3": "gremlin",
-  "faction": "tower",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 29,
-  "h3": "masterGremlin",
-  "faction": "tower",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 30,
-  "h3": "stoneGargoyle",
-  "faction": "tower",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 31,
-  "h3": "obsidianGargoyle",
-  "faction": "tower",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 32,
-  "h3": "ironGolem",
-  "faction": "tower",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 33,
-  "h3": "stoneGolem",
-  "faction": "tower",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 34,
-  "h3": "mage",
-  "faction": "tower",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 35,
-  "h3": "archMage",
-  "faction": "tower",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 36,
-  "h3": "genie",
-  "faction": "tower",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 37,
-  "h3": "masterGenie",
-  "faction": "tower",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 38,
-  "h3": "naga",
-  "faction": "tower",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 39,
-  "h3": "nagaQueen",
-  "faction": "tower",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 40,
-  "h3": "giant",
-  "faction": "tower",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 41,
-  "h3": "titan",
-  "faction": "tower",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 42,
-  "h3": "imp",
-  "faction": "inferno",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 43,
-  "h3": "familiar",
-  "faction": "inferno",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 44,
-  "h3": "gog",
-  "faction": "inferno",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 45,
-  "h3": "magog",
-  "faction": "inferno",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 46,
-  "h3": "hellHound",
-  "faction": "inferno",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 47,
-  "h3": "cerberus",
-  "faction": "inferno",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 48,
-  "h3": "demon",
-  "faction": "inferno",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 49,
-  "h3": "hornedDemon",
-  "faction": "inferno",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 50,
-  "h3": "pitFiend",
-  "faction": "inferno",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 51,
-  "h3": "pitLord",
-  "faction": "inferno",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 52,
-  "h3": "efreet",
-  "faction": "inferno",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 53,
-  "h3": "efreetSultan",
-  "faction": "inferno",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 54,
-  "h3": "devil",
-  "faction": "inferno",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 55,
-  "h3": "archDevil",
-  "faction": "inferno",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 56,
-  "h3": "skeleton",
-  "faction": "necropolis",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 57,
-  "h3": "skeletonWarrior",
-  "faction": "necropolis",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 58,
-  "h3": "walkingDead",
-  "faction": "necropolis",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 59,
-  "h3": "zombieLord",
-  "faction": "necropolis",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 60,
-  "h3": "wight",
-  "faction": "necropolis",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 61,
-  "h3": "wraith",
-  "faction": "necropolis",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 62,
-  "h3": "vampire",
-  "faction": "necropolis",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 63,
-  "h3": "vampireLord",
-  "faction": "necropolis",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 64,
-  "h3": "lich",
-  "faction": "necropolis",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 65,
-  "h3": "powerLich",
-  "faction": "necropolis",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 66,
-  "h3": "blackKnight",
-  "faction": "necropolis",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 67,
-  "h3": "dreadKnight",
-  "faction": "necropolis",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 68,
-  "h3": "boneDragon",
-  "faction": "necropolis",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 69,
-  "h3": "ghostDragon",
-  "faction": "necropolis",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 70,
-  "h3": "troglodyte",
-  "faction": "dungeon",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 71,
-  "h3": "infernalTroglodyte",
-  "faction": "dungeon",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 72,
-  "h3": "harpy",
-  "faction": "dungeon",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 73,
-  "h3": "harpyHag",
-  "faction": "dungeon",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 74,
-  "h3": "beholder",
-  "faction": "dungeon",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 75,
-  "h3": "evilEye",
-  "faction": "dungeon",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 76,
-  "h3": "medusa",
-  "faction": "dungeon",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 77,
-  "h3": "medusaQueen",
-  "faction": "dungeon",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 78,
-  "h3": "minotaur",
-  "faction": "dungeon",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 79,
-  "h3": "minotaurKing",
-  "faction": "dungeon",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 80,
-  "h3": "manticore",
-  "faction": "dungeon",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 81,
-  "h3": "scorpicore",
-  "faction": "dungeon",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 82,
-  "h3": "redDragon",
-  "faction": "dungeon",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 83,
-  "h3": "blackDragon",
-  "faction": "dungeon",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 84,
-  "h3": "goblin",
-  "faction": "stronghold",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 85,
-  "h3": "hobgoblin",
-  "faction": "stronghold",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 86,
-  "h3": "goblinWolfRider",
-  "faction": "stronghold",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 87,
-  "h3": "hobgoblinWolfRider",
-  "faction": "stronghold",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 88,
-  "h3": "orc",
-  "faction": "stronghold",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 89,
-  "h3": "orcChieftain",
-  "faction": "stronghold",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 90,
-  "h3": "ogre",
-  "faction": "stronghold",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 91,
-  "h3": "ogreMage",
-  "faction": "stronghold",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 92,
-  "h3": "roc",
-  "faction": "stronghold",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 93,
-  "h3": "thunderbird",
-  "faction": "stronghold",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 94,
-  "h3": "cyclop",
-  "faction": "stronghold",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 95,
-  "h3": "cyclopKing",
-  "faction": "stronghold",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 96,
-  "h3": "behemoth",
-  "faction": "stronghold",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 97,
-  "h3": "ancientBehemoth",
-  "faction": "stronghold",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 98,
-  "h3": "gnoll",
-  "faction": "fortress",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 99,
-  "h3": "gnollMarauder",
-  "faction": "fortress",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 100,
-  "h3": "lizardman",
-  "faction": "fortress",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 101,
-  "h3": "lizardWarrior",
-  "faction": "fortress",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 102,
-  "h3": "gorgon",
-  "faction": "fortress",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 103,
-  "h3": "mightyGorgon",
-  "faction": "fortress",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 104,
-  "h3": "serpentFly",
-  "faction": "fortress",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 105,
-  "h3": "fireDragonFly",
-  "faction": "fortress",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 106,
-  "h3": "basilisk",
-  "faction": "fortress",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 107,
-  "h3": "greaterBasilisk",
-  "faction": "fortress",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 108,
-  "h3": "wyvern",
-  "faction": "fortress",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 109,
-  "h3": "wyvernMonarch",
-  "faction": "fortress",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 110,
-  "h3": "hydra",
-  "faction": "fortress",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 111,
-  "h3": "chaosHydra",
-  "faction": "fortress",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 112,
-  "h3": "airElemental",
-  "faction": "conflux",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 113,
-  "h3": "earthElemental",
-  "faction": "conflux",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 114,
-  "h3": "fireElemental",
-  "faction": "conflux",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 115,
-  "h3": "waterElemental",
-  "faction": "conflux",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 116,
-  "h3": "goldGolem",
-  "faction": "neutral",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 117,
-  "h3": "diamondGolem",
-  "faction": "neutral",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 118,
-  "h3": "pixie",
-  "faction": "conflux",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 119,
-  "h3": "sprite",
-  "faction": "conflux",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 120,
-  "h3": "psychicElemental",
-  "faction": "conflux",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 121,
-  "h3": "magicElemental",
-  "faction": "conflux",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 122,
-  "h3": "unused122",
-  "faction": "special",
-  "level": null,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 123,
-  "h3": "iceElemental",
-  "faction": "conflux",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 124,
-  "h3": "unused124",
-  "faction": "special",
-  "level": null,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 125,
-  "h3": "magmaElemental",
-  "faction": "conflux",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 126,
-  "h3": "unused126",
-  "faction": "special",
-  "level": null,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 127,
-  "h3": "stormElemental",
-  "faction": "conflux",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 128,
-  "h3": "unused128",
-  "faction": "special",
-  "level": null,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 129,
-  "h3": "energyElemental",
-  "faction": "conflux",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 130,
-  "h3": "firebird",
-  "faction": "conflux",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 131,
-  "h3": "phoenix",
-  "faction": "conflux",
-  "level": 7,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 132,
-  "h3": "azureDragon",
-  "faction": "neutral",
-  "level": 10,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 133,
-  "h3": "crystalDragon",
-  "faction": "neutral",
-  "level": 10,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 134,
-  "h3": "fairieDragon",
-  "faction": "neutral",
-  "level": 8,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 135,
-  "h3": "rustDragon",
-  "faction": "neutral",
-  "level": 10,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 136,
-  "h3": "enchanter",
-  "faction": "neutral",
-  "level": 6,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 137,
-  "h3": "sharpshooter",
-  "faction": "neutral",
-  "level": 4,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 138,
-  "h3": "halfling",
-  "faction": "neutral",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 139,
-  "h3": "peasant",
-  "faction": "neutral",
-  "level": 1,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 140,
-  "h3": "boar",
-  "faction": "neutral",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 141,
-  "h3": "mummy",
-  "faction": "neutral",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 142,
-  "h3": "nomad",
-  "faction": "neutral",
-  "level": 3,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 143,
-  "h3": "rogue",
-  "faction": "neutral",
-  "level": 2,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 144,
-  "h3": "troll",
-  "faction": "neutral",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 145,
-  "h3": "catapult",
-  "faction": "special",
-  "level": 0,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 146,
-  "h3": "ballista",
-  "faction": "special",
-  "level": 5,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 147,
-  "h3": "firstAidTent",
-  "faction": "special",
-  "level": 0,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 148,
-  "h3": "ammoCart",
-  "faction": "special",
-  "level": 0,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- },
- {
-  "wog": 149,
-  "h3": "arrowTower",
-  "faction": "special",
-  "level": 0,
-  "engine": null,
-  "visual": null,
-  "note": "not mapped"
- }
+  {
+    "wog": 0,
+    "h3": "pikeman",
+    "faction": "castle",
+    "level": 1,
+    "engine": "esquire",
+    "visual": null,
+    "note": "human tier 1 base"
+  },
+  {
+    "wog": 1,
+    "h3": "halberdier",
+    "faction": "castle",
+    "level": 1,
+    "engine": "esquire_upg",
+    "visual": null,
+    "note": "human tier 1 upgrade"
+  },
+  {
+    "wog": 2,
+    "h3": "archer",
+    "faction": "castle",
+    "level": 2,
+    "engine": "crossbowman",
+    "visual": null,
+    "note": "human tier 2 base"
+  },
+  {
+    "wog": 3,
+    "h3": "marksman",
+    "faction": "castle",
+    "level": 2,
+    "engine": "crossbowman_upg",
+    "visual": null,
+    "note": "human tier 2 upgrade"
+  },
+  {
+    "wog": 4,
+    "h3": "griffin",
+    "faction": "castle",
+    "level": 3,
+    "engine": "griffin",
+    "visual": null,
+    "note": "human tier 3 base"
+  },
+  {
+    "wog": 5,
+    "h3": "royalGriffin",
+    "faction": "castle",
+    "level": 3,
+    "engine": "griffin_upg",
+    "visual": null,
+    "note": "human tier 3 upgrade"
+  },
+  {
+    "wog": 6,
+    "h3": "swordsman",
+    "faction": "castle",
+    "level": 4,
+    "engine": "lightweaver",
+    "visual": null,
+    "note": "human tier 4 base"
+  },
+  {
+    "wog": 7,
+    "h3": "crusader",
+    "faction": "castle",
+    "level": 4,
+    "engine": "lightweaver_upg",
+    "visual": null,
+    "note": "human tier 4 upgrade"
+  },
+  {
+    "wog": 8,
+    "h3": "monk",
+    "faction": "castle",
+    "level": 5,
+    "engine": "sunlight_cavalry",
+    "visual": null,
+    "note": "human tier 5 base"
+  },
+  {
+    "wog": 9,
+    "h3": "zealot",
+    "faction": "castle",
+    "level": 5,
+    "engine": "sunlight_cavalry_upg",
+    "visual": null,
+    "note": "human tier 5 upgrade"
+  },
+  {
+    "wog": 10,
+    "h3": "cavalier",
+    "faction": "castle",
+    "level": 6,
+    "engine": "inquisitor",
+    "visual": null,
+    "note": "human tier 6 base"
+  },
+  {
+    "wog": 11,
+    "h3": "champion",
+    "faction": "castle",
+    "level": 6,
+    "engine": "inquisitor_upg",
+    "visual": null,
+    "note": "human tier 6 upgrade"
+  },
+  {
+    "wog": 12,
+    "h3": "angel",
+    "faction": "castle",
+    "level": 7,
+    "engine": "angel",
+    "visual": null,
+    "note": "human tier 7 base"
+  },
+  {
+    "wog": 13,
+    "h3": "archangel",
+    "faction": "castle",
+    "level": 7,
+    "engine": "angel_upg",
+    "visual": null,
+    "note": "human tier 7 upgrade"
+  },
+  {
+    "wog": 14,
+    "h3": "centaur",
+    "faction": "rampart",
+    "level": 1,
+    "engine": "elf_tracker",
+    "visual": null,
+    "note": "nature tier 1 base"
+  },
+  {
+    "wog": 15,
+    "h3": "centaurCaptain",
+    "faction": "rampart",
+    "level": 1,
+    "engine": "elf_tracker_upg",
+    "visual": null,
+    "note": "nature tier 1 upgrade"
+  },
+  {
+    "wog": 16,
+    "h3": "dwarf",
+    "faction": "rampart",
+    "level": 2,
+    "engine": "twinkle",
+    "visual": null,
+    "note": "nature tier 2 base"
+  },
+  {
+    "wog": 17,
+    "h3": "battleDwarf",
+    "faction": "rampart",
+    "level": 2,
+    "engine": "twinkle_upg",
+    "visual": null,
+    "note": "nature tier 2 upgrade"
+  },
+  {
+    "wog": 18,
+    "h3": "woodElf",
+    "faction": "rampart",
+    "level": 3,
+    "engine": "ent",
+    "visual": null,
+    "note": "nature tier 3 base"
+  },
+  {
+    "wog": 19,
+    "h3": "grandElf",
+    "faction": "rampart",
+    "level": 3,
+    "engine": "ent_upg",
+    "visual": null,
+    "note": "nature tier 3 upgrade"
+  },
+  {
+    "wog": 20,
+    "h3": "pegasus",
+    "faction": "rampart",
+    "level": 4,
+    "engine": "aqualotl",
+    "visual": null,
+    "note": "nature tier 4 base"
+  },
+  {
+    "wog": 21,
+    "h3": "silverPegasus",
+    "faction": "rampart",
+    "level": 4,
+    "engine": "aqualotl_upg",
+    "visual": null,
+    "note": "nature tier 4 upgrade"
+  },
+  {
+    "wog": 22,
+    "h3": "dendroidGuard",
+    "faction": "rampart",
+    "level": 5,
+    "engine": "druid",
+    "visual": null,
+    "note": "nature tier 5 base"
+  },
+  {
+    "wog": 23,
+    "h3": "dendroidSoldier",
+    "faction": "rampart",
+    "level": 5,
+    "engine": "druid_upg",
+    "visual": null,
+    "note": "nature tier 5 upgrade"
+  },
+  {
+    "wog": 24,
+    "h3": "unicorn",
+    "faction": "rampart",
+    "level": 6,
+    "engine": "qilin",
+    "visual": null,
+    "note": "nature tier 6 base"
+  },
+  {
+    "wog": 25,
+    "h3": "warUnicorn",
+    "faction": "rampart",
+    "level": 6,
+    "engine": "qilin_upg",
+    "visual": null,
+    "note": "nature tier 6 upgrade"
+  },
+  {
+    "wog": 26,
+    "h3": "greenDragon",
+    "faction": "rampart",
+    "level": 7,
+    "engine": "phoenix",
+    "visual": null,
+    "note": "nature tier 7 base"
+  },
+  {
+    "wog": 27,
+    "h3": "goldDragon",
+    "faction": "rampart",
+    "level": 7,
+    "engine": "phoenix_upg",
+    "visual": null,
+    "note": "nature tier 7 upgrade"
+  },
+  {
+    "wog": 28,
+    "h3": "gremlin",
+    "faction": "tower",
+    "level": 1,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for tower"
+  },
+  {
+    "wog": 29,
+    "h3": "masterGremlin",
+    "faction": "tower",
+    "level": 1,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for tower"
+  },
+  {
+    "wog": 30,
+    "h3": "stoneGargoyle",
+    "faction": "tower",
+    "level": 2,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for tower"
+  },
+  {
+    "wog": 31,
+    "h3": "obsidianGargoyle",
+    "faction": "tower",
+    "level": 2,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for tower"
+  },
+  {
+    "wog": 32,
+    "h3": "ironGolem",
+    "faction": "tower",
+    "level": 3,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for tower"
+  },
+  {
+    "wog": 33,
+    "h3": "stoneGolem",
+    "faction": "tower",
+    "level": 3,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for tower"
+  },
+  {
+    "wog": 34,
+    "h3": "mage",
+    "faction": "tower",
+    "level": 4,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for tower"
+  },
+  {
+    "wog": 35,
+    "h3": "archMage",
+    "faction": "tower",
+    "level": 4,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for tower"
+  },
+  {
+    "wog": 36,
+    "h3": "genie",
+    "faction": "tower",
+    "level": 5,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for tower"
+  },
+  {
+    "wog": 37,
+    "h3": "masterGenie",
+    "faction": "tower",
+    "level": 5,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for tower"
+  },
+  {
+    "wog": 38,
+    "h3": "naga",
+    "faction": "tower",
+    "level": 6,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for tower"
+  },
+  {
+    "wog": 39,
+    "h3": "nagaQueen",
+    "faction": "tower",
+    "level": 6,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for tower"
+  },
+  {
+    "wog": 40,
+    "h3": "giant",
+    "faction": "tower",
+    "level": 7,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for tower"
+  },
+  {
+    "wog": 41,
+    "h3": "titan",
+    "faction": "tower",
+    "level": 7,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for tower"
+  },
+  {
+    "wog": 42,
+    "h3": "imp",
+    "faction": "inferno",
+    "level": 1,
+    "engine": "trick_demon",
+    "visual": null,
+    "note": "demon tier 1 base"
+  },
+  {
+    "wog": 43,
+    "h3": "familiar",
+    "faction": "inferno",
+    "level": 1,
+    "engine": "trick_demon_upg",
+    "visual": null,
+    "note": "demon tier 1 upgrade"
+  },
+  {
+    "wog": 44,
+    "h3": "gog",
+    "faction": "inferno",
+    "level": 2,
+    "engine": "locust",
+    "visual": null,
+    "note": "demon tier 2 base"
+  },
+  {
+    "wog": 45,
+    "h3": "magog",
+    "faction": "inferno",
+    "level": 2,
+    "engine": "locust_upg",
+    "visual": null,
+    "note": "demon tier 2 upgrade"
+  },
+  {
+    "wog": 46,
+    "h3": "hellHound",
+    "faction": "inferno",
+    "level": 3,
+    "engine": "wasp",
+    "visual": null,
+    "note": "demon tier 3 base"
+  },
+  {
+    "wog": 47,
+    "h3": "cerberus",
+    "faction": "inferno",
+    "level": 3,
+    "engine": "wasp_upg",
+    "visual": null,
+    "note": "demon tier 3 upgrade"
+  },
+  {
+    "wog": 48,
+    "h3": "demon",
+    "faction": "inferno",
+    "level": 4,
+    "engine": "jaw",
+    "visual": null,
+    "note": "demon tier 4 base"
+  },
+  {
+    "wog": 49,
+    "h3": "hornedDemon",
+    "faction": "inferno",
+    "level": 4,
+    "engine": "jaw_upg",
+    "visual": null,
+    "note": "demon tier 4 upgrade"
+  },
+  {
+    "wog": 50,
+    "h3": "pitFiend",
+    "faction": "inferno",
+    "level": 5,
+    "engine": "godslayer",
+    "visual": null,
+    "note": "demon tier 5 base"
+  },
+  {
+    "wog": 51,
+    "h3": "pitLord",
+    "faction": "inferno",
+    "level": 5,
+    "engine": "godslayer_upg",
+    "visual": null,
+    "note": "demon tier 5 upgrade"
+  },
+  {
+    "wog": 52,
+    "h3": "efreet",
+    "faction": "inferno",
+    "level": 6,
+    "engine": "olgoi",
+    "visual": null,
+    "note": "demon tier 6 base"
+  },
+  {
+    "wog": 53,
+    "h3": "efreetSultan",
+    "faction": "inferno",
+    "level": 6,
+    "engine": "olgoi_upg",
+    "visual": null,
+    "note": "demon tier 6 upgrade"
+  },
+  {
+    "wog": 54,
+    "h3": "devil",
+    "faction": "inferno",
+    "level": 7,
+    "engine": "hive_queen",
+    "visual": null,
+    "note": "demon tier 7 base"
+  },
+  {
+    "wog": 55,
+    "h3": "archDevil",
+    "faction": "inferno",
+    "level": 7,
+    "engine": "hive_queen_upg",
+    "visual": null,
+    "note": "demon tier 7 upgrade"
+  },
+  {
+    "wog": 56,
+    "h3": "skeleton",
+    "faction": "necropolis",
+    "level": 1,
+    "engine": "skeleton",
+    "visual": null,
+    "note": "undead tier 1 base"
+  },
+  {
+    "wog": 57,
+    "h3": "skeletonWarrior",
+    "faction": "necropolis",
+    "level": 1,
+    "engine": "skeleton_upg",
+    "visual": null,
+    "note": "undead tier 1 upgrade"
+  },
+  {
+    "wog": 58,
+    "h3": "walkingDead",
+    "faction": "necropolis",
+    "level": 2,
+    "engine": "flicker",
+    "visual": null,
+    "note": "undead tier 2 base"
+  },
+  {
+    "wog": 59,
+    "h3": "zombieLord",
+    "faction": "necropolis",
+    "level": 2,
+    "engine": "flicker_upg",
+    "visual": null,
+    "note": "undead tier 2 upgrade"
+  },
+  {
+    "wog": 60,
+    "h3": "wight",
+    "faction": "necropolis",
+    "level": 3,
+    "engine": "pet",
+    "visual": null,
+    "note": "undead tier 3 base"
+  },
+  {
+    "wog": 61,
+    "h3": "wraith",
+    "faction": "necropolis",
+    "level": 3,
+    "engine": "pet_upg",
+    "visual": null,
+    "note": "undead tier 3 upgrade"
+  },
+  {
+    "wog": 62,
+    "h3": "vampire",
+    "faction": "necropolis",
+    "level": 4,
+    "engine": "graverobber",
+    "visual": null,
+    "note": "undead tier 4 base"
+  },
+  {
+    "wog": 63,
+    "h3": "vampireLord",
+    "faction": "necropolis",
+    "level": 4,
+    "engine": "graverobber_upg",
+    "visual": null,
+    "note": "undead tier 4 upgrade"
+  },
+  {
+    "wog": 64,
+    "h3": "lich",
+    "faction": "necropolis",
+    "level": 5,
+    "engine": "lich",
+    "visual": null,
+    "note": "undead tier 5 base"
+  },
+  {
+    "wog": 65,
+    "h3": "powerLich",
+    "faction": "necropolis",
+    "level": 5,
+    "engine": "lich_upg",
+    "visual": null,
+    "note": "undead tier 5 upgrade"
+  },
+  {
+    "wog": 66,
+    "h3": "blackKnight",
+    "faction": "necropolis",
+    "level": 6,
+    "engine": "avatar_of_war",
+    "visual": null,
+    "note": "undead tier 6 base"
+  },
+  {
+    "wog": 67,
+    "h3": "dreadKnight",
+    "faction": "necropolis",
+    "level": 6,
+    "engine": "avatar_of_war_upg",
+    "visual": null,
+    "note": "undead tier 6 upgrade"
+  },
+  {
+    "wog": 68,
+    "h3": "boneDragon",
+    "faction": "necropolis",
+    "level": 7,
+    "engine": "vampire",
+    "visual": null,
+    "note": "undead tier 7 base"
+  },
+  {
+    "wog": 69,
+    "h3": "ghostDragon",
+    "faction": "necropolis",
+    "level": 7,
+    "engine": "vampire_upg",
+    "visual": null,
+    "note": "undead tier 7 upgrade"
+  },
+  {
+    "wog": 70,
+    "h3": "troglodyte",
+    "faction": "dungeon",
+    "level": 1,
+    "engine": "trogl",
+    "visual": null,
+    "note": "dungeon tier 1 base"
+  },
+  {
+    "wog": 71,
+    "h3": "infernalTroglodyte",
+    "faction": "dungeon",
+    "level": 1,
+    "engine": "trogl_upg",
+    "visual": null,
+    "note": "dungeon tier 1 upgrade"
+  },
+  {
+    "wog": 72,
+    "h3": "harpy",
+    "faction": "dungeon",
+    "level": 2,
+    "engine": "assassin",
+    "visual": null,
+    "note": "dungeon tier 2 base"
+  },
+  {
+    "wog": 73,
+    "h3": "harpyHag",
+    "faction": "dungeon",
+    "level": 2,
+    "engine": "assassin_upg",
+    "visual": null,
+    "note": "dungeon tier 2 upgrade"
+  },
+  {
+    "wog": 74,
+    "h3": "beholder",
+    "faction": "dungeon",
+    "level": 3,
+    "engine": "blade_dancer",
+    "visual": null,
+    "note": "dungeon tier 3 base"
+  },
+  {
+    "wog": 75,
+    "h3": "evilEye",
+    "faction": "dungeon",
+    "level": 3,
+    "engine": "blade_dancer_upg",
+    "visual": null,
+    "note": "dungeon tier 3 upgrade"
+  },
+  {
+    "wog": 76,
+    "h3": "medusa",
+    "faction": "dungeon",
+    "level": 4,
+    "engine": "minos",
+    "visual": null,
+    "note": "dungeon tier 4 base"
+  },
+  {
+    "wog": 77,
+    "h3": "medusaQueen",
+    "faction": "dungeon",
+    "level": 4,
+    "engine": "minos_upg",
+    "visual": null,
+    "note": "dungeon tier 4 upgrade"
+  },
+  {
+    "wog": 78,
+    "h3": "minotaur",
+    "faction": "dungeon",
+    "level": 5,
+    "engine": "medusa",
+    "visual": null,
+    "note": "dungeon tier 5 base"
+  },
+  {
+    "wog": 79,
+    "h3": "minotaurKing",
+    "faction": "dungeon",
+    "level": 5,
+    "engine": "medusa_upg",
+    "visual": null,
+    "note": "dungeon tier 5 upgrade"
+  },
+  {
+    "wog": 80,
+    "h3": "manticore",
+    "faction": "dungeon",
+    "level": 6,
+    "engine": "hydra",
+    "visual": null,
+    "note": "dungeon tier 6 base"
+  },
+  {
+    "wog": 81,
+    "h3": "scorpicore",
+    "faction": "dungeon",
+    "level": 6,
+    "engine": "hydra_upg",
+    "visual": null,
+    "note": "dungeon tier 6 upgrade"
+  },
+  {
+    "wog": 82,
+    "h3": "redDragon",
+    "faction": "dungeon",
+    "level": 7,
+    "engine": "black_dragon",
+    "visual": null,
+    "note": "dungeon tier 7 base"
+  },
+  {
+    "wog": 83,
+    "h3": "blackDragon",
+    "faction": "dungeon",
+    "level": 7,
+    "engine": "black_dragon_upg",
+    "visual": null,
+    "note": "dungeon tier 7 upgrade"
+  },
+  {
+    "wog": 84,
+    "h3": "goblin",
+    "faction": "stronghold",
+    "level": 1,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for stronghold"
+  },
+  {
+    "wog": 85,
+    "h3": "hobgoblin",
+    "faction": "stronghold",
+    "level": 1,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for stronghold"
+  },
+  {
+    "wog": 86,
+    "h3": "goblinWolfRider",
+    "faction": "stronghold",
+    "level": 2,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for stronghold"
+  },
+  {
+    "wog": 87,
+    "h3": "hobgoblinWolfRider",
+    "faction": "stronghold",
+    "level": 2,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for stronghold"
+  },
+  {
+    "wog": 88,
+    "h3": "orc",
+    "faction": "stronghold",
+    "level": 3,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for stronghold"
+  },
+  {
+    "wog": 89,
+    "h3": "orcChieftain",
+    "faction": "stronghold",
+    "level": 3,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for stronghold"
+  },
+  {
+    "wog": 90,
+    "h3": "ogre",
+    "faction": "stronghold",
+    "level": 4,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for stronghold"
+  },
+  {
+    "wog": 91,
+    "h3": "ogreMage",
+    "faction": "stronghold",
+    "level": 4,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for stronghold"
+  },
+  {
+    "wog": 92,
+    "h3": "roc",
+    "faction": "stronghold",
+    "level": 5,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for stronghold"
+  },
+  {
+    "wog": 93,
+    "h3": "thunderbird",
+    "faction": "stronghold",
+    "level": 5,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for stronghold"
+  },
+  {
+    "wog": 94,
+    "h3": "cyclop",
+    "faction": "stronghold",
+    "level": 6,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for stronghold"
+  },
+  {
+    "wog": 95,
+    "h3": "cyclopKing",
+    "faction": "stronghold",
+    "level": 6,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for stronghold"
+  },
+  {
+    "wog": 96,
+    "h3": "behemoth",
+    "faction": "stronghold",
+    "level": 7,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for stronghold"
+  },
+  {
+    "wog": 97,
+    "h3": "ancientBehemoth",
+    "faction": "stronghold",
+    "level": 7,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for stronghold"
+  },
+  {
+    "wog": 98,
+    "h3": "gnoll",
+    "faction": "fortress",
+    "level": 1,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for fortress"
+  },
+  {
+    "wog": 99,
+    "h3": "gnollMarauder",
+    "faction": "fortress",
+    "level": 1,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for fortress"
+  },
+  {
+    "wog": 100,
+    "h3": "lizardman",
+    "faction": "fortress",
+    "level": 2,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for fortress"
+  },
+  {
+    "wog": 101,
+    "h3": "lizardWarrior",
+    "faction": "fortress",
+    "level": 2,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for fortress"
+  },
+  {
+    "wog": 102,
+    "h3": "gorgon",
+    "faction": "fortress",
+    "level": 5,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for fortress"
+  },
+  {
+    "wog": 103,
+    "h3": "mightyGorgon",
+    "faction": "fortress",
+    "level": 5,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for fortress"
+  },
+  {
+    "wog": 104,
+    "h3": "serpentFly",
+    "faction": "fortress",
+    "level": 3,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for fortress"
+  },
+  {
+    "wog": 105,
+    "h3": "fireDragonFly",
+    "faction": "fortress",
+    "level": 3,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for fortress"
+  },
+  {
+    "wog": 106,
+    "h3": "basilisk",
+    "faction": "fortress",
+    "level": 4,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for fortress"
+  },
+  {
+    "wog": 107,
+    "h3": "greaterBasilisk",
+    "faction": "fortress",
+    "level": 4,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for fortress"
+  },
+  {
+    "wog": 108,
+    "h3": "wyvern",
+    "faction": "fortress",
+    "level": 6,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for fortress"
+  },
+  {
+    "wog": 109,
+    "h3": "wyvernMonarch",
+    "faction": "fortress",
+    "level": 6,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for fortress"
+  },
+  {
+    "wog": 110,
+    "h3": "hydra",
+    "faction": "fortress",
+    "level": 7,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for fortress"
+  },
+  {
+    "wog": 111,
+    "h3": "chaosHydra",
+    "faction": "fortress",
+    "level": 7,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era faction for fortress"
+  },
+  {
+    "wog": 112,
+    "h3": "airElemental",
+    "faction": "conflux",
+    "level": 2,
+    "engine": "unfrozen_cultist",
+    "visual": null,
+    "note": "unfrozen tier 2 base"
+  },
+  {
+    "wog": 113,
+    "h3": "earthElemental",
+    "faction": "conflux",
+    "level": 5,
+    "engine": "succubus",
+    "visual": null,
+    "note": "unfrozen tier 5 base"
+  },
+  {
+    "wog": 114,
+    "h3": "fireElemental",
+    "faction": "conflux",
+    "level": 4,
+    "engine": "eldritch_flyer",
+    "visual": null,
+    "note": "unfrozen tier 4 base"
+  },
+  {
+    "wog": 115,
+    "h3": "waterElemental",
+    "faction": "conflux",
+    "level": 3,
+    "engine": "frostworm_rider",
+    "visual": null,
+    "note": "unfrozen tier 3 base"
+  },
+  {
+    "wog": 116,
+    "h3": "goldGolem",
+    "faction": "neutral",
+    "level": 5,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 117,
+    "h3": "diamondGolem",
+    "faction": "neutral",
+    "level": 6,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 118,
+    "h3": "pixie",
+    "faction": "conflux",
+    "level": 1,
+    "engine": "lesser_eldritch",
+    "visual": null,
+    "note": "unfrozen tier 1 base"
+  },
+  {
+    "wog": 119,
+    "h3": "sprite",
+    "faction": "conflux",
+    "level": 1,
+    "engine": "lesser_eldritch_upg",
+    "visual": null,
+    "note": "unfrozen tier 1 upgrade"
+  },
+  {
+    "wog": 120,
+    "h3": "psychicElemental",
+    "faction": "conflux",
+    "level": 6,
+    "engine": "arbitrator",
+    "visual": null,
+    "note": "unfrozen tier 6 base"
+  },
+  {
+    "wog": 121,
+    "h3": "magicElemental",
+    "faction": "conflux",
+    "level": 6,
+    "engine": "arbitrator_upg",
+    "visual": null,
+    "note": "unfrozen tier 6 upgrade"
+  },
+  {
+    "wog": 122,
+    "h3": "unused122",
+    "faction": "special",
+    "level": null,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 123,
+    "h3": "iceElemental",
+    "faction": "conflux",
+    "level": 3,
+    "engine": "frostworm_rider_upg",
+    "visual": null,
+    "note": "unfrozen tier 3 upgrade"
+  },
+  {
+    "wog": 124,
+    "h3": "unused124",
+    "faction": "special",
+    "level": null,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 125,
+    "h3": "magmaElemental",
+    "faction": "conflux",
+    "level": 5,
+    "engine": "succubus_upg",
+    "visual": null,
+    "note": "unfrozen tier 5 upgrade"
+  },
+  {
+    "wog": 126,
+    "h3": "unused126",
+    "faction": "special",
+    "level": null,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 127,
+    "h3": "stormElemental",
+    "faction": "conflux",
+    "level": 2,
+    "engine": "unfrozen_cultist_upg",
+    "visual": null,
+    "note": "unfrozen tier 2 upgrade"
+  },
+  {
+    "wog": 128,
+    "h3": "unused128",
+    "faction": "special",
+    "level": null,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 129,
+    "h3": "energyElemental",
+    "faction": "conflux",
+    "level": 4,
+    "engine": "eldritch_flyer_upg",
+    "visual": null,
+    "note": "unfrozen tier 4 upgrade"
+  },
+  {
+    "wog": 130,
+    "h3": "firebird",
+    "faction": "conflux",
+    "level": 7,
+    "engine": "unspeakable",
+    "visual": null,
+    "note": "unfrozen tier 7 base"
+  },
+  {
+    "wog": 131,
+    "h3": "phoenix",
+    "faction": "conflux",
+    "level": 7,
+    "engine": "unspeakable_upg",
+    "visual": null,
+    "note": "unfrozen tier 7 upgrade"
+  },
+  {
+    "wog": 132,
+    "h3": "azureDragon",
+    "faction": "neutral",
+    "level": 10,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 133,
+    "h3": "crystalDragon",
+    "faction": "neutral",
+    "level": 10,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 134,
+    "h3": "fairieDragon",
+    "faction": "neutral",
+    "level": 8,
+    "engine": "fairy_dragon",
+    "visual": null,
+    "note": "same neutral creature"
+  },
+  {
+    "wog": 135,
+    "h3": "rustDragon",
+    "faction": "neutral",
+    "level": 10,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 136,
+    "h3": "enchanter",
+    "faction": "neutral",
+    "level": 6,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 137,
+    "h3": "sharpshooter",
+    "faction": "neutral",
+    "level": 4,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 138,
+    "h3": "halfling",
+    "faction": "neutral",
+    "level": 1,
+    "engine": "halfling",
+    "visual": null,
+    "note": "same neutral creature"
+  },
+  {
+    "wog": 139,
+    "h3": "peasant",
+    "faction": "neutral",
+    "level": 1,
+    "engine": "peasant",
+    "visual": null,
+    "note": "same neutral creature"
+  },
+  {
+    "wog": 140,
+    "h3": "boar",
+    "faction": "neutral",
+    "level": 2,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 141,
+    "h3": "mummy",
+    "faction": "neutral",
+    "level": 3,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 142,
+    "h3": "nomad",
+    "faction": "neutral",
+    "level": 3,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 143,
+    "h3": "rogue",
+    "faction": "neutral",
+    "level": 2,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 144,
+    "h3": "troll",
+    "faction": "neutral",
+    "level": 5,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 145,
+    "h3": "catapult",
+    "faction": "special",
+    "level": 0,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 146,
+    "h3": "ballista",
+    "faction": "special",
+    "level": 5,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 147,
+    "h3": "firstAidTent",
+    "faction": "special",
+    "level": 0,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 148,
+    "h3": "ammoCart",
+    "faction": "special",
+    "level": 0,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 149,
+    "h3": "arrowTower",
+    "faction": "special",
+    "level": 0,
+    "engine": null,
+    "visual": null,
+    "note": "no Olden Era counterpart"
+  },
+  {
+    "wog": 1000,
+    "h3": null,
+    "faction": "human",
+    "level": 1,
+    "engine": "esquire_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1001,
+    "h3": null,
+    "faction": "human",
+    "level": 2,
+    "engine": "crossbowman_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1002,
+    "h3": null,
+    "faction": "human",
+    "level": 3,
+    "engine": "griffin_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1003,
+    "h3": null,
+    "faction": "human",
+    "level": 4,
+    "engine": "lightweaver_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1004,
+    "h3": null,
+    "faction": "human",
+    "level": 5,
+    "engine": "sunlight_cavalry_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1005,
+    "h3": null,
+    "faction": "human",
+    "level": 6,
+    "engine": "inquisitor_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1006,
+    "h3": null,
+    "faction": "human",
+    "level": 7,
+    "engine": "angel_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1007,
+    "h3": null,
+    "faction": "nature",
+    "level": 1,
+    "engine": "elf_tracker_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1008,
+    "h3": null,
+    "faction": "nature",
+    "level": 2,
+    "engine": "twinkle_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1009,
+    "h3": null,
+    "faction": "nature",
+    "level": 3,
+    "engine": "ent_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1010,
+    "h3": null,
+    "faction": "nature",
+    "level": 4,
+    "engine": "aqualotl_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1011,
+    "h3": null,
+    "faction": "nature",
+    "level": 5,
+    "engine": "druid_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1012,
+    "h3": null,
+    "faction": "nature",
+    "level": 6,
+    "engine": "qilin_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1013,
+    "h3": null,
+    "faction": "nature",
+    "level": 7,
+    "engine": "phoenix_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1014,
+    "h3": null,
+    "faction": "undead",
+    "level": 1,
+    "engine": "skeleton_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1015,
+    "h3": null,
+    "faction": "undead",
+    "level": 2,
+    "engine": "flicker_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1016,
+    "h3": null,
+    "faction": "undead",
+    "level": 3,
+    "engine": "pet_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1017,
+    "h3": null,
+    "faction": "undead",
+    "level": 4,
+    "engine": "graverobber_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1018,
+    "h3": null,
+    "faction": "undead",
+    "level": 5,
+    "engine": "lich_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1019,
+    "h3": null,
+    "faction": "undead",
+    "level": 6,
+    "engine": "avatar_of_war_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1020,
+    "h3": null,
+    "faction": "undead",
+    "level": 7,
+    "engine": "vampire_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1021,
+    "h3": null,
+    "faction": "dungeon",
+    "level": 1,
+    "engine": "trogl_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1022,
+    "h3": null,
+    "faction": "dungeon",
+    "level": 2,
+    "engine": "assassin_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1023,
+    "h3": null,
+    "faction": "dungeon",
+    "level": 3,
+    "engine": "blade_dancer_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1024,
+    "h3": null,
+    "faction": "dungeon",
+    "level": 4,
+    "engine": "minos_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1025,
+    "h3": null,
+    "faction": "dungeon",
+    "level": 5,
+    "engine": "medusa_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1026,
+    "h3": null,
+    "faction": "dungeon",
+    "level": 6,
+    "engine": "hydra_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1027,
+    "h3": null,
+    "faction": "dungeon",
+    "level": 7,
+    "engine": "black_dragon_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1028,
+    "h3": null,
+    "faction": "demon",
+    "level": 1,
+    "engine": "trick_demon_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1029,
+    "h3": null,
+    "faction": "demon",
+    "level": 2,
+    "engine": "locust_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1030,
+    "h3": null,
+    "faction": "demon",
+    "level": 3,
+    "engine": "wasp_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1031,
+    "h3": null,
+    "faction": "demon",
+    "level": 4,
+    "engine": "jaw_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1032,
+    "h3": null,
+    "faction": "demon",
+    "level": 4,
+    "engine": "lava_larva",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1033,
+    "h3": null,
+    "faction": "demon",
+    "level": 5,
+    "engine": "godslayer_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1034,
+    "h3": null,
+    "faction": "demon",
+    "level": 6,
+    "engine": "olgoi_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1035,
+    "h3": null,
+    "faction": "demon",
+    "level": 7,
+    "engine": "hive_queen_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1036,
+    "h3": null,
+    "faction": "unfrozen",
+    "level": 1,
+    "engine": "lesser_eldritch_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1037,
+    "h3": null,
+    "faction": "unfrozen",
+    "level": 2,
+    "engine": "unfrozen_cultist_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1038,
+    "h3": null,
+    "faction": "unfrozen",
+    "level": 3,
+    "engine": "frostworm_rider_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1039,
+    "h3": null,
+    "faction": "unfrozen",
+    "level": 4,
+    "engine": "eldritch_flyer_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1040,
+    "h3": null,
+    "faction": "unfrozen",
+    "level": 5,
+    "engine": "succubus_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1041,
+    "h3": null,
+    "faction": "unfrozen",
+    "level": 6,
+    "engine": "arbitrator_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1042,
+    "h3": null,
+    "faction": "unfrozen",
+    "level": 7,
+    "engine": "unspeakable_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1043,
+    "h3": null,
+    "faction": "neutral",
+    "level": 1,
+    "engine": "gnat",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1044,
+    "h3": null,
+    "faction": "neutral",
+    "level": 1,
+    "engine": "pixie",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1045,
+    "h3": null,
+    "faction": "neutral",
+    "level": 2,
+    "engine": "peasant_normal",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1046,
+    "h3": null,
+    "faction": "neutral",
+    "level": 2,
+    "engine": "undead_peasant",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1047,
+    "h3": null,
+    "faction": "neutral",
+    "level": 3,
+    "engine": "animated_armor",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1048,
+    "h3": null,
+    "faction": "neutral",
+    "level": 3,
+    "engine": "gorilla",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1049,
+    "h3": null,
+    "faction": "neutral",
+    "level": 4,
+    "engine": "kitten_horn",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1050,
+    "h3": null,
+    "faction": "neutral",
+    "level": 4,
+    "engine": "primal_remnant",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1051,
+    "h3": null,
+    "faction": "neutral",
+    "level": 4,
+    "engine": "star_child",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1052,
+    "h3": null,
+    "faction": "neutral",
+    "level": 4,
+    "engine": "unicorn",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1053,
+    "h3": null,
+    "faction": "neutral",
+    "level": 5,
+    "engine": "giant_frog",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1054,
+    "h3": null,
+    "faction": "neutral",
+    "level": 6,
+    "engine": "coatl",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1055,
+    "h3": null,
+    "faction": "neutral",
+    "level": 6,
+    "engine": "dragon_hunter",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1056,
+    "h3": null,
+    "faction": "neutral",
+    "level": 6,
+    "engine": "mech_guard",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1057,
+    "h3": null,
+    "faction": "neutral",
+    "level": 7,
+    "engine": "dragon",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1058,
+    "h3": null,
+    "faction": "neutral",
+    "level": 7,
+    "engine": "dragon_upg",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1059,
+    "h3": null,
+    "faction": "neutral",
+    "level": 7,
+    "engine": "dragon_upg_alt",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1060,
+    "h3": null,
+    "faction": "neutral",
+    "level": 7,
+    "engine": "sentinel",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1061,
+    "h3": null,
+    "faction": "neutral",
+    "level": 8,
+    "engine": "avatar",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1062,
+    "h3": null,
+    "faction": "neutral",
+    "level": 8,
+    "engine": "avatar_nature",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1063,
+    "h3": null,
+    "faction": "neutral",
+    "level": 8,
+    "engine": "avatar_unfrozen",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  },
+  {
+    "wog": 1064,
+    "h3": null,
+    "faction": "neutral",
+    "level": 8,
+    "engine": "lich_dragon",
+    "visual": null,
+    "note": "Olden Era unit without an H3 creature"
+  }
 ]

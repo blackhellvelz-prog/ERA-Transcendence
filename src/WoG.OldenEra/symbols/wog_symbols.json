@@ -83,6 +83,188 @@
       "Member": "OnStartDay",
       "Status": "verified",
       "Note": "0.81.04: ebe = game logic singleton (static chsz; holds Data, SerializableRandom, Events); OnStartDay() public | verified 2026-10-07: called once per day for all sides (day 2 after End Turn); NOT called on day 1"
+    },
+    "player.id": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Side",
+      "Member": "index",
+      "Status": "verified",
+      "Note": "Side.index: the side id used by Hero.sideId? | verified 2026-10-07: 0/1 = side array index; Hero.sideId refers to it"
+    },
+    "player.heroes": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Side",
+      "Member": "sideHeroes.heroes",
+      "Status": "verified",
+      "Note": "SideHeroes.heroes: List<int> of hero ids | verified 2026-10-07: [105] for the human = the hero on the panel"
+    },
+    "player.activeHero": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Side",
+      "Member": "lastSelectedHero",
+      "Status": "verified",
+      "Note": "hero id of the last selected hero | verified 2026-10-07: 105 = the selected hero"
+    },
+    "hero.list": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Data",
+      "Member": "heroes.list",
+      "Status": "verified",
+      "Note": "DataHeroes.list: List<Hero> (all heroes of the session, incl. pool?) | verified 2026-10-07: all 177 hero types of the game (id = type index); status Unknown = not in this game"
+    },
+    "hero.id": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "id",
+      "Status": "verified",
+      "Note": "runtime hero id | verified 2026-10-07"
+    },
+    "hero.owner": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "sideId",
+      "Status": "verified",
+      "Note": "owner side id | verified 2026-10-07: side id, -1 for heroes nobody owns"
+    },
+    "hero.experience": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "currentExp",
+      "Status": "verified",
+      "Note": "verified 2026-10-07: read/write (HE:E d10 and restore)"
+    },
+    "hero.level": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "currentLevel",
+      "Status": "verified",
+      "Note": "verified 2026-10-07: 1 = panel level"
+    },
+    "hero.mana": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "mana",
+      "Status": "verified",
+      "Note": "verified 2026-10-07"
+    },
+    "hero.movement": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "worldMovePoints",
+      "Status": "verified",
+      "Note": "verified 2026-10-07"
+    },
+    "hero.offence": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "statsByLevel.offence",
+      "Status": "verified",
+      "Note": "base (by level) or total? compare with the hero panel | verified 2026-10-07: growth by level; the adapter adds hero.statsBase (panel 2/3/1/1 = base + 0)"
+    },
+    "hero.defence": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "statsByLevel.defence",
+      "Status": "verified",
+      "Note": "verified 2026-10-07 (see hero.offence)"
+    },
+    "hero.spellPower": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "statsByLevel.spellPower",
+      "Status": "verified",
+      "Note": "verified 2026-10-07 (see hero.offence)"
+    },
+    "hero.intelligence": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "statsByLevel.intelligence",
+      "Status": "verified",
+      "Note": "verified 2026-10-07 (see hero.offence)"
+    },
+    "hero.status": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "status",
+      "Status": "verified",
+      "Note": "EHeroStatus: Unknown, Dead, InPrison, InReserve, InPool, OnMap, InCityGarrison, Life, InTraining | verified 2026-10-07: OnMap for heroes on the map, InPool for the hire pool, InPrison, Unknown"
+    },
+    "hero.config": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "configSid",
+      "Status": "verified",
+      "Note": "hero type sid (DB/heroes) | verified 2026-10-07: human_hero_1 etc."
+    },
+    "hero.army": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "party.units",
+      "Status": "verified",
+      "Note": "DataParty.units: List<Unit> | verified 2026-10-07: units match the panel (esquire/crossbowman/griffin with their counts)"
+    },
+    "stack.unitSid": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Unit",
+      "Member": "sid",
+      "Status": "verified",
+      "Note": "unit sid (DB/units) | verified 2026-10-07"
+    },
+    "stack.count": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Unit",
+      "Member": "stacks",
+      "Status": "verified",
+      "Note": "number of creatures | verified 2026-10-07: read/write"
+    },
+    "stack.slot": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Unit",
+      "Member": "slotPos",
+      "Status": "verified",
+      "Note": "army slot | verified 2026-10-07: 0..2 for the three starting stacks"
+    },
+    "hero.statsBase": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "cnih.stats",
+      "Status": "verified",
+      "Note": "0.81.04: cnih = the hero's HeroConfig (obfuscated property); HeroConfig.stats = type base | verified 2026-10-07: human_hero_1 = offence 2, defence 3, spellPower 1, intelligence 1 = the hero panel"
+    },
+    "stack.create": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Unit",
+      "Member": "",
+      "Status": "verified",
+      "Note": "the army unit type; a new unit is made with its constructor and added to DataParty.units | verified 2026-10-07 in the model (a new unit in slot 6 reads back); the army panel does not refresh by itself yet"
+    },
+    "player.logic": {
+      "Assembly": "Hex",
+      "Type": "ebe",
+      "Member": "chsz.chth.chwu",
+      "Status": "verified",
+      "Note": "0.81.04: ebe.chsz (logic singleton) → chth (ecd) → chwu: eby[] (side logic, eby.chvl = Side) | verified 2026-10-07: eby[2], same order as the sides"
+    },
+    "player.resourceLogic": {
+      "Assembly": "Hex",
+      "Type": "eby",
+      "Member": "chvd",
+      "Status": "verified",
+      "Note": "0.81.04: eby.chvd = ecc, the side's resource component | verified 2026-10-07"
+    },
+    "resource.add": {
+      "Assembly": "Hex",
+      "Type": "ecc",
+      "Member": "bbqk",
+      "Status": "verified",
+      "Note": "0.81.04: ecc.bbqk(string resource, int delta) — seen adding start bonuses; calls bbqe(name, delta, false), which raises EEvent.ResChange | only adds: a negative delta changes nothing (seen 2026-10-07) | verified 2026-10-07: adds and updates the top bar (day 1: 36000 shown)"
+    },
+    "resource.spend": {
+      "Assembly": "Hex",
+      "Type": "ecc",
+      "Member": "bbqg",
+      "Status": "verified",
+      "Note": "0.81.04: ecc.bbqg(string resource, int amount) → bool; the AI pays a building with it (gold 2500, wood 5, ore 5) | verified 2026-10-07: spends and updates the top bar (-500 shown)"
     }
   }
 }

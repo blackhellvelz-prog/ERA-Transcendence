@@ -176,13 +176,35 @@ internal static class WoGSession
         catch (Exception ex) { WoGPlugin.L?.LogError("WoG: reading game.root failed: " + ex.Message); return false; }
         IntPtr ptr = root is Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase o ? o.Pointer : IntPtr.Zero;
         if (ptr == IntPtr.Zero) { current = IntPtr.Zero; return false; }
-        if (ptr == current) return true;
+        if (ptr == current)
+        {
+            if (firstDayPending) TryFirstDay(host, adapter);
+            return true;
+        }
         current = ptr;
         // Saved WoG state is matched to saves once save.write/save.read are verified; until then every
         // session starts as a new WoG game (ERA instructions, OnGameEnter).
         WoGPlugin.L?.LogInfo("WoG: new game session — running ERM instructions");
         host.StartNewGame();
+        firstDayPending = true;
         return true;
+    }
+
+    static bool firstDayPending;
+
+    /// <summary>
+    /// Olden Era does not call its day start (turn.start) on day 1, while ERA runs OnEveryDay and the timers on
+    /// day 1 too. Once the new map is ready — players exist and the local player has a hero — day 1 is started
+    /// here, once. A game loaded on day 1 would get it again: loads are told apart once save.read is verified.
+    /// </summary>
+    static void TryFirstDay(WoGHost host, OldenEraGameAdapter adapter)
+    {
+        if (host.Game.Clock.AbsoluteDay != 1) { firstDayPending = false; return; }
+        if (adapter.PlayerObjects().Count == 0) return;
+        int local = host.Game.Players.CurrentPlayer;
+        if (adapter.GetHeroes(local) is { IsOk: true } mine && mine.Value.Count == 0) return;
+        firstDayPending = false;
+        WoGPlugin.L?.LogInfo("WoG: day 1 — " + StartDay());
     }
 
     /// <summary>

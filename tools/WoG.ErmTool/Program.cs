@@ -15,6 +15,7 @@ using WoG.Host;
 //   compat [--era] [--lang ru]        print the whole generated page Compatibility/ERM_Compatibility[_ERA][.ru].md:
 //                                     language switch, title, introduction and the receiver/command support table
 //                                     (default language en; --lang ru prints the Russian copy)
+//   idmap-creatures <Core.zip> <creature.json>  fill the creature id map from the game's units (CreatureMap.cs)
 //   probe-symbols <BepInEx/interop>   list Olden Era types/members matching the symbols the adapter needs
 //   era-pp  <out dir> <mod dir>...   Era: collect scripts of the mods (highest priority first) in Era load order,
 //                                     run the Era preprocessor, write the results, print diagnostics
@@ -81,6 +82,8 @@ switch (args[0])
     }
     case "probe-symbols":
         return ProbeSymbols(args[1]);
+    case "idmap-creatures":
+        return CreatureMap.Run(args[1], args[2]);
     case "era-pp":
     {
         string outDir = args[1];

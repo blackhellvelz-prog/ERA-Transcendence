@@ -56,13 +56,22 @@ public sealed class OldenEraSymbols
         "player.list",               // root → array/list of players (sides)
         "player.resources",          // player → resource heap; a resource is a member named by IdMap "resource"
         "resource.value",            // resource → amount
+        "player.logic",              // static path to the game logic's per-player objects (same order as player.list)
+        "player.resourceLogic",      // player logic object → its resource component
+        "resource.add",              // method of the resource component: add(resource name, delta) — updates the UI
+        "resource.spend",            // method of the resource component: spend(resource name, amount) → bool
         "player.isHuman",            // player → creation type (enum; 0 = human)
         "player.alive",              // player → status (enum; 0 = alive)
         "player.local",              // root → index of the player sitting at this PC
+        "player.id",                 // player → the side id heroes refer to (hero.owner)
         "player.current",
         "hero.list", "hero.id", "hero.owner", "hero.experience", "hero.level",
         "hero.offence", "hero.defence", "hero.spellPower", "hero.intelligence", "hero.mana", "hero.movement",
+        "hero.status",               // hero → status (enum: on map, dead, in prison, …)
+        "hero.config",               // hero → type id (config sid)
+        "hero.statsBase",            // hero → primary skills of its type (offence, defence, spellPower, intelligence)
         "hero.army", "stack.unitSid", "stack.count",
+        "stack.slot",                // army unit → slot position
         "unit.db", "unit.stats",
         "ui.message", "ui.question",
         "turn.start",                // method: start of a day (Harmony postfix → PlayerDayStarted for every player)
@@ -203,6 +212,15 @@ public sealed class OldenEraSymbols
         var m = target.GetType().GetMember(name, All).FirstOrDefault(x => x is FieldInfo or PropertyInfo)
                 ?? throw new InvalidOperationException($"{target.GetType().FullName}.{name} not found");
         return Get(m, target);
+    }
+
+    /// <summary>Calls a public instance method of a game object by name with arguments of matching count.</summary>
+    public static object? Call(object target, string method, params object?[] args)
+    {
+        var m = target.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public)
+            .FirstOrDefault(x => x.Name == method && x.GetParameters().Length == args.Length)
+            ?? throw new InvalidOperationException($"{target.GetType().FullName}.{method}/{args.Length} not found");
+        return m.Invoke(target, args);
     }
 
     /// <summary>
