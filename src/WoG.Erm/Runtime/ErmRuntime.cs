@@ -18,6 +18,8 @@ public sealed class ErmRuntimeOptions
     public bool ReproduceKnownBugs { get; set; }
     /// <summary>Guard against runaway scripts: maximum nested event depth.</summary>
     public int MaxDepth { get; set; } = 256;
+    /// <summary>Era: ErmLegacySupport option of heroes3.ini ("default heroes3.ini" of the ERA project sets 1).</summary>
+    public bool EraLegacySupport { get; set; } = true;
 }
 
 /// <summary>
@@ -65,7 +67,7 @@ public sealed partial class ErmRuntime
     {
         Services = services;
         Options = options ?? new ErmRuntimeOptions();
-        Receivers = ReceiverRegistry.CreateDefault(this);
+        Receivers = Options.Dialect == ErmDialect.Era ? ReceiverRegistry.CreateEra(this) : ReceiverRegistry.CreateDefault(this);
     }
 
     static string[] NewLz()
@@ -119,7 +121,7 @@ public sealed partial class ErmRuntime
                     case ErmItemKind.Instruction:
                         if (!newGame && !postInst) break;
                         var line = item.Line!;
-                        if (CheckConditions(line, ifState)) break;
+                        if (IsEra ? !CheckConditionEra(line.Condition) : CheckConditions(line, ifState)) break;
                         TriggerBreak = false;
                         ExecuteLine(line);
                         if (TriggerBreak) { TriggerBreak = false; return; } // FU:E in an instruction ends the file
@@ -151,7 +153,11 @@ public sealed partial class ErmRuntime
     // ============================================================================================
 
     /// <summary>Raises an ERM event with a fresh context (engine entry point).</summary>
-    public void Raise(int eventId, ErmEventContext context) => Process(eventId, context, needLocals: true);
+    public void Raise(int eventId, ErmEventContext context)
+    {
+        if (IsEra) ProcessEra(eventId, context);
+        else Process(eventId, context, needLocals: true);
+    }
 
     internal void Process(int eventId, ErmEventContext context, bool needLocals)
     {
@@ -326,6 +332,21 @@ public sealed partial class ErmRuntime
             Services.Compat.Unsupported("erm", "!!" + line.Id, "receiver not implemented");
             return;
         }
+        // Era: command-local strings (^literals^, s^^ values) live until the line is done (Hook_ProcessCmd)
+        var prevCmdLocal = cmdLocalErt;
+        cmdLocalErt = null;
+        try
+        {
+            ExecuteCommands(line, receiver);
+        }
+        finally
+        {
+            FreeCmdLocal(prevCmdLocal);
+        }
+    }
+
+    void ExecuteCommands(ErmReceiverLine line, IErmReceiver receiver)
+    {
         foreach (var cmd in line.Commands)
         {
             if (cmd.Letter == '\0') { Error(line.Loc, cmd.Text ?? "syntax error"); return; }
@@ -406,6 +427,8 @@ public sealed partial class ErmRuntime
     {
         int msk = 1 << owner;
         bool human = Services.Game.Players.IsHuman(owner) is { IsOk: true, Value: true };
+        // Era Hook_RunTimer: universal !?FU(OnEveryDay) for every colour before the !?TM triggers
+        if (IsEra) Raise(Era.EraEvents.DailyTimer, new ErmEventContext { Player = owner, IsHuman = human });
         void Fire(int ev) => Raise(ev, new ErmEventContext { Player = owner, IsHuman = human });
         for (int i = 0; i < WoGVariables.TimerCount; i++)
         {

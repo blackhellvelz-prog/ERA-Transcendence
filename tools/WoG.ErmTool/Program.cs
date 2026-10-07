@@ -11,8 +11,11 @@ using WoG.Host;
 // WoG.ErmTool — command-line companion of the port.
 //   parse   <dir|file> [--359]       parse ERM files, print diagnostics and statistics
 //   run     <dir>      [--359]       load scripts as a new game on the headless engine; print the compatibility report
+//   run --era <mod dir>...           same for ERA: mods highest priority first (Era load order, preprocessor, Lang)
 //   compat                            print the receiver/command support table (Compatibility/ERM_Compatibility.md)
 //   probe-symbols <BepInEx/interop>   list Olden Era types/members matching the symbols the adapter needs
+//   era-pp  <out dir> <mod dir>...   Era: collect scripts of the mods (highest priority first) in Era load order,
+//                                     run the Era preprocessor, write the results, print diagnostics
 
 if (args.Length == 0)
 {
@@ -20,7 +23,7 @@ if (args.Length == 0)
     return 1;
 }
 
-var dialect = args.Contains("--359") ? ErmDialect.Wog359Alpha : ErmDialect.Wog358;
+var dialect = args.Contains("--era") ? ErmDialect.Era : args.Contains("--359") ? ErmDialect.Wog359Alpha : ErmDialect.Wog358;
 
 switch (args[0])
 {
@@ -30,7 +33,8 @@ switch (args[0])
         int err = 0, warn = 0, secs = 0, lines = 0;
         foreach (var f in files)
         {
-            var s = ErmParser.ParseText(Path.GetFileName(f), ErmParser.DecodeFile(File.ReadAllBytes(f)), dialect);
+            string text = dialect == ErmDialect.Era ? WoG.Erm.Era.EraText.Decode(File.ReadAllBytes(f)) : ErmParser.DecodeFile(File.ReadAllBytes(f));
+            var s = ErmParser.ParseText(Path.GetFileName(f), text, dialect);
             if (!s.IsErm) continue;
             secs += s.Sections.Count();
             lines += s.Sections.Sum(x => x.Lines.Count);
@@ -47,7 +51,8 @@ switch (args[0])
     {
         var game = new HeadlessGame();
         var host = new WoGHost(game, new VisualResolver(new NoAssets()), null, new ErmRuntimeOptions { Dialect = dialect });
-        foreach (var f in Files(args[1]).OrderBy(x => x, StringComparer.Ordinal)) host.AddScriptFile(f);
+        if (dialect == ErmDialect.Era) host.AddEraMods(args.Skip(1).Where(a => !a.StartsWith("--")));
+        else foreach (var f in Files(args[1]).OrderBy(x => x, StringComparer.Ordinal)) host.AddScriptFile(f);
         host.Erm!.Log = Console.WriteLine;
         host.StartNewGame();
         for (int day = 1; day <= 7; day++)
@@ -61,12 +66,32 @@ switch (args[0])
     }
     case "compat":
     {
-        var host = new WoGHost(new HeadlessGame(), new VisualResolver(new NoAssets()));
+        var host = new WoGHost(new HeadlessGame(), new VisualResolver(new NoAssets()), null, new ErmRuntimeOptions { Dialect = dialect });
         Console.WriteLine(host.Erm!.Receivers.ToMarkdown());
         return 0;
     }
     case "probe-symbols":
         return ProbeSymbols(args[1]);
+    case "era-pp":
+    {
+        string outDir = args[1];
+        Directory.CreateDirectory(outDir);
+        var mods = args.Skip(2).Where(a => !a.StartsWith("--")).ToList();
+        var names = new WoG.Erm.Era.EraNames();
+        names.ResetFunctions();
+        var diags = new System.Collections.Generic.List<ErmDiagnostic>();
+        var files = WoG.Erm.Era.EraScriptSet.Collect(mods);
+        foreach (var f in files)
+        {
+            string text = WoG.Erm.Era.EraText.Decode(File.ReadAllBytes(f.Path));
+            string pp = WoG.Erm.Era.EraPreprocessor.Process(f.Name, text, names, diags);
+            string target = Path.Combine(outDir, f.Name.Replace('\\', '_'));
+            File.WriteAllText(target, pp);
+        }
+        foreach (var d in diags) Console.WriteLine(d);
+        Console.WriteLine($"{files.Count} scripts, {names.Functions.Count} function names (auto id now {names.FuncAutoId}), {names.Constants.Count} constants, {diags.Count} diagnostics");
+        return diags.Count == 0 ? 0 : 2;
+    }
     default:
         Console.WriteLine("unknown command " + args[0]);
         return 1;

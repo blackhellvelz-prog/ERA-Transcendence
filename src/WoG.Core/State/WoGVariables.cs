@@ -15,6 +15,12 @@ public enum ErmVarKind
     Y = 6,
     Z = 7,
     E = 8,
+    /// <summary>Era: string literal ^text^ used as a value.</summary>
+    Str = 9,
+    /// <summary>Era: named global integer i^name^.</summary>
+    AssocI = 10,
+    /// <summary>Era: named global string s^name^.</summary>
+    AssocS = 11,
 }
 
 /// <summary>A macro binding created by MC:S (macro name → variable).</summary>

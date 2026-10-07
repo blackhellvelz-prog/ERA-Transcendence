@@ -86,6 +86,38 @@ public sealed class ReceiverRegistry
         return reg;
     }
 
+    /// <summary>
+    /// Era receivers: WoG's (with Era's ErmCall semantics), Era's rewrites of VR/FU/DO, SN, the flow-control
+    /// commands handled by the interpreter, and the receivers of Era plugins.
+    /// </summary>
+    public static ReceiverRegistry CreateEra(ErmRuntime rt)
+    {
+        var reg = new ReceiverRegistry();
+        foreach (var id in ErmParser.KnownReceivers358.Concat(ErmParser.KnownReceiversEra))
+            reg.Register(new UnsupportedReceiver(id, "ресивер ещё не отображён на целевой движок"));
+        reg.Register(new EraVrReceiver());
+        reg.Register(new EraFuReceiver());
+        reg.Register(new EraDoReceiver());
+        reg.Register(new SnReceiver());
+        reg.Register(new McReceiver());
+        reg.Register(new IfReceiver());
+        reg.Register(new UnReceiver());
+        reg.Register(new TmReceiver());
+        reg.Register(new HeReceiver());
+        reg.Register(new OwReceiver());
+        reg.Register(new MaReceiver());
+        reg.Register(new CoReceiver());
+        reg.Register(new ExReceiver());
+        foreach (var id in new[] { "if", "el", "en", "re", "br", "co" }) reg.Register(new NoOpReceiver(id));
+        reg.Register(new UnsupportedReceiver("IP", "сетевой ERM вне рамок проекта (только одиночная игра)"));
+        reg.Register(new UnsupportedReceiver("MP", "MP — музыка H3 (mp3): у Olden Era своя музыка"));
+        reg.Register(new UnsupportedReceiver("RD", "RD — окно найма существ H3 (Dwellings.pas): нужен UI-адаптер"));
+        reg.Register(new UnsupportedReceiver("SS", "SS — ресивер плагина вторичных навыков (закрытая DLL ERA)"));
+        reg.Register(new UnsupportedReceiver("PA", "PA — ресивер плагина «receiver pa.era» (закрытая DLL ERA)"));
+        reg.Register(new UnsupportedReceiver("QU", "QU — ресивер плагина «receiver qu.era» (закрытая DLL ERA)"));
+        return reg;
+    }
+
     /// <summary>Markdown table of receiver/command support (feeds Compatibility/ERM_Compatibility.md).</summary>
     public string ToMarkdown()
     {

@@ -29,8 +29,20 @@ public sealed class ErmCall
         Line = line;
         Cmd = cmd;
         n = new int[cmd.Params.Count];
+        if (rt.IsEra)
+        {
+            // CustomGetNumAuto: GET parameters keep their raw value, the rest is evaluated
+            for (int i = 0; i < n.Length; i++)
+            {
+                var p = cmd.Params[i];
+                n[i] = p.Mode == ErmParamMode.Get ? (p.Var?.Index ?? p.Number) : rt.EraGetInt(p);
+            }
+            return;
+        }
         for (int i = 0; i < n.Length; i++) n[i] = rt.Evaluate(cmd.Params[i]);
     }
+
+    public bool IsEra => Rt.IsEra;
 
     public char Letter => Cmd.Letter;
     /// <summary>Number of parameters (WoG "Num").</summary>
@@ -44,7 +56,8 @@ public sealed class ErmCall
     // ---- selector (the part before ':') --------------------------------------------------------
 
     public int SelectorCount => Line.Selector.Count;
-    public int Selector(int i = 0) => i < Line.Selector.Count ? Rt.Evaluate(Line.Selector[i]) : 0;
+    public int Selector(int i = 0) =>
+        i < Line.Selector.Count ? (Rt.IsEra ? Rt.EraGetInt(Line.Selector[i]) : Rt.Evaluate(Line.Selector[i])) : 0;
     public ErmVarRef? SelectorVar(int i = 0) =>
         i < Line.Selector.Count ? Rt.ResolveMacro(Line.Selector[i]).Var : null;
     public bool SelectorIsEmpty => Line.Selector.Count == 1 && Line.Selector[0].Empty;
@@ -58,6 +71,7 @@ public sealed class ErmCall
     /// </summary>
     public bool Apply(ref int v, int i)
     {
+        if (Rt.IsEra) return ApplyEra(ref v, i);
         if (i >= Num) throw new ErmRuntimeException("wrong number of parameters");
         var p = P(i);
         switch (p.Mode)
@@ -81,6 +95,28 @@ public sealed class ErmCall
         }
     }
 
+    /// <summary>
+    /// Era Hook_ZvsApply: parameters that were not given are ignored (no set, like a GET); a set applies the
+    /// d-modifier (PutVal); ?var receives the value (SetErmParamValue); a comparison sets flag 1.
+    /// </summary>
+    bool ApplyEra(ref int v, int i)
+    {
+        if (i >= Num) return true;
+        var p = P(i);
+        switch (p.Mode)
+        {
+            case ErmParamMode.Get:
+                Rt.EraSetInt(p, v);
+                return true;
+            case ErmParamMode.Check:
+                Rt.SetFlag(1, ErmRuntime.Compare(v.CompareTo(N(i)), p.Compare));
+                return true;
+            default:
+                v = Rt.EraModify(v, N(i), p.Modifier);
+                return false;
+        }
+    }
+
     /// <summary>Apply for a value that is stored elsewhere: reads it, applies, writes it back on set.</summary>
     public bool ApplyTo(Func<int> read, Action<int> write, int i)
     {
@@ -93,6 +129,19 @@ public sealed class ErmCall
     /// <summary>GetErmText: a z-var parameter, or the ^text^ attached to the command (interpolated).</summary>
     public string Text(int i)
     {
+        if (Rt.IsEra)
+        {
+            if (i < Num)
+            {
+                var p = P(i);
+                if (p.Mode != ErmParamMode.Set) throw new ErmRuntimeException("cannot use get or check syntax.");
+                if (ErmRuntime.EraIsString(p)) return Rt.EraGetText(p);
+                // a z index given as a number (e.g. x1 holding a string index)
+                if (p.Var != null || !p.Empty) return Rt.EraZInterpolated(N(i));
+            }
+            if (Cmd.Text != null) return Rt.InterpolateEra(Cmd.Text);
+            throw new ErmRuntimeException("string expected.");
+        }
         if (i < Num)
         {
             var p = P(i);

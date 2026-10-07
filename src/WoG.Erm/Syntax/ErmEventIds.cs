@@ -91,14 +91,21 @@ public static class ErmEventIds
                 return Outcome.Ok;
             case "FU":
                 if (num != 1) return Err("wrong number of parameters", out message);
+                if (dialect == ErmDialect.Era)
+                {
+                    // Era patches FindErm "to allow functions with arbitrary positive IDs" (named functions
+                    // get ids from 95000, Era events from 77001); the id is the event id.
+                    eventId = n[0];
+                    return Outcome.Ok;
+                }
                 if (n[0] < -100 || n[0] == 0 || n[0] > FunctionMax) return Err("wrong function index (-100...30000).", out message);
-                if (n[0] < 0 && dialect == ErmDialect.Wog358) return Err("local functions (FU-#) are WoG 3.59", out message);
+                if (n[0] < 0 && dialect != ErmDialect.Wog359Alpha) return Err("local functions (FU-#) are WoG 3.59", out message);
                 eventId = n[0] < 0 ? -n[0] + LocalFunctionBase - 1 : n[0];
                 return Outcome.Ok;
             case "TM":
                 if (num == 4)
                 {
-                    if (dialect == ErmDialect.Wog358) return Err("auto-timers TM a/b/c/d are WoG 3.59", out message);
+                    if (dialect != ErmDialect.Wog359Alpha) return Err("auto-timers TM a/b/c/d are WoG 3.59", out message);
                     eventId = AutoTimerBase; // the runtime assigns the slot
                     return Outcome.Ok;
                 }
@@ -113,6 +120,8 @@ public static class ErmEventIds
         {
             if (r.Id != id || r.Post != post) continue;
             if (r.Is359 && dialect == ErmDialect.Wog358) continue;
+            // Era's WoG base knows TL and DL (TRIGGER_TL0..4, TRIGGER_DL) but not the other 3.59-alpha triggers.
+            if (r.Is359 && dialect == ErmDialect.Era && r.Id != "TL" && r.Id != "DL") continue;
             found = true;
             int v = num >= 1 ? n[0] : 0;
             if (v >= r.Min && v <= r.Max)

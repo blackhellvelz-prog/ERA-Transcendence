@@ -53,6 +53,8 @@ public sealed class WoGGameState
 
     public WoGOptions Options { get; set; } = new();
     public WoGVariables Erm { get; set; } = new();
+    /// <summary>ERA (HoMM3 ERA) additions to the ERM state; empty for classic WoG scripts.</summary>
+    public EraState Era { get; set; } = new();
     public Dictionary<int, WoGCommander> Commanders { get; set; } = new();
     /// <summary>Extra "additional" commanders for battles without a commander-owning hero (NPCsa).</summary>
     public WoGCommander[] ExtraCommanders { get; set; } = { new() { Number = -3 }, new() { Number = -4 } };

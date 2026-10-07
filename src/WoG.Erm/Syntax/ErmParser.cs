@@ -12,7 +12,7 @@ namespace WoG.Erm.Syntax;
 ///    kept on the line and reported when it executes, as WoG would;
 ///  * macros ($name$) are stored by name and resolved at execution.
 /// </summary>
-public sealed class ErmParser
+public sealed partial class ErmParser
 {
     /// <summary>Every receiver id the WoG engine knows (ERM_Addition[] + inline receivers).</summary>
     public static readonly HashSet<string> KnownReceivers358 = new()
@@ -164,7 +164,9 @@ public sealed class ErmParser
     }
 
     bool IsKnownReceiver(string id) =>
-        KnownReceivers358.Contains(id) || (dialect == ErmDialect.Wog359Alpha && KnownReceivers359.Contains(id));
+        KnownReceivers358.Contains(id)
+        || (dialect == ErmDialect.Wog359Alpha && KnownReceivers359.Contains(id))
+        || (dialect == ErmDialect.Era && KnownReceiversEra.Contains(id));
 
     string Id(ref int i)
     {
@@ -189,6 +191,7 @@ public sealed class ErmParser
     /// <summary>GetNumAutoSelf: up to 16 '/'-separated parameters, then optional &amp;/| conditions.</summary>
     bool ParseParamList(ref int i, List<ErmParam> into, ErmCondition cond, bool withFlags, out string error)
     {
+        if (dialect == ErmDialect.Era) return ParseHeaderEra(ref i, into, cond, withFlags, out error);
         error = "";
         for (int k = 0; k < 16; k++)
         {
@@ -376,6 +379,7 @@ public sealed class ErmParser
     /// <summary>ProcessCmd: letter + GetNumAuto, repeated until ';'. Attaches ^text^ and @macro@.</summary>
     void ParseCommands(ErmReceiverLine line, int i, int end)
     {
+        if (dialect == ErmDialect.Era) { ParseCommandsEra(line, i, end); return; }
         while (i < end)
         {
             SkipWs(ref i);

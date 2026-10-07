@@ -48,6 +48,12 @@ public sealed class WoGHost : IWoGServices
     StackExperienceService? stackExp;
     readonly List<ErmScript> scripts = new();
 
+    /// <summary>ERA: mod folders (highest priority first) whose Data\s scripts and Lang files are used.</summary>
+    readonly List<string> eraMods = new();
+    string eraLanguage = "en";
+    public IReadOnlyList<WoG.Erm.Era.EraScriptFile> EraScripts { get; private set; } = Array.Empty<WoG.Erm.Era.EraScriptFile>();
+    bool IsEra => ErmOptions.Dialect == ErmDialect.Era;
+
     public WoGHost(IGameAdapter game, IVisualResolver visuals, WoGModules? modules = null,
         ErmRuntimeOptions? ermOptions = null, IWoGRandom? random = null, WoGGameState? state = null)
     {
@@ -103,13 +109,75 @@ public sealed class WoGHost : IWoGServices
 
     public void AddScriptFile(string path) => AddScript(Path.GetFileName(path), ErmParser.DecodeFile(File.ReadAllBytes(path)));
 
+    /// <summary>
+    /// ERA: use the scripts and translations of these mods (highest priority first, as Era's virtual file
+    /// system sees them). Scripts are preprocessed when a game starts or is loaded.
+    /// </summary>
+    public void AddEraMods(IEnumerable<string> modRoots, string language = "en")
+    {
+        if (!IsEra) throw new InvalidOperationException("AddEraMods needs ErmRuntimeOptions.Dialect = Era");
+        eraMods.AddRange(modRoots);
+        eraLanguage = language;
+    }
+
+    /// <summary>ERA: preprocess (shared function/constant names) and parse every script in Era's load order.</summary>
+    void PrepareEraScripts(bool newGame)
+    {
+        if (Erm == null) return;
+        var names = Erm.EraNames;
+        if (newGame)
+        {
+            State.Era.ResetMemory();
+            names.ResetFunctions();
+        }
+        names.ResetConstants();
+        State.Era.Ert.Clear();
+        scripts.Clear();
+        EraScripts = WoG.Erm.Era.EraScriptSet.Collect(eraMods);
+        foreach (var f in EraScripts)
+        {
+            string text = WoG.Erm.Era.EraText.Decode(File.ReadAllBytes(f.Path));
+            var diags = new List<ErmDiagnostic>();
+            string pp = WoG.Erm.Era.EraPreprocessor.Process(f.Name, text, names, diags);
+            var script = ErmParser.ParseText(f.Name, pp, ErmDialect.Era);
+            script.Diagnostics.InsertRange(0, diags);
+            scripts.Add(script);
+            LoadErt(Path.ChangeExtension(f.Path, ".ert"));
+        }
+        Erm.Lang = new EraLang();
+        Erm.Lang.LoadMods(eraMods, eraLanguage);
+    }
+
+    /// <summary>ERT text table next to a script: header row, then "index TAB text ..." rows (CRLF-separated).</summary>
+    void LoadErt(string path)
+    {
+        if (!File.Exists(path)) return;
+        string text = WoG.Erm.Era.EraText.Decode(File.ReadAllBytes(path));
+        string[] rows = text.Contains("\r\n") ? text.Split("\r\n") : text.Split('\n');
+        for (int r = 1; r < rows.Length; r++)
+        {
+            var cells = rows[r].Split('\t');
+            if (cells.Length < 2) continue;
+            if (!int.TryParse(cells[0].Trim(), System.Globalization.NumberStyles.AllowLeadingSign, System.Globalization.CultureInfo.InvariantCulture, out int idx) || idx < 1) continue;
+            if (State.Era.Ert.ContainsKey(idx))
+            {
+                Compat.Unsupported("erm", "ERT", $"Duplicate ERM string index {idx} ({Path.GetFileName(path)})");
+                continue;
+            }
+            State.Era.Ert[idx] = cells[1];
+        }
+    }
+
     /// <summary>New game: load scripts (running instructions), then fire !?PI (post-instruction).</summary>
     public void StartNewGame()
     {
         if (Erm == null) return;
+        if (IsEra) PrepareEraScripts(newGame: true);
         foreach (var s in scripts) Erm.Load(s, newGame: true);
         State.InstructionsDone = true;
-        Erm.Raise(30370, new ErmEventContext { Player = Game.Players.CurrentPlayer });
+        var ctx = new ErmEventContext { Player = Game.Players.CurrentPlayer };
+        Erm.Raise(30370, ctx);
+        if (IsEra) Erm.Raise(WoG.Erm.Era.EraEvents.GameEnter, ctx);
     }
 
     // ------------------------------------------------------------------------------------------
@@ -118,18 +186,32 @@ public sealed class WoGHost : IWoGServices
 
     public void SaveTo(string path, string identity)
     {
-        Erm?.Raise(30361, new ErmEventContext { Player = Game.Players.CurrentPlayer }); // !?GM1 before saving
+        var ctx = new ErmEventContext { Player = Game.Players.CurrentPlayer };
+        Erm?.Raise(30361, ctx); // !?GM1 before saving
+        if (IsEra) Erm?.Raise(WoG.Erm.Era.EraEvents.SavegameWrite, ctx);
         WoGSaveSerializer.WriteFile(path, State, identity);
+        if (IsEra) Erm?.Raise(WoG.Erm.Era.EraEvents.AfterSaveGame, ctx);
     }
 
     /// <summary>Loaded game: restore state, re-parse scripts without instructions, fire !?GM0.</summary>
     public void LoadFrom(string path, string identity)
     {
+        var ctx = new ErmEventContext { Player = Game.Players.CurrentPlayer };
+        if (IsEra && Erm != null && State.InstructionsDone) Erm.Raise(WoG.Erm.Era.EraEvents.GameLeave, ctx);
         State = WoGSaveSerializer.ReadFile(path, identity);
+        State.Era.NormalizeAfterLoad();
         Build();
         if (Erm == null) return;
+        if (IsEra)
+        {
+            var ert = new Dictionary<int, string>(State.Era.Ert);
+            PrepareEraScripts(newGame: false);
+            foreach (var kv in ert) State.Era.Ert[kv.Key] = kv.Value;
+        }
         foreach (var s in scripts) Erm.Load(s, newGame: false);
-        Erm.Raise(30360, new ErmEventContext { Player = Game.Players.CurrentPlayer });
+        if (IsEra) Erm.Raise(WoG.Erm.Era.EraEvents.SavegameRead, ctx);
+        Erm.Raise(30360, ctx);
+        if (IsEra) Erm.Raise(WoG.Erm.Era.EraEvents.GameEnter, ctx);
     }
 
     // ------------------------------------------------------------------------------------------

@@ -8,6 +8,25 @@ public enum ErmDialect
 {
     Wog358,
     Wog359Alpha,
+    /// <summary>HoMM3 ERA (Era 3.9.x): Era's GetNum/GetFlags/ProcessErm semantics, after the Era preprocessor.</summary>
+    Era,
+}
+
+/// <summary>Era d-modifiers (PARAM_MODIFIER_* / MODIFIER_*). WoG knows only <see cref="Add"/>.</summary>
+public enum ErmModifier
+{
+    None,
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Mod,
+    Or,
+    AndNot,
+    Shl,
+    Shr,
+    /// <summary>d&amp; (SN service parameters only): string concatenation.</summary>
+    Concat,
 }
 
 /// <summary>Comparison codes exactly as GetCmpCode returns them (VarNum.Check 2..7).</summary>
@@ -39,9 +58,29 @@ public sealed class ErmVarRef
     /// <summary>Literal index, or index of the indexing variable when <see cref="IndexKind"/> != None.</summary>
     public int Index { get; set; }
     public ErmVarKind IndexKind { get; set; } = ErmVarKind.None;
+    /// <summary>Era: text of ^literal^ / name of i^name^ / s^name^ (for Kind or IndexKind Str/AssocI/AssocS).</summary>
+    public string? Name { get; set; }
+    /// <summary>Era: the literal/name contains '%' and is interpolated when evaluated.</summary>
+    public bool NeedsInterpolation { get; set; }
 
-    public override string ToString() =>
-        IndexKind == ErmVarKind.None ? $"{Letter(Kind)}{Index}" : $"{Letter(Kind)}{Letter(IndexKind)}{Index}";
+    public override string ToString()
+    {
+        string idx = IndexKind switch
+        {
+            ErmVarKind.None => Index.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            ErmVarKind.Str => "^" + Name + "^",
+            ErmVarKind.AssocI => "i^" + Name + "^",
+            ErmVarKind.AssocS => "s^" + Name + "^",
+            _ => Letter(IndexKind) + Index,
+        };
+        return Kind switch
+        {
+            ErmVarKind.Str => "^" + Name + "^",
+            ErmVarKind.AssocI => "i^" + Name + "^",
+            ErmVarKind.AssocS => "s^" + Name + "^",
+            _ => Letter(Kind) + idx,
+        };
+    }
 
     internal static string Letter(ErmVarKind k) => k switch
     {
@@ -64,6 +103,8 @@ public sealed class ErmParam
     public ErmCompare Compare { get; set; }
     /// <summary>'d' prefix.</summary>
     public bool Add { get; set; }
+    /// <summary>Era: kind of d-modifier (d, d-, d*, d:, d%, d|, d~, d&lt;&lt;, d&gt;&gt;, d&amp;).</summary>
+    public ErmModifier Modifier { get; set; }
     /// <summary>Variable reference, or null for a constant.</summary>
     public ErmVarRef? Var { get; set; }
     /// <summary>Constant value (when <see cref="Var"/> is null).</summary>
