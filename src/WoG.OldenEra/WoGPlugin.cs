@@ -79,12 +79,17 @@ public sealed class WoGPlugin : BasePlugin
             new ErmRuntimeOptions { Dialect = era ? ErmDialect.Era : ErmDialect.Wog358, TimeLimitMs = timeLimit.Value });
         Host = host;
         Adapter = adapter;
+        OldenEraGameAdapter.MethodTraceReal = MethodTrace.Real;
         host.ErmLog = m => Log.LogInfo("[ERM] " + m);
 
         LoadIdMaps(cfgDir, host);
         if (era)
         {
             var mods = EraModFolders(modsRoot.Value, modList.Value);
+            // WoG Debug's own ERA mod (test triggers) comes on top of the user's list while debugging.
+            string debugMod = Path.Combine(cfgDir, "mods", "WoG Debug");
+            if (debugEnabled.Value && Directory.Exists(debugMod) && !mods.Any(m => string.Equals(Path.GetFullPath(m), Path.GetFullPath(debugMod), StringComparison.OrdinalIgnoreCase)))
+                mods.Insert(0, debugMod);
             // An ERA installation's Mods folder: Era runs in its parent; files scripts write go to config/WoG/era-root.
             string? eraFolder = string.Equals(Path.GetFileName(modsRoot.Value.TrimEnd('\\', '/')), "Mods", StringComparison.OrdinalIgnoreCase)
                 ? Path.GetDirectoryName(modsRoot.Value.TrimEnd('\\', '/')) : null;
@@ -106,7 +111,7 @@ public sealed class WoGPlugin : BasePlugin
         var harmony = new Harmony(Guid);
         HookPostfix(harmony, symbols, "turn.start", nameof(Hooks.TurnStartPostfix));
         HookPrefix(harmony, symbols, "object.interact", nameof(Hooks.InteractPrefix));
-        HookPostfix(harmony, symbols, "object.interact", nameof(Hooks.InteractPostfix));
+        HookPostfix(harmony, symbols, "object.interactEnd", nameof(Hooks.InteractPostfix));
         HookPostfix(harmony, symbols, "battle.start", nameof(Hooks.BattleStartPostfix));
         HookPostfix(harmony, symbols, "battle.end", nameof(Hooks.BattleEndPostfix));
         HookPostfix(harmony, symbols, "save.write", nameof(Hooks.SavePostfix));
@@ -267,23 +272,48 @@ internal static class Hooks
         catch (Exception ex) { WoGPlugin.L?.LogError("WoG: day start failed: " + ex); }
     }
 
-    // The argument layout of the interaction method is not known yet; until it is verified the hooks
-    // only signal that an interaction happened (position/hero come from the bound symbols later).
-    internal static bool InteractPrefix()
+    // A hero visiting a map object [V-game 0.81.04, method traces]: on arrival Olden Era calls fnt.bmjj(fdq) on the
+    // object's logic (fnt: coyw = map object, coyx = session DataObject) with the hero's logic (fdq); the object's
+    // action is applied by fnt.bmjb + fnt.bmiw — at once for a pick-up (gems: bmjj, bmjb, bmiw, …), after the player's
+    // choice for an object with a dialog (chest: bmjj, …, dialog, choice, bmjb, bmiw). So !?OB runs before bmjj, as
+    // WoG's pre-visit trigger runs before the object acts and before its dialog, and !$OB after bmiw. The visit is
+    // remembered per object between the two (the object may be gone from the map by then).
+    static readonly Dictionary<IntPtr, WoGEvent> pendingVisits = new();
+
+    static IntPtr Ptr(object o) => o is Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase b ? b.Pointer : IntPtr.Zero;
+
+    internal static void InteractPrefix(object __instance, object[] __args)
     {
-        if (H == null) return true;
+        if (H == null || WoGPlugin.Adapter is not { } a) return;
         try
         {
-            var e = H.Events.Raise(new WoGEvent { Kind = WoGEventKind.HeroVisitPre, Player = H.Game.Players.CurrentPlayer });
-            return !e.CancelNative;
+            var visit = a.DescribeVisit(__instance, __args.Length > 0 ? __args[0] : null, out string why);
+            WoGPlugin.L?.LogInfo(visit == null
+                ? "WoG: visit not raised: " + why
+                : $"WoG: visit of {visit.ObjectType}/{visit.ObjectSubType} at {visit.Position} by hero {visit.Hero} (player {visit.Player})");
+            if (visit == null) return;
+            pendingVisits[Ptr(__instance)] = visit;
+            H.Events.Raise(new WoGEvent
+            {
+                Kind = WoGEventKind.HeroVisitPre, Player = visit.Player, Hero = visit.Hero, Position = visit.Position,
+                ObjectType = visit.ObjectType, ObjectSubType = visit.ObjectSubType,
+            });
         }
-        catch (Exception ex) { WoGPlugin.L?.LogError("WoG: interaction hook failed: " + ex.Message); return true; }
+        catch (Exception ex) { WoGPlugin.L?.LogError("WoG: visit hook failed: " + ex); }
     }
 
-    internal static void InteractPostfix()
+    internal static void InteractPostfix(object __instance, object[] __args)
     {
-        try { H?.Events.Raise(new WoGEvent { Kind = WoGEventKind.HeroVisitPost, Player = H.Game.Players.CurrentPlayer }); }
-        catch (Exception ex) { WoGPlugin.L?.LogError("WoG: interaction hook failed: " + ex.Message); }
+        if (H == null || !pendingVisits.Remove(Ptr(__instance), out var v)) return;
+        try
+        {
+            H.Events.Raise(new WoGEvent
+            {
+                Kind = WoGEventKind.HeroVisitPost, Player = v.Player, Hero = v.Hero, Position = v.Position,
+                ObjectType = v.ObjectType, ObjectSubType = v.ObjectSubType,
+            });
+        }
+        catch (Exception ex) { WoGPlugin.L?.LogError("WoG: visit hook failed: " + ex); }
     }
 
     internal static void BattleStartPostfix()

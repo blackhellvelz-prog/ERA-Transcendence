@@ -91,6 +91,9 @@ public sealed class OldenEraSymbols
         "mapobj.sid",                // map object → object config sid (object.json)
         "object.list",               // root → session objects (interactive objects with game data)
         "object.mapId", "object.owner", // session object → map object id / owner side id (-1 neutral)
+        "object.interactEnd",        // method: a visit completes (postfix → !$OB)
+        "visit.mapObject",           // object logic of a visit → its map object
+        "visitor.hero",              // hero logic of a visit → Hex.Session.Data.Hero
         "squad.list",                // root → wandering monster squads
         "squad.node", "squad.units", "squad.released", // squad → node / unit stacks / defeated
         "squadunit.sid", "squadunit.amount",           // squad unit → unit sid / count

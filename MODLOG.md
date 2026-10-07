@@ -322,3 +322,25 @@ errors.
 1. Object visit hook (`object.interact`) → `!?OB`/`!?HM` triggers, OB:D/E/R/S; battle start/end; hero level-up.
 2. Native implementations of the stdlib functions built on `UN:C`/`SN:E`.
 3. Monsters (`MO`), towns (`CA`), mines (`MN`), `MA` from the creature tables.
+
+## 2026-10-07 — session 2, continued: object visits (!?OB / !$OB)
+
+### Found (method traces in game)
+* Player actions go through a command bus (`bgj.Invoke(bgg)`, `ECmd`): a move is command `dha` (hero, path, target
+  node), a reward choice `dfv`; a visit itself is not a command — it happens in the world logic when the hero arrives.
+* World objects have a logic class `fnt` (`coyw` = map object, `coyx` = session DataObject); the hero's logic is `fdq`
+  (`cnsj.chna` = `Hex.Session.Data.Hero`). On arrival `fnt.bmjj(fdq)` runs first; the object's action is applied by
+  `fnt.bmjb` + `fnt.bmiw` — at once for a pick-up (gems: bmjj, bmjb, bmiw, bmjf, bmji, bmip, bmio), after the
+  player's choice for an object with a dialog (chest: bmjj, bmji, bmip, bmio, dialog, `dfv`, bmjb, bmiw).
+* Tracing every method of `fnt` crashed the game at start, and so did its empty virtual methods: IL2CPP folds identical
+  method bodies, so a patch on one hooks many unrelated methods. Trace only non-virtual methods with real bodies.
+
+### Done
+* `!?OB` runs before `fnt.bmjj` (before the object acts and before its dialog, as WoG's pre-visit trigger),
+  `!$OB` after `fnt.bmiw`; the hero (HE-1), its owner and the object's ERM position (v998–v1000) and type/subtype
+  come from the map layer. The log line "WoG: visit of T/S at x/y/l by hero N" shows each visit.
+* WoG Debug's ERA mod is loaded on top of the user's mod list while debugging; `wogdebug - visits.erm` counts visits.
+
+### Verification
+In game: picking up wood ran `!?OB79` and `!$OB79` once each (79/0 at 10/38/0, hero 105); a treasure chest ran
+`!?OB101`/`!$OB101`. ERM lesson: consecutive trigger lines are separate empty sections — each needs its own body.

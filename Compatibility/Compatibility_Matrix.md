@@ -13,9 +13,8 @@ Columns:
 * **Core (headless)** — implemented in the engine-independent core and covered by tests.
 * **OE adapter** — implemented for Olden Era. *Designed* = the interface and the code path exist in the adapter, but
   depend on symbols with [UNVERIFIED] status; *Not started*.
-* **Verified in game** — confirmed in a running Olden Era. **Nothing yet**, because the work was done without a
-  copy of the game (see `OldenEra_ReverseEngineering/00_Sources_and_Verification.md`). No row is marked as
-  "fully working in game".
+* **Verified in game** — confirmed in a running Olden Era 0.81.04 with the user's ERA mods (since session 2, see
+  `MODLOG.md`); the symbols involved are tagged `[V-game]` in `src/WoG.OldenEra/symbols/wog_symbols.json`.
 
 | WoG feature | WoG RE | OE support | Implementation strategy | Core (headless) | OE adapter | Verified in game | Target | Known limitations |
 |-------------|--------|------------|-------------------------|-----------------|------------|------------------|--------|-------------------|
@@ -26,22 +25,23 @@ Columns:
 | **ERA:** `SN:F` — Era API functions | Full (`Extern.pas`) | no | own implementations of the functions | **partial: functions called by the project's scripts** | not needed | n/a | PARTIALLY SUPPORTED | ini files, `GetGameState`, sorting by address, plugin functions — no |
 | **ERA:** events 77001+ (`OnEveryDay`, `OnGameEnter`, `OnSavegameWrite/Read`, battle, screens, keys…) | Full (table of names and ids) | partial | the adapter generates the events | table + PI/GameEnter/EveryDay/save/load | Designed | No | PARTIALLY SUPPORTED | H3 screen and key events — as OE hooks become available |
 | **ERA:** mod and script load order (`lib`, global, `lib_end`, priority in the name, VFS) | Full | — | `EraScriptSet` | **Done** | not needed | n/a | FULLY SUPPORTED | name sorting is an approximation of `AnsiCompareText` |
+| **ERA:** H3 data of the ERA installation (LOD/PAC archives, Era's VFS order, text tables: artifacts, creatures, spells, skills) | Full | — | read-only reader of the user's installation | **Done + tests** | read at start | **Yes** | FULLY SUPPORTED | nothing is copied into the repository |
 | **ERA:** `SN:E`, `UN:C`, `SN:B/L/A`, array addresses | Full | impossible | — | — | — | — | UNSUPPORTED | H3 process code and memory |
 | **ERA:** plugin receivers and functions (`SS`, `PA`, `QU`, `RD`, WoG dialogs, HD mod) | no sources | — | reimplementation from behavior | recognized, UNSUPPORTED | Not started | No | UNSUPPORTED (for now) | closed-source DLLs |
 | ERM parser (syntax, parameters, conditions, strings) | Full | no | own parser (`WoG.Erm.Syntax`) | **Done + tests; 78/78 3.58f scripts and 117 3.59 files without errors** | not needed | n/a | FULLY SUPPORTED | 3.59 additions — behind a dialect flag; Era triggers are not supported |
 | ERM variables, flags, strings, floating-point values, macros, indirect addressing | Full | counters only | runtime + persisted state | **Done + tests** | not needed | n/a | FULLY SUPPORTED | ERT strings (`z>1000`) are not loaded yet |
 | ERM control flow (section order, FU/DO, if/el/en, FU:E, la/go) | Full | no | runtime | **Done + tests** | not needed | n/a | FULLY SUPPORTED | |
-| ERM timers (TM) | Full | turn-start condition | runtime + day hook | **Done + tests** | Designed (`turn.start`) | No | FULLY SUPPORTED | requires a verified new-day hook |
-| ERM triggers: hero/object/battle/level/step/mouse | Full | partial (visit/turn/kill/hero battles) | the adapter generates WoG events | event model and bridge are ready | Designed (`object.interact`, `battle.*`) | No | PARTIALLY SUPPORTED | mouse triggers depend on UI hooks; network (IP) triggers are not needed |
+| ERM timers (TM) | Full | turn-start condition | runtime + day hook | **Done + tests** | **Done** (`turn.start` = `ebe.OnStartDay`; day 1 once the map is ready) | **Yes** | FULLY SUPPORTED | |
+| ERM triggers: hero/object/battle/level/step/mouse | Full | partial (visit/turn/kill/hero battles) | the adapter generates WoG events | event model and bridge are ready | **object visits done**: `fnt.bmjj` → `!?OB` before the object acts and before its dialog, `fnt.bmiw` → `!$OB` after its action; battle, level-up, step, mouse: not started | **object visits: yes** (resource, treasure chest) | PARTIALLY SUPPORTED | mouse triggers depend on UI hooks; network (IP) is not needed |
 | Receivers `VR FU DO MC TM` | Full | — | runtime | **Done + tests** | not needed | n/a | FULLY SUPPORTED | `FU:D` (network) — UNSUPPORTED |
 | `IF` messages/questions/flags | Full | dialogs | UI adapter | **Done (M, Q, V, W, A, S, R) + tests** | Designed (`ui.*`) | No | PARTIALLY SUPPORTED | dialogs with pictures/multiple choice require a custom UI |
 | `UN:P` options | Full | — | core options | **Done + tests** | not needed | n/a | FULLY SUPPORTED | |
-| `UN` other (objects, memory) | Partial | object creation/removal via actions | adapter | reports Unsupported | Not started | No | PARTIALLY SUPPORTED | `UN:C` (memory write) — UNSUPPORTED in principle |
-| `HE` hero | Full (main commands) | hero model via plugin; scenario actions for experience/stats/mana/units/items/skills/spells | adapter | **Done (E F I W S M A C O P N K) + tests** | Designed (E, F, I, W, O, reading the army) | No | PARTIALLY SUPPORTED | H3 has 4 primary skills, OE has 6 (offence, defence, spellPower, intelligence, luck, moral): Attack→offence, Defense→defence, Spell Power→spellPower, Knowledge→intelligence; 28 H3 skills ≠ OE skills (IdMap) |
-| `OW` players | Full (main parts) | resources via actions | adapter | **Done (R C A I G) + tests** | Designed | No | PARTIALLY SUPPORTED | 7 H3 resources ↔ OE resources (IdMap) |
+| `UN` other (objects, memory) | Partial | object creation/removal via actions | adapter + H3 tables of the ERA installation | **A V X U N R done + tests** | **X U N R** on the Olden Era map; A from the ERA tables (not linked to Olden Era items) | **Yes** (X, U, N, R) | PARTIALLY SUPPORTED | `UN:C` (memory write) — UNSUPPORTED in principle; I O S H J K M T B: not started |
+| `HE` hero | Full (main commands) | hero model via plugin | adapter | **Done (E F I W S M A C O P N K) + tests** | **Done: E F I W O, army (C), position (P, read)** | **Yes** | PARTIALLY SUPPORTED | H3 heroes do not exist in Olden Era: WoG numbers 0..155 are given to the game's heroes; skills, spells, artifacts, moving: not started |
+| `OW` players | Full (main parts) | resources via the game's methods | adapter | **Done (R C A I G) + tests** | **Done** (resources through the game's own add/spend, so the UI updates) | **Yes** | PARTIALLY SUPPORTED | 7 H3 resources ↔ Olden Era resources (IdMap); no sulfur |
 | `MA` creature type data | Full | static JSON; on-the-fly changes via plugin | adapter | **Done + tests** | Designed (`unit.db`) | No | PARTIALLY SUPPORTED | in OE, speed is split into initiative+speed; shots do not exist as a stat |
 | `CA` towns | Partial | buildings via actions | adapter | Not started | Not started | No | PARTIALLY SUPPORTED | OE town/building ids are entirely different |
-| Map object receivers (`OB MN DW CB …`) | Partial | object logic families | adapter + clones | Not started | Not started | No | PARTIALLY SUPPORTED | |
+| Map object receivers (`OB MN DW CB …`) | Partial | object logic families | adapter + object type map (`id-maps/object.json`) | **OB:T/U, TR:T/P/E + tests** | **Done: map layer** (objects, monsters, heroes, squares, terrain) | **Yes** | PARTIALLY SUPPORTED | changing objects and terrain, OB:D/E/R/S/M/H/B, MN DW CB MO…: not started |
 | Battle receivers (`BA BM BU BG BH BF MR MF`) | Partial | no native equivalent | battle adapter (Harmony) + buffs | interfaces only | Designed | No | EMULATED | depends on battle symbols |
 | WoG Options system | Full | no | core options + plugin UI | **Done + tests** | UI not started | No | FULLY SUPPORTED | option texts come from the user's `ZSETUP00.TXT`; the `.dat` preset format is not confirmed |
 | Commanders (state, experience, levels, skills, special bonuses, artifacts, hiring/resurrection, ERM `CO`) | Full | **no equivalent** | WoG.Commanders + emulated unit in battle | **Done + tests** | Designed | No | EMULATED | combat special abilities require hooks; the UI is new |

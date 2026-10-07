@@ -426,6 +426,34 @@
       "Member": "roadsMap",
       "Status": "verified",
       "Note": "0.81.04: byte per node: 0 none, else DB/map/roads id (2 on an ARCADE map) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "object.interact": {
+      "Assembly": "Hex",
+      "Type": "fnt",
+      "Member": "bmjj",
+      "Status": "verified",
+      "Note": "0.81.04: fnt = logic of a world object; bmjj(fdq) is the first call when a hero arrives, before the object acts or shows its dialog | verified 2026-10-07 (0.81.04) with WoG Debug method traces: gems (no dialog) bmjj, bmjb, bmiw, bmjf, bmji, bmip, bmio; treasure chest bmjj, bmji, bmip, bmio, reward dialog, choice (command dfv), bmjb, bmiw"
+    },
+    "object.interactEnd": {
+      "Assembly": "Hex",
+      "Type": "fnt",
+      "Member": "bmiw",
+      "Status": "verified",
+      "Note": "0.81.04: bmiw(fdq) runs right after bmjb, when the object's action (reward) has been applied | verified 2026-10-07 (0.81.04) with WoG Debug method traces: gems (no dialog) bmjj, bmjb, bmiw, bmjf, bmji, bmip, bmio; treasure chest bmjj, bmji, bmip, bmio, reward dialog, choice (command dfv), bmjb, bmiw"
+    },
+    "visit.mapObject": {
+      "Assembly": "Hex",
+      "Type": "fnt",
+      "Member": "coyw",
+      "Status": "verified",
+      "Note": "0.81.04: fnt.coyw = the map object (bxp); fnt.coyx = the session DataObject | verified 2026-10-07 (0.81.04): WoG Debug method trace while a hero picked up gems — bmjj, bmjb, bmiw, bmjf, bmji, bmip, bmio ran once each, in this order"
+    },
+    "visitor.hero": {
+      "Assembly": "Hex",
+      "Type": "fdq",
+      "Member": "cnsj.chna",
+      "Status": "verified",
+      "Note": "0.81.04: fdq = hero logic; cnsj = Hex.Session.Logic.Hero; chna = Hex.Session.Data.Hero | verified 2026-10-07 (0.81.04): WoG Debug method trace while a hero picked up gems — bmjj, bmjb, bmiw, bmjf, bmji, bmip, bmio ran once each, in this order"
     }
   }
 }

@@ -1,0 +1,30 @@
+ZVSE2
+; WoG Debug - object visits: counts !?OB / !$OB triggers and remembers the last visit, so the command bridge can
+; check them ("vars i wogdebug_visits wogdebug_postVisits wogdebug_type wogdebug_subtype wogdebug_x wogdebug_y
+; wogdebug_hero"). Loaded only while WoG Debug is on. Every trigger is its own section, so each calls the function.
+
+!?OB12;
+!!FU(WogDebug_Visit):P;
+!?OB53;
+!!FU(WogDebug_Visit):P;
+!?OB79;
+!!FU(WogDebug_Visit):P;
+!?OB101;
+!!FU(WogDebug_Visit):P;
+
+!$OB12;
+!!VRi^wogdebug_postVisits^:+1;
+!$OB53;
+!!VRi^wogdebug_postVisits^:+1;
+!$OB79;
+!!VRi^wogdebug_postVisits^:+1;
+!$OB101;
+!!VRi^wogdebug_postVisits^:+1;
+
+!?FU(WogDebug_Visit);
+!!VRi^wogdebug_visits^:+1;
+!!VRi^wogdebug_x^:Sv998;
+!!VRi^wogdebug_y^:Sv999;
+!!OB998:T?i^wogdebug_type^;
+!!OB998:U?i^wogdebug_subtype^;
+!!HE-1:N?i^wogdebug_hero^;

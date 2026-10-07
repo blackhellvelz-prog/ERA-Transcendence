@@ -447,6 +447,7 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         public long Frame, Time;
         public int SizeX, SizeZ;
         public List<WoGMapObject> Objects = new();
+        public Dictionary<int, WoGMapObject> ById = new();   // Olden Era map object id → object
         public int[] ObjectAt = Array.Empty<int>();   // node → index in Objects, -1 none
         public bool[] Entrance = Array.Empty<bool>(); // node is an object's ERM position (yellow square)
         public bool[] Blocked = Array.Empty<bool>();  // node is covered by any object, scenery included (red square)
@@ -502,6 +503,7 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
             int owner = owners.TryGetValue(id, out int side) && side >= 0 ? PlayerOfSide(side) : -1;
             var obj = new WoGMapObject { Position = pos, Type = type, SubType = subtype, Owner = owner, Sid = sid };
             snap.Objects.Add(obj);
+            snap.ById[id] = obj;
             covered.Add((obj, blocked));
         }
         AddMonsters(snap.Objects, sx, sz);
@@ -598,6 +600,33 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
             list.Add(new WoGMapObject { Position = pos, Type = 34, SubType = n, Owner = owner, Sid = "hero" });
         }
     }
+
+    /// <summary>
+    /// The WoG view of a visit: the object's logic (fnt) and the hero's logic (fdq) → visiting hero, its owner, the
+    /// object's ERM position and H3 type/subtype. Null when the object is not an ERM object or the hero is unknown.
+    /// </summary>
+    public WoG.Core.Events.WoGEvent? DescribeVisit(object objectLogic, object? heroLogic, out string why)
+    {
+        why = "";
+        if (!sym.Has("visit.mapObject") || !sym.Has("visitor.hero")) { why = "visit symbols not verified"; return null; }
+        if (heroLogic == null) { why = "no hero logic argument"; return null; }
+        var mapObj = sym.Read("visit.mapObject", MethodTraceReal(objectLogic));
+        var hero = sym.Read("visitor.hero", heroLogic);
+        if (mapObj == null || hero == null) { why = $"map object {(mapObj == null ? "null" : "ok")}, hero {(hero == null ? "null" : "ok")}"; return null; }
+        int id = Convert.ToInt32(sym.Read("mapobj.id", mapObj));
+        var snap = Snapshot();
+        if (snap.Status != AdapterStatus.Ok) { why = "map: " + snap.Reason; return null; }
+        if (!snap.Value.ById.TryGetValue(id, out var obj)) { why = $"map object {id} ({sym.Read("mapobj.sid", mapObj)}) is not an ERM object"; return null; }
+        int number = HeroNumber(HeroEngineId(hero));
+        int owner = sym.Has("hero.owner") ? PlayerOfSide(Convert.ToInt32(sym.Read("hero.owner", hero))) : CurrentPlayer;
+        return new WoG.Core.Events.WoGEvent
+        {
+            Player = owner, Hero = number, Position = obj.Position, ObjectType = obj.Type, ObjectSubType = obj.SubType,
+        };
+    }
+
+    /// <summary>A game object re-wrapped as its runtime class (Harmony hands over the declared base type).</summary>
+    public static Func<object, object> MethodTraceReal = o => o;
 
     AdapterResult<WoGMapObject> ObjectAt(MapPos pos)
     {
