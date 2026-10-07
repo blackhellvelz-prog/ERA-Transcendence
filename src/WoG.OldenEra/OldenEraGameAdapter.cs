@@ -299,8 +299,62 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
             if (l != null && sym.Read("visitor.hero", l) is { } d && HeroEngineId(d) == id) return sym.Read("herologic.skills", l);
         return null;
     }
-    public AdapterResult<bool> HasSpell(int hero, int spell) => Missing<bool>("hero.spells");
-    public AdapterResult SetSpell(int hero, int spell, bool known) => Missing("hero.spells");
+    // Spells: Hero.magics.list of MagicData {sidConfig, level, isLearned} plus the magic logic of a hero on the map
+    // (eaa, one dzx per spell); H3 spells map by effect (id-maps/spell.json). A specialist knows a spell as its
+    // "_special" variant, which eaa.baxy names (learning the base sid gives the variant by itself).
+    object? MagicLogic(object hero)
+    {
+        if (!sym.Has("world.heroLogics") || !sym.Has("visitor.hero") || !sym.Has("herologic.magics")) return null;
+        int id = HeroEngineId(hero);
+        foreach (var l in OldenEraSymbols.Items(sym.Read("world.heroLogics", null)))
+            if (l != null && sym.Read("visitor.hero", l) is { } d && HeroEngineId(d) == id) return sym.Read("herologic.magics", l);
+        return null;
+    }
+
+    string? SpellVariant(object? logic, string sid) =>
+        logic != null && sym.Has("magics.variant") ? OldenEraSymbols.Call(logic, sym.MemberOf("magics.variant")!.Name, sid) as string : null;
+
+    public AdapterResult<bool> HasSpell(int hero, int spell)
+    {
+        if (!sym.Has("hero.magics") || !sym.Has("magic.sid") || !sym.Has("magic.learned")) return Missing<bool>("hero.magics");
+        var h = FindHero(hero);
+        if (h == null) return AdapterResult<bool>.Failed($"hero {hero} does not exist");
+        // A spell Olden Era does not have is a spell no hero knows.
+        if (!currentIds().TryGetEngine("spell", spell, out var sid)) return AdapterResult<bool>.Ok(false);
+        var variant = SpellVariant(MagicLogic(h), sid);
+        foreach (var m in OldenEraSymbols.Items(sym.Read("hero.magics", h)))
+            if (m != null && sym.Read("magic.sid", m) is string s && (s == sid || s == variant)
+                && Convert.ToBoolean(sym.Read("magic.learned", m)))
+                return AdapterResult<bool>.Ok(true);
+        return AdapterResult<bool>.Ok(false);
+    }
+
+    public AdapterResult SetSpell(int hero, int spell, bool known)
+    {
+        var cur = HasSpell(hero, spell);
+        if (cur.Status != AdapterStatus.Ok) return cur.AsPlain();
+        if (cur.Value == known) return AdapterResult.Ok;
+        if (!currentIds().TryGetEngine("spell", spell, out var sid))
+            return AdapterResult.Unsupported($"H3 spell {spell} has no Olden Era equivalent (id-maps/spell.json)");
+        var logic = MagicLogic(FindHero(hero)!);
+        if (logic == null)
+            return AdapterResult.Unsupported("changing the spells of a hero that is not on the map is not mapped (no magic logic)");
+        if (known)
+        {
+            if (!sym.Has("magics.learn")) return Missing("magics.learn");
+            // eaa.baxs(sid, false): the data entry and its logic; a specialist gets the "_special" variant
+            OldenEraSymbols.Call(logic, sym.MemberOf("magics.learn")!.Name, sid, false);
+            return AdapterResult.Ok;
+        }
+        if (!sym.Has("magics.forget") || !sym.Has("magiclogic.list") || !sym.Has("magiclogic.sid")) return Missing("magics.forget");
+        var variant = SpellVariant(logic, sid);
+        var own = OldenEraSymbols.Items(sym.Read("magiclogic.list", logic))
+            .FirstOrDefault(e => e != null && sym.Read("magiclogic.sid", e) is string s && (s == sid || s == variant));
+        if (own == null) return AdapterResult.Unsupported("the spell is in the hero's data but has no magic logic to remove");
+        // eaa.bayb(dzx): removes the spell's logic and its data entry
+        OldenEraSymbols.Call(logic, sym.MemberOf("magics.forget")!.Name, own);
+        return AdapterResult.Ok;
+    }
 
     public AdapterResult<WoGStack> GetStack(int hero, int slot)
     {

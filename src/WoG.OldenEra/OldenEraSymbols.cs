@@ -82,13 +82,18 @@ public sealed class OldenEraSymbols
         "skilllogic.list", "skilllogic.sid", // skills logic → skill logics; skill logic → sid
         "skills.learn",              // method of the skills logic: build and apply the logic of a skill entry
         "skilllogic.levelUp",        // method of a skill logic: raise the skill by one level
+        "hero.magics", "magic.sid", "magic.learned", // hero → its spells; spell → sid / learned
+        "herologic.magics",          // hero logic → its magic logic (one spell logic per spell)
+        "magiclogic.list", "magiclogic.sid", // magic logic → spell logics; spell logic → sid
+        "magics.learn", "magics.forget", // methods of the magic logic: learn a spell by sid / remove a spell logic
+        "magics.variant",            // method of the magic logic: the hero's "_special" variant of a spell sid
         "ui.message", "ui.question",
         "turn.start",                // method: start of a day (Harmony postfix → PlayerDayStarted for every player)
         "object.interact",           // method: hero interacts with a map object (prefix/postfix → OB triggers)
         "battle.start", "battle.end", "battle.round", "battle.action",
         "buff.apply",                // method: apply buff by id to a unit
         "save.write", "save.read",   // methods: save/load (side-car WoG state)
-        "hero.position", "hero.move", "hero.skills", "hero.spells", "hero.items", "hero.name", "hero.kill",
+        "hero.position", "hero.move", "hero.skills", "hero.items", "hero.name", "hero.kill",
         "stack.create", "player.activeHero", "player.heroes",
         "map.objects", "town.list", "town.buildings", "battle.stacks", "battle.summon",
         "map.root",                  // static path to the adventure map (Hex.Map.Map)

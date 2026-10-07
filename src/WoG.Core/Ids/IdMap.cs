@@ -14,6 +14,8 @@ public sealed class IdMap
     public Dictionary<string, Dictionary<int, string>> Forward { get; set; } = new();
 
     readonly Dictionary<string, Dictionary<string, int>> reverse = new();
+    // Domains loaded from Compatibility/id-maps files (not saved: a field, and the save serializer skips fields).
+    readonly HashSet<string> fileDomains = new();
     // The reverse table is built on first use: Forward may be filled by deserialization without Set.
     bool reverseBuilt;
 
@@ -62,5 +64,20 @@ public sealed class IdMap
         var list = JsonSerializer.Deserialize<List<Entry>>(File.ReadAllText(path)) ?? new();
         foreach (var e in list)
             if (!string.IsNullOrEmpty(e.engine)) Set(domain, e.wog, e.engine!);
+        fileDomains.Add(domain);
+    }
+
+    /// <summary>
+    /// After loading a saved game: the domains <paramref name="current"/> loaded from files replace the copies the
+    /// save carries (the files may be newer than the save); numbers given during the game (other domains) stay.
+    /// </summary>
+    public void AdoptFileDomains(IdMap current)
+    {
+        foreach (var domain in current.fileDomains)
+        {
+            Forward[domain] = current.Forward.TryGetValue(domain, out var f) ? new Dictionary<int, string>(f) : new();
+            fileDomains.Add(domain);
+        }
+        reverseBuilt = false;
     }
 }

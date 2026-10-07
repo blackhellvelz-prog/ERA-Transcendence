@@ -193,6 +193,8 @@ public sealed class ReceiverRegistry
         ["values go through the adapter; OE primary stats differ (see the matrix)"] = "значения идут через адаптер; первичные статы OE отличаются (см. матрицу)",
         ["S: secondary skills; Olden Era maps H3 skills by effect (id-maps/skill.json, 14 of 28), a skill it does not have reads as not learned and cannot be learned, lowering a learned skill and changing the hero-screen order are not mapped, Olden Era-only skills are invisible to scripts"] =
             "S: вторичные навыки; в Olden Era навыки H3 сопоставлены по эффекту (id-maps/skill.json, 14 из 28), навык, которого там нет, читается как не изученный и не может быть изучен, понижение изученного навыка и смена порядка на экране героя не отображены, навыки только Olden Era скриптам не видны",
+        ["M: spells; Olden Era maps H3 spells by effect (id-maps/spell.json, 37 of 70), a spell it does not have reads as not known and cannot be learned, a specialist knows a spell as its masterful variant, the spells of a hero that is not on the map cannot be changed"] =
+            "M: заклинания; в Olden Era заклинания H3 сопоставлены по эффекту (id-maps/spell.json, 37 из 70), заклинание, которого там нет, читается как неизвестное и не может быть изучено, герой-специалист знает заклинание в мастерском варианте, заклинания героя не на карте менять нельзя",
         ["ids via IdMap; display-slot forms are not supported"] = "id через IdMap; формы со слотами отображения не поддерживаются",
         ["not mapped yet"] = "ещё не отображено",
         ["resource ids via IdMap"] = "id ресурсов через IdMap",

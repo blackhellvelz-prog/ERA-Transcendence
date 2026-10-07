@@ -436,3 +436,19 @@ unsupported commands. 166 xUnit tests.
 * **Debug:** new bridge command `invoke <path> <method> [arg...]` (numbers, "text", true/false, null, `@path`) to call
   game methods while reverse engineering.
 * 175 xUnit tests.
+
+## 2026-10-07 — session 2, continued: HE:M spells on Olden Era; id tables after loading
+
+* **What:** `HE:M` works on Olden Era heroes (read, learn, forget). Spell map `Compatibility/id-maps/spell.json` by
+  effect, 37 of 70; a spell Olden Era does not have reads as not known, learning it is `Unsupported`; the spell number
+  is checked (0..69) as in WoG.
+* **How the game keeps spells** `[V-game]`: data `Hero.magics.list` (`MagicData` sidConfig, level, isLearned) plus the
+  magic logic of a hero on the map (`Logic.Hero.chnj` = `eaa`, one `dzx` per spell in `eaa.chqq`). `eaa.baxs(sid,
+  false)` learns a spell (data and logic; the spellbook showed Lightning Bolt in the primal school), `eaa.bayb(dzx)`
+  removes one (data and logic), `eaa.baxy(sid)` names the hero's `_special` variant: a Web specialist learning
+  `night_2_magic_web` gets `night_2_magic_web_special`, so `HE:M54` (Slow) reads 1 for that hero. Verified with the
+  new `invoke` bridge command and with `HE:M` in a skirmish.
+* **Bug fixed:** loading a saved game replaced the id tables of `Compatibility/id-maps` with the copies in the saved
+  WoG state, so a table added after the save (here `spell.json`) was empty after loading. The file tables now win;
+  numbers given during the game still come from the save (`IdMap.AdoptFileDomains`, test).
+* 177 xUnit tests.

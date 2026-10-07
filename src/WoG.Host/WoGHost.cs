@@ -277,6 +277,7 @@ public sealed class WoGHost : IWoGServices
     {
         var ctx = new ErmEventContext { Player = Game.Players.CurrentPlayer };
         if (IsEra && Erm != null && State.InstructionsDone) Erm.Raise(WoG.Erm.Era.EraEvents.GameLeave, ctx);
+        loaded.Ids.AdoptFileDomains(State.Ids);
         State = loaded;
         State.Era.NormalizeAfterLoad();
         CreatureTypes.Restore();

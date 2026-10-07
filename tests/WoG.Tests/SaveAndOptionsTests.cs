@@ -161,4 +161,30 @@ public class RepositoryDataTests
         var engines = map.Forward["creature"].Values.ToList();
         Assert.Equal(engines.Count, engines.Distinct().Count());           // one number per unit
     }
+    [Fact]
+    public void Loading_a_save_keeps_the_id_tables_of_the_files_and_the_numbers_given_in_the_game()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "wog-idmap-" + Path.GetRandomFileName());
+        Directory.CreateDirectory(dir);
+        try
+        {
+            var t = new TestHost().Load("!?FU1;\n").Start();
+            t.Host.State.Ids.Set("heroslot", 3, "id:7");        // given during the game
+            t.Host.State.Ids.Set("spell", 17, "old_sid");       // a table the save carries
+            var save = Path.Combine(dir, "s.wogsave");
+            t.Host.SaveTo(save, "slot");
+            var file = Path.Combine(dir, "spell.json");          // a newer id-maps file present at start
+            File.WriteAllText(file, "[{\"wog\": 17, \"engine\": \"primal_1_magic_thunderbolt\"}]");
+            t.Host.State.Ids.LoadDomainFile("spell", file);
+            t.Host.State.Ids.Set("heroslot", 3, "id:9");         // the session moved on
+            t.Host.LoadFrom(save, "slot");
+            Assert.True(t.Host.State.Ids.TryGetEngine("spell", 17, out var sid));
+            Assert.Equal("primal_1_magic_thunderbolt", sid);
+            Assert.True(t.Host.State.Ids.TryGetWoG("spell", "primal_1_magic_thunderbolt", out int n));
+            Assert.Equal(17, n);
+            Assert.True(t.Host.State.Ids.TryGetEngine("heroslot", 3, out var hero));
+            Assert.Equal("id:7", hero);
+        }
+        finally { Directory.Delete(dir, true); }
+    }
 }

@@ -586,7 +586,8 @@ public sealed class HeReceiver : ErmReceiverBase
 {
     public HeReceiver() : base("HE")
     {
-        Declare("EFIWMONPK", CompatLevel.PartiallySupported, "values go through the adapter; OE primary stats differ (see the matrix)");
+        Declare("EFIWONPK", CompatLevel.PartiallySupported, "values go through the adapter; OE primary stats differ (see the matrix)");
+        Declare("M", CompatLevel.PartiallySupported, "M: spells; Olden Era maps H3 spells by effect (id-maps/spell.json, 37 of 70), a spell it does not have reads as not known and cannot be learned, a specialist knows a spell as its masterful variant, the spells of a hero that is not on the map cannot be changed");
         Declare("S", CompatLevel.PartiallySupported, "S: secondary skills; Olden Era maps H3 skills by effect (id-maps/skill.json, 14 of 28), a skill it does not have reads as not learned and cannot be learned, lowering a learned skill and changing the hero-screen order are not mapped, Olden Era-only skills are invisible to scripts");
         Declare("AC", CompatLevel.PartiallySupported, "ids via IdMap; display-slot forms are not supported");
         Declare("BDGHLRTUVXY", CompatLevel.Unsupported, "not mapped yet");
@@ -656,6 +657,7 @@ public sealed class HeReceiver : ErmReceiverBase
             {
                 c.RequireExactly(2);
                 int spell = c.N(0);
+                if (spell < 0 || spell >= WoGLimits.SpellCount) throw new ErmRuntimeException("wrong spell number (0...69)");
                 int v = c.Need(heroes.HasSpell(h, spell)) ? 1 : 0;
                 if (c.Apply(ref v, 1)) break;
                 c.Need(heroes.SetSpell(h, spell, v != 0));

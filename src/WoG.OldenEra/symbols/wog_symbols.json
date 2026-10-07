@@ -622,6 +622,69 @@
       "Member": "LevelUp",
       "Status": "verified",
       "Note": "0.81.04: eah.LevelUp() (12 callers): raises the skill by one level | verified 2026-10-07 (0.81.04) in a skirmish: !!HE:S3/1 (bjfv + bazp) gave skill_scouting 1, view radius 7 to 8; !!HE:S2/2 (one LevelUp) raised skill_logistic 1 to 2, movement bonus 0.10 to 0.15, max movement 201; the hero screen shows the skills"
+    },
+    "hero.magics": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "magics.list",
+      "Status": "verified",
+      "Note": "0.81.04: HeroMagics.list: List<MagicData> | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish: a new hero has 7 battle spells"
+    },
+    "magic.sid": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.MagicData",
+      "Member": "sidConfig",
+      "Status": "verified",
+      "Note": "0.81.04: spell sid (DB/magics) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "magic.learned": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.MagicData",
+      "Member": "isLearned",
+      "Status": "verified",
+      "Note": "0.81.04: false for some entries (an AI hero had bonus_magic_astral_summon_3 not learned) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "herologic.magics": {
+      "Assembly": "Hex",
+      "Type": "fdq",
+      "Member": "cnsj.chnj",
+      "Status": "verified",
+      "Note": "0.81.04: Logic.Hero.chnj: eaa (magic logic: chqp HeroMagics, chqq List<dzx>, chqr Dictionary<string, dzx>) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "magiclogic.list": {
+      "Assembly": "Hex",
+      "Type": "eaa",
+      "Member": "chqq",
+      "Status": "verified",
+      "Note": "0.81.04: List<dzx>, one per spell | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "magiclogic.sid": {
+      "Assembly": "Hex",
+      "Type": "dzx",
+      "Member": "ctnj",
+      "Status": "verified",
+      "Note": "0.81.04: spell sid (ctno = level) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "magics.learn": {
+      "Assembly": "Hex",
+      "Type": "eaa",
+      "Member": "baxs",
+      "Status": "verified",
+      "Note": "0.81.04: eaa.baxs(string sid, bool = false) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish: baxs(primal_1_magic_thunderbolt, false) added the data entry (isLearned) and its logic, the spellbook showed Lightning Bolt in the primal school; for a specialist baxs(night_2_magic_web) added night_2_magic_web_special"
+    },
+    "magics.forget": {
+      "Assembly": "Hex",
+      "Type": "eaa",
+      "Member": "bayb",
+      "Status": "verified",
+      "Note": "0.81.04: eaa.bayb(dzx) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish: removed the spell's logic and its data entry (baxt/baxu(string) changed nothing)"
+    },
+    "magics.variant": {
+      "Assembly": "Hex",
+      "Type": "eaa",
+      "Member": "baxy",
+      "Status": "verified",
+      "Note": "0.81.04: eaa.baxy(string sid) → the hero's variant sid or null | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish: null for a hero without a spell specialty, night_2_magic_web_special for hero 156"
     }
   }
 }
