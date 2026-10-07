@@ -9,6 +9,14 @@
 * Unity convention: saves and `Player.log` live in `%USERPROFILE%\AppData\LocalLow\<company>\<product>\`
   (from `app.info`) **[UNVERIFIED for this game]**.
 
+* **[V-game]** Location: `%USERPROFILE%\AppData\LocalLow\Unfrozen\HeroesOldenEra\users\Steam_<id>\saves\singleplayer\<game folder>\*.saveskirmish`
+  (autosaves `as_<day>`, quicksave); settings in `…\users\Steam_<id>\prefs\` (`Settings.json`, `SettingsLocal.json` —
+  display mode and resolution); `Player.log` in `LocalLow\Unfrozen\HeroesOldenEra\`.
+* **[V-game]** Format: gzip; inside — a length-prefixed hash string, the game version string (`0.80.48` in a September
+  2026 save), then a JSON header (`title`, `template`, `gameMode`, `spawns`, …) and further data not parsed yet. Lobby
+  presets (`*.lobby`) are MessagePack.
+* Candidate save method: `Hex.Session.Data.Data.Save(string _fileName)` (interop) **[UNVERIFIED as the save hook]**.
+
 ## Unknown — must be established on a real installation
 
 * Save file format (binary/JSON/compressed), location, and whether there is room for extensions.

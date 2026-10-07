@@ -14,6 +14,7 @@ disassembling the game in this session. Therefore every fact about Olden Era car
 | **[V-data]** | Verified by tools that parse the real `Core.zip` and document the keys they found ("checked against N real files") |
 | **[V-community]** | Claimed by modders who checked it in game (Steam/Nexus/tool documentation); not independently verified |
 | **[UNVERIFIED]** | Plausible and required by the architecture, but must be confirmed on a real install — see `07_InGame_RE_Plan.md` |
+| **[V-game]** | Checked in the running game on the user's install (2026-10-07, version 0.81.04): plugin log, WoG Debug self-test and the game's UI as the oracle (`MODLOG.md`, session 2) |
 
 Project rule 7 ("do not assume Olden Era capabilities") is enforced through these tags: the compatibility layer
 relies only on **[V-*]** facts; **[UNVERIFIED]** items are gated behind checks (symbols with status

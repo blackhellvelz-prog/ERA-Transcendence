@@ -16,6 +16,11 @@
 | Earlier/other builds may have been Mono (`hex.dll` is edited in dnSpy) | [V-community], contradicts | O4. Interpreted as early EA builds or a different platform. The port primarily supports IL2CPP; a Mono build would be strictly simpler (the same BepInEx 5/6 Mono plugin API). |
 | The game has a built-in map editor | [V-code] | O2 patches it |
 | Linux/Proton: a Linux build of BepInEx 6 exists for the game | [V-community] | O3 "Windows and linux version" |
+| Version 0.81.04 (Steam build 2026-10-05): Unity **6000.0.66f1**, IL2CPP, no anti-cheat | [V-game] | `um scan`, `UnityPlayer.dll` version, main-menu label |
+| BepInEx 6 **be.785** loads in this version; interop (140 assemblies, `Hex.dll` 33 MB) is generated with the Unity base libraries 6000.0.66 | [V-game] | `BepInEx\LogOutput.log`; how to install without bepinex.dev — `MODLOG.md`, session 2 |
+| Obfuscator: GUPS (`GUPS.Obfuscator.dll`); partial — the data model `Hex.Session.Data.*` keeps readable names, the holder classes are renamed (`dbx`, `ebe`, …) | [V-game] | interop + the WoG Debug state dump matches the UI |
+| Harmony postfixes on `ebe.OnStartDay()` and on `EventSystem.Update` work | [V-game] | plugin log, method trace |
+| The demo (Oct 2025) was Unity 2020.3.48 **Mono** — the source of O4's "hex.dll in dnSpy" | [V-game] | the demo's `Player.log` in `LocalLow\Unfrozen\HeroesOE` |
 
 ## Implications for the port
 

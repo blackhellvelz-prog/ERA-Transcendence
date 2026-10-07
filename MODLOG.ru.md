@@ -124,3 +124,107 @@ BepInEx 6 для игры существует). Онлайн/античит: т
 2. Подключить моды ERA в плагине (`WoGHost.AddEraMods`), хуки событий ERA (бой, экраны, клавиши).
 3. Ресиверы, нужные корпусу ERA: `UN` (карта), `BM/BU/BG/BA` (бой), `CA`, `PO`, `OB`, `DL` (диалоги).
 4. Прогнать остальные моды ERA Project; описать и реализовать заново плагины (`SS` и т. д.).
+
+## 2026-10-07 — сессия 2 (локальный Claude Code на компьютере с игрой)
+
+### Окружение
+* Olden Era **0.81.04** (версия в главном меню), сборка Steam от 05.10.2026, Unity **6000.0.66f1**, IL2CPP, античита
+  нет. Установка: `G:\SteamLibrary\steamapps\common\Heroes of Might and Magic Olden Era`.
+* Установка HoMM3 ERA пользователя: `G:\Games\Тень Смерти` — ERA Project **2.291 rus**, 17 активных модов в
+  `Mods\list.txt` (WoG, Era Erm Framework, Easy Cheats, BattleQueue, Game Enhancement Mod, WoG Rus, WoG Scripts,
+  WoG Scripts Rus, TrainerX, ERA Scripts, AMER_HumanAI, Enhanced Henchmen, …).
+* .NET 8 SDK установлен локально для пользователя в `%USERPROFILE%\.dotnet8` (PATH не тронут; для работы задать
+  `DOTNET_ROOT`).
+* `nuget.bepinex.dev`, `builds.bepinex.dev`, `unity.bepinex.dev` и `archive.org` с этого компьютера не открываются
+  (таймаут), в том числе с включённым VPN пользователя (консольные программы идут мимо него). GitHub и nuget.org
+  работают.
+
+### BepInEx без bepinex.dev (как поставлен)
+1. BepInEx 6 IL2CPP **be.785**: точный `BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.785+6abdba4.zip` приложен к релизу
+   GitHub `MrDiamond64/Hydra` v2.0.0; его SHA-256 `2A7CBF74…7E2D9B7F` совпадает с закреплённым в
+   `mimiasei/map-editor-json-tool/scripts/prepare-gme-mod.ps1`. (В установщике Scenario Editor BepInEx **нет** —
+   тупик.)
+2. Первый запуск не проходит: BepInEx качает базовые библиотеки Unity с `unity.bepinex.dev`. Решение: `Managed.zip`
+   из релиза GitHub `LavaGang/MelonLoader.UnityDependencies` **6000.0.66** (сгенерирован из сборки самой Unity),
+   сохранён как `BepInEx\unity-libs\6000.0.66.zip` — BepInEx берёт локальный zip с именем файла из URL. Interop:
+   140 сборок, `Hex.dll` 33 МБ, без ошибок.
+3. Плагин собирается против `BepInEx\core` из игры (`OldenEraDir` / `OLDEN_ERA_DIR`), а не из NuGet.
+
+### Изменения вне репозитория (все обратимы)
+* Резервные копии: сейвы → `%USERPROFILE%\.universal-modder\backups\oldenera-saves\` (um backup, 1,39 ГБ);
+  `Core.zip` + SHA-256, `SettingsLocal.json`, `BepInEx.cfg` → `%USERPROFILE%\.universal-modder\backups\oldenera-game\`.
+* BepInEx в папке игры (`BepInEx\`, `dotnet\`, `winhttp.dll`, `doorstop_config.ini`, `.doorstop_version`,
+  `changelog.txt`); WoG в `BepInEx\plugins\WoG` и `BepInEx\config\WoG`, `wog_symbols.json`, `wog.oldenera.cfg`.
+* По просьбе пользователя отключены стартовые ролики: `Ubisoft.mp4`, `Hooded_Horse.mp4`, `Unfrozen.mp4`,
+  `Trailer.mp4` перенесены из `StreamingAssets\video` в резервную папку `video-intros` (игра пишет в лог
+  «video … dont found» и идёт дальше; меню через ~25 с). Обновление Steam или проверка файлов могут их вернуть.
+* По просьбе пользователя — окно 1600×900: в `prefs\SettingsLocal.json` `fullScreenMode` 0→3, разрешение 1600×900, и в
+  реестре Unity `HKCU\Software\Unfrozen\HeroesOldenEra` `Screenmanager Fullscreen mode` 0→3 (+ ширина/высота,
+  Use Native 0); копия ключа — в `%LOCALAPPDATA%\universal-modder\reg-backups\`.
+* Окно консоли BepInEx выключено (`[Logging.Console] Enabled = false`), см. ловушку 3.
+
+### Найдено (неочевидное)
+1. Обфускация Olden Era (GUPS Obfuscator) частичная: модель данных сохраняет читаемые имена (`Hex.Session.Data.Data` с
+   `sides`, `heroes`, `day`, `week`, `month`, `daysInGameCount`; `Side.res` →
+   `ResHeap{gold, wood, ore, gemstones, crystals, mercury, dust, graal, starDust}` → `Resource.value`); классы, которые
+   их держат, обфусцированы (`dbx` — синглтон сессии со статическим `me`, свойство `cfjl` = Data; `ebe` — синглтон
+   игровой логики с `OnStartDay()` / `OnStartWeek()`).
+2. Объяснено противоречие O4 («hex.dll в dnSpy»): **демо** (`Heroes of Might & Magic Olden Era Demo`, октябрь 2025)
+   было на Unity 2020.3.48 **Mono**; полная игра — IL2CPP.
+3. Сейвы: `%USERPROFILE%\AppData\LocalLow\Unfrozen\HeroesOldenEra\users\Steam_<id>\saves\singleplayer\…\*.saveskirmish`
+   = gzip → строка хэша с префиксом длины, строка версии игры (`0.80.48` в сентябрьском сейве), затем JSON-заголовок
+   (title, template, spawns, …) и остальное (пока не разобрано). Пресеты лобби — MessagePack.
+4. `ebe.OnStartDay()` вызывается **один раз в день для всех сторон** (день 2 после «Конца хода») и **не вызывается в
+   день 1**.
+5. `Mods\list.txt` в ERA — от низшего приоритета к высшему (мод-перевод вроде `WoG Rus` идёт после `WoG`); плагин
+   разворачивает его для `AddEraMods` (высший первым).
+
+### Ловушки
+1. Пути библиотек Steam нельзя склеивать `Join-Path`: библиотека на отключённом диске (`E:`) даёт `DriveNotFound`.
+2. `um win shot --exe HeroesOldenEra.exe` может снять консоль BepInEx вместо игры (тот же процесс).
+3. **Один клик в консоли BepInEx замораживает игру**: выделение QuickEdit блокирует запись в консоль, и главный поток
+   игры встаёт на следующей строке лога (заголовок окна «Выбрать BepInEx …»). Скрипт развёртывания выключает консоль.
+4. Плагин раньше ни разу не запускался: адаптер вызывал `ids()` в конструкторе до создания хоста (NRE при загрузке) —
+   исправлено; чтение нестатического члена при отсутствии сессии бросало `TargetException` в главном меню — теперь
+   чтение символов вне сессии возвращает null.
+5. Настоящая ошибка, найденная самотестом в игре: второй `StartNewGame` в одном процессе (новая карта) оставлял старые
+   секции и сбрасывал номера ERA-функций на 95000, так что новые функции совпадали со старыми и выполнялись дважды
+   (DO-цикл 110 вместо 55, `OW:R d100` добавлял 200). Теперь `StartNewGame` после уже шедшей игры начинает с чистого
+   состояния и нового рантайма.
+6. В ERA `HE-1` — герой события, а не активный герой.
+
+### WoG Debug (новое)
+* `src/WoG.Debug`: консоль ERM (выполняет ERA-код как одноразовую `!?FU(WogDebug_Exec_N)`), самотест слоя WoG/ERA
+  (ядро ERM + проверки игры, сверяемые с прямым чтением через адаптер) и таблица покрытия ресиверов.
+* В игре (`[Debug] Enabled = true`, `tools\deploy\deploy.ps1 -DebugMode`): мост команд — текстовый файл в
+  `BepInEx\config\WoG\debug\in` выполняется в игровом потоке, результат появляется в `debug\out` (команды: `state`,
+  `erm`, `event`, `newday`, `symbols`, `selftest`, `compat`, `vars`); трассировка методов (`TraceMethods`).
+* `mods\WoG Debug`: ERA-скрипт среза.
+
+### Проверка
+* 142 теста xUnit (+6: самотест полностью проходит на тестовом движке, состояние восстанавливается, срез, две игры в
+  одном хосте). Корпус ERA из установки пользователя: 0 ошибок выполнения — и 4 мода проекта, и все 17 модов
+  `list.txt`.
+* **В игре (одиночная карта ARCADE, Храм, 2 игрока):** дамп состояния совпадает с интерфейсом (золото 35000, дерево 30,
+  руда 30, самоцветы, кристаллы, ртуть 35, пыль 250, дата М1 Н1 Д1, Player/Bot). После «Конца хода»: вызов
+  `ebe.OnStartDay` №1, WoG «day started: day 2, players 0,1», ERA-скрипт `!!OW:R(owner)/6/d1000` добавил 1000 золота
+  только человеку, верхняя панель показывает 36750 = 35000 + 750 дохода + 1000. Самотест в игре: 26 пройдено,
+  0 провалов, 2 unsupported (OW:A, сера), 1 ошибка (HE:E — герои ещё не привязаны), 2 пропущено (интерактивные).
+  12 символов помечены `verified`.
+
+### Точки клика в меню (клиентская область 1600×900)
+Новая игра 195,249 → Быстрый старт 196,296 → Шаблоны 800,400 → ARCADE 913,280 → Выбрать 1290,799 → Храм 514,290 →
+первый герой 464,210 → сложность «низкая» 632,742 → Начать 800,821. Конец хода 1522,828, подтверждение 695,486.
+
+### Следующие шаги
+1. День 1: запускать OnEveryDay, когда карта готова, в новой игре (OnStartDay в день 1 не вызывается); порядок по
+   игрокам.
+2. Герои: `DataHeroes` → список/id/владелец/характеристики/армия героев; `OW:A`, `HE`; затем хуки сохранения/загрузки
+   (кандидат — `Data.Save(string)`), объекты карты, бой.
+3. Загрузить в игре полный список модов ERA пользователя и наращивать самотест вместе с адаптером.
+4. Закончить `TRANSLATION_STATUS.md`.
+
+### Как откатить
+Удалить `BepInEx\plugins\WoG`, `BepInEx\config\WoG`, `BepInEx\config\wog_symbols.json`, `wog.oldenera.cfg`; сам
+BepInEx: `BepInEx\`, `dotnet\`, `winhttp.dll`, `doorstop_config.ini`, `.doorstop_version`, `changelog.txt`. Ролики:
+вернуть из `video-intros`. Окно: восстановить `SettingsLocal.json.orig` и копию `.reg`.

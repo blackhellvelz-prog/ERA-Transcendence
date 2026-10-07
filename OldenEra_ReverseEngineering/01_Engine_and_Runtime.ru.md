@@ -18,6 +18,11 @@
 | Ранние/другие сборки, возможно, были Mono (`hex.dll` правится в dnSpy) | [V-community], противоречит | O4. Трактуется как ранние сборки EA или другая платформа. Порт поддерживает прежде всего IL2CPP; Mono-сборка была бы строго проще (тот же API плагинов BepInEx 5/6 Mono). |
 | В игру встроен редактор карт | [V-code] | O2 его патчит |
 | Linux/Proton: для игры есть Linux-сборка BepInEx 6 | [V-community] | O3 «Windows and linux version» |
+| Версия 0.81.04 (сборка Steam от 05.10.2026): Unity **6000.0.66f1**, IL2CPP, античита нет | [V-game] | `um scan`, версия `UnityPlayer.dll`, надпись в главном меню |
+| BepInEx 6 **be.785** работает на этой версии; interop (140 сборок, `Hex.dll` 33 МБ) генерируется с базовыми библиотеками Unity 6000.0.66 | [V-game] | `BepInEx\LogOutput.log`; как поставить без bepinex.dev — `MODLOG.ru.md`, сессия 2 |
+| Обфускатор: GUPS (`GUPS.Obfuscator.dll`); частичный — модель данных `Hex.Session.Data.*` сохраняет читаемые имена, классы-владельцы переименованы (`dbx`, `ebe`, …) | [V-game] | interop + дамп состояния WoG Debug совпадает с интерфейсом |
+| Harmony-постфиксы на `ebe.OnStartDay()` и на `EventSystem.Update` работают | [V-game] | лог плагина, трассировка методов |
+| Демо (октябрь 2025) было на Unity 2020.3.48 **Mono** — отсюда «hex.dll в dnSpy» из O4 | [V-game] | `Player.log` демо в `LocalLow\Unfrozen\HeroesOE` |
 
 ## Следствия для порта
 

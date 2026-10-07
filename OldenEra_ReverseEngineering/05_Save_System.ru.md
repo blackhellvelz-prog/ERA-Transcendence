@@ -11,6 +11,15 @@
 * Соглашение Unity: сейвы и `Player.log` лежат в `%USERPROFILE%\AppData\LocalLow\<company>\<product>\`
   (из `app.info`) **[UNVERIFIED для этой игры]**.
 
+* **[V-game]** Расположение: `%USERPROFILE%\AppData\LocalLow\Unfrozen\HeroesOldenEra\users\Steam_<id>\saves\singleplayer\<папка игры>\*.saveskirmish`
+  (автосохранения `as_<день>`, quicksave); настройки — в `…\users\Steam_<id>\prefs\` (`Settings.json`,
+  `SettingsLocal.json` — режим экрана и разрешение); `Player.log` — в `LocalLow\Unfrozen\HeroesOldenEra\`.
+* **[V-game]** Формат: gzip; внутри — строка хэша с префиксом длины, строка версии игры (`0.80.48` в сейве сентября
+  2026), затем JSON-заголовок (`title`, `template`, `gameMode`, `spawns`, …) и дальнейшие данные, пока не разобранные.
+  Пресеты лобби (`*.lobby`) — MessagePack.
+* Кандидат на метод сохранения: `Hex.Session.Data.Data.Save(string _fileName)` (interop) **[UNVERIFIED как хук
+  сохранения]**.
+
 ## Неизвестно — нужно установить на реальной установке
 
 * Формат файла сейва (бинарный/JSON/сжатый), расположение, есть ли место для расширений.

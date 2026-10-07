@@ -128,3 +128,101 @@ The user: "If there is a more advanced version of WOG — ERA, let's go with tha
 2. Hook up ERA mods in the plugin (`WoGHost.AddEraMods`) and ERA event hooks (combat, screens, keys).
 3. Receivers needed by the ERA corpus: `UN` (map), `BM/BU/BG/BA` (combat), `CA`, `PO`, `OB`, `DL` (dialogs).
 4. Run the remaining ERA Project mods; document and reimplement the plugins (`SS`, etc.).
+
+## 2026-10-07 — session 2 (local Claude Code on the machine with the game)
+
+### Environment
+* Olden Era **0.81.04** (version in the main menu), Steam build of 2026-10-05, Unity **6000.0.66f1**, IL2CPP, no
+  anti-cheat. Install: `G:\SteamLibrary\steamapps\common\Heroes of Might and Magic Olden Era`.
+* The user's HoMM3 ERA install: `G:\Games\Тень Смерти` — ERA Project **2.291 rus**, 17 active mods in
+  `Mods\list.txt` (WoG, Era Erm Framework, Easy Cheats, BattleQueue, Game Enhancement Mod, WoG Rus, WoG Scripts,
+  WoG Scripts Rus, TrainerX, ERA Scripts, AMER_HumanAI, Enhanced Henchmen, …).
+* .NET 8 SDK installed user-local in `%USERPROFILE%\.dotnet8` (PATH untouched; set `DOTNET_ROOT` to use it).
+* `nuget.bepinex.dev`, `builds.bepinex.dev`, `unity.bepinex.dev` and `archive.org` time out from this machine, also
+  with the user's VPN on (console programs do not go through it). GitHub and nuget.org work.
+
+### BepInEx without bepinex.dev (how it was installed)
+1. BepInEx 6 IL2CPP **be.785**: the exact `BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.785+6abdba4.zip` is attached to the
+   GitHub release `MrDiamond64/Hydra` v2.0.0; its SHA-256 `2A7CBF74…7E2D9B7F` equals the one pinned by
+   `mimiasei/map-editor-json-tool/scripts/prepare-gme-mod.ps1`. (The Scenario Editor installer does **not** contain
+   BepInEx — dead end.)
+2. The first start fails: BepInEx downloads the Unity base libraries from `unity.bepinex.dev`. Fix: `Managed.zip` of
+   the GitHub release `LavaGang/MelonLoader.UnityDependencies` **6000.0.66** (generated from Unity's own build), saved
+   as `BepInEx\unity-libs\6000.0.66.zip` — BepInEx uses a local zip with the URL's file name. Interop: 140 assemblies,
+   `Hex.dll` 33 MB, no errors.
+3. The plugin compiles against the game's `BepInEx\core` (`OldenEraDir` / `OLDEN_ERA_DIR`), not NuGet.
+
+### Changes outside the repository (all reversible)
+* Backups: saves → `%USERPROFILE%\.universal-modder\backups\oldenera-saves\` (um backup, 1.39 GB); `Core.zip` +
+  SHA-256, `SettingsLocal.json`, `BepInEx.cfg` → `%USERPROFILE%\.universal-modder\backups\oldenera-game\`.
+* BepInEx in the game folder (`BepInEx\`, `dotnet\`, `winhttp.dll`, `doorstop_config.ini`, `.doorstop_version`,
+  `changelog.txt`); WoG in `BepInEx\plugins\WoG` and `BepInEx\config\WoG`, `wog_symbols.json`, `wog.oldenera.cfg`.
+* User request: intro videos off — `Ubisoft.mp4`, `Hooded_Horse.mp4`, `Unfrozen.mp4`, `Trailer.mp4` moved from
+  `StreamingAssets\video` to the backup folder `video-intros` (the game logs "video … dont found" and goes on; the menu
+  appears after ~25 s). A Steam update or a file check may bring them back.
+* User request: windowed 1600×900 — `prefs\SettingsLocal.json` `fullScreenMode` 0→3, resolution 1600×900, and Unity's
+  `HKCU\Software\Unfrozen\HeroesOldenEra` `Screenmanager Fullscreen mode` 0→3 (+ width/height, Use Native 0); the
+  registry backup is in `%LOCALAPPDATA%\universal-modder\reg-backups\`.
+* The BepInEx console window is off (`[Logging.Console] Enabled = false`), see gotcha 3.
+
+### Found (non-obvious)
+1. Olden Era's obfuscation (GUPS Obfuscator) is partial: the data model keeps readable names
+   (`Hex.Session.Data.Data` with `sides`, `heroes`, `day`, `week`, `month`, `daysInGameCount`; `Side.res` →
+   `ResHeap{gold, wood, ore, gemstones, crystals, mercury, dust, graal, starDust}` → `Resource.value`); the classes that
+   hold them are obfuscated (`dbx` = session singleton with static `me`, property `cfjl` = Data; `ebe` = game logic
+   singleton with `OnStartDay()` / `OnStartWeek()`).
+2. The O4 contradiction ("hex.dll in dnSpy") is explained: the **demo** (`Heroes of Might & Magic Olden Era Demo`,
+   Oct 2025) was Unity 2020.3.48 **Mono**; the full game is IL2CPP.
+3. Saves: `%USERPROFILE%\AppData\LocalLow\Unfrozen\HeroesOldenEra\users\Steam_<id>\saves\singleplayer\…\*.saveskirmish`
+   = gzip → a length-prefixed hash string, the game version string (`0.80.48` in a September save), then a JSON header
+   (title, template, spawns, …) and the rest (not parsed yet). Lobby presets are MessagePack.
+4. `ebe.OnStartDay()` is called **once per day for all sides** (day 2 after End Turn) and **not on day 1**.
+5. ERA's `Mods\list.txt` is lowest priority first (a translation mod such as `WoG Rus` comes after `WoG`); the plugin
+   reverses it for `AddEraMods` (highest first).
+
+### Gotchas
+1. Do not `Join-Path` Steam library paths: a library on a disconnected drive (`E:`) throws `DriveNotFound`.
+2. `um win shot --exe HeroesOldenEra.exe` may capture the BepInEx console instead of the game (same process).
+3. **One click into the BepInEx console freezes the game**: QuickEdit selection blocks console writes, and the game's
+   main thread stops at its next log line (window title "Выбрать BepInEx …"). The deploy script turns the console off.
+4. The plugin had never run before: the adapter called `ids()` in its constructor before the host existed (NRE at
+   load) — fixed; reading an instance member of a null session threw `TargetException` in the main menu — symbol
+   reads now return null outside a session.
+5. A real bug found by the in-game self-test: a second `StartNewGame` in one process (a new map) kept the old sections
+   and reset ERA function ids to 95000, so new functions collided with old ones and ran twice (DO loop 110 instead of
+   55, `OW:R d100` added 200). `StartNewGame` now starts from a clean state and runtime when a game already ran.
+6. ERA `HE-1` is the hero of the event, not the active hero.
+
+### WoG Debug (new)
+* `src/WoG.Debug`: ERM console (runs ERA code as a one-off `!?FU(WogDebug_Exec_N)`), self-test of the WoG/ERA layer
+  (core ERM + engine-facing cases compared with the adapter read directly) and a receiver coverage table.
+* In game (`[Debug] Enabled = true`, `tools\deploy\deploy.ps1 -DebugMode`): command bridge — a text file in
+  `BepInEx\config\WoG\debug\in` is executed on the game thread and the result appears in `debug\out` (commands:
+  `state`, `erm`, `event`, `newday`, `symbols`, `selftest`, `compat`, `vars`); method tracing (`TraceMethods`).
+* `mods\WoG Debug`: the ERA script of the slice.
+
+### Verification
+* 142 xUnit tests (+6: the self-test passes completely on the headless engine, the state is restored, the slice, two
+  games in one host). ERA corpus of the user's install: 0 runtime errors — the 4 project mods and all 17 mods of
+  `list.txt`.
+* **In game (skirmish ARCADE, Temple, 2 players):** the state dump matches the UI (gold 35000, wood 30, ore 30, gems,
+  crystals, mercury 35, dust 250, date М1 Н1 Д1, Player/Bot). After End Turn: `ebe.OnStartDay` call #1, WoG
+  "day started: day 2, players 0,1", the ERA script `!!OW:R(owner)/6/d1000` added 1000 gold to the human only, and the
+  top bar shows 36750 = 35000 + 750 income + 1000. Self-test in game: 26 pass, 0 fail, 2 unsupported (OW:A, sulfur),
+  1 error (HE:E — heroes not bound yet), 2 skipped (interactive). 12 symbols are marked `verified`.
+
+### Menu click points (client area 1600×900)
+New game 195,249 → Quick start 196,296 → Templates 800,400 → ARCADE 913,280 → Choose 1290,799 → Temple 514,290 →
+first hero 464,210 → difficulty "low" 632,742 → Start 800,821. End turn 1522,828, confirm 695,486.
+
+### Next steps
+1. Day 1: run OnEveryDay once the map is ready in a new game (OnStartDay is not called on day 1); per-player order.
+2. Heroes: `DataHeroes` → hero list/id/owner/stats/army; `OW:A`, `HE`; then save/load hooks (`Data.Save(string)` is a
+   candidate), map objects, battle.
+3. Load the user's full ERA mod list in game and grow the self-test along with the adapter.
+4. Finish `TRANSLATION_STATUS.md`.
+
+### How to roll back
+Delete `BepInEx\plugins\WoG`, `BepInEx\config\WoG`, `BepInEx\config\wog_symbols.json`, `wog.oldenera.cfg`; BepInEx
+itself: `BepInEx\`, `dotnet\`, `winhttp.dll`, `doorstop_config.ini`, `.doorstop_version`, `changelog.txt`. Videos:
+move them back from `video-intros`. Window: restore `SettingsLocal.json.orig` and the `.reg` backup.
