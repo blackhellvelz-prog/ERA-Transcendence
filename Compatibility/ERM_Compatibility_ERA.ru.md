@@ -69,7 +69,7 @@ UNSUPPORTED, выполнение продолжается; ничего не п
 | `OW` | да | `ACGIR` PARTIALLY SUPPORTED (id ресурсов через IdMap); `DHKNOSTVW` UNSUPPORTED (ещё не отображено) |
 | `PA` | нет | UNSUPPORTED — PA — ресивер плагина «receiver pa.era» (закрытая DLL ERA) |
 | `PM` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
-| `PO` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
+| `PO` | да | `BCHNOSTV` FULLY SUPPORTED (PO — данные WoG для клетки карты, хранятся в состоянии WoG и сохраняются вместе с ним) |
 | `QU` | нет | UNSUPPORTED — QU — ресивер плагина «receiver qu.era» (закрытая DLL ERA) |
 | `QW` | нет | UNSUPPORTED — ресивер ещё не отображён на целевой движок |
 | `RD` | нет | UNSUPPORTED — RD — окно найма существ H3 (Dwellings.pas): нужен UI-адаптер |

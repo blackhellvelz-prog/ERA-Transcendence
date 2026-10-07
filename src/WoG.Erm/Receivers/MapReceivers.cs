@@ -1,5 +1,7 @@
+using System.Linq;
 using WoG.Core.Compat;
 using WoG.Core.Model;
+using WoG.Core.State;
 using WoG.Erm.Runtime;
 
 namespace WoG.Erm.Receivers;
@@ -135,5 +137,76 @@ public sealed class TrReceiver : ErmReceiverBase
             default:
                 throw ErmCall.WrongCommand(c.Letter);
         }
+    }
+}
+
+/// <summary>!!PO — WoG's own data of a map square (erm.cpp ERM_Position), kept in the WoG state.</summary>
+public sealed class PoReceiver : ErmReceiverBase
+{
+    public PoReceiver() : base("PO")
+    {
+        Declare("HONTSCVB", CompatLevel.FullySupported, "PO — WoG data of a map square, kept in the WoG state and saved with it");
+    }
+
+    protected override void Run(ErmCall c)
+    {
+        var pos = MapSelector.Resolve(c);
+        var (size, levels) = c.Need(c.Rt.Services.Game.Map.GetSize());
+        if (pos.X < 0 || pos.X >= size) throw new ErmRuntimeException("\"!!PO\"-wrong position (x).");
+        if (pos.Y < 0 || pos.Y >= size) throw new ErmRuntimeException("\"!!PO\"-wrong position (y).");
+        if (pos.L < 0 || pos.L > levels) throw new ErmRuntimeException("\"!!PO\"-wrong position (l).");
+        var squares = c.Rt.Services.State.Squares;
+        int key = pos.Pack();
+        var sq = squares.TryGetValue(key, out var found) ? found : new PoSquare();
+        // The bit fields of _Square_ keep only their low bits.
+        int Field(int value, int bits, bool signed)
+        {
+            int mask = (1 << bits) - 1, v = value & mask;
+            return signed && v > mask >> 1 ? v - (mask + 1) : v;
+        }
+        int Bits(int value, int i, int bits, bool signed = false)
+        {
+            c.RequireMin(1);
+            c.Apply(ref value, i);
+            return Field(value, bits, signed);
+        }
+        switch (c.Letter)
+        {
+            case 'H': sq.Hero = Bits(sq.Hero, 0, 8); break;
+            case 'O': sq.Owner = Bits(sq.Owner, 0, 4, signed: true); break;
+            case 'N': sq.Number = Bits(sq.Number, 0, 4); break;
+            case 'T': sq.NumberT = Bits(sq.NumberT, 0, 8); break;
+            case 'S': sq.NumberS = Bits(sq.NumberS, 0, 8); break;
+            case 'C': // Ct/st/h/o/n (-1 = any): how many squares match, into v1
+            {
+                c.RequireMin(5);
+                var want = new[] { c.N(0), c.N(1), c.N(2), c.N(3), c.N(4) };
+                bool Match(PoSquare q) =>
+                    (want[0] == -1 || q.NumberT == want[0]) && (want[1] == -1 || q.NumberS == want[1])
+                    && (want[2] == -1 || q.Hero == want[2]) && (want[3] == -1 || q.Owner == want[3])
+                    && (want[4] == -1 || q.Number == want[4]);
+                int total = size * size * (levels + 1);
+                int stored = squares.Count, matched = squares.Values.Count(Match);
+                if (Match(new PoSquare())) matched += total - stored; // the squares nobody touched
+                c.Rt.Services.State.Erm.V[0] = matched;
+                return;
+            }
+            case 'V': // V#/$ — four shorts
+            case 'B': // B#/$ — two longs
+            {
+                c.RequireMin(2);
+                string name = c.Letter == 'V' ? "\"!!PO:V\"" : "\"!!PO:B\"";
+                if (c.IsGetOrCheck(0)) throw new ErmRuntimeException(name + "-you cannot use get or check syntax for the first argument.");
+                int i = c.N(0), n = c.Letter == 'V' ? 4 : 2;
+                if (i < 0 || i >= n) throw new ErmRuntimeException(name + $"-wrong index (0...{n - 1}).");
+                if (c.Letter == 'V') { int v = sq.S[i]; c.Apply(ref v, 1); sq.S[i] = (short)v; }
+                else { int v = sq.L[i]; c.Apply(ref v, 1); sq.L[i] = v; }
+                break;
+            }
+            default:
+                throw ErmCall.WrongCommand(c.Letter);
+        }
+        if (sq.IsStart()) squares.Remove(key);
+        else squares[key] = sq;
     }
 }

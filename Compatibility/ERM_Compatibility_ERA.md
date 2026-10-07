@@ -69,7 +69,7 @@ startup: `UN:C` (H3 memory), `SN:E` (H3 code), `FU:D` (network), `UN:A/R/X/N/U/V
 | `OW` | yes | `ACGIR` PARTIALLY SUPPORTED (resource ids via IdMap); `DHKNOSTVW` UNSUPPORTED (not mapped yet) |
 | `PA` | no | UNSUPPORTED — PA — receiver of the "receiver pa.era" plugin (closed-source ERA DLL) |
 | `PM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
-| `PO` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `PO` | yes | `BCHNOSTV` FULLY SUPPORTED (PO — WoG data of a map square, kept in the WoG state and saved with it) |
 | `QU` | no | UNSUPPORTED — QU — receiver of the "receiver qu.era" plugin (closed-source ERA DLL) |
 | `QW` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `RD` | no | UNSUPPORTED — RD — H3 creature recruitment window (Dwellings.pas): needs a UI adapter |

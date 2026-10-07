@@ -73,6 +73,7 @@ public sealed class ReceiverRegistry
         reg.Register(new UnReceiver());
         reg.Register(new ObReceiver());
         reg.Register(new TrReceiver());
+        reg.Register(new PoReceiver());
         reg.Register(new BaReceiver());
         reg.Register(new TmReceiver());
         reg.Register(new HeReceiver());
@@ -107,6 +108,7 @@ public sealed class ReceiverRegistry
         reg.Register(new UnReceiver());
         reg.Register(new ObReceiver());
         reg.Register(new TrReceiver());
+        reg.Register(new PoReceiver());
         reg.Register(new BaReceiver());
         reg.Register(new TmReceiver());
         reg.Register(new HeReceiver());
@@ -197,6 +199,8 @@ public sealed class ReceiverRegistry
             "M: заклинания; в Olden Era заклинания H3 сопоставлены по эффекту (id-maps/spell.json, 37 из 70), заклинание, которого там нет, читается как неизвестное и не может быть изучено, герой-специалист знает заклинание в мастерском варианте, заклинания героя не на карте менять нельзя",
         ["A: artifacts by position (0..18 worn, 19..82 backpack); Olden Era maps H3 artifacts by effect or name (id-maps/artifact.json, 61 of 171), its items fit only their own slot type, has no war machines (the spellbook is always there) and no gaps in the backpack; A5 slot locks are not mapped"] =
             "A: артефакты по позициям (0..18 надеты, 19..82 рюкзак); в Olden Era артефакты H3 сопоставлены по эффекту или названию (id-maps/artifact.json, 61 из 171), её предметы встают только в свой тип слота, боевых машин нет (книга заклинаний есть всегда), рюкзак без пропусков; A5 (замки слотов) не отображены",
+        ["PO — WoG data of a map square, kept in the WoG state and saved with it"] =
+            "PO — данные WoG для клетки карты, хранятся в состоянии WoG и сохраняются вместе с ним",
         ["ids via IdMap; display-slot forms are not supported"] = "id через IdMap; формы со слотами отображения не поддерживаются",
         ["not mapped yet"] = "ещё не отображено",
         ["resource ids via IdMap"] = "id ресурсов через IdMap",

@@ -75,7 +75,7 @@ engine (`WoG.ErmTool run`) currently runs into: `HT:P/W`, `OW:T`, `UN:A/B/R/V/X`
 | `OB` | yes | `BDEHMRS` UNSUPPORTED (OB:D/E/R/S/M/H/B — disabling objects, auto-answers and hints need the object visit hook (not verified yet)); `C` UNSUPPORTED (OB:C — the control word is H3's object setup data: different engine); `TU` PARTIALLY SUPPORTED (OB:T/U — the type and subtype of the object on a square (Format OB via id-maps/object.json); they cannot be changed) |
 | `OW` | yes | `ACGIR` PARTIALLY SUPPORTED (resource ids via IdMap); `DHKNOSTVW` UNSUPPORTED (not mapped yet) |
 | `PM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
-| `PO` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `PO` | yes | `BCHNOSTV` FULLY SUPPORTED (PO — WoG data of a map square, kept in the WoG state and saved with it) |
 | `QW` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `SC` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `SG` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |

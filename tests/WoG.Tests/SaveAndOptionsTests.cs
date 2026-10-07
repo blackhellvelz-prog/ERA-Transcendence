@@ -25,7 +25,7 @@ public class SaveAndOptionsTests
         st.Commanders[4] = new WoGCommander { Number = 4, Level = 12, Exp = 28784, Name = "Elmore" };
         st.Commanders[4].Arts[2][0] = 150;
         st.StackExperience.Records.Add(new StackExperienceRecord { Location = StackLocation.Hero(1, 3), Expo = 900, MType = 13, Num = 7 });
-        st.Squares[new MapPos(5, 6, 1).Pack()] = new[] { 1, 2, 3, 4 };
+        st.Squares[new MapPos(5, 6, 1).Pack()] = new PoSquare { Hero = 7, Owner = -3, S = new short[] { 1, 2, 3, 4 }, L = new[] { 5, -6 } };
         st.Ids.Set("creature", 13, "griffin_upg");
 
         string blob = WoGSaveSerializer.Serialize(st, "save-1");
@@ -42,7 +42,10 @@ public class SaveAndOptionsTests
         Assert.Equal(28784, back.Commanders[4].Exp);
         Assert.Equal(150, back.Commanders[4].Arts[2][0]);
         Assert.Equal(StackLocation.Hero(1, 3), back.StackExperience.Records[0].Location);
-        Assert.Equal(new[] { 1, 2, 3, 4 }, back.Squares[new MapPos(5, 6, 1).Pack()]);
+        var sq = back.Squares[new MapPos(5, 6, 1).Pack()];
+        Assert.Equal((7, -3), (sq.Hero, sq.Owner));
+        Assert.Equal(new short[] { 1, 2, 3, 4 }, sq.S);
+        Assert.Equal(new[] { 5, -6 }, sq.L);
         Assert.True(back.Ids.TryGetWoG("creature", "griffin_upg", out int id) && id == 13);
     }
 

@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using WoG.Core.Ids;
 using WoG.Core.Model;
@@ -61,12 +62,12 @@ public sealed class WoGGameState
     public StackExperienceState StackExperience { get; set; } = new();
     /// <summary>Key = MapPos.Pack().</summary>
     public Dictionary<int, ErmObjectState> Objects { get; set; } = new();
-    /// <summary>PO receiver storage: 4 values per map square. Key = MapPos.Pack().</summary>
-    public Dictionary<int, int[]> Squares { get; set; } = new();
     /// <summary>Creature type values changed by MA: type → stat name (or "Cost0".."Cost6") → value.</summary>
     public Dictionary<int, Dictionary<string, int>> CreatureChanges { get; set; } = new();
     /// <summary>Artifact types changed by UN:A (only changed ones; the rest come from the H3 tables).</summary>
     public Dictionary<int, WoGArtifact> ArtifactOverrides { get; set; } = new();
+    /// <summary>PO: WoG's own data of map squares (key MapPos.Pack()); only squares that differ from the start values.</summary>
+    public Dictionary<int, PoSquare> Squares { get; set; } = new();
     /// <summary>Spells banned from mage guilds by UN:J0.</summary>
     public HashSet<int> DisabledSpells { get; set; } = new();
     /// <summary>UN:J11: the right-click creature info dialog stays open (0) or works as usual (1).</summary>
@@ -80,4 +81,21 @@ public sealed class WoGGameState
     public Dictionary<string, string> Modules { get; set; } = new();
     /// <summary>True once instructions (!#) and !?PI ran for this game.</summary>
     public bool InstructionsDone { get; set; }
+}
+
+/// <summary>One map square's PO data: erm.cpp's _Square_ bit fields and _Square2_ (the values are kept in range).</summary>
+public sealed class PoSquare
+{
+    /// <summary>"The last hero" (8 bits); scripts set it, WoG itself does not.</summary>
+    public int Hero { get; set; } = 255;
+    /// <summary>Owner (4 bits, signed: -8..7).</summary>
+    public int Owner { get; set; } = -1;
+    public int Number { get; set; }  // 4 bits
+    public int NumberT { get; set; } // 8 bits
+    public int NumberS { get; set; } // 8 bits
+    public short[] S { get; set; } = new short[4];
+    public int[] L { get; set; } = new int[2];
+
+    public bool IsStart() => Hero == 255 && Owner == -1 && Number == 0 && NumberT == 0 && NumberS == 0
+        && S.All(x => x == 0) && L.All(x => x == 0);
 }

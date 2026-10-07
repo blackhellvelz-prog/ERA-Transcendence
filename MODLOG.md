@@ -479,3 +479,13 @@ unsupported commands. 166 xUnit tests.
 * An earlier experiment left two items without a container in that test session's `Data.items` (a failed `bbci` on
   the doll creates the item before it throws); the test game was not saved.
 * 182 xUnit tests.
+
+## 2026-10-08 — session 2, continued: PO (WoG data of map squares)
+
+* **What:** `!!PO` is a port of `erm.cpp` `ERM_Position`: per-square WoG data kept in the WoG state and saved with it
+  (`WoGGameState.Squares`, only squares that differ from the start values): `H` "last hero" (8 bits, start 255), `O`
+  owner (4 bits signed, start -1), `N` (4 bits), `T`/`S` (8 bits), `V0..3` shorts, `B0..1` longs, `C t/st/h/o/n`
+  counts matching squares (-1 = any; untouched squares count with their start values) into v1. The bit fields keep
+  only their bits as in WoG (`H300` reads 44, `O9` reads -7); positions are checked against the map size. The engine
+  is not involved, so it is fully supported on Olden Era. The unused `Squares` placeholder of the state was replaced.
+* Used 207 times in the core mod set. 187 xUnit tests.
