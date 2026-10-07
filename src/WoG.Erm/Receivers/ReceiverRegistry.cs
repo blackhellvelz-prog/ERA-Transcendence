@@ -134,7 +134,7 @@ public sealed class ReceiverRegistry
         ["PA — receiver of the \"receiver pa.era\" plugin (closed-source ERA DLL)"] = "PA — ресивер плагина «receiver pa.era» (закрытая DLL ERA)",
         ["QU — receiver of the \"receiver qu.era\" plugin (closed-source ERA DLL)"] = "QU — ресивер плагина «receiver qu.era» (закрытая DLL ERA)",
         // CoreReceivers, EraReceivers
-        ["FU:D — network call (multiplayer is out of scope)"] = "FU:D — сетевой вызов (мультиплеер вне рамок проекта)",
+        ["FU:D — call on the remote player: a single-player game has none, so nothing runs (as in WoG offline)"] = "FU:D — вызов у удалённого игрока: в одиночной игре его нет, поэтому ничего не выполняется (как в WoG без сети)",
         ["SN:H — object/monster hints: needs an Olden Era UI adapter"] = "SN:H — подсказки объектов/монстров: нужен UI-адаптер Olden Era",
         ["SN:O — object entrance tile: needs a map adapter"] = "SN:O — клетка входа объекта: нужен адаптер карты",
         ["SN:P — H3 sound playback: Olden Era sounds are different"] = "SN:P — проигрывание звука H3: звуки Olden Era другие",

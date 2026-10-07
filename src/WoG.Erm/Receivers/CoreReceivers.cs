@@ -307,7 +307,7 @@ public sealed class FuReceiver : ErmReceiverBase
     public FuReceiver() : base("FU")
     {
         Declare("PEXC", CompatLevel.FullySupported);
-        Declare("D", CompatLevel.Unsupported, "FU:D — network call (multiplayer is out of scope)");
+        Declare("D", CompatLevel.FullySupported, "FU:D — call on the remote player: a single-player game has none, so nothing runs (as in WoG offline)");
     }
 
     protected override void Run(ErmCall c)
@@ -327,6 +327,12 @@ public sealed class FuReceiver : ErmReceiverBase
                 finally { rt.LastFunctionCall = lastCall; }
                 for (int i = 0; i < c.Num; i++)
                     if (c.IsGet(i)) { int v = newX[i]; c.Apply(ref v, i); }
+                break;
+            }
+            case 'D':
+            {
+                // SendCustomRequest (Monsters.cpp): the function runs on the remote player's computer only; a
+                // single-player game has no remote side, so the call goes nowhere.
                 break;
             }
             case 'E':

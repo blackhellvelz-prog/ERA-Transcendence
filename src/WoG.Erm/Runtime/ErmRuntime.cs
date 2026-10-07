@@ -20,6 +20,21 @@ public sealed class ErmRuntimeOptions
     public int MaxDepth { get; set; } = 256;
     /// <summary>Era: ErmLegacySupport option of heroes3.ini ("default heroes3.ini" of the ERA project sets 1).</summary>
     public bool EraLegacySupport { get; set; } = true;
+    /// <summary>
+    /// Milliseconds one engine call into ERM (an event, a function call, loading a script) may run before it is
+    /// abandoned with an error; 0 = no limit (as in Era). A host inside a running game sets it: a loop that never ends
+    /// because an engine command is unsupported must not freeze the game.
+    /// </summary>
+    public int TimeLimitMs { get; set; }
+    /// <summary>How many times the same unsupported command or error at one script line is written to the log.</summary>
+    public int LogRepeatLimit { get; set; } = 3;
+}
+
+/// <summary>Thrown when an engine call into ERM runs longer than <see cref="ErmRuntimeOptions.TimeLimitMs"/>.</summary>
+public sealed class ErmTimeLimitException : Exception
+{
+    public ErmTimeLimitException(ErmSourceLoc? loc, long ms) : base($"ran longer than {ms} ms") { Loc = loc; }
+    public ErmSourceLoc? Loc { get; }
 }
 
 /// <summary>
@@ -88,7 +103,9 @@ public sealed partial class ErmRuntime
     /// ParseERM does — during loading, interleaved with section registration, only for a new game
     /// (or, in a loaded game, after a "!@ZVSE" marker).
     /// </summary>
-    public void Load(ErmScript script, bool newGame)
+    public void Load(ErmScript script, bool newGame) => Guarded("loading " + script.Name, () => LoadUnguarded(script, newGame));
+
+    void LoadUnguarded(ErmScript script, bool newGame)
     {
         Diagnostics.AddRange(script.Diagnostics);
         if (!script.IsErm) return;
@@ -153,10 +170,38 @@ public sealed partial class ErmRuntime
     // ============================================================================================
 
     /// <summary>Raises an ERM event with a fresh context (engine entry point).</summary>
-    public void Raise(int eventId, ErmEventContext context)
+    public void Raise(int eventId, ErmEventContext context) => Guarded("event " + eventId, () =>
     {
         if (IsEra) ProcessEra(eventId, context);
         else Process(eventId, context, needLocals: true);
+    });
+
+    // ---- time limit (ErmRuntimeOptions.TimeLimitMs) --------------------------------------------
+
+    readonly System.Diagnostics.Stopwatch watch = new();
+    int guardDepth;
+    long steps;
+
+    /// <summary>
+    /// Runs an engine call into ERM under the time limit. Nested calls share the outer call's clock; when the limit
+    /// is hit, the whole outer call is abandoned (frames are restored by the finally blocks it unwinds through).
+    /// </summary>
+    internal void Guarded(string what, Action action)
+    {
+        if (guardDepth++ == 0) { watch.Restart(); steps = 0; }
+        try { action(); }
+        catch (ErmTimeLimitException ex) when (guardDepth == 1)
+        {
+            Error(ex.Loc, $"{what} {ex.Message} and was abandoned (an endless loop? see the line)");
+        }
+        finally { guardDepth--; }
+    }
+
+    /// <summary>Called for every executed line and loop turn: throws when the current engine call is over time.</summary>
+    internal void CheckTime(ErmSourceLoc? loc)
+    {
+        if (guardDepth == 0 || Options.TimeLimitMs <= 0 || (++steps & 1023) != 0) return;
+        if (watch.ElapsedMilliseconds > Options.TimeLimitMs) throw new ErmTimeLimitException(loc, Options.TimeLimitMs);
     }
 
     internal void Process(int eventId, ErmEventContext context, bool needLocals)
@@ -255,6 +300,7 @@ public sealed partial class ErmRuntime
         for (int i = 0; i < lines.Count; i++)
         {
             var line = lines[i];
+            CheckTime(line.Loc);
             if (line.Id == "la")
             {
                 int j = LabelId(line);
@@ -326,6 +372,7 @@ public sealed partial class ErmRuntime
     /// <summary>ProcessCmd: runs the commands of one line; an error abandons the rest of the line.</summary>
     internal void ExecuteLine(ErmReceiverLine line)
     {
+        CheckTime(line.Loc);
         var receiver = Receivers.Get(line.Id);
         if (receiver == null)
         {
@@ -363,7 +410,8 @@ public sealed partial class ErmRuntime
             catch (ErmUnsupportedException ex)
             {
                 Services.Compat.Unsupported("erm", $"!!{line.Id}:{cmd.Letter}", ex.Message);
-                Log?.Invoke($"[unsupported] {line.Loc} !!{line.Id}:{cmd.Letter} — {ex.Message}");
+                if (ShouldLog(line.Loc + ":" + cmd.Letter))
+                    Log?.Invoke($"[unsupported] {line.Loc} !!{line.Id}:{cmd.Letter} — {ex.Message}");
             }
             if (TriggerBreak) return;
         }
@@ -380,7 +428,7 @@ public sealed partial class ErmRuntime
         var oldX = (int[])X.Clone();
         Array.Clear(X, 0, 16);
         for (int i = 0; i < args.Count && i < 16; i++) X[i] = args[i];
-        Process(ev, Context, needLocals);
+        Guarded("function " + number, () => Process(ev, Context, needLocals));
         var newX = (int[])X.Clone();
         X = oldX;
         return newX;
@@ -459,6 +507,20 @@ public sealed partial class ErmRuntime
     {
         var d = new ErmDiagnostic { Severity = ErmSeverity.Error, Loc = loc ?? default, Message = message };
         Diagnostics.Add(d);
-        Log?.Invoke(d.ToString());
+        if (ShouldLog(d.Loc + "|" + message)) Log?.Invoke(d.ToString());
+    }
+
+    readonly Dictionary<string, int> logged = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// The log gets the first few occurrences of the same message from the same line (a loop repeats it thousands
+    /// of times); every occurrence is still counted in Diagnostics and the compatibility report.
+    /// </summary>
+    bool ShouldLog(string key)
+    {
+        logged.TryGetValue(key, out int n);
+        logged[key] = ++n;
+        if (n == Options.LogRepeatLimit + 1) Log?.Invoke($"[log] {key}: repeated — further occurrences are not logged");
+        return n <= Options.LogRepeatLimit;
     }
 }

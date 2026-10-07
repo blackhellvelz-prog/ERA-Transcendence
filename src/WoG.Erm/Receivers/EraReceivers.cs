@@ -469,7 +469,7 @@ public sealed class EraFuReceiver : ErmReceiverBase
     public EraFuReceiver() : base("FU")
     {
         Declare("PEAS", CompatLevel.FullySupported);
-        Declare("D", CompatLevel.Unsupported, "FU:D — network call (multiplayer is out of scope)");
+        Declare("D", CompatLevel.FullySupported, "FU:D — call on the remote player: a single-player game has none, so nothing runs (as in WoG offline)");
     }
 
     protected override void Run(ErmCall c)
@@ -487,6 +487,10 @@ public sealed class EraFuReceiver : ErmReceiverBase
             }
             case 'E':
                 rt.TriggerBreak = true;
+                break;
+            case 'D':
+                // SendCustomRequest (WoG Monsters.cpp): runs on the remote player's computer only; a single-player
+                // game has no remote side, so the call goes nowhere.
                 break;
             case 'A':
                 if (c.Num == 1)

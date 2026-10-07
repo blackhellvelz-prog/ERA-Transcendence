@@ -41,7 +41,7 @@ startup: `UN:C` (H3 memory), `SN:E` (H3 code), `FU:D` (network), `UN:A/R/X/N/U/V
 | `EA` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `EX` | yes | `AENRT` EMULATED (experience is external WoG state applied to OE stacks); `C` UNSUPPORTED (stack merging is not implemented yet) |
 | `FR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
-| `FU` | yes | `AEPS` FULLY SUPPORTED; `D` UNSUPPORTED (FU:D — network call (multiplayer is out of scope)) |
+| `FU` | yes | `AEPS` FULLY SUPPORTED; `D` FULLY SUPPORTED (FU:D — call on the remote player: a single-player game has none, so nothing runs (as in WoG offline)) |
 | `GD` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `GE` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `GR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |

@@ -111,6 +111,20 @@ public class DebugSelfTestTests
     }
 
     [Fact]
+    public void An_endless_loop_is_abandoned_after_the_time_limit()
+    {
+        var (t, cmd) = Setup();
+        using var _ = t;
+        t.Host.ErmOptions.TimeLimitMs = 200;
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        string r = cmd.Execute("erm !!re i/0/10/0:;\n!!VRv1:+1;\n!!en:;");   // step 0: never ends
+        Assert.True(sw.ElapsedMilliseconds < 5000, "the loop was not stopped");
+        Assert.StartsWith("Error", r);
+        Assert.Contains("abandoned", r);
+        Assert.StartsWith("Pass", cmd.Execute("erm !!VRv2:S1"));               // the runtime still works afterwards
+    }
+
+    [Fact]
     public void Report_lists_every_receiver_command()
     {
         var (t, cmd) = Setup();

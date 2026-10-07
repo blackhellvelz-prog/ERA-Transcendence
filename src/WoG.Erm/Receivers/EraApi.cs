@@ -48,6 +48,21 @@ public static class EraApi
         ["RestoreErmTracking"] = (c, rt) => 0,
         ["ResetErmTracking"] = (c, rt) => 0,
         ["GetProcessGuid"] = (c, rt) => rt.CreateTriggerLocalErtPublic(ProcessGuid),
+        // Extern.pas → b2 Ini.pas (memory-cached ini files)
+        ["ReadStrFromIni"] = (c, rt) =>
+        {
+            bool found = rt.Ini.ReadStrFromIni(Str(c, 1), Str(c, 2), Str(c, 3), out string value);
+            // "out Res" is reset to '' by Delphi, so a missing key empties the buffer too
+            if (c.Num > 4 && ErmRuntime.EraIsString(c.P(4))) rt.EraSetString(c.P(4), value);
+            return found ? 1 : 0;
+        },
+        ["WriteStrToIni"] = (c, rt) => rt.Ini.WriteStrToIni(Str(c, 1), Str(c, 2), Str(c, 3), Str(c, 4)) ? 1 : 0,
+        ["SaveIni"] = (c, rt) => rt.Ini.SaveIni(Str(c, 1)) ? 1 : 0,
+        ["LoadIni"] = (c, rt) => rt.Ini.LoadIni(Str(c, 1)) ? 1 : 0,
+        ["ClearIniCache"] = (c, rt) => { rt.Ini.ClearIniCache(Str(c, 1)); return 0; },
+        ["ClearAllIniCache"] = (c, rt) => { rt.Ini.ClearAllIniCache(); return 0; },
+        ["EmptyIniCache"] = (c, rt) => { rt.Ini.EmptyIniCache(Str(c, 1)); return 0; },
+        ["MergeIniWithDefault"] = (c, rt) => { rt.Ini.MergeIniWithDefault(Str(c, 1), Str(c, 2)); return 0; },
         // Win32 (kernel32/user32): no H3 window, no files of H3, no other modules
         ["GetKeyState"] = (c, rt) => 0,
         ["GetModuleHandleA"] = (c, rt) => 0,

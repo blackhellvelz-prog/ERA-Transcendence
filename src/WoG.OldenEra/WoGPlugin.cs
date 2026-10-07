@@ -47,6 +47,8 @@ public sealed class WoGPlugin : BasePlugin
         Directory.CreateDirectory(cfgDir);
 
         var dialect = Config.Bind("ERM", "Dialect", "Era", "Era: ERA 2.x scripts (ERM 2.0); Wog: classic WoG 3.58 scripts from WoG/scripts");
+        var timeLimit = Config.Bind("ERM", "TimeLimitMs", 10000,
+            "An ERM event running longer than this is abandoned with an error (0 = no limit); keeps an endless script loop from freezing the game");
         var modsRoot = Config.Bind("ERA", "ModsRoot", Path.Combine(cfgDir, "mods"),
             "Folder with ERA mods (each mod has Data/s). Can be the Mods folder of an ERA installation.");
         var modList = Config.Bind("ERA", "ModList", "WoG Debug",
@@ -73,7 +75,7 @@ public sealed class WoGPlugin : BasePlugin
         WoGHost? host = null;
         var adapter = new OldenEraGameAdapter(symbols, () => host!.State.Ids);
         host = new WoGHost(adapter, new VisualResolver(new UnityAssetProbe()), new WoGModules(),
-            new ErmRuntimeOptions { Dialect = era ? ErmDialect.Era : ErmDialect.Wog358 });
+            new ErmRuntimeOptions { Dialect = era ? ErmDialect.Era : ErmDialect.Wog358, TimeLimitMs = timeLimit.Value });
         Host = host;
         Adapter = adapter;
         host.ErmLog = m => Log.LogInfo("[ERM] " + m);
@@ -82,6 +84,10 @@ public sealed class WoGPlugin : BasePlugin
         if (era)
         {
             var mods = EraModFolders(modsRoot.Value, modList.Value);
+            // An ERA installation's Mods folder: Era runs in its parent; files scripts write go to config/WoG/era-root.
+            string? eraFolder = string.Equals(Path.GetFileName(modsRoot.Value.TrimEnd('\\', '/')), "Mods", StringComparison.OrdinalIgnoreCase)
+                ? Path.GetDirectoryName(modsRoot.Value.TrimEnd('\\', '/')) : null;
+            host.SetEraFolders(eraFolder, Path.Combine(cfgDir, "era-root"));
             host.AddEraMods(mods, language.Value);
             Log.LogInfo($"WoG: ERA mods (highest priority first): {string.Join(", ", mods.Select(Path.GetFileName))}");
         }
@@ -199,7 +205,9 @@ internal static class WoGSession
     /// </summary>
     static void TryFirstDay(WoGHost host, OldenEraGameAdapter adapter)
     {
-        if (host.Game.Clock.AbsoluteDay != 1) { firstDayPending = false; return; }
+        int day = host.Game.Clock.AbsoluteDay;
+        if (day > 1) { firstDayPending = false; return; }
+        if (day < 1) return; // the map is still being built (the day counter starts at 0)
         if (adapter.PlayerObjects().Count == 0) return;
         int local = host.Game.Players.CurrentPlayer;
         if (adapter.GetHeroes(local) is { IsOk: true } mine && mine.Value.Count == 0) return;

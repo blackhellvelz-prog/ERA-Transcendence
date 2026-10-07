@@ -59,11 +59,11 @@ public sealed partial class ErmRuntime
     sealed class EraAbortEvent : Exception { }
 
     /// <summary>FireErmEventEx: sets x1..xN for an event, then fires it.</summary>
-    public void RaiseEra(int eventId, ErmEventContext context, params int[] args)
+    public void RaiseEra(int eventId, ErmEventContext context, params int[] args) => Guarded("event " + eventId, () =>
     {
         for (int i = 0; i < args.Length && i < 16; i++) ArgX[i] = args[i];
         ProcessEra(eventId, context);
-    }
+    });
 
     internal void ProcessEra(int eventId, ErmEventContext context)
     {
@@ -209,6 +209,7 @@ public sealed partial class ErmRuntime
         int i = 0;
         while (i < lines.Count)
         {
+            CheckTime(lines[i].Loc);
             var line = lines[i];
             frame.CmdIndex = i;
             switch (line.Id)

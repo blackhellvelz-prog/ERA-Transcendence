@@ -73,11 +73,39 @@ public sealed class WoGHost : IWoGServices
             ? new CommanderService(State, Random, hero => IsAutomatic(hero), (hero, gold) => GrantGold(hero, gold))
             : null;
         stackExp = Modules.StackExperience ? new StackExperienceService(State, Game) : null;
+        var oldIni = Erm?.Ini;
         Erm = Modules.Erm ? new ErmRuntime(this, ErmOptions) : null;
-        if (Erm != null) Erm.Log = ermLog;
+        if (Erm != null)
+        {
+            Erm.Log = ermLog;
+            if (oldIni != null) Erm.Ini = oldIni; // the ini cache belongs to the process, as in Era
+            else if (EraGameFolder != null) ConfigureIni();
+        }
     }
 
     Action<string>? ermLog;
+
+    /// <summary>
+    /// ERA: the folder Era would run in (the ERA installation, read only) and the folder where files that scripts
+    /// write go instead (ini files). Relative paths of ini functions resolve against them.
+    /// </summary>
+    public void SetEraFolders(string? gameFolder, string writeFolder)
+    {
+        EraGameFolder = gameFolder;
+        EraWriteFolder = writeFolder;
+        ConfigureIni();
+    }
+
+    public string? EraGameFolder { get; private set; }
+    public string? EraWriteFolder { get; private set; }
+
+    void ConfigureIni()
+    {
+        if (Erm == null) return;
+        var ini = new WoG.Erm.Era.EraIni(EraWriteFolder ?? System.IO.Directory.GetCurrentDirectory());
+        if (EraGameFolder != null) ini.ReadRoots.Add(EraGameFolder);
+        Erm.Ini = ini;
+    }
 
     /// <summary>Log of the ERM runtime; kept when the runtime is rebuilt (new game, loaded game).</summary>
     public Action<string>? ErmLog
