@@ -1,0 +1,9 @@
+[
+ { "wog": 0, "h3": "wood", "engine": "wood", "note": "" },
+ { "wog": 1, "h3": "mercury", "engine": "mercury", "note": "" },
+ { "wog": 2, "h3": "ore", "engine": "ore", "note": "" },
+ { "wog": 3, "h3": "sulfur", "engine": null, "note": "Olden Era has no sulfur" },
+ { "wog": 4, "h3": "crystal", "engine": "crystals", "note": "" },
+ { "wog": 5, "h3": "gems", "engine": "gemstones", "note": "" },
+ { "wog": 6, "h3": "gold", "engine": "gold", "note": "" }
+]

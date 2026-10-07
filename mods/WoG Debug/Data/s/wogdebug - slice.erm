@@ -1,0 +1,10 @@
+ZVSE2
+; WoG Debug - the vertical slice of the port: an ERA script that changes the game every day.
+; At the start of every day each human player gets +1000 gold.
+; Switch it off by removing "WoG Debug" from [ERA] ModList in BepInEx/config/wog.oldenera.cfg.
+
+!?FU(OnEveryDay);
+!!OW:C?(owner:y);
+!!OW:I(owner)/?(isAi:y);
+!!FU&(isAi)=1:E;
+!!OW:R(owner)/6/d1000;

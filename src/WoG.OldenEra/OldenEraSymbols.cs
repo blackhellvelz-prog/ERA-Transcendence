@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,8 +9,9 @@ using System.Text.Json;
 namespace WoG.OldenEra;
 
 /// <summary>
-/// Where to find a piece of game state: a type (namespace-qualified, possibly obfuscated), and a member
-/// path from a static root ("Instance.heroes") or from an object of that type ("offence").
+/// Where to find a piece of game state: a type (namespace-qualified, possibly obfuscated), and a dotted member
+/// path from a static root ("me.cfjl.sides") or from an object of that type ("res"). A method binding has a
+/// single-segment path naming the method ("OnStartDay").
 /// </summary>
 public sealed class SymbolBinding
 {
@@ -18,6 +20,8 @@ public sealed class SymbolBinding
     public string Member { get; set; } = "";
     /// <summary>"verified" once confirmed in game; anything else keeps the dependent feature disabled.</summary>
     public string Status { get; set; } = "unverified";
+    /// <summary>What the binding points at and how it was found (free text for the person doing the RE).</summary>
+    public string Note { get; set; } = "";
 }
 
 /// <summary>
@@ -28,9 +32,17 @@ public sealed class SymbolBinding
 /// </summary>
 public sealed class OldenEraSymbols
 {
+    const BindingFlags All = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+
     public Dictionary<string, SymbolBinding> Bindings { get; set; } = new();
 
-    readonly Dictionary<string, (Type type, MemberInfo? member)> resolved = new();
+    /// <summary>
+    /// Debug mode only (WoG Debug): treat resolved but unverified symbols as usable, so the in-game self-test
+    /// can exercise them — that is how a symbol becomes verified. Never on in normal play.
+    /// </summary>
+    public bool AllowUnverified { get; set; }
+
+    readonly Dictionary<string, (Type type, MemberInfo[] path)> resolved = new();
     readonly List<string> missing = new();
 
     public IReadOnlyList<string> Missing => missing;
@@ -38,21 +50,28 @@ public sealed class OldenEraSymbols
     /// <summary>Symbol keys the adapter understands (documented in 07_InGame_RE_Plan.md §2).</summary>
     public static readonly string[] Known =
     {
-        "game.root",                 // static instance holding the game state
+        "game.root",                 // static path to the session state object (Hex.Session.Data.Data)
         "game.day",                  // absolute day counter on the root
-        "player.list", "player.resources", "player.isHuman", "player.current",
+        "game.dayOfWeek", "game.week", "game.month",
+        "player.list",               // root → array/list of players (sides)
+        "player.resources",          // player → resource heap; a resource is a member named by IdMap "resource"
+        "resource.value",            // resource → amount
+        "player.isHuman",            // player → creation type (enum; 0 = human)
+        "player.alive",              // player → status (enum; 0 = alive)
+        "player.local",              // root → index of the player sitting at this PC
+        "player.current",
         "hero.list", "hero.id", "hero.owner", "hero.experience", "hero.level",
         "hero.offence", "hero.defence", "hero.spellPower", "hero.intelligence", "hero.mana", "hero.movement",
         "hero.army", "stack.unitSid", "stack.count",
         "unit.db", "unit.stats",
         "ui.message", "ui.question",
-        "turn.start",                // method: start of a player's turn (Harmony postfix → PlayerDayStarted)
+        "turn.start",                // method: start of a day (Harmony postfix → PlayerDayStarted for every player)
         "object.interact",           // method: hero interacts with a map object (prefix/postfix → OB triggers)
         "battle.start", "battle.end", "battle.round", "battle.action",
         "buff.apply",                // method: apply buff by id to a unit
         "save.write", "save.read",   // methods: save/load (side-car WoG state)
         "hero.position", "hero.move", "hero.skills", "hero.spells", "hero.items", "hero.name", "hero.kill",
-        "stack.create", "player.alive", "player.activeHero", "player.heroes",
+        "stack.create", "player.activeHero", "player.heroes",
         "map.objects", "town.list", "town.buildings", "battle.stacks", "battle.summon",
     };
 
@@ -74,7 +93,10 @@ public sealed class OldenEraSymbols
         t.Save(path);
     }
 
-    /// <summary>Resolves every binding against the loaded (interop) assemblies.</summary>
+    /// <summary>
+    /// Resolves every binding against the loaded (interop) assemblies. A member path is walked through the
+    /// declared field/property types, so a stale segment anywhere in it is reported at start-up.
+    /// </summary>
     public void Resolve(Action<string> log)
     {
         resolved.Clear();
@@ -89,45 +111,115 @@ public sealed class OldenEraSymbols
             var asm = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == b.Assembly);
             var type = asm?.GetType(b.Type);
             if (type == null) { missing.Add($"{key}: type {b.Type} ({b.Assembly}) not found"); continue; }
-            MemberInfo? member = null;
-            if (!string.IsNullOrEmpty(b.Member))
+            var path = new List<MemberInfo>();
+            string? error = null;
+            var current = type;
+            foreach (var name in string.IsNullOrEmpty(b.Member) ? Array.Empty<string>() : b.Member.Split('.'))
             {
-                const BindingFlags all = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-                member = type.GetMember(b.Member, all).FirstOrDefault();
-                if (member == null) { missing.Add($"{key}: member {b.Type}.{b.Member} not found"); continue; }
+                var m = current.GetMember(name, All).FirstOrDefault(x => x is FieldInfo or PropertyInfo or MethodInfo);
+                if (m == null) { error = $"member {current.FullName}.{name} not found"; break; }
+                path.Add(m);
+                if (m is MethodInfo) break;
+                current = m is FieldInfo f ? f.FieldType : ((PropertyInfo)m).PropertyType;
             }
-            if (b.Status != "verified") log($"WoG symbol {key} resolved but not verified in game — feature stays disabled");
-            resolved[key] = (type, member);
+            if (error != null) { missing.Add($"{key}: {error} (path {b.Type}.{b.Member})"); continue; }
+            if (b.Status != "verified")
+                log(AllowUnverified
+                    ? $"WoG symbol {key} resolved, NOT verified — enabled because WoG Debug allows unverified symbols"
+                    : $"WoG symbol {key} resolved but not verified in game — feature stays disabled");
+            resolved[key] = (type, path.ToArray());
         }
         foreach (var m in missing) log("Game API not found: " + m);
     }
 
-    /// <summary>True only for resolved and in-game-verified symbols.</summary>
+    /// <summary>True for resolved and in-game-verified symbols (or any resolved one in debug mode).</summary>
     public bool Has(string key) =>
-        resolved.ContainsKey(key) && Bindings.TryGetValue(key, out var b) && b.Status == "verified";
+        resolved.ContainsKey(key) && Bindings.TryGetValue(key, out var b) && (b.Status == "verified" || AllowUnverified);
+
+    public bool IsResolved(string key) => resolved.ContainsKey(key);
+    public bool IsVerified(string key) => Bindings.TryGetValue(key, out var b) && b.Status == "verified";
 
     public Type TypeOf(string key) => resolved[key].type;
-    public MemberInfo? MemberOf(string key) => resolved[key].member;
+    /// <summary>The last member of the path (the method for method bindings).</summary>
+    public MemberInfo? MemberOf(string key) => resolved[key].path.LastOrDefault();
 
-    /// <summary>Reads a field/property value (static when target is null).</summary>
+    /// <summary>
+    /// Reads the value at the end of the member path (the first member is static when target is null). A null
+    /// anywhere on the way — no game session yet, an instance member without an object — reads as null.
+    /// </summary>
     public object? Read(string key, object? target)
     {
-        var m = MemberOf(key);
-        return m switch
+        object? o = target;
+        foreach (var m in resolved[key].path)
         {
-            FieldInfo f => f.GetValue(target),
-            PropertyInfo p => p.GetValue(target),
-            _ => throw new InvalidOperationException($"{key} is not a field or property"),
-        };
+            if (o == null && !IsStatic(m)) return null;
+            o = Get(m, o);
+            if (o == null) return null;
+        }
+        return o;
     }
+
+    static bool IsStatic(MemberInfo m) => m switch
+    {
+        FieldInfo f => f.IsStatic,
+        PropertyInfo p => (p.GetMethod ?? p.SetMethod)?.IsStatic ?? false,
+        MethodInfo mi => mi.IsStatic,
+        _ => false,
+    };
 
     public void Write(string key, object? target, object? value)
     {
-        switch (MemberOf(key))
+        var path = resolved[key].path;
+        if (path.Length == 0) throw new InvalidOperationException($"{key} has no member path");
+        object? o = target;
+        for (int i = 0; i < path.Length - 1; i++)
         {
-            case FieldInfo f: f.SetValue(target, Convert.ChangeType(value, f.FieldType)); break;
-            case PropertyInfo p: p.SetValue(target, Convert.ChangeType(value, p.PropertyType)); break;
-            default: throw new InvalidOperationException($"{key} is not a field or property");
+            o = Get(path[i], o);
+            if (o == null) throw new InvalidOperationException($"{key}: {path[i].Name} is null");
         }
+        Set(path[^1], o, value);
+    }
+
+    static object? Get(MemberInfo m, object? o) => m switch
+    {
+        FieldInfo f => f.GetValue(o),
+        PropertyInfo p => p.GetValue(o),
+        _ => throw new InvalidOperationException($"{m.Name} is not a field or property"),
+    };
+
+    static void Set(MemberInfo m, object? o, object? value)
+    {
+        switch (m)
+        {
+            case FieldInfo f: f.SetValue(o, Convert.ChangeType(value, f.FieldType)); break;
+            case PropertyInfo p: p.SetValue(o, Convert.ChangeType(value, p.PropertyType)); break;
+            default: throw new InvalidOperationException($"{m.Name} is not a field or property");
+        }
+    }
+
+    /// <summary>Reads a member of an object by name (for members chosen at run time, e.g. a resource by IdMap sid).</summary>
+    public static object? ReadMember(object target, string name)
+    {
+        var m = target.GetType().GetMember(name, All).FirstOrDefault(x => x is FieldInfo or PropertyInfo)
+                ?? throw new InvalidOperationException($"{target.GetType().FullName}.{name} not found");
+        return Get(m, target);
+    }
+
+    /// <summary>
+    /// Items of a game collection: .NET enumerables (Il2CppArrayBase) and IL2CPP lists, which are not
+    /// IEnumerable for .NET reflection but expose Count and get_Item(int).
+    /// </summary>
+    public static IReadOnlyList<object?> Items(object? collection)
+    {
+        if (collection == null) return Array.Empty<object?>();
+        if (collection is IEnumerable e) return e.Cast<object?>().ToList();
+        var t = collection.GetType();
+        var count = t.GetProperty("Count");
+        var item = t.GetMethod("get_Item", new[] { typeof(int) });
+        if (count == null || item == null) throw new InvalidOperationException($"{t.FullName} is not a collection");
+        int n = Convert.ToInt32(count.GetValue(collection));
+        var list = new List<object?>(n);
+        for (int i = 0; i < n; i++) list.Add(item.Invoke(collection, new object[] { i }));
+        return list;
     }
 }

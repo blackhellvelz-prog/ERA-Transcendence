@@ -17,5 +17,6 @@
     <ProjectReference Include="..\..\src\WoG.Host\WoG.Host.csproj" />
     <ProjectReference Include="..\..\src\WoG.Headless\WoG.Headless.csproj" />
     <ProjectReference Include="..\..\src\WoG.OldenEra.Data\WoG.OldenEra.Data.csproj" />
+    <ProjectReference Include="..\..\src\WoG.Debug\WoG.Debug.csproj" />
   </ItemGroup>
 </Project>

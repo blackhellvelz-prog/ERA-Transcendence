@@ -1,0 +1,88 @@
+{
+  "Bindings": {
+    "game.root": {
+      "Assembly": "Hex",
+      "Type": "dbx",
+      "Member": "me.cfjl",
+      "Status": "verified",
+      "Note": "0.81.04: dbx = session singleton (static 'me'); cfjl = its Hex.Session.Data.Data (sides, heroes, day/week/month) | verified 2026-10-07 (0.81.04): non-null in a skirmish, null in the main menu"
+    },
+    "game.day": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Data",
+      "Member": "daysInGameCount",
+      "Status": "verified",
+      "Note": "Data.daysInGameCount: absolute day | verified 2026-10-07: 1 on the first day, 2 after the first End Turn; matches the UI date Д1/Д2 (1-based)"
+    },
+    "game.dayOfWeek": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Data",
+      "Member": "day",
+      "Status": "verified",
+      "Note": "Data.day: day of the week | verified 2026-10-07: 1→2 with the UI date (Д)"
+    },
+    "game.week": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Data",
+      "Member": "week",
+      "Status": "verified",
+      "Note": "verified 2026-10-07 at value 1 (UI Н1); week change not seen yet"
+    },
+    "game.month": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Data",
+      "Member": "month",
+      "Status": "verified",
+      "Note": "verified 2026-10-07 at value 1 (UI М1); month change not seen yet"
+    },
+    "player.list": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Data",
+      "Member": "sides.array",
+      "Status": "verified",
+      "Note": "DataSides.array: Side[]; WoG player number = index | verified 2026-10-07: 2 sides in a 2-player skirmish (Player, Bot 1)"
+    },
+    "player.resources": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Side",
+      "Member": "res",
+      "Status": "verified",
+      "Note": "ResHeap {gold, wood, ore, gemstones, crystals, mercury, dust, graal, starDust} | verified 2026-10-07: every member matches the top bar (gold, wood, ore, mercury, crystals, gemstones, dust)"
+    },
+    "resource.value": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Resource",
+      "Member": "value",
+      "Status": "verified",
+      "Note": "Resource {name, value} | verified 2026-10-07: read and write; a write shows in the top bar at once"
+    },
+    "player.isHuman": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Side",
+      "Member": "typeOnCreate",
+      "Status": "verified",
+      "Note": "StartSide.EType: Player=0, Bot=1, Empty=2, BotAkaPlayer=3 | verified 2026-10-07: Player=0 for the human, Bot=1 for the AI"
+    },
+    "player.alive": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Side",
+      "Member": "status",
+      "Status": "verified",
+      "Note": "Side.EStatus: Life=0, Lose=1 | verified 2026-10-07 for Life (0); Lose not seen yet"
+    },
+    "player.local": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Data",
+      "Member": "sides.myIndex",
+      "Status": "verified",
+      "Note": "DataSides.myIndex | verified 2026-10-07: 0 = the human at this PC"
+    },
+    "turn.start": {
+      "Assembly": "Hex",
+      "Type": "ebe",
+      "Member": "OnStartDay",
+      "Status": "verified",
+      "Note": "0.81.04: ebe = game logic singleton (static chsz; holds Data, SerializableRandom, Events); OnStartDay() public | verified 2026-10-07: called once per day for all sides (day 2 after End Turn); NOT called on day 1"
+    }
+  }
+}

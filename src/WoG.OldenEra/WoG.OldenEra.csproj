@@ -1,24 +1,41 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
     BepInEx 6 (IL2CPP) plugin that hosts WoG on Heroes of Might and Magic: Olden Era.
-    Compiles against BepInEx NuGet packages only — no game or interop DLLs are referenced or shipped;
+    Compiles against BepInEx only — no game or interop DLLs are referenced or shipped;
     every game type/member is resolved by name at runtime (OldenEraSymbols), the pattern proven by
     mimiasei/map-editor-json-tool's gme-mod. Same BepInEx build as that mod: 6.0.0-be.785.
+
+    Two ways to get the BepInEx API:
+      * default: the BepInEx NuGet packages from nuget.bepinex.dev;
+      * OldenEraDir=<game folder> (MSBuild property or OLDEN_ERA_DIR environment variable): the DLLs of the
+        BepInEx installed in the game (BepInEx/core). Use it when nuget.bepinex.dev is unreachable.
   -->
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>WoG.OldenEra</AssemblyName>
     <RootNamespace>WoG.OldenEra</RootNamespace>
-    <RestoreAdditionalProjectSources>https://nuget.bepinex.dev/v3/index.json</RestoreAdditionalProjectSources>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
     <GenerateDependencyFile>false</GenerateDependencyFile>
     <NoWarn>NU1603</NoWarn>
+    <OldenEraDir Condition="'$(OldenEraDir)' == ''">$(OLDEN_ERA_DIR)</OldenEraDir>
+    <BepInExCore>$(OldenEraDir)\BepInEx\core</BepInExCore>
+    <UseGameBepInEx Condition="'$(OldenEraDir)' != '' And Exists('$(BepInExCore)\BepInEx.Unity.IL2CPP.dll')">true</UseGameBepInEx>
+    <RestoreAdditionalProjectSources Condition="'$(UseGameBepInEx)' != 'true'">https://nuget.bepinex.dev/v3/index.json</RestoreAdditionalProjectSources>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(UseGameBepInEx)' != 'true'">
     <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.785" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseGameBepInEx)' == 'true'">
+    <Reference Include="BepInEx.Core" HintPath="$(BepInExCore)\BepInEx.Core.dll" Private="false" />
+    <Reference Include="BepInEx.Unity.Common" HintPath="$(BepInExCore)\BepInEx.Unity.Common.dll" Private="false" />
+    <Reference Include="BepInEx.Unity.IL2CPP" HintPath="$(BepInExCore)\BepInEx.Unity.IL2CPP.dll" Private="false" />
+    <Reference Include="Il2CppInterop.Common" HintPath="$(BepInExCore)\Il2CppInterop.Common.dll" Private="false" />
+    <Reference Include="Il2CppInterop.Runtime" HintPath="$(BepInExCore)\Il2CppInterop.Runtime.dll" Private="false" />
+    <Reference Include="0Harmony" HintPath="$(BepInExCore)\0Harmony.dll" Private="false" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WoG.Host\WoG.Host.csproj" />
     <ProjectReference Include="..\WoG.OldenEra.Data\WoG.OldenEra.Data.csproj" />
+    <ProjectReference Include="..\WoG.Debug\WoG.Debug.csproj" />
   </ItemGroup>
 </Project>

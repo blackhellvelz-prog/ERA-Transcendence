@@ -74,6 +74,16 @@ public sealed class WoGHost : IWoGServices
             : null;
         stackExp = Modules.StackExperience ? new StackExperienceService(State, Game) : null;
         Erm = Modules.Erm ? new ErmRuntime(this, ErmOptions) : null;
+        if (Erm != null) Erm.Log = ermLog;
+    }
+
+    Action<string>? ermLog;
+
+    /// <summary>Log of the ERM runtime; kept when the runtime is rebuilt (new game, loaded game).</summary>
+    public Action<string>? ErmLog
+    {
+        get => ermLog;
+        set { ermLog = value; if (Erm != null) Erm.Log = value; }
     }
 
     bool IsAutomatic(int hero)
@@ -171,6 +181,14 @@ public sealed class WoGHost : IWoGServices
     /// <summary>New game: load scripts (running instructions), then fire !?PI (post-instruction).</summary>
     public void StartNewGame()
     {
+        if (State.InstructionsDone)
+        {
+            // Another game already ran in this host (a new map in the same game process): start from a clean
+            // WoG state and a fresh runtime, keeping the id tables — otherwise every script section would be
+            // registered twice and ERA function numbers (reset to 95000) would collide with the old ones.
+            State = new WoGGameState { Ids = State.Ids };
+            Build();
+        }
         if (Erm == null) return;
         if (IsEra) PrepareEraScripts(newGame: true);
         foreach (var s in scripts) Erm.Load(s, newGame: true);

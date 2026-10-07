@@ -21,14 +21,12 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     ITownAdapter, IUiAdapter, IBattleAdapter, IGameClock
 {
     readonly OldenEraSymbols sym;
-    readonly IdMap ids;
     readonly Func<IdMap> currentIds;
 
     public OldenEraGameAdapter(OldenEraSymbols symbols, Func<IdMap> ids)
     {
         sym = symbols;
-        currentIds = ids;
-        this.ids = ids();
+        currentIds = ids; // read lazily: the host that owns the IdMap is created after the adapter
     }
 
     public string EngineName => "Heroes of Might and Magic: Olden Era";
@@ -44,15 +42,15 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     static AdapterResult<T> Missing<T>(string key) => AdapterResult<T>.Unsupported($"[UNVERIFIED] Olden Era symbol '{key}' is not bound/verified");
     static AdapterResult Missing(string key) => AdapterResult.Unsupported($"[UNVERIFIED] Olden Era symbol '{key}' is not bound/verified");
 
-    object? Root() => sym.Read("game.root", null);
+    /// <summary>The session state object, or null outside a game (main menu) or when unbound.</summary>
+    public object? Root() => sym.Has("game.root") ? sym.Read("game.root", null) : null;
 
     /// <summary>Finds the OE hero object whose WoG id (via IdMap "hero") matches.</summary>
     object? FindHero(int hero)
     {
         if (!sym.Has("hero.list") || !sym.Has("hero.id")) return null;
         if (!currentIds().TryGetEngine("hero", hero, out var sid)) return null;
-        if (sym.Read("hero.list", Root()) is not IEnumerable list) return null;
-        foreach (var h in list)
+        foreach (var h in OldenEraSymbols.Items(sym.Read("hero.list", Root())))
             if (h != null && Equals(sym.Read("hero.id", h)?.ToString(), sid)) return h;
         return null;
     }
@@ -110,7 +108,8 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         if (!sym.Has("hero.army") || !sym.Has("stack.unitSid") || !sym.Has("stack.count")) return Missing<WoGStack>("hero.army");
         var h = FindHero(hero);
         if (h == null) return AdapterResult<WoGStack>.Failed($"hero {hero} not found");
-        if (sym.Read("hero.army", h) is not IList army || slot >= army.Count) return AdapterResult<WoGStack>.Ok(new WoGStack());
+        var army = OldenEraSymbols.Items(sym.Read("hero.army", h));
+        if (slot >= army.Count) return AdapterResult<WoGStack>.Ok(new WoGStack());
         var st = army[slot];
         if (st == null) return AdapterResult<WoGStack>.Ok(new WoGStack());
         string sid = sym.Read("stack.unitSid", st)?.ToString() ?? "";
@@ -130,12 +129,81 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
 
     // ---- players ----------------------------------------------------------------------------
 
-    public int CurrentPlayer => sym.Has("player.current") ? Convert.ToInt32(sym.Read("player.current", Root())) : 0;
-    public AdapterResult<int> GetResource(int player, int resource) => Missing<int>("player.resources");
-    public AdapterResult SetResource(int player, int resource, int value) => Missing("player.resources");
-    public AdapterResult<bool> IsHuman(int player) => Missing<bool>("player.isHuman");
-    public AdapterResult<bool> IsLocal(int player) => IsHuman(player); // single-player only: human == local
-    public AdapterResult<bool> IsAlive(int player) => Missing<bool>("player.alive");
+    // A WoG player number is the index of the side in the game's side array (OE has no fixed 8 colours).
+
+    /// <summary>
+    /// The player whose day is being processed. Set by the plugin around the per-player day events (OE starts a
+    /// day for all sides at once, H3 per player); outside them the local player is the current one.
+    /// </summary>
+    public int? CurrentOverride { get; set; }
+
+    public int CurrentPlayer =>
+        CurrentOverride ?? (sym.Has("player.local") ? Convert.ToInt32(sym.Read("player.local", Root())) : 0);
+
+    /// <summary>All players (sides) in the game's order; empty when the symbols are missing or no game runs.</summary>
+    public IReadOnlyList<object?> PlayerObjects() =>
+        sym.Has("game.root") && sym.Has("player.list") ? OldenEraSymbols.Items(sym.Read("player.list", Root())) : Array.Empty<object?>();
+
+    object? FindPlayer(int player)
+    {
+        var all = PlayerObjects();
+        return player >= 0 && player < all.Count ? all[player] : null;
+    }
+
+    /// <summary>The game's resource object for a WoG resource id (IdMap "resource" → member of the resource heap).</summary>
+    AdapterResult<object> ResourceObject(int player, int resource)
+    {
+        if (!sym.Has("game.root") || !sym.Has("player.list")) return Missing<object>("player.list");
+        if (!sym.Has("player.resources") || !sym.Has("resource.value")) return Missing<object>("player.resources");
+        if (!currentIds().TryGetEngine("resource", resource, out var sid))
+            return AdapterResult<object>.Unsupported($"resource {resource} has no Olden Era equivalent (IdMap \"resource\")");
+        var p = FindPlayer(player);
+        if (p == null) return AdapterResult<object>.Failed($"player {player} does not exist");
+        var heap = sym.Read("player.resources", p);
+        if (heap == null) return AdapterResult<object>.Failed($"player {player} has no resources");
+        var r = OldenEraSymbols.ReadMember(heap, sid);
+        return r == null ? AdapterResult<object>.Failed($"resource '{sid}' is null") : AdapterResult<object>.Ok(r);
+    }
+
+    static AdapterResult<T> NotOk<T, U>(AdapterResult<U> r) =>
+        r.Status == AdapterStatus.Unsupported ? AdapterResult<T>.Unsupported(r.Reason ?? "") : AdapterResult<T>.Failed(r.Reason ?? "");
+
+    public AdapterResult<int> GetResource(int player, int resource)
+    {
+        var r = ResourceObject(player, resource);
+        return r.IsOk ? AdapterResult<int>.Ok(Convert.ToInt32(sym.Read("resource.value", r.Value))) : NotOk<int, object>(r);
+    }
+
+    public AdapterResult SetResource(int player, int resource, int value)
+    {
+        var r = ResourceObject(player, resource);
+        if (!r.IsOk) return r.AsPlain();
+        sym.Write("resource.value", r.Value, value);
+        return AdapterResult.Ok;
+    }
+
+    public AdapterResult<bool> IsHuman(int player)
+    {
+        if (!sym.Has("player.isHuman")) return Missing<bool>("player.isHuman");
+        var p = FindPlayer(player);
+        if (p == null) return AdapterResult<bool>.Failed($"player {player} does not exist");
+        return AdapterResult<bool>.Ok(Convert.ToInt32(sym.Read("player.isHuman", p)) == 0);
+    }
+
+    public AdapterResult<bool> IsLocal(int player)
+    {
+        if (!sym.Has("player.local")) return Missing<bool>("player.local");
+        if (Root() is not { } root) return AdapterResult<bool>.Failed("no game session");
+        return AdapterResult<bool>.Ok(Convert.ToInt32(sym.Read("player.local", root)) == player);
+    }
+
+    public AdapterResult<bool> IsAlive(int player)
+    {
+        if (!sym.Has("player.alive")) return Missing<bool>("player.alive");
+        var p = FindPlayer(player);
+        if (p == null) return AdapterResult<bool>.Ok(false);
+        return AdapterResult<bool>.Ok(Convert.ToInt32(sym.Read("player.alive", p)) == 0);
+    }
     public AdapterResult<int> GetActiveHero(int player) => Missing<int>("player.activeHero");
     public AdapterResult<IReadOnlyList<int>> GetHeroes(int player) => Missing<IReadOnlyList<int>>("player.heroes");
 
@@ -183,8 +251,11 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
 
     // ---- clock ------------------------------------------------------------------------------
 
-    public int AbsoluteDay => sym.Has("game.day") ? Convert.ToInt32(sym.Read("game.day", Root())) : 1;
-    public int DayOfWeek => (AbsoluteDay - 1) % 7 + 1;
-    public int Week => (AbsoluteDay - 1) / 7 % 4 + 1;
-    public int Month => (AbsoluteDay - 1) / 28 + 1;
+    int ClockValue(string key, Func<int> fallback) =>
+        sym.Has(key) && Root() is { } root && sym.Read(key, root) is { } v ? Convert.ToInt32(v) : fallback();
+
+    public int AbsoluteDay => ClockValue("game.day", () => 1);
+    public int DayOfWeek => ClockValue("game.dayOfWeek", () => (AbsoluteDay - 1) % 7 + 1);
+    public int Week => ClockValue("game.week", () => (AbsoluteDay - 1) / 7 % 4 + 1);
+    public int Month => ClockValue("game.month", () => (AbsoluteDay - 1) / 28 + 1);
 }

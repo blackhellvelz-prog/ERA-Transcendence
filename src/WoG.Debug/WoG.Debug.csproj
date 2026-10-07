@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    WoG Debug: an engine-independent debug console and self-test of the WoG/ERA layer. Used by the Olden Era
+    plugin (command bridge in game) and by the tests (same suite on the headless engine).
+  -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WoG.Host\WoG.Host.csproj" />
+  </ItemGroup>
+</Project>
