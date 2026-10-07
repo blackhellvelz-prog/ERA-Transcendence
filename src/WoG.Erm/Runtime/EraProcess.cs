@@ -65,8 +65,22 @@ public sealed partial class ErmRuntime
         ProcessEra(eventId, context);
     });
 
+    /// <summary>Library functions implemented natively, by ERA function name (<see cref="WoG.Erm.Era.EraNativeLibrary"/>).</summary>
+    public Dictionary<string, WoG.Erm.Era.EraNativeLibrary.Native> EraNatives { get; } = new(StringComparer.Ordinal);
+
     internal void ProcessEra(int eventId, ErmEventContext context)
     {
+        if (EraNatives.Count > 0 && EraNames.TryGetFunctionName(eventId, out var fname) && EraNatives.TryGetValue(fname, out var native))
+        {
+            // The native replaces the function's ERM sections: x1..x16 in, x1..x16 out, in the caller's trigger.
+            TriggerLoopCallback = null;
+            FuncArgs = null;
+            IsQuitTriggerSignal = false;
+            var x = (int[])ArgX.Clone();
+            native(this, x, NumFuncArgsPassed);
+            RetX = x;
+            return;
+        }
         var loopCallback = TriggerLoopCallback;
         TriggerLoopCallback = null;
         var funcArgs = FuncArgs;

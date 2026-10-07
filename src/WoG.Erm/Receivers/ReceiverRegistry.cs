@@ -187,6 +187,8 @@ public sealed class ReceiverRegistry
             "MA — у существ с юнитом Olden Era меняется тип юнита в игре (атака, защита, здоровье, скорость, урон, стоимость, ценность; уровень, город и улучшение только чтение); существа без него берутся из zcrtrait.txt установки ERA и в игре ничего не меняют; изменения сохраняются вместе с игрой",
         ["MA:N/G/R/H/V/B/X — shots, growth, adventure-map counts, casts and flags exist only for creatures without an Olden Era unit (from zcrtrait.txt); Olden Era units have no such stats"] =
             "MA:N/G/R/H/V/B/X — выстрелы, прирост, численность на карте, заклинания и флаги есть только у существ без юнита Olden Era (из zcrtrait.txt); у юнитов Olden Era таких характеристик нет",
+        ["UN:J — J0 spell bans (kept; Olden Era's guilds do not use them yet), J2 difficulty (Olden Era's AI difficulty), J8/J9 files and folders (the write folder first, then the ERA installation), J10 variable log, J11; J1, J3-J7, J12, J13 are not mapped yet"] =
+            "UN:J — J0 запрет заклинаний (хранится; гильдии Olden Era его пока не используют), J2 сложность (сложность ИИ Olden Era), J8/J9 файлы и папки (сначала папка записи, затем установка ERA), J10 лог переменных, J11; J1, J3-J7, J12, J13 пока не отображены",
         ["UN map/object/global commands are not mapped yet"] = "команды UN для карты/объектов/глобальные ещё не отображены",
         ["values go through the adapter; OE primary stats differ (see the matrix)"] = "значения идут через адаптер; первичные статы OE отличаются (см. матрицу)",
         ["ids via IdMap; display-slot forms are not supported"] = "id через IdMap; формы со слотами отображения не поддерживаются",

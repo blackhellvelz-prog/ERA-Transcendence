@@ -412,3 +412,18 @@ WoG Scripts Rus, WoG Fix Lite, ERA Scripts. Он измеряется отдел
   v500 = 1, быстрая загрузка → v500 = 777, без инструкций и без второго дня 1. 169 тестов xUnit.
 * Замечание: каждая тестовая схватка оставляет папку автосейва `saves\singleplayer\ld_*_07.10.2026_*` в сейвах
   пользователя.
+
+## 2026-10-07 — сессия 2, продолжение: нативные библиотечные функции, UN:J
+
+* **Нативные библиотечные функции** (`src/WoG.Erm/Era/EraNativeLibrary.cs`): функции stdlib из Era Erm Framework,
+  WoG Scripts и ERA Scripts, чьи ERM-тела читают память H3 или вызывают код H3, выполняются нативным кодом под тем же
+  именем и с теми же x-параметрами: `GetMaxMonsterId`, `GetMaxHeroId`, `GetUpgradedMonster`, `GetTimeMsec`,
+  `Array_CountValue`, `Array_IndexOf`, `Array_Merge`, `Array_Slice`, `Array_Shuffle`, `WOG_/ES_PackedCoords`,
+  `WOG_/ES_UnPackedCoords` (PosMixed из WoG), `WOG_/ES_CheckRandomMap` (`MapData.generatorChecksum` Olden Era),
+  `WOG_GameMgr_GetPlayer_Me`, `WOG_GameMgr_GetPlayer_Team` (союзы Olden Era).
+  Эффект при старте + день 1: базовый набор `UN:C` 70 → 10, `SN:E` 55 → 1; все 17 модов `UN:C` 103 → 43,
+  `SN:E` 78 → 24.
+* **UN:J**: J0 запрет заклинаний (хранится), J2 сложность (`StartInfo.settings.AiDifficulty` `[V-game]`: 1 для
+  «низкой»; шкала принята как 0..4 из H3 `[UNVERIFIED]`), J8/J9 файлы и папки (сначала папка записи; J9 выдаёт папку
+  записи, поэтому скрипты никогда не пишут в установку ERA), J10 лог переменных, J11; остальное — unsupported.
+* 171 тест xUnit.

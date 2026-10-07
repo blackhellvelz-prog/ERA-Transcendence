@@ -400,3 +400,17 @@ unsupported commands. 166 xUnit tests.
 * Verified in game: autosave and quick save got their state files; v500 = 777, quick save, v500 = 1, quick load →
   v500 = 777, no instructions and no second day 1. 169 xUnit tests.
 * Note: every test skirmish leaves an autosave folder `saves\singleplayer\ld_*_07.10.2026_*` in the user's saves.
+
+## 2026-10-07 — session 2, continued: native library functions, UN:J
+
+* **Native library functions** (`src/WoG.Erm/Era/EraNativeLibrary.cs`): stdlib functions of Era Erm Framework,
+  WoG Scripts and ERA Scripts whose ERM bodies read H3 memory or call H3 code run as native code under the same name
+  and with the same x-parameters: `GetMaxMonsterId`, `GetMaxHeroId`, `GetUpgradedMonster`, `GetTimeMsec`,
+  `Array_CountValue`, `Array_IndexOf`, `Array_Merge`, `Array_Slice`, `Array_Shuffle`, `WOG_/ES_PackedCoords`,
+  `WOG_/ES_UnPackedCoords` (WoG's PosMixed), `WOG_/ES_CheckRandomMap` (Olden Era's `MapData.generatorChecksum`),
+  `WOG_GameMgr_GetPlayer_Me`, `WOG_GameMgr_GetPlayer_Team` (Olden Era alliances).
+  Effect at start + day 1: core set `UN:C` 70 → 10, `SN:E` 55 → 1; all 17 mods `UN:C` 103 → 43, `SN:E` 78 → 24.
+* **UN:J**: J0 spell bans (kept), J2 difficulty (`StartInfo.settings.AiDifficulty` `[V-game]`: 1 for "low"; scale
+  taken as H3's 0..4 `[UNVERIFIED]`), J8/J9 files and folders (the write folder first; J9 hands out the write folder,
+  so scripts never write into the ERA installation), J10 variable log, J11; the rest is reported unsupported.
+* 171 xUnit tests.

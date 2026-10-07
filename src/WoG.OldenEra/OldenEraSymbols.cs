@@ -89,6 +89,9 @@ public sealed class OldenEraSymbols
         "mapobj.entrances",          // map object → nodes a hero visits it from
         "mapobj.blocked",            // map object → nodes it occupies
         "map.data", "map.tiles", "map.water", "map.roads", // map → MapData → per-node biome / water / road ids
+        "map.generatorChecksum",     // MapData → checksum of the generator (non-empty on a generated map)
+        "alliance.list", "alliance.sides", // root → alliances; alliance → side ids
+        "game.difficulty",           // static path to the AI difficulty chosen at the start
         "mapobj.sid",                // map object → object config sid (object.json)
         "object.list",               // root → session objects (interactive objects with game data)
         "object.mapId", "object.owner", // session object → map object id / owner side id (-1 neutral)

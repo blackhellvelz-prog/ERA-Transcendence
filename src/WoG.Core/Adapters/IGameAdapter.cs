@@ -73,6 +73,8 @@ public interface IPlayerAdapter
     AdapterResult<bool> IsAlive(int player);
     AdapterResult<int> GetActiveHero(int player);
     AdapterResult<IReadOnlyList<int>> GetHeroes(int player);
+    /// <summary>The player's team: players of one alliance share it (the lowest player number among them).</summary>
+    AdapterResult<int> GetTeam(int player);
 }
 
 public enum CreatureStat
@@ -101,6 +103,11 @@ public interface IMapAdapter
     AdapterResult<IReadOnlyList<WoGMapObject>> GetObjects();
     /// <summary>A square: the object on it, its entrance/blocked bits and its terrain.</summary>
     AdapterResult<MapSquare> GetSquare(MapPos pos);
+    /// <summary>The map was generated (a random map), not made in an editor.</summary>
+    AdapterResult<bool> IsRandomMap();
+    /// <summary>The difficulty chosen for the game (H3: 0 easy … 4 impossible).</summary>
+    AdapterResult<int> GetDifficulty();
+    AdapterResult SetDifficulty(int level);
     AdapterResult<(int type, int subtype)> GetObjectAt(MapPos pos);
     AdapterResult<int> GetObjectOwner(MapPos pos);
     AdapterResult SetObjectOwner(MapPos pos, int owner);

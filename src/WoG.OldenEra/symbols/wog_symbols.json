@@ -517,6 +517,34 @@
       "Member": "fileHashSum",
       "Status": "verified",
       "Note": "0.81.04: after loading a save: the 32-hex checksum the save file (gzip text) starts with | verified 2026-10-07 (0.81.04): quick save + quick load in a skirmish, with a trace of zb.Invoke and Data.biyb"
+    },
+    "map.generatorChecksum": {
+      "Assembly": "Hex",
+      "Type": "Hex.Map.MapData",
+      "Member": "generatorChecksum",
+      "Status": "verified",
+      "Note": "0.81.04: non-empty on a generated (random) map, kept in the save | verified 2026-10-07 with WoG Debug peek on an ARCADE skirmish map (92b91cc0…); an editor map is expected to have none [UNVERIFIED]"
+    },
+    "alliance.list": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Data",
+      "Member": "alliances.list",
+      "Status": "verified",
+      "Note": "0.81.04: DataAlliances.list: List<DataAlliance> | verified 2026-10-07: empty in a 2-player skirmish (save: \"alliances\":{\"freeId\":0,\"list\":[]})"
+    },
+    "alliance.sides": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataAlliance",
+      "Member": "sides",
+      "Status": "verified",
+      "Note": "0.81.04: DataAlliance.sides: List<int> of side ids (decompiled field; no alliance seen in game yet [UNVERIFIED contents])"
+    },
+    "game.difficulty": {
+      "Assembly": "Hex",
+      "Type": "dbx",
+      "Member": "me.ctic.settings.AiDifficulty",
+      "Status": "verified",
+      "Note": "0.81.04: StartInfo.settings (Hex.SharedLibrary.Models.Lobby.GameStartInfo).AiDifficulty; also in the save header startSettings | verified 2026-10-07 with WoG Debug peek: 1 after choosing the low difficulty"
     }
   }
 }

@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 using WoG.Core.Adapters;
 using WoG.Core.Compat;
 using WoG.Core.H3Data;
@@ -113,8 +116,9 @@ public sealed class UnReceiver : ErmReceiverBase
             "UN:N — names of artifacts, spells, creatures and secondary skills from the ERA installation's text tables; N5/N6 ini values (written under BepInEx/config/WoG/era-root); N2 building names are not read yet");
         Declare("R", CompatLevel.PartiallySupported,
             "UN:R — R1-R4 redraws: Olden Era redraws its screens itself; R5-R7 (mouse pointer shape, delay) are cosmetic and do nothing");
+        Declare("J", CompatLevel.PartiallySupported, "UN:J — J0 spell bans (kept; Olden Era's guilds do not use them yet), J2 difficulty (Olden Era's AI difficulty), J8/J9 files and folders (the write folder first, then the ERA installation), J10 variable log, J11; J1, J3-J7, J12, J13 are not mapped yet");
         Declare("C", CompatLevel.Unsupported, "UN:C writes to H3 memory addresses — impossible on a different engine");
-        Declare("BDEFGHIJKLMOQSTWYZ", CompatLevel.Unsupported, "UN map/object/global commands are not mapped yet");
+        Declare("BDEFGHIKLMOQSTWYZ", CompatLevel.Unsupported, "UN map/object/global commands are not mapped yet");
     }
 
     protected override void Run(ErmCall c)
@@ -127,6 +131,7 @@ public sealed class UnReceiver : ErmReceiverBase
             case 'X': MapSize(c); break;
             case 'U': FindObjects(c); break;
             case 'N': Names(c); break;
+            case 'J': Misc(c); break;
             case 'R': Redraw(c); break;
             default: throw ErmCall.WrongCommand(c.Letter);
         }
@@ -313,6 +318,118 @@ public sealed class UnReceiver : ErmReceiverBase
             default:
                 throw new ErmRuntimeException("\"!!UN:N\"-wrong first parameter.");
         }
+    }
+
+    /// <summary>UN:J#/… — miscellaneous (erm.cpp ERM_Universal case 'J').</summary>
+    static void Misc(ErmCall c)
+    {
+        var s = c.Rt.Services;
+        switch (c.N(0))
+        {
+            case 0:
+            {
+                // J0/spell/$ — banned from mage guilds and pyramids (kept; Olden Era's guilds do not read it yet)
+                c.RequireMin(3);
+                int spell = c.N(1);
+                if (spell < 0 || spell >= 70) throw new ErmRuntimeException("\"!!UN:J\"-wrong spell number (0...69).");
+                int v = s.State.DisabledSpells.Contains(spell) ? 1 : 0;
+                if (c.Apply(ref v, 2)) break;
+                if (v != 0) s.State.DisabledSpells.Add(spell); else s.State.DisabledSpells.Remove(spell);
+                break;
+            }
+            case 2:
+            {
+                c.RequireMin(2);
+                var map = s.Game.Map;
+                c.ApplyAdapter(map.GetDifficulty(), v => map.SetDifficulty(v), 1);
+                break;
+            }
+            case 8:
+            {
+                // J8/folder/z or J8/folder/^name^ — flag 1 = the file exists
+                c.RequireExactly(3);
+                int folder = 0;
+                if (c.Apply(ref folder, 1)) throw new ErmRuntimeException("wrong syntax");
+                string name = FileArgument(c, 2);
+                c.Rt.SetFlag(1, Folders(c, folder).Any(d => File.Exists(Path.Combine(d, name))));
+                break;
+            }
+            case 9:
+            {
+                // J9/folder/z — the folder's path; files scripts write go to the write folder, never the ERA installation
+                c.RequireExactly(3);
+                int folder = 0;
+                if (c.Apply(ref folder, 1)) throw new ErmRuntimeException("wrong syntax");
+                int z = c.N(2);
+                if (z == 0) throw new ErmRuntimeException("\"!!UN:J9\"- must be z var.");
+                if (z < -20 || z > 1000) throw new ErmRuntimeException("\"!!UN:J9\"- z var out of range (-20...-1,1...1000).");
+                string path = Folders(c, folder).First();
+                c.SetZ(z, path.EndsWith("\\") ? path : path + "\\");
+                break;
+            }
+            case 10:
+            {
+                // J10 — the non-zero variables into WOGERMLOG.TXT (in the write folder)
+                var v = s.State.Erm;
+                var sb = new StringBuilder("SCRIPT BASED LOGGING (by UN:J10 command)\r\n");
+                for (int i = 0; i < v.V.Length; i++) if (v.V[i] != 0) sb.Append($"v{i + 1} = {v.V[i]}\r\n");
+                for (int i = 0; i < v.Flags.Length; i++) if (v.Flags[i]) sb.Append($"flag{i + 1} = 1\r\n");
+                for (int i = 0; i < v.Z.Length; i++) if (!string.IsNullOrEmpty(v.Z[i])) sb.Append($"z{i + 1} = \"{v.Z[i]}\"\r\n");
+                string root = c.Rt.Ini.WriteRoot;
+                Directory.CreateDirectory(root);
+                File.AppendAllText(Path.Combine(root, "WOGERMLOG.TXT"), sb.ToString());
+                break;
+            }
+            case 11:
+            {
+                int v = s.State.MonInfoDlgPopUp;
+                if (!c.Apply(ref v, 1)) s.State.MonInfoDlgPopUp = v;
+                break;
+            }
+            case 1:
+                throw new ErmUnsupportedException("UN:J1 — the hero level limit and Olden Era's experience table are not mapped yet");
+            case 3:
+                throw new ErmUnsupportedException("UN:J3 — WoGification settings files (.dat presets) are not read yet");
+            case 4:
+            case 5:
+                throw new ErmUnsupportedException("UN:J4/J5 — the H3 AI thinking radius and autosave switch have no Olden Era equivalent mapped");
+            case 6:
+            case 7:
+                throw new ErmUnsupportedException("UN:J6/J7 — random artifacts and the artifact merchant need H3 artifacts linked to Olden Era items");
+            case 12:
+            case 13:
+                throw new ErmUnsupportedException("UN:J12/J13 — map file name and commander reset are not mapped yet");
+            default:
+                throw new ErmRuntimeException("\"!!UN:J\"-wrong first parameter.");
+        }
+    }
+
+    /// <summary>A file name given as a z variable index or as ^text^ (the J8 form).</summary>
+    static string FileArgument(ErmCall c, int i)
+    {
+        int z = c.N(i);
+        if (z != 0)
+        {
+            if (z < -20 || z > 1000 && !c.IsEra) throw new ErmRuntimeException("z var out of range (-20...-1,1...1000+).");
+            return c.GetZ(z);
+        }
+        return c.Text(i);
+    }
+
+    /// <summary>
+    /// WoG's GetFolder(modifier): 0 the game folder, 1 DATA, 2 MAPS, 3 RANDOM_MAPS, 4 GAMES, 5 DATA\S, 6 DATA\P,
+    /// 7 DATA\ZVS\LIB1.RES, 8 DATA\ZVS\CMP.RES, 9 ERM_HELP, 10 relative — in the write folder first, then the ERA installation.
+    /// </summary>
+    static IEnumerable<string> Folders(ErmCall c, int modifier)
+    {
+        string sub = modifier switch
+        {
+            1 => "Data", 2 => "Maps", 3 => "Random_Maps", 4 => "Games", 5 => @"Data\s", 6 => @"Data\p",
+            7 => @"Data\zvs\Lib1.res", 8 => @"Data\zvs\Cmp.res", 9 => "Erm_Help", _ => "",
+        };
+        var ini = c.Rt.Ini;
+        yield return Path.Combine(ini.WriteRoot, sub);
+        foreach (var r in ini.ReadRoots) yield return Path.Combine(r, sub);
     }
 
     /// <summary>UN:R# — screen redraws (Olden Era keeps its screens current), mouse pointer and delay (cosmetic).</summary>

@@ -83,6 +83,7 @@ public sealed partial class ErmRuntime
         Services = services;
         Options = options ?? new ErmRuntimeOptions();
         Receivers = Options.Dialect == ErmDialect.Era ? ReceiverRegistry.CreateEra(this) : ReceiverRegistry.CreateDefault(this);
+        if (Options.Dialect == ErmDialect.Era) WoG.Erm.Era.EraNativeLibrary.Register(this);
     }
 
     static string[] NewLz()

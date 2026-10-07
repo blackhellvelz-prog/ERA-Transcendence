@@ -316,6 +316,31 @@ public class H3DataTests : IDisposable
     }
 
     [Fact]
+    public void Un_j_bans_spells_reads_the_difficulty_and_finds_files_without_writing_into_the_era_folder()
+    {
+        string game = Path.Combine(root, "era"), write = Path.Combine(root, "era-write");
+        Directory.CreateDirectory(Path.Combine(game, "Data", "s"));
+        File.WriteAllText(Path.Combine(game, "Data", "s", "present.erm"), "ZVSE2\n");
+        using var t = new EraTestHost().Script("t.erm", "ZVSE2\n!?FU(Go);\n" +
+            "!!UN:J0/12/1;\n!!UN:J0/12/?v1;\n!!UN:J0/13/?v2;\n" +
+            "!!UN:J2/?v3;\n!!UN:J2/3;\n" +
+            "!!UN:J8/5/^present.erm^;\n!!VRv4:S0;\n!!VRv4&1:S1;\n" +
+            "!!UN:J8/5/^missing.erm^;\n!!VRv5:S0;\n!!VRv5&1:S1;\n" +
+            "!!UN:J9/2/1;\n" +
+            "!!VRv100:S77;\n!!UN:J10;\n").Start();
+        t.Host.SetEraFolders(game, write);
+        t.Game.Difficulty = 2;
+        t.Call("Go");
+        Assert.Equal("", t.ErrorText);
+        Assert.Equal((1, 0, 2), (t.V(1), t.V(2), t.V(3)));
+        Assert.Equal(3, t.Game.Difficulty);
+        Assert.Equal((1, 0), (t.V(4), t.V(5)));
+        Assert.Equal(Path.Combine(write, "Maps") + "\\", t.Z(1));   // a path in the write folder, not in the ERA installation
+        Assert.Contains("v100 = 77", File.ReadAllText(Path.Combine(write, "WOGERMLOG.TXT")));
+        Assert.False(File.Exists(Path.Combine(game, "WOGERMLOG.TXT")));
+    }
+
+    [Fact]
     public void Un_a_without_an_artifact_table_is_reported_unsupported()
     {
         using var t = new EraTestHost().Script("t.erm", "ZVSE2\n!?FU(Go);\n!!UN:A5/1/?v1;\n!!UN:A5/?v2;\n").Start();

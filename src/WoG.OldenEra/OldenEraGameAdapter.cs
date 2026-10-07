@@ -529,6 +529,45 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     static int PosToNode(MapPos p, int sx, int sz) =>
         p.L != 0 || p.X < 0 || p.X >= sx || p.Y < 0 || p.Y >= sz ? -1 : p.X + (sz - 1 - p.Y) * sx;
 
+    public AdapterResult<bool> IsRandomMap()
+    {
+        if (!sym.Has("map.data") || !sym.Has("map.generatorChecksum")) return Missing<bool>("map.generatorChecksum");
+        if (MapRoot() is not { } map || sym.Read("map.data", map) is not { } data) return AdapterResult<bool>.Failed("no game session");
+        return AdapterResult<bool>.Ok(sym.Read("map.generatorChecksum", data) is string s && s.Length > 0);
+    }
+
+    // The AI difficulty chosen when the game was started (StartInfo.settings.AiDifficulty) [V-game: 1 for "low"];
+    // its scale is taken as H3's 0..4 [UNVERIFIED].
+    public AdapterResult<int> GetDifficulty()
+    {
+        if (!sym.Has("game.difficulty")) return Missing<int>("game.difficulty");
+        return sym.Read("game.difficulty", null) is { } v ? AdapterResult<int>.Ok(Convert.ToInt32(v)) : AdapterResult<int>.Failed("no game session");
+    }
+
+    public AdapterResult SetDifficulty(int level)
+    {
+        if (!sym.Has("game.difficulty")) return Missing("game.difficulty");
+        sym.Write("game.difficulty", null, level);
+        return AdapterResult.Ok;
+    }
+
+    /// <summary>Players of one Olden Era alliance (Data.alliances.list[].sides) share the lowest player number among them.</summary>
+    public AdapterResult<int> GetTeam(int player)
+    {
+        if (!sym.Has("alliance.list") || !sym.Has("alliance.sides") || !sym.Has("player.id")) return Missing<int>("alliance.list");
+        if (Root() is not { } root) return AdapterResult<int>.Failed("no game session");
+        var sides = PlayerObjects();
+        if (player < 0 || player >= sides.Count || sides[player] == null) return AdapterResult<int>.Failed($"player {player} is not in the game");
+        int side = Convert.ToInt32(sym.Read("player.id", sides[player]));
+        foreach (var alliance in OldenEraSymbols.Items(sym.Read("alliance.list", root)))
+        {
+            if (alliance == null) continue;
+            var members = OldenEraSymbols.Items(sym.Read("alliance.sides", alliance)).Select(Convert.ToInt32).ToList();
+            if (members.Contains(side)) return AdapterResult<int>.Ok(members.Select(PlayerOfSide).Where(p => p >= 0).DefaultIfEmpty(player).Min());
+        }
+        return AdapterResult<int>.Ok(player);
+    }
+
     public AdapterResult<(int Size, int Levels)> GetSize()
     {
         if (MapKeys.FirstOrDefault(k => !sym.Has(k)) is { } missing) return Missing<(int, int)>(missing);

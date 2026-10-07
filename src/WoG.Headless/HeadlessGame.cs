@@ -30,6 +30,9 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
     /// <summary>Map width (square) and H3 levels (0 = surface only, 1 = with underground).</summary>
     public int MapSize { get; set; } = 72;
     public int MapLevels { get; set; } = 1;
+    public bool RandomMap { get; set; }
+    /// <summary>Team per player (default: each player is its own team).</summary>
+    public int[] Teams { get; } = Enumerable.Range(0, WoGLimits.PlayerCount).ToArray();
     /// <summary>Terrain per square (Format TR); missing squares are grass.</summary>
     public Dictionary<int, int> Terrain { get; } = new();
     /// <summary>Squares covered by objects besides their entrance (object position), key = MapPos.Pack().</summary>
@@ -282,6 +285,14 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
     }
 
     // ---- map / towns ------------------------------------------------------------------------
+
+    public AdapterResult<bool> IsRandomMap() => AdapterResult<bool>.Ok(RandomMap);
+    public int Difficulty { get; set; } = 1;
+    public AdapterResult<int> GetDifficulty() => AdapterResult<int>.Ok(Difficulty);
+    public AdapterResult SetDifficulty(int level) { Difficulty = level; return AdapterResult.Ok; }
+
+    public AdapterResult<int> GetTeam(int player) =>
+        player is >= 0 and < WoGLimits.PlayerCount ? AdapterResult<int>.Ok(Teams[player]) : AdapterResult<int>.Failed("wrong player");
 
     public AdapterResult<(int Size, int Levels)> GetSize() => AdapterResult<(int, int)>.Ok((MapSize, MapLevels));
 

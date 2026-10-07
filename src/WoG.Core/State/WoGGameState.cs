@@ -67,6 +67,10 @@ public sealed class WoGGameState
     public Dictionary<int, Dictionary<string, int>> CreatureChanges { get; set; } = new();
     /// <summary>Artifact types changed by UN:A (only changed ones; the rest come from the H3 tables).</summary>
     public Dictionary<int, WoGArtifact> ArtifactOverrides { get; set; } = new();
+    /// <summary>Spells banned from mage guilds by UN:J0.</summary>
+    public HashSet<int> DisabledSpells { get; set; } = new();
+    /// <summary>UN:J11: the right-click creature info dialog stays open (0) or works as usual (1).</summary>
+    public int MonInfoDlgPopUp { get; set; }
     /// <summary>Artifacts banned from the map by UN:A#/1 (ArtDisabled).</summary>
     public HashSet<int> BannedArtifacts { get; set; } = new();
     /// <summary>Combination table entries changed by UN:A (index 0..31 → [combo artifact, parts…]; 0 = empty entry).</summary>
