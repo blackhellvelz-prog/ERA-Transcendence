@@ -724,6 +724,23 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         };
     }
 
+    /// <summary>A member of a game event argument through a symbol; null when it cannot be read.</summary>
+    public object? EventValue(object? arg, string key)
+    {
+        if (arg == null || !sym.Has(key)) return null;
+        try { return sym.Read(key, MethodTraceReal(arg)); }
+        catch (Exception) { return null; }
+    }
+
+    /// <summary>The checksum of the save the current session was loaded from; null for a new game.</summary>
+    public string? LoadedSaveHash()
+    {
+        if (!sym.Has("session.startInfo") || !sym.Has("startInfo.load") || !sym.Has("startInfo.hash")) return null;
+        var info = sym.Read("session.startInfo", null);
+        if (info == null || Convert.ToInt32(sym.Read("startInfo.load", info)) != 1) return null; // ELoad.LoadSave
+        return sym.Read("startInfo.hash", info) as string;
+    }
+
     /// <summary>An int member of a game event argument through a symbol; -1 when it cannot be read.</summary>
     public int EventInt(object? arg, string key)
     {

@@ -482,6 +482,41 @@
       "Member": "ctzt",
       "Status": "verified",
       "Note": "0.81.04: Unit.ctzt = Hex.Configs.UnitLogicConfig of the unit's sid (cnkj is a cache that stays null); stats (offence, defence, hp, damageMin/Max, speed, initiative), tier, fraction, upgradeSid, squadValue, unitCost.costResArray (name, cost) | verified 2026-10-07 with WoG Debug peek on the hero's army: esquire 4/4/12, 2-3, speed 4, 85 gold"
+    },
+    "event.saveOk": {
+      "Assembly": "Hex",
+      "Type": "wb",
+      "Member": "bupq",
+      "Status": "verified",
+      "Note": "0.81.04: wb = MapSaved argument; bupq = true when saved | verified 2026-10-07 (0.81.04): quick save + quick load in a skirmish, with a trace of zb.Invoke and Data.biyb"
+    },
+    "event.savePath": {
+      "Assembly": "Hex",
+      "Type": "wb",
+      "Member": "bupr",
+      "Status": "verified",
+      "Note": "0.81.04: bupr = save path relative to the user folder (saves/singleplayer/ld_15.08_07.10.2026_human/quicksave.saveskirmish) | verified 2026-10-07 (0.81.04): quick save + quick load in a skirmish, with a trace of zb.Invoke and Data.biyb"
+    },
+    "session.startInfo": {
+      "Assembly": "Hex",
+      "Type": "dbx",
+      "Member": "me.ctic",
+      "Status": "verified",
+      "Note": "0.81.04: dbx.me.ctic = Hex.Session.StartInfo of the running session | verified 2026-10-07 (0.81.04): quick save + quick load in a skirmish, with a trace of zb.Invoke and Data.biyb"
+    },
+    "startInfo.load": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.StartInfo",
+      "Member": "load",
+      "Status": "verified",
+      "Note": "0.81.04: ELoad: NewMap 0, LoadSave 1, Generate 2, GenerateBySchema 3 | verified 2026-10-07 (0.81.04): quick save + quick load in a skirmish, with a trace of zb.Invoke and Data.biyb"
+    },
+    "startInfo.hash": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.StartInfo",
+      "Member": "fileHashSum",
+      "Status": "verified",
+      "Note": "0.81.04: after loading a save: the 32-hex checksum the save file (gzip text) starts with | verified 2026-10-07 (0.81.04): quick save + quick load in a skirmish, with a trace of zb.Invoke and Data.biyb"
     }
   }
 }

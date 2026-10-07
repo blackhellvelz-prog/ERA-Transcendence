@@ -386,3 +386,17 @@ unsupported commands. 166 xUnit tests.
   loading, and undone for a new game — the unit configs live as long as the game process.
 * Verified in game: pikeman (esquire) reads attack 4, defence 4, hit points 12, speed 4, 85 gold, level 0, town 0,
   upgrade 1; `MA:A0/10` makes the live config's offence 10. 168 xUnit tests.
+
+## 2026-10-07 — session 2, continued: WoG state with Olden Era saves
+
+* Found `[V-game]`: no `Data.Save` call when the game saves; the event bus raises `MapSaved` (`wb.bupq` = saved,
+  `wb.bupr` = path relative to `%USERPROFILE%\AppData\LocalLow\Unfrozen\HeroesOldenEra\users\<user>`), and the file
+  appears a moment later. A save is gzip text starting with a 32-hex checksum; a session loaded from it has
+  `StartInfo.load` = LoadSave and `StartInfo.fileHashSum` = that checksum (`dbx.me.ctic`).
+* Done: at `MapSaved` the WoG state is taken (with !?GM1/OnSavegameWrite) and written, once the save exists, to
+  `BepInEx\config\WoG\saves\<checksum>.wog.json`; a session started from a save restores it (or starts a fresh WoG
+  state without instructions when the save has none) and does not run day 1 again. Nothing is written into the game's
+  save folder.
+* Verified in game: autosave and quick save got their state files; v500 = 777, quick save, v500 = 1, quick load →
+  v500 = 777, no instructions and no second day 1. 169 xUnit tests.
+* Note: every test skirmish leaves an autosave folder `saves\singleplayer\ld_*_07.10.2026_*` in the user's saves.

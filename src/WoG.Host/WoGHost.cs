@@ -244,21 +244,40 @@ public sealed class WoGHost : IWoGServices
     // Save / load (05_Save_System.md)
     // ------------------------------------------------------------------------------------------
 
-    public void SaveTo(string path, string identity)
+    public void SaveTo(string path, string identity) => WriteSnapshot(path, SaveSnapshot(), identity);
+
+    /// <summary>
+    /// The WoG state as the game is being saved: runs the before-save triggers (!?GM1, OnSavegameWrite), takes the
+    /// state, then OnAfterSaveGame. The snapshot can be written later, once the engine's save file is known.
+    /// </summary>
+    public string SaveSnapshot()
     {
         var ctx = new ErmEventContext { Player = Game.Players.CurrentPlayer };
         Erm?.Raise(30361, ctx); // !?GM1 before saving
         if (IsEra) Erm?.Raise(WoG.Erm.Era.EraEvents.SavegameWrite, ctx);
-        WoGSaveSerializer.WriteFile(path, State, identity);
+        string snapshot = WoGSaveSerializer.Serialize(State, "");
         if (IsEra) Erm?.Raise(WoG.Erm.Era.EraEvents.AfterSaveGame, ctx);
+        return snapshot;
     }
 
+    /// <summary>Writes a <see cref="SaveSnapshot"/> to a file that belongs to the save <paramref name="identity"/>.</summary>
+    public static void WriteSnapshot(string path, string snapshot, string identity) =>
+        WoGSaveSerializer.WriteFile(path, WoGSaveSerializer.Deserialize(snapshot), identity);
+
     /// <summary>Loaded game: restore state, re-parse scripts without instructions, fire !?GM0.</summary>
-    public void LoadFrom(string path, string identity)
+    public void LoadFrom(string path, string identity) => LoadState(WoGSaveSerializer.ReadFile(path, identity));
+
+    /// <summary>
+    /// A loaded game whose WoG state was not saved (made before WoG was installed, or the file is gone): a fresh WoG
+    /// state without running the instructions — they belong to the start of a map — then !?GM0 as for any load.
+    /// </summary>
+    public void LoadWithoutSavedState() => LoadState(new WoGGameState { Ids = State.Ids, InstructionsDone = true });
+
+    void LoadState(WoGGameState loaded)
     {
         var ctx = new ErmEventContext { Player = Game.Players.CurrentPlayer };
         if (IsEra && Erm != null && State.InstructionsDone) Erm.Raise(WoG.Erm.Era.EraEvents.GameLeave, ctx);
-        State = WoGSaveSerializer.ReadFile(path, identity);
+        State = loaded;
         State.Era.NormalizeAfterLoad();
         CreatureTypes.Restore();
         CreatureTypes.Reapply(); // MA changes of the loaded game

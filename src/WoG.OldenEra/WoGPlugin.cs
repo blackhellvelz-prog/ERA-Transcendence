@@ -84,6 +84,7 @@ public sealed class WoGPlugin : BasePlugin
         host.ErmLog = m => Log.LogInfo("[ERM] " + m);
 
         LoadIdMaps(cfgDir, host);
+        SaveSync.Dir = Path.Combine(cfgDir, "saves");
         if (era)
         {
             var mods = EraModFolders(modsRoot.Value, modList.Value);
@@ -209,8 +210,24 @@ internal static class WoGSession
             return true;
         }
         current = ptr;
-        // Saved WoG state is matched to saves once save.write/save.read are verified; until then every
-        // session starts as a new WoG game (ERA instructions, OnGameEnter).
+        var hash = adapter.LoadedSaveHash();
+        if (hash != null)
+        {
+            // A session started from a save: its WoG state, no instructions, no second day 1.
+            firstDayPending = false;
+            string file = SaveSync.StateFile(hash);
+            if (File.Exists(file))
+            {
+                host.LoadFrom(file, hash);
+                WoGPlugin.L?.LogInfo($"WoG: loaded game — WoG state restored ({hash})");
+            }
+            else
+            {
+                host.LoadWithoutSavedState();
+                WoGPlugin.L?.LogInfo($"WoG: loaded game — no WoG state was saved with it ({hash}); a fresh one, without instructions");
+            }
+            return true;
+        }
         WoGPlugin.L?.LogInfo("WoG: new game session — running ERM instructions");
         host.StartNewGame();
         firstDayPending = true;
@@ -334,8 +351,17 @@ internal static class Hooks
         try
         {
             string ev = __args[0]?.ToString() ?? "";
+            if (ev is "MapSaved" or "SideStartBattle" or "BattleResultsStartApplying" or "SideEndBattle" or "HeroMakeStep" or "HeroLevelUp")
+                WoGSession.Ensure(); // a new or loaded session is taken over before its first event
             switch (ev)
             {
+                case "MapSaved":
+                {
+                    // wb: bupq = saved, bupr = the save's path [V-game]
+                    if (a.EventValue(__args[1], "event.saveOk") is true && a.EventValue(__args[1], "event.savePath") is string path)
+                        SaveSync.OnSaved(H, path);
+                    break;
+                }
                 case "SideStartBattle":
                 case "BattleResultsStartApplying":
                 {
@@ -440,6 +466,7 @@ internal static class FrameHook
         try
         {
             WoGSession.Ensure();
+            SaveSync.Poll();
             WoGPlugin.DebugBridge?.Poll();
         }
         catch (Exception ex) { WoGPlugin.L?.LogError("WoG tick failed: " + ex); }

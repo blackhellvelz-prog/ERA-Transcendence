@@ -98,6 +98,9 @@ public sealed class OldenEraSymbols
         "events.invoke",             // method: the game event bus (EEvent, argument) — battles, steps, level-ups
         "event.battleSide",          // SideStartBattle argument → side id (-1 neutral)
         "event.battleEndSide",       // SideEndBattle argument → side id
+        "event.saveOk", "event.savePath", // MapSaved argument → saved / save path (relative to the user folder)
+        "session.startInfo",         // static path to how the session started (StartInfo)
+        "startInfo.load", "startInfo.hash", // StartInfo → ELoad (1 = LoadSave) / checksum of the loaded save
         "squad.list",                // root → wandering monster squads
         "squad.node", "squad.units", "squad.released", // squad → node / unit stacks / defeated
         "squadunit.sid", "squadunit.amount",           // squad unit → unit sid / count

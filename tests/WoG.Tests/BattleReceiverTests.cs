@@ -35,3 +35,18 @@ public class BattleReceiverTests
         Assert.True(t.ErrorCount > 1);
     }
 }
+
+/// <summary>Loading a game whose WoG state was not saved.</summary>
+public class LoadWithoutStateTests
+{
+    [Fact]
+    public void A_save_without_wog_state_gets_a_fresh_state_without_instructions_and_runs_gm0()
+    {
+        var t = new TestHost().Load("!#VRv1:S5;\n!?GM0;\n!!VRv2:S7;\n").Start();
+        Assert.Equal(5, t.V(1));
+        t.Host.LoadWithoutSavedState();
+        Assert.Equal(0, t.V(1));   // a fresh state; the instructions belong to the start of a map
+        Assert.Equal(7, t.V(2));   // !?GM0 ran as for any loaded game
+        Assert.True(t.Host.State.InstructionsDone);
+    }
+}
