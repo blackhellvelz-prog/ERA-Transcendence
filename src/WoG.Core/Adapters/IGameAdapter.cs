@@ -47,6 +47,9 @@ public interface IHeroAdapter
     AdapterResult<int> HeroAt(MapPos pos);
     AdapterResult<int> GetSecondarySkill(int hero, int skill);
     AdapterResult SetSecondarySkill(int hero, int skill, int level);
+    /// <summary>Learned secondary skills in hero-screen order (slot 1 first; H3 shows at most 8).</summary>
+    AdapterResult<IReadOnlyList<int>> GetSecondarySkillOrder(int hero);
+    AdapterResult SetSecondarySkillOrder(int hero, IReadOnlyList<int> order);
     AdapterResult<bool> HasSpell(int hero, int spell);
     AdapterResult SetSpell(int hero, int spell, bool known);
     AdapterResult<WoGStack> GetStack(int hero, int slot);

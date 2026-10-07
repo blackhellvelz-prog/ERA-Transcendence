@@ -191,6 +191,8 @@ public sealed class ReceiverRegistry
             "UN:J — J0 запрет заклинаний (хранится; гильдии Olden Era его пока не используют), J2 сложность (сложность ИИ Olden Era), J8/J9 файлы и папки (сначала папка записи, затем установка ERA), J10 лог переменных, J11; J1, J3-J7, J12, J13 пока не отображены",
         ["UN map/object/global commands are not mapped yet"] = "команды UN для карты/объектов/глобальные ещё не отображены",
         ["values go through the adapter; OE primary stats differ (see the matrix)"] = "значения идут через адаптер; первичные статы OE отличаются (см. матрицу)",
+        ["S: secondary skills; Olden Era maps H3 skills by effect (id-maps/skill.json, 14 of 28), a skill it does not have reads as not learned and cannot be learned, lowering a learned skill and changing the hero-screen order are not mapped, Olden Era-only skills are invisible to scripts"] =
+            "S: вторичные навыки; в Olden Era навыки H3 сопоставлены по эффекту (id-maps/skill.json, 14 из 28), навык, которого там нет, читается как не изученный и не может быть изучен, понижение изученного навыка и смена порядка на экране героя не отображены, навыки только Olden Era скриптам не видны",
         ["ids via IdMap; display-slot forms are not supported"] = "id через IdMap; формы со слотами отображения не поддерживаются",
         ["not mapped yet"] = "ещё не отображено",
         ["resource ids via IdMap"] = "id ресурсов через IdMap",

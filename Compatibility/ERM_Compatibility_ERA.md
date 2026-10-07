@@ -45,7 +45,7 @@ startup: `UN:C` (H3 memory), `SN:E` (H3 code), `FU:D` (network), `UN:A/R/X/N/U/V
 | `GD` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `GE` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `GR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
-| `HE` | yes | `ACS` PARTIALLY SUPPORTED (ids via IdMap; display-slot forms are not supported); `BDGHLRTUVXY` UNSUPPORTED (not mapped yet); `EFIKMNOPW` PARTIALLY SUPPORTED (values go through the adapter; OE primary stats differ (see the matrix)) |
+| `HE` | yes | `AC` PARTIALLY SUPPORTED (ids via IdMap; display-slot forms are not supported); `BDGHLRTUVXY` UNSUPPORTED (not mapped yet); `EFIKMNOPW` PARTIALLY SUPPORTED (values go through the adapter; OE primary stats differ (see the matrix)); `S` PARTIALLY SUPPORTED (S: secondary skills; Olden Era maps H3 skills by effect (id-maps/skill.json, 14 of 28), a skill it does not have reads as not learned and cannot be learned, lowering a learned skill and changing the hero-screen order are not mapped, Olden Era-only skills are invisible to scripts) |
 | `HL` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `HO` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `HT` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |

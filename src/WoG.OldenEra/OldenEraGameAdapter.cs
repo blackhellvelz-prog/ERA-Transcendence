@@ -212,8 +212,93 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
             if (node >= 0 && Convert.ToInt32(sym.Read("hero.position", h)) == node) return AdapterResult<int>.Ok(n);
         return AdapterResult<int>.Failed($"no hero at {pos}");
     }
-    public AdapterResult<int> GetSecondarySkill(int hero, int skill) => Missing<int>("hero.skills");
-    public AdapterResult SetSecondarySkill(int hero, int skill, int level) => Missing("hero.skills");
+    // Secondary skills: Hero.skills (HeroSkills).list of HeroSkill {sid, level 1..3} [V-game: a new hero has
+    // skill_logistic 1 and its faction skill]; H3 skills map by effect (id-maps/skill.json), levels 1..3 as in H3.
+    object? SkillEntry(object hero, string sid)
+    {
+        foreach (var s in OldenEraSymbols.Items(sym.Read("hero.skills", hero)))
+            if (s != null && sym.Read("skill.sid", s) as string == sid) return s;
+        return null;
+    }
+
+    public AdapterResult<int> GetSecondarySkill(int hero, int skill)
+    {
+        if (!sym.Has("hero.skills") || !sym.Has("skill.sid") || !sym.Has("skill.level")) return Missing<int>("hero.skills");
+        var h = FindHero(hero);
+        if (h == null) return AdapterResult<int>.Failed($"hero {hero} does not exist");
+        // A skill Olden Era does not have is a skill no hero has learned.
+        if (!currentIds().TryGetEngine("skill", skill, out var sid)) return AdapterResult<int>.Ok(0);
+        var e = SkillEntry(h, sid);
+        return AdapterResult<int>.Ok(e == null ? 0 : Convert.ToInt32(sym.Read("skill.level", e)));
+    }
+
+    public AdapterResult SetSecondarySkill(int hero, int skill, int level)
+    {
+        var cur = GetSecondarySkill(hero, skill);
+        if (cur.Status != AdapterStatus.Ok) return cur.AsPlain();
+        if (level < 0 || level > 3) return AdapterResult.Failed("wrong skill level (0...3)");
+        if (level == cur.Value) return AdapterResult.Ok;
+        if (!currentIds().TryGetEngine("skill", skill, out _))
+            return AdapterResult.Unsupported($"H3 secondary skill {skill} has no Olden Era equivalent (id-maps/skill.json)");
+        if (level < cur.Value)
+            return AdapterResult.Unsupported("lowering or removing a learned Olden Era skill is not mapped (its bonuses stay applied)");
+        currentIds().TryGetEngine("skill", skill, out var sid);
+        var h = FindHero(hero)!;
+        // A skill's bonuses live in its skill logic (eah, one per applied skill of a hero on the map); the data
+        // entry alone changes nothing until the game builds the logic (it does so for every entry on load).
+        var logic = SkillLogic(h);
+        if (cur.Value == 0)
+        {
+            if (!sym.Has("hero.skillsAdd")) return Missing("hero.skillsAdd");
+            // HeroSkills.bjfv(sid, level): the data entry; eaj.bazp(entry): builds and applies its logic.
+            var entry = OldenEraSymbols.Call(sym.Read("hero.skillsHolder", h)!, sym.MemberOf("hero.skillsAdd")!.Name, sid, level);
+            if (logic != null && entry != null && sym.Has("skills.learn"))
+                OldenEraSymbols.Call(logic, sym.MemberOf("skills.learn")!.Name, entry);
+            return AdapterResult.Ok;
+        }
+        if (!sym.Has("skilllogic.levelUp")) return Missing("skilllogic.levelUp");
+        var own = logic == null ? null : OldenEraSymbols.Items(sym.Read("skilllogic.list", logic))
+            .FirstOrDefault(e => e != null && sym.Read("skilllogic.sid", e) as string == sid);
+        if (own == null)
+            return AdapterResult.Unsupported("raising a skill of a hero that is not on the map (no skill logic to level up)");
+        // eah.LevelUp(): the game's level-up of a learned skill (data level and bonuses), one level per call.
+        for (int n = cur.Value; n < level; n++) OldenEraSymbols.Call(own, sym.MemberOf("skilllogic.levelUp")!.Name);
+        return AdapterResult.Ok;
+    }
+
+    // The hero screen lists the skills in learning order; H3 scripts see only the skills that have an H3 number.
+    public AdapterResult<IReadOnlyList<int>> GetSecondarySkillOrder(int hero)
+    {
+        if (!sym.Has("hero.skills") || !sym.Has("skill.sid")) return Missing<IReadOnlyList<int>>("hero.skills");
+        var h = FindHero(hero);
+        if (h == null) return AdapterResult<IReadOnlyList<int>>.Failed($"hero {hero} does not exist");
+        var ids = currentIds();
+        var order = new List<int>();
+        foreach (var s in OldenEraSymbols.Items(sym.Read("hero.skills", h)))
+            if (s != null && sym.Read("skill.sid", s) is string sid && ids.TryGetWoG("skill", sid, out int n)
+                && n < WoGLimits.SecondarySkillCount && order.Count < 8)
+                order.Add(n);
+        return AdapterResult<IReadOnlyList<int>>.Ok(order);
+    }
+
+    public AdapterResult SetSecondarySkillOrder(int hero, IReadOnlyList<int> order)
+    {
+        var cur = GetSecondarySkillOrder(hero);
+        if (cur.Status != AdapterStatus.Ok) return cur.AsPlain();
+        return cur.Value!.SequenceEqual(order) ? AdapterResult.Ok
+            : AdapterResult.Unsupported("the Olden Era hero screen shows skills in learning order; reordering or hiding them is not mapped");
+    }
+
+    /// <summary>The skills logic (eaj) of a hero on the map, null for heroes without map logic (hire pool).</summary>
+    object? SkillLogic(object hero)
+    {
+        if (!sym.Has("world.heroLogics") || !sym.Has("visitor.hero") || !sym.Has("herologic.skills") || !sym.Has("skilllogic.list"))
+            return null;
+        int id = HeroEngineId(hero);
+        foreach (var l in OldenEraSymbols.Items(sym.Read("world.heroLogics", null)))
+            if (l != null && sym.Read("visitor.hero", l) is { } d && HeroEngineId(d) == id) return sym.Read("herologic.skills", l);
+        return null;
+    }
     public AdapterResult<bool> HasSpell(int hero, int spell) => Missing<bool>("hero.spells");
     public AdapterResult SetSpell(int hero, int spell, bool known) => Missing("hero.spells");
 

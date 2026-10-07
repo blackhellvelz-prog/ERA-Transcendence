@@ -267,7 +267,15 @@ internal sealed class OldenEraDebugEngine : IDebugEngine
         if (words.Length == 0) return "usage: peek <root|Type>.member[index].member... [max items]";
         int max = words.Length > 1 && int.TryParse(words[1], out int m) ? m : 10;
         string[]? only = words.Length > 2 ? words[2].Split(',', StringSplitOptions.RemoveEmptyEntries) : null;
-        var segs = Segments(words[0]);
+        var o = Resolve(words[0], out var error);
+        return error ?? Show(o, max, only);
+    }
+
+    /// <summary>The object at a peek path; error is set (with the members that exist) when the path breaks.</summary>
+    object? Resolve(string path, out string? error)
+    {
+        error = null;
+        var segs = Segments(path);
         object? o;
         int i;
         if (segs[0] == "root")
@@ -281,32 +289,124 @@ internal sealed class OldenEraDebugEngine : IDebugEngine
             Type? t = null;
             for (i = segs.Count; i >= 1 && t == null; i--)
                 t = asm?.GetType(string.Join(".", segs.Take(i)));
-            if (t == null) return "type not found: " + words[0];
+            if (t == null) { error = "type not found: " + path; return null; }
             i++; // the loop stepped one past the matching prefix
-            if (i >= segs.Count) return TypeMembers(t, statics: true);
+            if (i >= segs.Count) { error = TypeMembers(t, statics: true); return null; }
             var sm = t.GetMember(segs[i], Members).FirstOrDefault(x => x is FieldInfo or PropertyInfo);
-            if (sm == null) return $"{t.FullName}.{segs[i]} not found\n" + TypeMembers(t, statics: true);
+            if (sm == null) { error = $"{t.FullName}.{segs[i]} not found\n" + TypeMembers(t, statics: true); return null; }
             o = sm is FieldInfo f ? f.GetValue(null) : ((PropertyInfo)sm).GetValue(null);
             i++;
         }
         for (; i < segs.Count; i++)
         {
-            if (o == null) return $"null at {string.Join(".", segs.Take(i))}";
+            if (o == null) { error = $"null at {string.Join(".", segs.Take(i))}"; return null; }
             string s = segs[i];
             if (s.StartsWith("["))
             {
                 var items = OldenEraSymbols.Items(o);
                 int idx = int.Parse(s[1..^1]);
-                if (idx < 0 || idx >= items.Count) return $"index {idx} out of range (count {items.Count})";
+                if (idx < 0 || idx >= items.Count) { error = $"index {idx} out of range (count {items.Count})"; return null; }
                 o = items[idx];
                 continue;
             }
             o = MethodTrace.Real(o);
             var mem = o.GetType().GetMember(s, Members).FirstOrDefault(x => x is FieldInfo or PropertyInfo);
-            if (mem == null) return $"{o.GetType().FullName}.{s} not found\n" + TypeMembers(o.GetType(), statics: false);
+            if (mem == null) { error = $"{o.GetType().FullName}.{s} not found\n" + TypeMembers(o.GetType(), statics: false); return null; }
             o = mem is FieldInfo fi ? fi.GetValue(o) : ((PropertyInfo)mem).GetValue(o);
         }
-        return Show(o, max, only);
+        return o;
+    }
+
+    /// <summary>
+    /// invoke &lt;path&gt; &lt;method&gt; [arg...] — calls a public method of the object at a peek path (the overload with
+    /// that many parameters whose types accept the arguments). Arguments: numbers, "text", true/false, null,
+    /// @&lt;path&gt; for a game object. Reverse engineering only: it runs game code with whatever it is given.
+    /// </summary>
+    public string Invoke(string args)
+    {
+        var words = SplitArgs(args);
+        if (words.Count < 2) return "usage: invoke <path> <method> [arg...]";
+        var target = Resolve(words[0], out var error);
+        if (error != null) return error;
+        if (target == null) return "null target";
+        target = MethodTrace.Real(target);
+        var values = new List<object?>();
+        foreach (var w in words.Skip(2))
+        {
+            if (w.StartsWith("@"))
+            {
+                var v = Resolve(w[1..], out var e);
+                if (e != null) return e;
+                values.Add(v == null ? null : MethodTrace.Real(v));
+            }
+            else values.Add(w);
+        }
+        foreach (var m in target.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static)
+                     .Where(x => x.Name == words[1] && x.GetParameters().Length == values.Count))
+        {
+            var ps = m.GetParameters();
+            var call = new object?[values.Count];
+            bool fits = true;
+            for (int k = 0; k < ps.Length && fits; k++)
+                fits = TryConvert(values[k], ps[k].ParameterType, out call[k]);
+            if (!fits) continue;
+            var result = m.Invoke(m.IsStatic ? null : target, call);
+            return $"{m.DeclaringType?.Name}.{m.Name}({string.Join(", ", ps.Select(x => x.ParameterType.Name))}) → " +
+                   (m.ReturnType == typeof(void) ? "void" : Show(result, 10));
+        }
+        return $"no method {words[1]}/{values.Count} accepting these arguments\n" + TypeMembers(target.GetType(), statics: false);
+    }
+
+    /// <summary>Words of a command line; "quoted text" stays one word (without the quotes, marked by a leading \0).</summary>
+    static List<string> SplitArgs(string text)
+    {
+        var list = new List<string>();
+        int i = 0;
+        while (i < text.Length)
+        {
+            if (char.IsWhiteSpace(text[i])) { i++; continue; }
+            if (text[i] == '"')
+            {
+                int end = text.IndexOf('"', i + 1);
+                if (end < 0) end = text.Length;
+                list.Add("\0" + text[(i + 1)..end]);
+                i = end + 1;
+                continue;
+            }
+            int start = i;
+            while (i < text.Length && !char.IsWhiteSpace(text[i])) i++;
+            list.Add(text[start..i]);
+        }
+        return list;
+    }
+
+    static bool TryConvert(object? value, Type type, out object? result)
+    {
+        result = null;
+        if (value is not string w) // a game object from @path
+        {
+            if (value == null) return !type.IsValueType;
+            if (type.IsInstanceOfType(value)) { result = value; return true; }
+            // an IL2CPP object of a base class: re-wrap it as the parameter type
+            if (value is Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase ob && typeof(Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase).IsAssignableFrom(type))
+            {
+                result = Activator.CreateInstance(type, ob.Pointer);
+                return true;
+            }
+            return false;
+        }
+        // ordinal check: culture-aware StartsWith("\0") is true for every string ("\0" is ignorable)
+        if (w.Length > 0 && w[0] == '\0') { if (type != typeof(string)) return false; result = w[1..]; return true; }
+        if (w == "null") return !type.IsValueType;
+        try
+        {
+            if (type == typeof(bool) && bool.TryParse(w, out var b)) { result = b; return true; }
+            if (type.IsEnum) { result = Enum.Parse(type, w, ignoreCase: true); return true; }
+            if (type == typeof(string)) { result = w; return true; }
+            if (type.IsPrimitive) { result = Convert.ChangeType(w, type, System.Globalization.CultureInfo.InvariantCulture); return true; }
+        }
+        catch (Exception) { }
+        return false;
     }
 
     /// <summary>Chosen members of an object ("node,sideId" or a path "party.units"), on one line.</summary>

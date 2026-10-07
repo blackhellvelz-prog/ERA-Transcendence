@@ -414,3 +414,25 @@ unsupported commands. 166 xUnit tests.
   taken as H3's 0..4 `[UNVERIFIED]`), J8/J9 files and folders (the write folder first; J9 hands out the write folder,
   so scripts never write into the ERA installation), J10 variable log, J11; the rest is reported unsupported.
 * 171 xUnit tests.
+
+## 2026-10-07 — session 2, continued: HE:S secondary skills on Olden Era
+
+* **What:** `HE:S` works on Olden Era heroes: read a level, learn a skill, raise it, read the hero-screen slots
+  (`S$`, `S?slot/skill/1`, `S slot/?skill/1`). The headless engine now also models WoG's display slots (`SShow`/`SSNum`
+  from `erm.cpp`: a learned skill takes the next of 8 slots, a forgotten one gives its slot to the last skill).
+* **Skill map** `Compatibility/id-maps/skill.json` (by effect, 14 of 28). An H3 skill Olden Era does not have reads as
+  not learned (`S7/?v` → 0, `S7/0` is accepted); learning it is `Unsupported`. Olden Era-only skills are not shown to
+  scripts.
+* **How the game applies a skill** `[V-game]`: a hero's skills are data (`Hero.skills.list`: `HeroSkill` sid, level,
+  wasApplied) plus logic (`Logic.Hero.chnk` = `eaj`, one `eah` per applied skill in `eaj.chrt`). Adding only the data
+  entry (`HeroSkills.bjfv(sid, level)`) shows nothing and gives no bonus until the save is loaded again (on loading,
+  `eaj.bazp(HeroSkill)` runs for every entry — traced 523 calls). So `HE:S` learns with `bjfv` + `eaj.bazp(entry)` and
+  raises with `eah.LevelUp()` once per level. Verified in a skirmish: `S3/1` → skill_scouting 1, view radius 7 → 8;
+  `S2/2` → skill_logistic 1 → 2, movement bonus 0.10 → 0.15, max movement 201; the hero screen shows the skills, luck
+  2 after `S9/2`.
+* **Not mapped (honest Unsupported):** lowering or removing a learned skill (its bonuses stay applied), changing the
+  number of shown skills or their order (Olden Era lists skills in learning order), raising a skill of a hero that is
+  not on the map (no skill logic).
+* **Debug:** new bridge command `invoke <path> <method> [arg...]` (numbers, "text", true/false, null, `@path`) to call
+  game methods while reverse engineering.
+* 175 xUnit tests.

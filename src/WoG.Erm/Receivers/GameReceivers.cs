@@ -587,7 +587,8 @@ public sealed class HeReceiver : ErmReceiverBase
     public HeReceiver() : base("HE")
     {
         Declare("EFIWMONPK", CompatLevel.PartiallySupported, "values go through the adapter; OE primary stats differ (see the matrix)");
-        Declare("SAC", CompatLevel.PartiallySupported, "ids via IdMap; display-slot forms are not supported");
+        Declare("S", CompatLevel.PartiallySupported, "S: secondary skills; Olden Era maps H3 skills by effect (id-maps/skill.json, 14 of 28), a skill it does not have reads as not learned and cannot be learned, lowering a learned skill and changing the hero-screen order are not mapped, Olden Era-only skills are invisible to scripts");
+        Declare("AC", CompatLevel.PartiallySupported, "ids via IdMap; display-slot forms are not supported");
         Declare("BDGHLRTUVXY", CompatLevel.Unsupported, "not mapped yet");
     }
 
@@ -649,14 +650,8 @@ public sealed class HeReceiver : ErmReceiverBase
                 break;
             }
             case 'S':
-            {
-                if (c.Num == 3) throw new ErmUnsupportedException("HE:S display-slot syntax needs the hero screen layer");
-                c.RequireExactly(2);
-                int skill = c.N(0);
-                if (skill < 0 || skill >= WoGLimits.SecondarySkillCount) throw new ErmRuntimeException("wrong secondary skill number");
-                c.ApplyAdapter(heroes.GetSecondarySkill(h, skill), v => heroes.SetSecondarySkill(h, skill, v), 1);
+                Skills(c, heroes, h);
                 break;
-            }
             case 'M':
             {
                 c.RequireExactly(2);
@@ -674,6 +669,62 @@ public sealed class HeReceiver : ErmReceiverBase
                 break;
             default:
                 throw ErmCall.WrongCommand(c.Letter);
+        }
+    }
+
+    /// <summary>HE:S — secondary skills and their hero-screen slots (WoG erm.cpp, Cmd=='S').</summary>
+    static void Skills(ErmCall c, IHeroAdapter heroes, int h)
+    {
+        const int Skills = WoGLimits.SecondarySkillCount;
+        switch (c.Num)
+        {
+            case 1: // S$ — the number of shown skills
+            {
+                var order = c.Need(heroes.GetSecondarySkillOrder(h));
+                int n = order.Count;
+                if (!c.Apply(ref n, 0))
+                    throw new ErmUnsupportedException("HE:S$ (setting the number of shown skills) needs the hero screen layer");
+                break;
+            }
+            case 2: // S#/$ — skill level
+            {
+                int skill = c.N(0);
+                if (skill < 0 || skill >= Skills) throw new ErmRuntimeException("wrong secondary skill number");
+                c.ApplyAdapter(heroes.GetSecondarySkill(h, skill), v => heroes.SetSecondarySkill(h, skill, v), 1);
+                break;
+            }
+            case 3: // S$slot/$skill/1 — hero-screen slots 1..8, 0 = not shown
+            {
+                var order = c.Need(heroes.GetSecondarySkillOrder(h));
+                var show = new int[Skills];
+                for (int i = 0; i < order.Count; i++) show[order[i]] = i + 1;
+                int slot = 0, skill = 0;
+                if (c.Apply(ref slot, 0)) // ?/#
+                {
+                    if (c.Apply(ref skill, 1)) throw new ErmRuntimeException("\"HE:S?/?/1\"- is a wrong syntax.");
+                    if (skill < 0 || skill >= Skills) throw new ErmRuntimeException("\"HE:S?/#/1\"- skill number is out of range (0...27).");
+                    slot = show[skill];
+                    c.Apply(ref slot, 0);
+                    break;
+                }
+                if (slot < 0 || slot > 8) throw new ErmRuntimeException("\"HE:S#/#/1\"- skill show index is out of range (0...8).");
+                skill = -1;
+                if (c.Apply(ref skill, 1)) // #/?
+                {
+                    for (int i = 0; i < Skills; i++)
+                        if (show[i] == slot) { skill = i; c.Apply(ref skill, 1); break; }
+                    break;
+                }
+                if (skill < 0 || skill >= Skills) throw new ErmRuntimeException("\"HE:S#/#/1\"- skill number is out of range (0...27).");
+                for (int i = 0; i < Skills; i++) if (show[i] == slot) show[i] = 0;
+                show[skill] = slot;
+                // the shown skills by slot; slots left empty close up
+                var next = Enumerable.Range(0, Skills).Where(i => show[i] != 0).OrderBy(i => show[i]).ToList();
+                c.Need(heroes.SetSecondarySkillOrder(h, next));
+                break;
+            }
+            default:
+                throw new ErmRuntimeException("HE:S takes 1, 2 or 3 parameters");
         }
     }
 

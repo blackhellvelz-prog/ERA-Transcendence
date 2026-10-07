@@ -74,6 +74,14 @@ public sealed class OldenEraSymbols
         "stack.slot",                // army unit → slot position
         "unit.db", "unit.stats",
         "unit.config",               // session unit → its type config (UnitLogicConfig), resolved from the unit's sid
+        "hero.skillsHolder",         // hero → its skills (HeroSkills)
+        "hero.skillsAdd",            // method of HeroSkills: give a skill (sid, level)
+        "skill.sid", "skill.level",  // hero skill → sid / level 1..3
+        "world.heroLogics",          // static path to the logic objects of the heroes on the map
+        "herologic.skills",          // hero logic → its skills logic (one skill logic per applied skill)
+        "skilllogic.list", "skilllogic.sid", // skills logic → skill logics; skill logic → sid
+        "skills.learn",              // method of the skills logic: build and apply the logic of a skill entry
+        "skilllogic.levelUp",        // method of a skill logic: raise the skill by one level
         "ui.message", "ui.question",
         "turn.start",                // method: start of a day (Harmony postfix → PlayerDayStarted for every player)
         "object.interact",           // method: hero interacts with a map object (prefix/postfix → OB triggers)

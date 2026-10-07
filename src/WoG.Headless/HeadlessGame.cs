@@ -140,6 +140,26 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
     {
         if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
         h.SecondarySkills[skill] = level;
+        // WoG HE:S#/$: a learned skill takes the next display slot (while fewer than 8 are shown); a removed one
+        // gives its slot to the skill in the last slot.
+        var order = h.SkillOrder;
+        int at = order.IndexOf(skill);
+        if (level == 0 && at >= 0)
+        {
+            order[at] = order[^1];
+            order.RemoveAt(order.Count - 1);
+        }
+        else if (level != 0 && at < 0 && order.Count < 8) order.Add(skill);
+        return AdapterResult.Ok;
+    }
+
+    public AdapterResult<IReadOnlyList<int>> GetSecondarySkillOrder(int hero) =>
+        HeroList.TryGetValue(hero, out var h) ? AdapterResult<IReadOnlyList<int>>.Ok(h.SkillOrder.ToList()) : NoHero<IReadOnlyList<int>>(hero);
+
+    public AdapterResult SetSecondarySkillOrder(int hero, IReadOnlyList<int> order)
+    {
+        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        h.SkillOrder = order.ToList();
         return AdapterResult.Ok;
     }
 

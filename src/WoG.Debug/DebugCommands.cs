@@ -19,6 +19,8 @@ public interface IDebugEngine
     string Symbols();
     /// <summary>Reads any game object by a member path, for reverse engineering in a running game.</summary>
     string Peek(string args) => "peek is not supported by this engine";
+    /// <summary>Calls a game method on an object found by a member path (reverse engineering only).</summary>
+    string Invoke(string args) => "invoke is not supported by this engine";
 }
 
 /// <summary>
@@ -54,6 +56,7 @@ public sealed class DebugCommands
         "  compat                       commands the engine could not perform so far\n" +
         "  vars v|z <from> <to>         ERM variables; vars i <name> for i^name^\n" +
         "  peek <path> [max]            read a game object: root.heroes.list[0].node, Type.staticMember.member...\n" +
+        "  invoke <path> <method> [arg...]  call a game method; args: numbers, \"text\", true/false, null, @<path>\n" +
         "                               (a type alone: its static members; a list: its first max items)\n";
 
     public string Execute(string text)
@@ -77,6 +80,7 @@ public sealed class DebugCommands
                 "compat" => host.Compat.ToMarkdown(),
                 "vars" => Vars(rest),
                 "peek" => engine?.Peek(rest) ?? "no engine",
+                "invoke" => engine?.Invoke(rest) ?? "no engine",
                 _ => "unknown command '" + cmd + "'\n" + Help,
             };
         }

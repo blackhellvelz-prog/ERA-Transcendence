@@ -75,6 +75,8 @@ public sealed class WoGHero
     public int Mana { get; set; }
     public int Movement { get; set; }
     public int[] SecondarySkills { get; set; } = new int[WoGLimits.SecondarySkillCount];
+    /// <summary>Shown secondary skills in hero-screen order (H3 SShow/SSNum as a list).</summary>
+    public List<int> SkillOrder { get; set; } = new();
     public HashSet<int> Spells { get; set; } = new();
     /// <summary>Equipped slots 0..18 (artifact id or -1).</summary>
     public int[] Equipped { get; set; } = NewEquipped();

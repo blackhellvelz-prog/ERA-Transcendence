@@ -545,6 +545,83 @@
       "Member": "me.ctic.settings.AiDifficulty",
       "Status": "verified",
       "Note": "0.81.04: StartInfo.settings (Hex.SharedLibrary.Models.Lobby.GameStartInfo).AiDifficulty; also in the save header startSettings | verified 2026-10-07 with WoG Debug peek: 1 after choosing the low difficulty"
+    },
+    "hero.skills": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "skills.list",
+      "Status": "verified",
+      "Note": "0.81.04: HeroSkills.list: List<HeroSkill> | verified 2026-10-07 (0.81.04) with WoG Debug peek: a new skirmish hero has skill_faction_humans 1 and skill_logistic 1"
+    },
+    "hero.skillsHolder": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "skills",
+      "Status": "verified",
+      "Note": "0.81.04: Hex.Session.Data.HeroSkills | verified 2026-10-07 (0.81.04) with WoG Debug peek: a new skirmish hero has skill_faction_humans 1 and skill_logistic 1"
+    },
+    "skill.sid": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.HeroSkill",
+      "Member": "sid",
+      "Status": "verified",
+      "Note": "0.81.04: skill sid | verified 2026-10-07 (0.81.04) with WoG Debug peek: a new skirmish hero has skill_faction_humans 1 and skill_logistic 1"
+    },
+    "skill.level": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.HeroSkill",
+      "Member": "level",
+      "Status": "verified",
+      "Note": "0.81.04: level 1..3 (DB skills have 3 levels) | verified 2026-10-07 (0.81.04) with WoG Debug peek: a new skirmish hero has skill_faction_humans 1 and skill_logistic 1"
+    },
+    "hero.skillsAdd": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.HeroSkills",
+      "Member": "bjfv",
+      "Status": "verified",
+      "Note": "0.81.04: HeroSkills.bjfv(string sid, int level = 1) → HeroSkill (decompiled signature); whether the game applies the skill's bonuses after it | verified 2026-10-07 (0.81.04) in a skirmish: !!HE:S3/1 (bjfv + bazp) gave skill_scouting 1, view radius 7 to 8; !!HE:S2/2 (one LevelUp) raised skill_logistic 1 to 2, movement bonus 0.10 to 0.15, max movement 201; the hero screen shows the skills"
+    },
+    "world.heroLogics": {
+      "Assembly": "Hex",
+      "Type": "dbx",
+      "Member": "me.cfjj.cnme.cntj",
+      "Status": "verified",
+      "Note": "0.81.04: world (fbu).cnme (fds).cntj: List<fdq> of the heroes on the map (fds.cntk is Dictionary<int, fdq> by hero id) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish: 2 entries, heroes 105 and 156"
+    },
+    "herologic.skills": {
+      "Assembly": "Hex",
+      "Type": "fdq",
+      "Member": "cnsj.chnk",
+      "Status": "verified",
+      "Note": "0.81.04: Logic.Hero.chnk: eaj (skills logic: chrr HeroSkills, chrs Logic.Hero, chrt List<eah>, chru Dictionary<string, eah>) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "skilllogic.list": {
+      "Assembly": "Hex",
+      "Type": "eaj",
+      "Member": "chrt",
+      "Status": "verified",
+      "Note": "0.81.04: List<eah>, one per applied skill | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish: a skill added only to the data list (HeroSkills.bjfv) has no entry here and gives no bonus until the save is loaded again"
+    },
+    "skilllogic.sid": {
+      "Assembly": "Hex",
+      "Type": "eah",
+      "Member": "ctnu",
+      "Status": "verified",
+      "Note": "0.81.04: skill sid (ctnw = level) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "skills.learn": {
+      "Assembly": "Hex",
+      "Type": "eaj",
+      "Member": "bazp",
+      "Status": "verified",
+      "Note": "0.81.04: eaj.bazp(HeroSkill) → eah; WoG Debug trace on loading a save: 523 calls, each with eah.Init(HeroSkill, Hero); after the load skill_luck 2 (added by bjfv) had wasApplied=True and hero luck 2. Live call | verified 2026-10-07 (0.81.04) in a skirmish: !!HE:S3/1 (bjfv + bazp) gave skill_scouting 1, view radius 7 to 8; !!HE:S2/2 (one LevelUp) raised skill_logistic 1 to 2, movement bonus 0.10 to 0.15, max movement 201; the hero screen shows the skills"
+    },
+    "skilllogic.levelUp": {
+      "Assembly": "Hex",
+      "Type": "eah",
+      "Member": "LevelUp",
+      "Status": "verified",
+      "Note": "0.81.04: eah.LevelUp() (12 callers): raises the skill by one level | verified 2026-10-07 (0.81.04) in a skirmish: !!HE:S3/1 (bjfv + bazp) gave skill_scouting 1, view radius 7 to 8; !!HE:S2/2 (one LevelUp) raised skill_logistic 1 to 2, movement bonus 0.10 to 0.15, max movement 201; the hero screen shows the skills"
     }
   }
 }
