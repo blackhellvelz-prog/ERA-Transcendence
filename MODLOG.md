@@ -226,3 +226,51 @@ first hero 464,210 → difficulty "low" 632,742 → Start 800,821. End turn 1522
 Delete `BepInEx\plugins\WoG`, `BepInEx\config\WoG`, `BepInEx\config\wog_symbols.json`, `wog.oldenera.cfg`; BepInEx
 itself: `BepInEx\`, `dotnet\`, `winhttp.dll`, `doorstop_config.ini`, `.doorstop_version`, `changelog.txt`. Videos:
 move them back from `video-intros`. Window: restore `SettingsLocal.json.orig` and the `.reg` backup.
+
+## 2026-10-07 — session 2, continued: heroes, armies, ERM robustness, H3 data layer
+
+### Done
+* **Heroes on Olden Era** `[V-game]`: WoG numbers 0..155 are given to the game's heroes (in play first, then the hire
+  pool) and kept in the WoG state; level, experience, primary skills (type base + growth), mana, movement, owner,
+  player heroes, active hero. **Armies**: slots read/written, units added/replaced/removed (HE:C).
+* **Resources** change through the game's own add/spend methods, so the top bar, quests and statistics update (a plain
+  field write did not refresh the UI).
+* **Day 1**: OnEveryDay/timers run once the new map is ready; the day counter is 0 while the map is being built, so the
+  plugin waits instead of giving up.
+* **ERM time limit** (`[ERM] TimeLimitMs`, 10 s): an engine call into ERM that runs too long is abandoned with an error
+  naming the line — an endless loop caused by an unsupported command no longer freezes the game. Repeated log lines
+  from one script line are muted after 3.
+* **Era ini files** (port of b2 `Ini.pas`): `ReadStrFromIni`, `WriteStrToIni`, `SaveIni`, … — read from the write root,
+  then the ERA installation; saving never writes into the ERA folder (`BepInEx\config\WoG\era-root`; tools and tests
+  use a temp folder — a tool run used to write `Runtime\*.ini` into the current folder).
+* **FU:D** does nothing in a single-player game (WoG sends it to the remote player only).
+* **H3 data layer** (`src/WoG.Core/H3Data`): read-only LOD/PAC reader, Era's VFS order (mods highest priority first:
+  loose file in the mod's `Data`, then its archives; then the game's `Data` with `h3bitmap.lod` first), H3 text tables
+  (tab-separated, quoted multi-line fields, UTF-8 or cp1251). `WoG.ErmTool h3data <ERA folder> [ids]` prints what is
+  read and from where. Nothing from the installation is copied into the repository.
+* **UN:A** (artifact setup, map ban, combination table) on top of `artraits.txt` + the SoD combinations; changes are
+  copy-on-write in the WoG state and saved with the game. **UN:V** returns the dialect's versions (ERA 400/3931).
+
+### Found (non-obvious)
+1. The user's ERA reads `artraits.txt` from `Mods\WoG\Data\hmm35wog.pac` (English texts; "WoG Rus" does not override
+   it), 171 artifacts.
+2. `UN:A…/2` (position) uses ERM's **Format P2** — 0 none, 1 head, 2 shoulders, 3 neck, 4 right hand, 5 left hand,
+   6 torso, 7 ring, 8 feet, 9 misc, 10–13 war machines, 14 spell book — not hero slot numbers. Hero slots
+   (`ART_SLOT_*` in Era Erm Framework) are 0 head … 8 feet, 9–12 misc 1–4, 13–16 war machines, 17 spell book,
+   18 misc 5. Confirmed by `AMER_HumanAI_Artifacts.erm` ("artiSlotP2", "-1 maps P2 to AP except boots").
+3. `UN:A` "gives spells" (field 8) has no table in the text files; it starts at 0 `[UNVERIFIED]` for the tomes etc.
+4. The remaining unsupported commands at start + day 1 with all 17 mods: `UN:C` 103 and `SN:E` 78 (raw H3 memory and
+   exe functions: game/combat/adventure managers, hook contexts, dialog structures — they need per-mod semantic ports),
+   then `UN:U` 14, `UN:X` 11, `UN:R` 10, `UN:J` 7, `UN:N` 6 — map commands; the adapter has no map layer yet.
+5. Olden Era's map (`Hex.Map.MapData`) has `sizeX_`/`sizeZ_`, an elevation `levelsMap` and no underground `[V-code]`.
+
+### Verification
+156 xUnit tests (+9: synthetic LOD archive, VFS priority, artraits parsing, UN:A/UN:V through ERM, UN:A changes saved
+with the game). `WoG.ErmTool h3data` on the user's installation: 171 artifacts with names, costs, positions and
+combinations.
+
+### Next steps
+1. Map layer in the adapter: map size, hero positions, map objects with an H3 type/subtype mapping, towns; then
+   `UN:X/U/I/O/S/H`, `HE:P`, `OB`, `CA`.
+2. `UN:N/G` from the H3 tables (names of spells, creatures, skills, buildings), `UN:R/J`.
+3. Link H3 artifacts to Olden Era items (id map "artifact") so `HE:A` and the UN:A changes act on the game.

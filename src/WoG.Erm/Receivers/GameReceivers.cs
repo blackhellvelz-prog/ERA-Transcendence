@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
 using WoG.Core.Adapters;
 using WoG.Core.Compat;
+using WoG.Core.H3Data;
 using WoG.Core.Model;
 using WoG.Core.Options;
 using WoG.Erm.Runtime;
@@ -99,13 +102,26 @@ public sealed class UnReceiver : ErmReceiverBase
     public UnReceiver() : base("UN")
     {
         Declare("P", CompatLevel.FullySupported);
+        Declare("A", CompatLevel.PartiallySupported,
+            "UN:A — artifact types come from the ERA installation's artraits.txt and are kept per game; Olden Era items are not linked to them yet, so changes do not affect the game's items, and the map ban does not affect map generation");
+        Declare("V", CompatLevel.FullySupported, "UN:V — WoG/ERM versions of the dialect (ERA 400/3931, WoG 358/281); a single-player game: no network, no cheat tracking (0)");
         Declare("C", CompatLevel.Unsupported, "UN:C writes to H3 memory addresses — impossible on a different engine");
-        Declare("ABDEFGHIJKLMNOQRSTUVWXYZ", CompatLevel.Unsupported, "UN map/object/global commands are not mapped yet");
+        Declare("BDEFGHIJKLMNOQRSTUWXYZ", CompatLevel.Unsupported, "UN map/object/global commands are not mapped yet");
     }
 
     protected override void Run(ErmCall c)
     {
-        if (c.Letter != 'P') throw ErmCall.WrongCommand(c.Letter);
+        switch (c.Letter)
+        {
+            case 'P': Options(c); break;
+            case 'A': Artifact(c); break;
+            case 'V': Versions(c); break;
+            default: throw ErmCall.WrongCommand(c.Letter);
+        }
+    }
+
+    static void Options(ErmCall c)
+    {
         var opts = c.Rt.Services.State.Options;
         if (c.Num < 2)
         {
@@ -121,6 +137,107 @@ public sealed class UnReceiver : ErmReceiverBase
         if ((idx == WoGOptionIds.NoNPC || idx == WoGOptionIds.NPC2Hire) && !isCheck)
             c.Rt.Services.Commanders?.ApplyOptions();
     }
+
+    /// <summary>UN:A (ERM_Universal case 'A'): map ban, artifact setup fields, combination table.</summary>
+    static void Artifact(ErmCall c)
+    {
+        var s = c.Rt.Services;
+        c.RequireMin(2);
+        if (c.Num == 2)
+        {
+            // ArtDisabled / ArtDisabledSet
+            int art = c.N(0);
+            if (art < 0 || art >= s.ArtifactCount()) throw new ErmRuntimeException("\"ArtDisabled\" wrong Artifact number.");
+            int v = s.State.BannedArtifacts.Contains(art) ? 1 : 0;
+            if (c.Apply(ref v, 1)) return;
+            if (v != 0) s.State.BannedArtifacts.Add(art); else s.State.BannedArtifacts.Remove(art);
+            return;
+        }
+        if (!s.HasArtifactTable())
+            throw new ErmUnsupportedException("UN:A needs the artifact table of the ERA installation (artraits.txt), and none was found");
+        if (c.Num == 3)
+        {
+            int id = -1;
+            c.Apply(ref id, 0);
+            if (id < 0 || id >= s.ArtifactCount()) throw new ErmRuntimeException("\"!!UN:A\"-wrong artifact number (internal).");
+            var a = s.Artifact(id)!;
+            int what = 0;
+            c.Apply(ref what, 1);
+            switch (what)
+            {
+                case 1: Field(c, a.Cost, v => s.EditArtifact(id).Cost = v); break;
+                case 2: Field(c, a.Position, v => s.EditArtifact(id).Position = v); break;
+                case 3: Field(c, a.Type, v => s.EditArtifact(id).Type = v); break;
+                case 4: Field(c, a.SuperN, v => s.EditArtifact(id).SuperN = v); break;
+                case 5: Field(c, a.PartOfSuperN, v => s.EditArtifact(id).PartOfSuperN = v); break;
+                case 7: Field(c, a.Disable, v => s.EditArtifact(id).Disable = (byte)v); break;
+                case 8: Field(c, a.NewSpell, v => s.EditArtifact(id).NewSpell = (byte)v); break;
+                case 9: Text(c, a.Name, s.H3.Artifacts[id].Name, t => s.EditArtifact(id).Name = t); break;
+                case 10: Text(c, a.Description, s.H3.Artifacts[id].Description, t => s.EditArtifact(id).Description = t); break;
+                case 11: Text(c, a.PickUpText, s.H3.Artifacts[id].PickUpText, t => s.EditArtifact(id).PickUpText = t); break;
+                default: throw new ErmRuntimeException("\"UN:A\"-wrong syntax (A$/$/$).");
+            }
+            return;
+        }
+        // Num >= 4: combination table entry
+        int index = -1;
+        c.Apply(ref index, 0);
+        if (index < 0 || index >= ArtifactTable.ComboSlots) throw new ErmRuntimeException("\"!!UN:A\"-wrong combo artifact index.");
+        int combo = s.Combo(index)[0];
+        if (c.Apply(ref combo, 1)) return;
+        if (combo < 0 || combo >= s.ArtifactCount()) throw new ErmRuntimeException("\"!!UN:A\"-wrong combo artifact number.");
+        var parts = new List<int>();
+        for (int i = 2; i < c.Num; i++)
+        {
+            int part = -1;
+            c.Apply(ref part, i);
+            parts.Add(part);
+        }
+        c.Rt.SetFlag(1, s.BuildUpCombo(combo, index, parts));
+    }
+
+    static void Field(ErmCall c, int current, Action<int> write)
+    {
+        int v = current;
+        if (!c.Apply(ref v, 2)) write(v);
+    }
+
+    static void Text(ErmCall c, string current, string original, Action<string> write)
+    {
+        string t = current;
+        if (!c.ApplyText(ref t, original, 2)) write(t);
+    }
+
+    /// <summary>UN:V: WoG and ERM versions, then humans / network / game type / cheat menu / cheats used.</summary>
+    static void Versions(ErmCall c)
+    {
+        c.RequireMin(2);
+        for (int i = 0; i < Math.Min(c.Num, 7); i++)
+            if (!c.IsGetOrCheck(i) && !(c.IsEra && c.P(i).Empty)) throw new ErmRuntimeException("\"!!UN:V\"-try to set a version or a game parameter.");
+        var dialect = c.Rt.Options.Dialect;
+        int wog = dialect == ErmDialect.Era ? 400 : dialect == ErmDialect.Wog359Alpha ? 359 : 358;
+        int erm = dialect == ErmDialect.Era ? EraErmVersion : dialect == ErmDialect.Wog359Alpha ? 307 : 281;
+        c.Apply(ref wog, 0);
+        c.Apply(ref erm, 1);
+        if (c.Num <= 2) return;
+        c.RequireMin(5);
+        int humans = 0;
+        var players = c.Rt.Services.Game.Players;
+        for (int p = 0; p < WoGLimits.PlayerCount; p++)
+            if (players.IsHuman(p) is { Status: AdapterStatus.Ok, Value: true }) humans++;
+        int moreHumans = humans > 1 ? 2 : 1, network = 0, gameType = humans > 1 ? 3 : 0; // 3 = hot seat
+        c.Apply(ref moreHumans, 2);
+        c.Apply(ref network, 3);
+        c.Apply(ref gameType, 4);
+        if (c.Num <= 5) return;
+        c.RequireMin(7);
+        int cheatMenu = 0, cheated = 0;
+        c.Apply(ref cheatMenu, 5);
+        c.Apply(ref cheated, 6);
+    }
+
+    /// <summary>Era's ERA_VERSION_INT (GameExt.pas) of the Era version this port follows (3.9.31).</summary>
+    public const int EraErmVersion = 3931;
 }
 
 /// <summary>Hero selection shared by HE/CO/EX: #, -1 current, -10/-20 battle sides, x/y/l.</summary>

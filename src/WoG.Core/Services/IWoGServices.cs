@@ -22,6 +22,8 @@ public interface IWoGServices
     IVisualResolver Visuals { get; }
     ICommanderService? Commanders { get; }
     IStackExperienceService? StackExperience { get; }
+    /// <summary>H3/WoG data tables of the user's ERA installation (empty when there is none).</summary>
+    WoG.Core.H3Data.H3Tables H3 { get; }
 }
 
 /// <summary>Commander rules (implemented by WoG.Commanders).</summary>

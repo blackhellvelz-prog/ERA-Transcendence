@@ -29,6 +29,7 @@ public static class WoGLimits
     public const int ArtifactSlots = 19;       // equipped slots 0..18, backpack starts at 19
     public const int CommanderArtifactFirst = 146;
     public const int StackArtifact = 156;
+    public const int ArtifactCount = 171;      // ARTNUM of WoG 3.58 (used when no artifact table is loaded)
 }
 
 /// <summary>One army slot: creature type (-1 = empty) and count.</summary>
@@ -116,13 +117,32 @@ public sealed class WoGCreature
     public int[] Cost { get; set; } = new int[WoGLimits.ResourceCount];
 }
 
+/// <summary>An artifact type as WoG's artifact setup table (ArtSetUp) holds it — what UN:A reads and writes.</summary>
 public sealed class WoGArtifact
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";
-    public int Slot { get; set; }
+    public string Description { get; set; } = "";
+    /// <summary>Message shown when the artifact is picked up (UN:A…/11).</summary>
+    public string PickUpText { get; set; } = "";
     public int Cost { get; set; }
-    public bool Disabled { get; set; }
+    /// <summary>
+    /// Where the artifact is worn, in ERM's "Format P2": 0 none (backpack only), 1 head, 2 shoulders, 3 neck,
+    /// 4 right hand, 5 left hand, 6 torso, 7 ring, 8 feet, 9 misc, 10 ballista, 11 ammo cart, 12 first aid tent,
+    /// 13 catapult, 14 spell book. (Hero slots — ART_SLOT_* — are numbered differently.)
+    /// </summary>
+    public int Position { get; set; }
+    /// <summary>Class bits: 1 special, 2 treasure, 4 minor, 8 major, 16 relic.</summary>
+    public int Type { get; set; }
+    /// <summary>Index of the combination this artifact is (SuperN), -1 if it is not one.</summary>
+    public int SuperN { get; set; } = -1;
+    /// <summary>Index of the combination this artifact is a part of, -1 if none.</summary>
+    public int PartOfSuperN { get; set; } = -1;
+    public int Disable { get; set; }
+    /// <summary>"Gives spells" byte (UN:A…/8): 1 for tomes, Spellbinder's Hat…; WoG has no default table for it.</summary>
+    public int NewSpell { get; set; }
+
+    public WoGArtifact Clone() => (WoGArtifact)MemberwiseClone();
 }
 
 public sealed class WoGSkill

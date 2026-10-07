@@ -49,6 +49,9 @@ public sealed class EraIni
 
     public EraIni(string writeRoot) { WriteRoot = writeRoot; }
 
+    /// <summary>Where files go when nobody configured a folder (tools, tests): a temp folder, never the current one.</summary>
+    public static string DefaultWriteRoot => System.IO.Path.Combine(System.IO.Path.GetTempPath(), "WoG-era-root");
+
     static string Key(string path) => path.Replace('/', '\\').Trim();
 
     string? ExistingFile(string path)

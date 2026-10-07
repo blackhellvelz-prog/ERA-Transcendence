@@ -86,7 +86,7 @@ startup: `UN:C` (H3 memory), `SN:E` (H3 code), `FU:D` (network), `UN:A/R/X/N/U/V
 | `TL` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `TM` | yes | `DES` FULLY SUPPORTED |
 | `TR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
-| `UN` | yes | `ABDEFGHIJKLMNOQRSTUVWXYZ` UNSUPPORTED (UN map/object/global commands are not mapped yet); `C` UNSUPPORTED (UN:C writes to H3 memory addresses — impossible on a different engine); `P` FULLY SUPPORTED |
+| `UN` | yes | `A` PARTIALLY SUPPORTED (UN:A — artifact types come from the ERA installation's artraits.txt and are kept per game; Olden Era items are not linked to them yet, so changes do not affect the game's items, and the map ban does not affect map generation); `BDEFGHIJKLMNOQRSTUWXYZ` UNSUPPORTED (UN map/object/global commands are not mapped yet); `C` UNSUPPORTED (UN:C writes to H3 memory addresses — impossible on a different engine); `P` FULLY SUPPORTED; `V` FULLY SUPPORTED (UN:V — WoG/ERM versions of the dialect (ERA 400/3931, WoG 358/281); a single-player game: no network, no cheat tracking (0)) |
 | `UR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `VC` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `VR` | yes | `%&*+-:BCFHMRSTUVXZ\|~` FULLY SUPPORTED |

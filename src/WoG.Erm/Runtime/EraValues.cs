@@ -39,7 +39,7 @@ public sealed partial class ErmRuntime
     /// <summary>Era translations (Lang/*.json); %T(key) and SN:T read it.</summary>
     public EraLang Lang { get; set; } = new();
     /// <summary>Era's cached ini files (SN:F ReadStrFromIni/WriteStrToIni/SaveIni…); the host sets its folders.</summary>
-    public WoG.Erm.Era.EraIni Ini { get; set; } = new(System.IO.Directory.GetCurrentDirectory());
+    public WoG.Erm.Era.EraIni Ini { get; set; } = new(WoG.Erm.Era.EraIni.DefaultWriteRoot);
 
     // ---- local ERT strings (never saved) -------------------------------------------------------
     readonly Dictionary<int, string> localErt = new();

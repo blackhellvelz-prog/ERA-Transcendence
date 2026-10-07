@@ -90,6 +90,9 @@ public sealed class WoGPlugin : BasePlugin
             host.SetEraFolders(eraFolder, Path.Combine(cfgDir, "era-root"));
             host.AddEraMods(mods, language.Value);
             Log.LogInfo($"WoG: ERA mods (highest priority first): {string.Join(", ", mods.Select(Path.GetFileName))}");
+            Log.LogInfo(host.H3.Sources.Count == 0
+                ? "WoG: no H3 text tables found (ERA installation not found?) — UN:A and other table commands are unsupported"
+                : $"WoG: H3 tables: {string.Join("; ", host.H3.Sources.Select(kv => kv.Key + " ← " + kv.Value))}; {host.H3.Artifacts.Count} artifacts");
         }
         else
         {

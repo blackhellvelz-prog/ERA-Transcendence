@@ -17,6 +17,8 @@ using WoG.Host;
 //                                     (default language en; --lang ru prints the Russian copy)
 //   idmap-creatures <Core.zip> <creature.json>  fill the creature id map from the game's units (CreatureMap.cs)
 //   probe-symbols <BepInEx/interop>   list Olden Era types/members matching the symbols the adapter needs
+//   h3data <ERA folder> [id...]      read the H3/WoG tables of an ERA installation (Mods/list.txt order) the way the
+//                                     plugin does; print where each came from and the given artifact ids
 //   era-pp  <out dir> <mod dir>...   Era: collect scripts of the mods (highest priority first) in Era load order,
 //                                     run the Era preprocessor, write the results, print diagnostics
 
@@ -84,6 +86,24 @@ switch (args[0])
         return ProbeSymbols(args[1]);
     case "idmap-creatures":
         return CreatureMap.Run(args[1], args[2]);
+    case "h3data":
+    {
+        string era = args[1];
+        string list = Path.Combine(era, "Mods", "list.txt");
+        var mods = (File.Exists(list) ? File.ReadAllLines(list) : Array.Empty<string>())
+            .Select(l => l.Trim()).Where(l => l.Length > 0).Reverse()
+            .Select(n => Path.Combine(era, "Mods", n)).Where(Directory.Exists).ToList();
+        var tables = WoG.Core.H3Data.H3Tables.Load(new WoG.Core.H3Data.EraVfs(era, mods));
+        foreach (var kv in tables.Sources) Console.WriteLine($"{kv.Key}: {kv.Value}");
+        Console.WriteLine($"artifacts: {tables.Artifacts.Count}");
+        foreach (var a in args.Skip(2).Select(int.Parse))
+        {
+            if (a < 0 || a >= tables.Artifacts.Count) { Console.WriteLine($"{a}: none"); continue; }
+            var x = tables.Artifacts[a];
+            Console.WriteLine($"{a}: {x.Name} | cost {x.Cost} pos {x.Position} type {x.Type} super {x.SuperN} part {x.PartOfSuperN} | {x.Description.ReplaceLineEndings(" ")}");
+        }
+        return 0;
+    }
     case "era-pp":
     {
         string outDir = args[1];

@@ -65,6 +65,12 @@ public sealed class WoGGameState
     public Dictionary<int, int[]> Squares { get; set; } = new();
     /// <summary>Creature type data changed by MA (only overrides are stored).</summary>
     public Dictionary<int, WoGCreature> CreatureOverrides { get; set; } = new();
+    /// <summary>Artifact types changed by UN:A (only changed ones; the rest come from the H3 tables).</summary>
+    public Dictionary<int, WoGArtifact> ArtifactOverrides { get; set; } = new();
+    /// <summary>Artifacts banned from the map by UN:A#/1 (ArtDisabled).</summary>
+    public HashSet<int> BannedArtifacts { get; set; } = new();
+    /// <summary>Combination table entries changed by UN:A (index 0..31 → [combo artifact, parts…]; 0 = empty entry).</summary>
+    public Dictionary<int, int[]> ComboOverrides { get; set; } = new();
     public IdMap Ids { get; set; } = new();
     /// <summary>Free-form module data (module name → JSON).</summary>
     public Dictionary<string, string> Modules { get; set; } = new();

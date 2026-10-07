@@ -37,6 +37,7 @@ public sealed class WoGHost : IWoGServices
     public WoGEventBus Events { get; } = new();
     public CompatibilityReport Compat { get; } = new();
     public IVisualResolver Visuals { get; }
+    public WoG.Core.H3Data.H3Tables H3 { get; private set; } = new();
     public ICommanderService? Commanders => commanders;
     public IStackExperienceService? StackExperience => stackExp;
 
@@ -94,7 +95,16 @@ public sealed class WoGHost : IWoGServices
         EraGameFolder = gameFolder;
         EraWriteFolder = writeFolder;
         ConfigureIni();
+        LoadH3Tables();
     }
+
+    /// <summary>The H3/WoG text tables from the ERA installation and the active mods (Era's VFS order).</summary>
+    public void LoadH3Tables()
+    {
+        var vfs = new WoG.Core.H3Data.EraVfs(EraGameFolder, eraMods);
+        H3 = vfs.IsEmpty ? new WoG.Core.H3Data.H3Tables() : WoG.Core.H3Data.H3Tables.Load(vfs);
+    }
+
 
     public string? EraGameFolder { get; private set; }
     public string? EraWriteFolder { get; private set; }
@@ -102,7 +112,7 @@ public sealed class WoGHost : IWoGServices
     void ConfigureIni()
     {
         if (Erm == null) return;
-        var ini = new WoG.Erm.Era.EraIni(EraWriteFolder ?? System.IO.Directory.GetCurrentDirectory());
+        var ini = new WoG.Erm.Era.EraIni(EraWriteFolder ?? WoG.Erm.Era.EraIni.DefaultWriteRoot);
         if (EraGameFolder != null) ini.ReadRoots.Add(EraGameFolder);
         Erm.Ini = ini;
     }
@@ -156,6 +166,7 @@ public sealed class WoGHost : IWoGServices
         if (!IsEra) throw new InvalidOperationException("AddEraMods needs ErmRuntimeOptions.Dialect = Era");
         eraMods.AddRange(modRoots);
         eraLanguage = language;
+        LoadH3Tables();
     }
 
     /// <summary>ERA: preprocess (shared function/constant names) and parse every script in Era's load order.</summary>

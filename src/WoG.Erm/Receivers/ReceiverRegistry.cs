@@ -147,7 +147,11 @@ public sealed class ReceiverRegistry
         ["text messages and yes/no questions; variants with pictures need custom UI"] = "текстовые сообщения и вопросы да/нет; варианты с картинками требуют своего UI",
         ["special WoG dialogs (pictures, sphinx, checkboxes, multiple choice) need a custom UI layer"] = "особые диалоги WoG (картинки, сфинкс, флажки, множественный выбор) требуют своего UI-слоя",
         ["UN:C writes to H3 memory addresses — impossible on a different engine"] = "UN:C пишет по адресам памяти H3 — на другом движке невозможно",
-        ["UN map/object/global commands are not mapped yet"] = "команды UN для карты/объектов/глобальные ещё не отображены",
+        ["UN:A — artifact types come from the ERA installation's artraits.txt and are kept per game; Olden Era items are not linked to them yet, so changes do not affect the game's items, and the map ban does not affect map generation"] =
+            "UN:A — типы артефактов берутся из artraits.txt установки ERA и хранятся в каждой игре; с предметами Olden Era они пока не связаны, поэтому изменения не влияют на предметы игры, а запрет на карте не влияет на генерацию карты",
+        ["UN:V — WoG/ERM versions of the dialect (ERA 400/3931, WoG 358/281); a single-player game: no network, no cheat tracking (0)"] =
+            "UN:V — версии WoG/ERM диалекта (ERA 400/3931, WoG 358/281); одиночная игра: сети нет, читы не отслеживаются (0)",
+        ["UN map/object/global commands are not mapped yet"] ="команды UN для карты/объектов/глобальные ещё не отображены",
         ["values go through the adapter; OE primary stats differ (see the matrix)"] = "значения идут через адаптер; первичные статы OE отличаются (см. матрицу)",
         ["ids via IdMap; display-slot forms are not supported"] = "id через IdMap; формы со слотами отображения не поддерживаются",
         ["not mapped yet"] = "ещё не отображено",
