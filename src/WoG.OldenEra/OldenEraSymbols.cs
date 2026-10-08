@@ -65,6 +65,7 @@ public sealed class OldenEraSymbols
         "player.local",              // root → index of the player sitting at this PC
         "player.id",                 // player → the side id heroes refer to (hero.owner)
         "player.current",
+        "player.tavern",             // player → the Olden Era ids of the heroes its tavern offers
         "hero.list", "hero.id", "hero.owner", "hero.experience", "hero.level",
         "hero.offence", "hero.defence", "hero.spellPower", "hero.intelligence", "hero.mana", "hero.movement",
         "hero.status",               // hero → status (enum: on map, dead, in prison, …)

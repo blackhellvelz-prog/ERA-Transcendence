@@ -1140,6 +1140,13 @@
       "Member": "max",
       "Status": "verified",
       "Note": "0.81.04: 20 | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "player.tavern": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Side",
+      "Member": "heroesHirePool.heroes",
+      "Status": "verified",
+      "Note": "0.81.04: SideHeroesHirePool.heroes: int[2] of Olden Era hero ids (118, 70 for the human player on day 2) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
     }
   }
 }

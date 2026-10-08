@@ -207,6 +207,12 @@ public sealed class ReceiverRegistry
             "X: специализация как запись H3; специализация Olden Era читается как ближайшая H3 (существо, заклинание, ресурс или вторичный навык с тем же эффектом), у остальных аналога нет; изменить её нельзя",
         ["H: the army a hero type is hired with (Olden Era's start squad of the type, kept with the WoG state); creatures without an Olden Era unit cannot be set"] =
             "H: армия, с которой нанимается герой этого типа (стартовый отряд типа в Olden Era, хранится в состоянии WoG); существ без юнита Olden Era задать нельзя",
+        ["OW:H/O/T/V/W — the player's heroes and hero list, team, tavern heroes and towns (the player's towns in town-number order); reordering the lists, changing teams and the tavern are not mapped"] =
+            "OW:H/O/T/V/W — герои игрока и его список героев, команда, герои таверны и города (города игрока по порядку номеров); перестановка списков, смена команд и таверны не отображены",
+        ["OW:N — the player's towns by list slot; the selected town and reordering the list are not mapped"] =
+            "OW:N — города игрока по слотам списка; выбранный город и перестановка списка не отображены",
+        ["OW:D/K/S — days without a town, keymaster tents and adventure-map spells have no Olden Era equivalent mapped"] =
+            "OW:D/K/S — дни без города, палатки ключника и заклинания на карте приключений не имеют сопоставленного аналога в Olden Era",
         ["PO — WoG data of a map square, kept in the WoG state and saved with it"] =
             "PO — данные WoG для клетки карты, хранятся в состоянии WoG и сохраняются вместе с ним",
         ["CA:B — buildings by H3 number: dwellings, mage guild, fort/citadel/castle, village/town/city hall, tavern, marketplace, resource silo and grail are Olden Era's buildings (a higher level counts its lower ones as built); the other numbers read as not built and cannot be built; B1/B6 build through the game's construction, free and without using the day's one; B4/B5 allow or forbid; B3…/1 (bonus taken) reads as built; B2 is not possible: Olden Era has no demolition"] =

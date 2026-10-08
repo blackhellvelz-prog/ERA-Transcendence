@@ -97,6 +97,11 @@ public interface IPlayerAdapter
     AdapterResult<IReadOnlyList<int>> GetHeroes(int player);
     /// <summary>The player's team: players of one alliance share it (the lowest player number among them).</summary>
     AdapterResult<int> GetTeam(int player);
+    /// <summary>OW:N — the town selected in the player's town list; -1 = none.</summary>
+    AdapterResult<int> GetActiveTown(int player);
+    /// <summary>OW:V — the two heroes the player's tavern offers (left, right); -1 = none.</summary>
+    AdapterResult<(int Left, int Right)> GetTavernHeroes(int player);
+    AdapterResult SetTavernHeroes(int player, int left, int right);
 }
 
 public enum CreatureStat

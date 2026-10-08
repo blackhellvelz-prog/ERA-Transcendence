@@ -66,7 +66,7 @@ startup: `UN:C` (H3 memory), `SN:E` (H3 code), `FU:D` (network), `UN:A/R/X/N/U/V
 | `MT` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `MW` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `OB` | yes | `BDEHMRS` UNSUPPORTED (OB:D/E/R/S/M/H/B — disabling objects, auto-answers and hints need the object visit hook (not verified yet)); `C` UNSUPPORTED (OB:C — the control word is H3's object setup data: different engine); `TU` PARTIALLY SUPPORTED (OB:T/U — the type and subtype of the object on a square (Format OB via id-maps/object.json); they cannot be changed) |
-| `OW` | yes | `ACGIR` PARTIALLY SUPPORTED (resource ids via IdMap); `DHKNOSTVW` UNSUPPORTED (not mapped yet) |
+| `OW` | yes | `ACGIR` PARTIALLY SUPPORTED (resource ids via IdMap); `DKS` UNSUPPORTED (OW:D/K/S — days without a town, keymaster tents and adventure-map spells have no Olden Era equivalent mapped); `HOTVW` PARTIALLY SUPPORTED (OW:H/O/T/V/W — the player's heroes and hero list, team, tavern heroes and towns (the player's towns in town-number order); reordering the lists, changing teams and the tavern are not mapped); `N` PARTIALLY SUPPORTED (OW:N — the player's towns by list slot; the selected town and reordering the list are not mapped) |
 | `PA` | no | UNSUPPORTED — PA — receiver of the "receiver pa.era" plugin (closed-source ERA DLL) |
 | `PM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `PO` | yes | `BCHNOSTV` FULLY SUPPORTED (PO — WoG data of a map square, kept in the WoG state and saved with it) |

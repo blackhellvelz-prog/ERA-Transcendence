@@ -305,6 +305,17 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
     public AdapterResult<IReadOnlyList<int>> GetHeroes(int player) =>
         AdapterResult<IReadOnlyList<int>>.Ok(HeroList.Values.Where(h => h.Owner == player).Select(h => h.Id).ToList());
 
+    public int[] ActiveTown { get; } = Enumerable.Repeat(-1, WoGLimits.PlayerCount).ToArray();
+    public (int Left, int Right)[] Tavern { get; } = Enumerable.Repeat((-1, -1), WoGLimits.PlayerCount).ToArray();
+    public AdapterResult<int> GetActiveTown(int player) => AdapterResult<int>.Ok(ActiveTown[player]);
+    public AdapterResult<(int Left, int Right)> GetTavernHeroes(int player) => AdapterResult<(int, int)>.Ok(Tavern[player]);
+
+    public AdapterResult SetTavernHeroes(int player, int left, int right)
+    {
+        Tavern[player] = (left, right);
+        return AdapterResult.Ok;
+    }
+
     // ---- creature types ---------------------------------------------------------------------
 
     bool ICreatureTypeAdapter.Exists(int type) => CreatureList.ContainsKey(type);

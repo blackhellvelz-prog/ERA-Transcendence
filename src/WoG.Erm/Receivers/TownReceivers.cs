@@ -54,7 +54,7 @@ public sealed class CaReceiver : ErmReceiverBase
         {
             case 'H': // H0/$ garrison hero, H1/$ visitor
             {
-                c.RequireMin(2);
+                c.RequireExactly(2);
                 if (c.N(0) is not (0 or 1)) throw new ErmRuntimeException("\"!!CA:H\"-wrong first parameter (0,1)");
                 bool visitor = c.N(0) == 1;
                 int cur = c.Need(towns.GetTownHero(town, visitor)), hn = cur;
@@ -113,7 +113,7 @@ public sealed class CaReceiver : ErmReceiverBase
                 break;
             case 'S': // S$ income (a set changes nothing, as in WoG)
             {
-                c.RequireMin(1);
+                c.RequireExactly(1);
                 int j = c.Need(towns.GetIncome(town));
                 c.Apply(ref j, 0);
                 break;
@@ -157,7 +157,7 @@ public sealed class CaReceiver : ErmReceiverBase
         {
             case 1: // M1/level/$basic/$upgraded creatures to hire (Words)
             {
-                c.RequireMin(4);
+                c.RequireExactly(4);
                 int level = c.N(1);
                 if (level < 0 || level > 6) throw new ErmRuntimeException("\"!!CA:M\"-level out of range (0...6).");
                 for (int row = 0; row < 2; row++)
@@ -171,7 +171,7 @@ public sealed class CaReceiver : ErmReceiverBase
             }
             case 2: // M2/slot/$type/$count the town's garrison
             {
-                c.RequireMin(4);
+                c.RequireExactly(4);
                 int slot = c.N(1);
                 if (slot < 0 || slot > 6) throw new ErmRuntimeException("\"!!CA:M\"-position out of range (0...6).");
                 var st = c.Need(towns.GetGuard(town, slot));
@@ -182,11 +182,11 @@ public sealed class CaReceiver : ErmReceiverBase
                 break;
             }
             case 3: // M3/$type/$count the summoning portal
-                c.RequireMin(3);
+                c.RequireExactly(3);
                 throw new ErmUnsupportedException(Summon);
             case 4: // M4/level/$ weekly growth (the game's value; a set changes nothing)
             {
-                c.RequireMin(3);
+                c.RequireExactly(3);
                 int level = c.N(1);
                 if (level < 0 || level > 6) throw new ErmRuntimeException("\"!!CA:M\"-level out of range (0...6).");
                 int j = c.Need(towns.GetGrowth(town, level));
@@ -200,7 +200,7 @@ public sealed class CaReceiver : ErmReceiverBase
 
     static void Buildings(ErmCall c, Core.Adapters.ITownAdapter towns, int town)
     {
-        if (c.N(0) != 3 || c.Num != 3) c.RequireMin(2);
+        if (c.N(0) != 3 || c.Num != 3) c.RequireExactly(2); // CHECK_ParamsNum: exactly
         int b = c.N(1);
         if (b < 0 || b >= WoGTown.Buildings) throw new ErmRuntimeException("\"!!CA:B\"-wrong building number (0...43).");
         switch (c.N(0))

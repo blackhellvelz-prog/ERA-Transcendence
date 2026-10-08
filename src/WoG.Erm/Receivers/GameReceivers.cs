@@ -1002,7 +1002,9 @@ public sealed class OwReceiver : ErmReceiverBase
     public OwReceiver() : base("OW")
     {
         Declare("RCAIG", CompatLevel.PartiallySupported, "resource ids via IdMap");
-        Declare("DTHKOVNWS", CompatLevel.Unsupported, "not mapped yet");
+        Declare("HOTVW", CompatLevel.PartiallySupported, "OW:H/O/T/V/W — the player's heroes and hero list, team, tavern heroes and towns (the player's towns in town-number order); reordering the lists, changing teams and the tavern are not mapped");
+        Declare("N", CompatLevel.PartiallySupported, "OW:N — the player's towns by list slot; the selected town and reordering the list are not mapped");
+        Declare("DKS", CompatLevel.Unsupported, "OW:D/K/S — days without a town, keymaster tents and adventure-map spells have no Olden Era equivalent mapped");
     }
 
     protected override void Run(ErmCall c)
@@ -1061,9 +1063,141 @@ public sealed class OwReceiver : ErmReceiverBase
                 c.Apply(ref v, 1);
                 break;
             }
+            case 'T': // Towner/team
+            {
+                c.RequireExactly(2);
+                int p = Player(c, "T", Owner(c.N(0)));
+                int team = c.Need(players.GetTeam(p)), v = team;
+                if (!c.Apply(ref v, 1) && v != team) throw new ErmUnsupportedException("OW:T — changing alliances is not mapped");
+                break;
+            }
+            case 'H': // Howner/ind[/j] — the player's heroes (by number) into v[ind], v[ind+1]...
+            {
+                c.RequireMin(2);
+                int p = Player(c, "H", Owner(c.N(0))), ind = c.N(1);
+                if (ind < 1 || ind > WoG.Core.State.WoGVariables.VCount) throw new ErmRuntimeException("\"!!OW:H\"-var index out of range (1...10000).");
+                var v = c.Rt.Services.State.Erm.V;
+                var mine = c.Need(players.GetHeroes(p)).OrderBy(x => x).ToList();
+                if (c.Num == 3)
+                {
+                    int j = c.N(2);
+                    if (j < 0) throw new ErmRuntimeException("\"!!OW:H\"-third parameter below zero.");
+                    if (j == 0) v[ind - 1] = mine.Count;
+                    else if (j <= mine.Count) v[ind - 1] = mine[j - 1];
+                    break;
+                }
+                if (ind + mine.Count > WoG.Core.State.WoGVariables.VCount) throw new ErmRuntimeException("\"!!OW:H\"-var index goes out of range (1...10000).");
+                for (int i = 0; i < mine.Count; i++) v[ind + i] = mine[i];
+                v[ind - 1] = mine.Count;
+                break;
+            }
+            case 'O': // the hero list: O#/#slot/$, O#/count/h1..h8, O#/action/slot/0
+            {
+                int owner = c.N(0);
+                if (c.IsGetOrCheck(0)) throw new ErmRuntimeException("\"!!OW:O\"-cannot get or check owner.");
+                int p = Player(c, "O", Owner(owner));
+                var list = c.Need(players.GetHeroes(p));
+                if (c.Num == 4)
+                {
+                    int act = 0, ind = 0;
+                    if (c.Apply(ref act, 1) || c.Apply(ref ind, 2)) break;
+                    throw new ErmUnsupportedException("OW:O — reordering the hero list is not mapped");
+                }
+                if (c.Num == 3)
+                {
+                    int ind = 0;
+                    if (c.Apply(ref ind, 1)) break;
+                    int h = ind >= 0 && ind < list.Count ? list[ind] : -1;
+                    c.Apply(ref h, 2);
+                    break;
+                }
+                c.RequireMin(10);
+                int n = list.Count;
+                bool changed = !c.Apply(ref n, 1) && n != list.Count;
+                for (int i = 0; i < 8; i++)
+                {
+                    int h = i < list.Count ? list[i] : -1, was = h;
+                    if (!c.Apply(ref h, i + 2) && h != was) changed = true;
+                }
+                if (changed) throw new ErmUnsupportedException("OW:O — reordering the hero list is not mapped");
+                break;
+            }
+            case 'N': // N#/$ selected town, N#/slot/$ town by list slot, N#/action/slot/0 reorder
+            {
+                if (c.IsGetOrCheck(0)) throw new ErmRuntimeException("\"!!OW:N\"-cannot get or check owner.");
+                int p = Player(c, "N", Owner(c.N(0)));
+                var towns = Towns(c, p);
+                if (c.Num == 4)
+                {
+                    int act = 0, ind = 0;
+                    if (c.Apply(ref act, 1) || c.Apply(ref ind, 2)) break;
+                    throw new ErmUnsupportedException("OW:N — reordering the town list is not mapped");
+                }
+                if (c.Num == 3)
+                {
+                    int ind = 0;
+                    if (c.Apply(ref ind, 1)) break;
+                    int t = ind >= 0 && ind < towns.Count ? towns[ind] : -1;
+                    c.Apply(ref t, 2);
+                    break;
+                }
+                c.RequireMin(2);
+                int cur = c.Need(players.GetActiveTown(p)), sel = cur;
+                if (!c.Apply(ref sel, 1) && sel != cur) throw new ErmUnsupportedException("OW:N — selecting a town is not mapped");
+                break;
+            }
+            case 'W': // W#/$ number of towns, W#/i/$ the i-th town of the list
+            {
+                int p = Player(c, "W", Owner(c.N(0)));
+                var towns = Towns(c, p);
+                if (c.Num == 2)
+                {
+                    int n = towns.Count;
+                    if (!c.Apply(ref n, 1) && n != towns.Count) throw new ErmUnsupportedException("OW:W — the town list cannot be changed");
+                    break;
+                }
+                c.RequireMin(3);
+                int i = 0;
+                if (c.Apply(ref i, 1)) throw new ErmRuntimeException("\"!!OW:W\"-cannot get or check town list number.");
+                if (i < 0 || i >= 48) throw new ErmRuntimeException("\"!!OW:W\"-town list number out of range (0...47).");
+                int t = i < towns.Count ? towns[i] : -1, was = t;
+                if (!c.Apply(ref t, 2) && t != was) throw new ErmUnsupportedException("OW:W — the town list cannot be changed");
+                break;
+            }
+            case 'V': // Vowner/left/right — the heroes of the tavern
+            {
+                c.RequireExactly(3);
+                int p = Player(c, "V", Owner(c.N(0)));
+                var (left, right) = c.Need(players.GetTavernHeroes(p));
+                int l = left, r = right;
+                bool got = c.Apply(ref l, 1) & c.Apply(ref r, 2);
+                if (!got && (l != left || r != right)) c.Need(players.SetTavernHeroes(p, l, r));
+                break;
+            }
+            case 'D':
+            case 'K':
+            case 'S':
+                throw new ErmUnsupportedException("OW:D/K/S — days without a town, keymaster tents and adventure-map spells have no Olden Era equivalent mapped");
             default:
                 throw ErmCall.WrongCommand(c.Letter);
         }
+    }
+
+    static int Player(ErmCall c, string cmd, int p)
+    {
+        if (p < 0 || p > 7) throw new ErmRuntimeException($"\"!!OW:{cmd}\"-owner out of range (-1...7).");
+        return p;
+    }
+
+    /// <summary>The towns of a player in town-number order (H3 keeps them in the order they were taken).</summary>
+    static List<int> Towns(ErmCall c, int p)
+    {
+        var towns = c.Rt.Services.Game.Towns;
+        int count = c.Need(towns.TownCount());
+        var mine = new List<int>();
+        for (int t = 0; t < count; t++)
+            if (towns.GetTownOwner(t) is { IsOk: true } o && o.Value == p) mine.Add(t);
+        return mine;
     }
 }
 

@@ -1017,6 +1017,20 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         return AdapterResult<int>.Ok(mine.Value.Contains(n) ? n : -1);
     }
 
+    public AdapterResult<int> GetActiveTown(int player) => Missing<int>("player.activeTown");
+
+    // The tavern of a side offers two heroes (Side.heroesHirePool.heroes: Olden Era hero ids) [V-game: 118, 70].
+    public AdapterResult<(int Left, int Right)> GetTavernHeroes(int player)
+    {
+        if (!sym.Has("player.tavern")) return Missing<(int, int)>("player.tavern");
+        if (FindPlayer(player) is not { } p) return AdapterResult<(int, int)>.Failed($"player {player} does not exist");
+        var ids = OldenEraSymbols.Items(sym.Read("player.tavern", p)).Select(x => x == null ? -1 : HeroNumber(Convert.ToInt32(x))).ToList();
+        return AdapterResult<(int, int)>.Ok((ids.Count > 0 ? ids[0] : -1, ids.Count > 1 ? ids[1] : -1));
+    }
+
+    public AdapterResult SetTavernHeroes(int player, int left, int right) =>
+        AdapterResult.Unsupported("OW:V — choosing the heroes of the tavern is not mapped yet");
+
     public AdapterResult<IReadOnlyList<int>> GetHeroes(int player)
     {
         if (!sym.Has("player.heroes") || !sym.Has("hero.id")) return Missing<IReadOnlyList<int>>("player.heroes");

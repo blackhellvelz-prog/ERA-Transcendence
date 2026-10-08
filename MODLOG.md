@@ -611,3 +611,19 @@ through the bridge `[V-game: peek]`, the commands themselves were **not run in g
 * WoG Debug: `erm` also prints the z1..z10 a snippet changed; `hero` shows the class and the specialty; new buttons
   (name/biography/class, rename, biography, specialty, army when hired).
 * 205 xUnit tests (`HeroNameTests`: both dialects).
+
+## 2026-10-08 — session 2, continued: OW H O N T V W; exact parameter counts in CA
+
+* **`OW`** (erm.cpp `ERM_Owner`): `H` the player's heroes by number into v (count, then the heroes; `H#/v/j` one of
+  them), `O` the hero list (a slot, or the count and eight slots; reordering is unsupported), `N` the player's towns
+  by list slot (the selected town and reordering: unsupported), `T` the team (the adapter's alliance; changing it:
+  unsupported), `V` the two heroes of the tavern (Olden Era: `Side.heroesHirePool.heroes` = [118, 70] `[V-game: peek]`;
+  choosing them: unsupported), `W` the number of the player's towns and the i-th one. A player's towns are listed in
+  town-number order (H3 keeps the order they were taken in). `D`/`K`/`S` (days without a town, keymaster tents,
+  adventure-map spells) have no Olden Era equivalent mapped. Not run in game yet (the game was in use).
+* **`CA`**: WoG's `CHECK_ParamsNum` is an exact count (common.h), not a minimum: `H` takes exactly 2 parameters,
+  `M1`/`M2` 4, `M3`/`M4` 3, `B` 2 (B3 also 3), `S` 1 — fixed.
+* Finding: the game's "add resource" `ecc.bbqk("gold", 100)` on the player's resource logic did not change the gold
+  `[V-game]`; `OW:R` has been writing the amount directly (its fallback) all along. The matrix said the game's own
+  add/spend is used — corrected.
+* 212 xUnit tests (`OwReceiverTests`).
