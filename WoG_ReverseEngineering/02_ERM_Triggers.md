@@ -1,3 +1,5 @@
+**English** | [Русский](02_ERM_Triggers.ru.md)
+
 # ERM Triggers (WoG 3.58f)
 
 Sources: `ERM_Triggers[]`, `InitTrigger`, the comment block with event numbers, and the `*Call` functions in

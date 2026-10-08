@@ -75,11 +75,25 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
 
     // ---- heroes -----------------------------------------------------------------------------
 
-    public bool Exists(int hero) => HeroList.ContainsKey(hero);
+    /// <summary>
+    /// Every H3 hero number (0..155) is a hero, as in H3: one the test has not added is in the pool — not owned (-1),
+    /// not on the map — and is made on first use; scripts that walk over all heroes (WoG Scripts' adventure cave,
+    /// enhanced secondary skills) read it as H3 would.
+    /// </summary>
+    public bool Exists(int hero) => HeroList.ContainsKey(hero) || hero >= 0 && hero < WoGLimits.HeroCount;
+
+    bool TryHero(int hero, out WoGHero h)
+    {
+        if (HeroList.TryGetValue(hero, out h!)) return true;
+        if (hero < 0 || hero >= WoGLimits.HeroCount) return false;
+        h = new WoGHero { Id = hero, Owner = -1, Name = $"Hero{hero}", Position = MapPos.None };
+        HeroList[hero] = h;
+        return true;
+    }
 
     public AdapterResult<int> Get(int hero, HeroStat stat)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return NoHero<int>(hero);
+        if (!TryHero(hero, out var h)) return NoHero<int>(hero);
         return AdapterResult<int>.Ok(stat switch
         {
             HeroStat.Experience => h.Experience,
@@ -98,7 +112,7 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
 
     public AdapterResult Set(int hero, HeroStat stat, int value)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed($"hero {hero} does not exist");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed($"hero {hero} does not exist");
         switch (stat)
         {
             case HeroStat.Experience: h.Experience = value; break;
@@ -118,11 +132,11 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
     public AdapterResult<int> GetBase(int hero, HeroStat stat) => Get(hero, stat);
 
     public AdapterResult<MapPos> GetPosition(int hero) =>
-        HeroList.TryGetValue(hero, out var h) ? AdapterResult<MapPos>.Ok(h.Position) : NoHero<MapPos>(hero);
+        TryHero(hero, out var h) ? AdapterResult<MapPos>.Ok(h.Position) : NoHero<MapPos>(hero);
 
     public AdapterResult MoveTo(int hero, MapPos pos, bool withEffect)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed($"hero {hero} does not exist");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed($"hero {hero} does not exist");
         h.Position = pos;
         return AdapterResult.Ok;
     }
@@ -134,11 +148,11 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
     }
 
     public AdapterResult<int> GetSecondarySkill(int hero, int skill) =>
-        HeroList.TryGetValue(hero, out var h) ? AdapterResult<int>.Ok(h.SecondarySkills[skill]) : NoHero<int>(hero);
+        TryHero(hero, out var h) ? AdapterResult<int>.Ok(h.SecondarySkills[skill]) : NoHero<int>(hero);
 
     public AdapterResult SetSecondarySkill(int hero, int skill, int level)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed("no hero");
         h.SecondarySkills[skill] = level;
         // WoG HE:S#/$: a learned skill takes the next display slot (while fewer than 8 are shown); a removed one
         // gives its slot to the skill in the last slot.
@@ -154,31 +168,31 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
     }
 
     public AdapterResult<IReadOnlyList<int>> GetSecondarySkillOrder(int hero) =>
-        HeroList.TryGetValue(hero, out var h) ? AdapterResult<IReadOnlyList<int>>.Ok(h.SkillOrder.ToList()) : NoHero<IReadOnlyList<int>>(hero);
+        TryHero(hero, out var h) ? AdapterResult<IReadOnlyList<int>>.Ok(h.SkillOrder.ToList()) : NoHero<IReadOnlyList<int>>(hero);
 
     public AdapterResult SetSecondarySkillOrder(int hero, IReadOnlyList<int> order)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed("no hero");
         h.SkillOrder = order.ToList();
         return AdapterResult.Ok;
     }
 
     public AdapterResult<bool> HasSpell(int hero, int spell) =>
-        HeroList.TryGetValue(hero, out var h) ? AdapterResult<bool>.Ok(h.Spells.Contains(spell)) : NoHero<bool>(hero);
+        TryHero(hero, out var h) ? AdapterResult<bool>.Ok(h.Spells.Contains(spell)) : NoHero<bool>(hero);
 
     public AdapterResult SetSpell(int hero, int spell, bool known)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed("no hero");
         if (known) h.Spells.Add(spell); else h.Spells.Remove(spell);
         return AdapterResult.Ok;
     }
 
     public AdapterResult<WoGStack> GetStack(int hero, int slot) =>
-        HeroList.TryGetValue(hero, out var h) ? AdapterResult<WoGStack>.Ok(h.Army.Slots[slot].Clone()) : NoHero<WoGStack>(hero);
+        TryHero(hero, out var h) ? AdapterResult<WoGStack>.Ok(h.Army.Slots[slot].Clone()) : NoHero<WoGStack>(hero);
 
     public AdapterResult SetStack(int hero, int slot, int type, int count)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed("no hero");
         h.Army.Slots[slot].Type = count <= 0 ? -1 : type;
         h.Army.Slots[slot].Count = type < 0 ? 0 : Math.Max(0, count);
         return AdapterResult.Ok;
@@ -189,7 +203,7 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
 
     public AdapterResult<int[]> GetArtifacts(int hero)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return NoHero<int[]>(hero);
+        if (!TryHero(hero, out var h)) return NoHero<int[]>(hero);
         var all = Enumerable.Repeat(-1, ArtifactSlots.Positions).ToArray();
         Array.Copy(h.Equipped, all, ArtifactSlots.Worn);
         for (int i = 0; i < h.Backpack.Count && i < ArtifactSlots.Backpack; i++) all[ArtifactSlots.Worn + i] = h.Backpack[i];
@@ -198,7 +212,7 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
 
     public AdapterResult PutArtifact(int hero, int position, int artifact)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed("no hero");
         if (position < ArtifactSlots.Worn)
         {
             if (h.Equipped[position] != -1) return AdapterResult.Failed("position taken");
@@ -214,7 +228,7 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
 
     public AdapterResult RemoveArtifactAt(int hero, int position)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed("no hero");
         if (position < ArtifactSlots.Worn) h.Equipped[position] = -1;
         else if (position - ArtifactSlots.Worn < h.Backpack.Count) h.Backpack[position - ArtifactSlots.Worn] = -1;
         return AdapterResult.Ok;
@@ -222,7 +236,7 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
 
     public AdapterResult AddToBackpack(int hero, int artifact)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed("no hero");
         int k = h.Backpack.IndexOf(-1);
         if (k >= 0) h.Backpack[k] = artifact;
         else if (h.Backpack.Count < ArtifactSlots.Backpack) h.Backpack.Add(artifact);
@@ -231,7 +245,7 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
 
     public AdapterResult EquipArtifact(int hero, int artifact)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed("no hero");
         int p2 = artifact >= ArtifactSlots.ScrollBase ? 9 : ArtifactPosition?.Invoke(artifact) ?? 0;
         foreach (int slot in ArtifactSlots.ForPosition(p2))
             if (h.Equipped[slot] == -1) { h.Equipped[slot] = artifact; return AdapterResult.Ok; }
@@ -239,49 +253,49 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
     }
 
     public AdapterResult<string> GetName(int hero) =>
-        HeroList.TryGetValue(hero, out var h) ? AdapterResult<string>.Ok(h.Name) : NoHero<string>(hero);
+        TryHero(hero, out var h) ? AdapterResult<string>.Ok(h.Name) : NoHero<string>(hero);
 
     public AdapterResult SetName(int hero, string name)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed("no hero");
         h.Name = name;
         return AdapterResult.Ok;
     }
 
     public AdapterResult<string> GetBiography(int hero, bool original) =>
-        HeroList.TryGetValue(hero, out var h) ? AdapterResult<string>.Ok(original ? h.DefaultBiography : h.Biography ?? "") : NoHero<string>(hero);
+        TryHero(hero, out var h) ? AdapterResult<string>.Ok(original ? h.DefaultBiography : h.Biography ?? "") : NoHero<string>(hero);
 
     public AdapterResult<int[]> GetSpecialty(int hero) =>
-        HeroList.TryGetValue(hero, out var h) ? AdapterResult<int[]>.Ok((int[])h.Specialty.Clone()) : NoHero<int[]>(hero);
+        TryHero(hero, out var h) ? AdapterResult<int[]>.Ok((int[])h.Specialty.Clone()) : NoHero<int[]>(hero);
 
     public AdapterResult SetSpecialty(int hero, int[] record)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed("no hero");
         h.Specialty = (int[])record.Clone();
         return AdapterResult.Ok;
     }
 
     public AdapterResult<(int Type, int Min, int Max)> GetStartArmy(int hero, int slot) =>
-        HeroList.TryGetValue(hero, out var h)
+        TryHero(hero, out var h)
             ? AdapterResult<(int, int, int)>.Ok((h.StartArmy[slot][0], h.StartArmy[slot][1], h.StartArmy[slot][2])) : NoHero<(int, int, int)>(hero);
 
     public AdapterResult SetStartArmy(int hero, int slot, int type, int min, int max)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed("no hero");
         h.StartArmy[slot] = new[] { type, min, max };
         return AdapterResult.Ok;
     }
 
     public AdapterResult SetBiography(int hero, string text)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed("no hero");
         h.Biography = text;
         return AdapterResult.Ok;
     }
 
     public AdapterResult Kill(int hero)
     {
-        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        if (!TryHero(hero, out var h)) return AdapterResult.Failed("no hero");
         h.Alive = false;
         h.Owner = -1;
         return AdapterResult.Ok;
@@ -473,7 +487,7 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
     public AdapterResult SetTownHero(int town, bool visitor, int hero) => ChangeTown(town, t =>
     {
         if (visitor) t.VisitorHero = hero; else t.GarrisonHero = hero;
-        if (HeroList.TryGetValue(hero, out var h)) h.Position = t.Position;
+        if (TryHero(hero, out var h)) h.Position = t.Position;
     });
 
     public AdapterResult<int> GetMageGuildLevel(int town) => WithTown(town, t => t.MageGuildLevel);

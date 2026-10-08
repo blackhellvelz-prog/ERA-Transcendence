@@ -1,3 +1,5 @@
+**English** | [Русский](00_Overview.ru.md)
+
 # HoMM3 ERA: what it is and why the project's target is now ERA
 
 ## Decision

@@ -1,3 +1,5 @@
+**English** | [Русский](01_ERM2_Preprocessor.ru.md)
+
 # ERM 2.0 Preprocessor (Era `PreprocessErm`)
 
 Source: `Erm.pas`, function `PreprocessErm` (Era 3.9.31), scanner `TextScan.TTextScanner` from the B2 library.

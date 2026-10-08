@@ -1,3 +1,5 @@
+**English** | [Русский](08_Save_Load.ru.md)
+
 # Saving/loading WoG state
 
 Sources: `SaveERM`/`LoadERM` (`erm.cpp`), `SaveNPC`/`LoadNPC` (`npc.cpp`), `CrExpoSet::Save`, `CrExpMod::Save`,

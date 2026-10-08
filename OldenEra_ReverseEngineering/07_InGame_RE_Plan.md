@@ -1,3 +1,5 @@
+**English** | [Русский](07_InGame_RE_Plan.ru.md)
+
 # In-game reverse-engineering plan (to be carried out on a computer that has Olden Era)
 
 This is work that cannot be done without the game. The steps are ordered so that each one unlocks adapter features.

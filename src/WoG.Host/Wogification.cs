@@ -6,7 +6,7 @@ namespace WoG.Host;
 public enum WogifyQuestion
 {
     None,
-    /// <summary>A map without its own scripts (every Olden Era map), with WoG option 5 = 3: ZMESS00.TXT line 226.</summary>
+    /// <summary>WoG: a map without its own scripts (every Olden Era map), with WoG option 5 = 3: ZMESS00.TXT line 226.</summary>
     Map,
     /// <summary>A map with its own scripts. ERA: era.global_scripts_vs_map_scripts_warning; WoG: ZMESS00.TXT line 197.</summary>
     MapScripts,
@@ -38,9 +38,8 @@ public sealed class WogifyPlan
 /// ERA (Erm.pas Hook_FindErm_AfterMapScripts, changelog "WoG Option 5 meaning was changed"): every map is a WoG map
 /// (the hard-coded checks read a frozen "WoGify all"), and the option only decides whether the global scripts load:
 /// 0 never, 1 and 2 always, 3 always but a map with its own scripts asks first; a fixed script set ("load only these
-/// scripts.txt") loads without asking. The answer sets the option to 2 or 0. ERA does not ask for a map without
-/// scripts; the port asks there as WoG 3.58 did for the classic RoE/AB/SoD maps, since every Olden Era map is such
-/// a map — the question the player knows from WoG.
+/// scripts.txt") loads without asking. The answer sets the option to 2 or 0. So an Olden Era map, which has no scripts
+/// of its own, is WoGified without a question unless the option is 0 — the full mod, as in ERA.
 /// </para>
 /// </summary>
 public static class Wogification
@@ -51,8 +50,8 @@ public static class Wogification
     {
         if (era && fixedScriptSet) return new WogifyPlan(true);
         if (option == Never) return new WogifyPlan(false);
-        if (mapScripts > 0)
-            return era && option != Ask ? new WogifyPlan(true) : new WogifyPlan(true, WogifyQuestion.MapScripts);
+        if (era) return mapScripts > 0 && option == Ask ? new WogifyPlan(true, WogifyQuestion.MapScripts) : new WogifyPlan(true);
+        if (mapScripts > 0) return new WogifyPlan(true, WogifyQuestion.MapScripts);
         return option == Ask ? new WogifyPlan(true, WogifyQuestion.Map) : new WogifyPlan(true);
     }
 

@@ -4,7 +4,7 @@
 next to each document (`X.ru.md`). / **Цель:** основная документация на английском (`X.md`), рядом русская копия
 (`X.ru.md`).
 
-The cloud session was stopped mid-way to save limits. Work state as of 2026-10-07 / Состояние на 07.10.2026:
+Work state as of 2026-10-08 / Состояние на 08.10.2026:
 
 | Step | State |
 |------|-------|
@@ -14,10 +14,10 @@ The cloud session was stopped mid-way to save limits. Work state as of 2026-10-0
 | Receiver notes in code → English, Russian dictionary for docs, `compat [--era] [--lang ru]` emits whole files, 4 generated tables regenerated (`Compatibility/ERM_Compatibility*.md` + `.ru.md`), new test `ReceiverRegistryTests` | done; build clean, 136 tests pass, ERA corpus passes |
 | `Compatibility/options-defaults.json` (English names + `nameRu`), `id-maps/creature.json` notes | done |
 | Scripts `tools/oe-recon/collect.ps1`, `tools/fetch-references/*` English-first (BOM+CRLF kept) | done |
-| Language switch line at the top of each English hand-written doc: `**English** \| [Русский](X.ru.md)` | **todo** |
-| Cross-document consistency review (terminology, README/CLAUDE/HANDOFF rules, matrix columns) | **todo** |
-| Automated check: identical code spans and numbers in `X.md` vs `X.ru.md` | **todo** |
-| MODLOG entry about the bilingual change (EN in `MODLOG.md`, RU in `MODLOG.ru.md`) | **todo** |
+| Language switch line at the top of each English hand-written doc: `**English** \| [Русский](X.ru.md)` | done (2026-10-08) |
+| Cross-document consistency review (terminology, README/CLAUDE/HANDOFF rules, matrix columns) | README, CLAUDE, HANDOFF rewritten for the current state in both languages (2026-10-08); the rest **todo** |
+| Automated check: identical code spans and numbers in `X.md` vs `X.ru.md` | done: `tools/docs/check-translations.py`; the remaining differences are translated placeholders (`$type` → `$тип`), number formats and old MODLOG entries |
+| MODLOG entry about the bilingual change (EN in `MODLOG.md`, RU in `MODLOG.ru.md`) | done (2026-10-08 entry) |
 
 ## How to finish (for the local Claude Code) / Как закончить
 
@@ -33,5 +33,5 @@ The cloud session was stopped mid-way to save limits. Work state as of 2026-10-0
 5. `dotnet build WoGOldenEra.sln`, `dotnet test tests/WoG.Tests` (+ ERA/WoG corpus tests), add the MODLOG entry in
    both languages, commit, push. Then delete this file and `tools/handoff/`.
 
-RU: всё переведено и собрано; осталось проверить 6 переводов (WoG 03–08), общая проверка согласованности,
-строки-переключатели языка в английских файлах, автоматическая сверка кода/чисел, запись в MODLOG — по шагам выше.
+RU: всё переведено и собрано; строки-переключатели языка, автоматическая сверка кода/чисел и запись в MODLOG
+сделаны 08.10.2026; осталось проверить 6 переводов (WoG 03–08) и общая проверка согласованности — шаги 1–2 выше.

@@ -1,3 +1,5 @@
+**English** | [Русский](02_Data_Layer_CoreZip.ru.md)
+
 # Olden Era — data layer (`Core.zip`)
 
 All game content is JSON inside `HeroesOldenEra_Data/StreamingAssets/Core.zip` **[V-data]** (O1 reads it

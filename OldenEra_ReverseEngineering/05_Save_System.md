@@ -1,3 +1,5 @@
+**English** | [Русский](05_Save_System.ru.md)
+
 # Olden Era — save system
 
 ## Known

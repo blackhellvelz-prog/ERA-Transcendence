@@ -1,3 +1,5 @@
+**English** | [Русский](MODLOG.ru.md)
+
 # MODLOG — work log
 
 Log following the `mod-any-game` (universal-modder) methodology: paths, versions, formats, what did not work and
@@ -785,3 +787,40 @@ buses and logs them) `[V-game]`:
   WoG Debug window only with WoG Debug on. WoG Debug: "WoG'ификация карты (UN:P5)".
 * Not yet: IF:M / IF:Q messages and questions from scripts (a question needs the script to wait for the answer:
   ERM suspension), map scripts for Olden Era maps (ERA's Maps\<map>\Data\s).
+
+## 2026-10-08 — session 2, continued: the WoG Options defaults; WoGification as in ERA; the corpus in Era's mod order
+
+* **The user:** the full mod needs WoGification. Correct — and it showed two real gaps.
+* **WoGification follows ERA again.** WoG's own ZSETUP01.TXT starts option 5 at 3 ("WoGify all maps but ask"), and
+  ERA asks at 3 only a map with its own scripts; an Olden Era map has none, so ERA WoGifies it without a question. The
+  port's question for such maps (previous entry) is gone: in the ERA dialect every Olden Era map is WoGified unless
+  option 5 is 0; the question stays for maps with their own scripts and for the classic WoG dialect (ZMESS00 226).
+  `[WoG] Wogify` now defaults to -1 = the WoG Options value.
+* **The WoG Options defaults are applied** `[V-code]` `[V-data]`. Until now a new map started with every option at 0 —
+  commanders off, no stack experience, and almost every WoG script off (they check `UN:P<n>`). WoG (wogsetup.cpp
+  `BuildAll`, `AddItem`, `Prepare2Close`): every row of ZSETUP01.TXT (from the third) and of the scripts' .ers files
+  is a dialog item {page, group, item (-1 next), state, MP, option, texts}; without a saved preset the states are the
+  options — a check box writes its state (1..4 inverted), a radio group (page 0 group 0, page 0 group 3, page 4
+  group 0) the number of its selected item; a new map copies them (ResetWogify). `WoGOptionSetup` (WoG.Core) does the
+  same with the installation's files: ZSETUP01.TXT through Era's VFS (WoG Scripts' own, 231 items, over WoG's 19) and
+  the mods' Data\s\*.ers (ERA Scripts: 83 items, all off). Result on the user's ERA: **96 options on** — WoGify 3,
+  commanders, stack experience, arrow towers, Mithril, new objects and banks, enhanced secondary skills… (93 checked
+  items of WoG Scripts, radio values, the inverted 1..4). The host copies them at a new map (`SetupOptions`); the
+  dialog items (`OptionSetup`) are kept for the WoG Options window. A saved preset (WoGSetupEx.dat) is not read: its
+  format is unverified and the user's ERA has none.
+* **The corpus was run in the wrong order.** `WoG.ErmTool run --era` takes the mods highest priority first, but the
+  command in use listed WoG first — so WoG's files won over WoG Rus', WoG Fix Lite's and WoG Scripts' (ZSETUP01: 19
+  items instead of 231), and with every option at 0 most WoG scripts did nothing. The `^\[error` grep also missed the
+  errors, which print as `Error …`. Now: the core mods in Era's order (the reverse of list.txt) and a summary line
+  `N scripts, E ERM errors, K WoG options on`. The first honest run: 183 scripts, 1872 errors — WoG Scripts' adventure
+  cave and enhanced secondary skills walk over all 156 heroes, and the headless engine had only the heroes a test
+  adds. In H3 every hero exists (a pool hero has owner -1 and is not on the map): `HeadlessGame` now makes an unknown
+  hero number 0..155 such a hero on first use → **183 scripts, 0 ERM errors, 96 options on (WoGified)**.
+* What the full WoG now exercises (new in the compatibility report): SS:F/L/S ×490 (ERA's secondary skills plugin),
+  UN:C ×1498 (H3 memory), SN:H ×124 (hints), HT:P/T/V/W, UN:I ×23 (placing objects), OW:I ×12, UN:B ×10,
+  SN:F^Erm_FillInt32Array^ and SN:M ×7, UN:J1 ×6, IF:D/E/F/G — the next work.
+* In the game 97 Olden Era heroes have an H3 number; 59 numbers have none (19..68, 80, 82, 88, 98, 107, 121, 122,
+  131, 140) — the adapter needs the same pool heroes (next).
+* Docs: the language switch line in every English document; `tools/docs/check-translations.py` compares the code
+  spans and numbers of every X.md and X.ru.md (what remains are translated placeholders and number/date formats; the
+  one real gap, the DebugUI row of CLAUDE.ru.md, is fixed). 262 xUnit tests (`WoGOptionSetupTests`, the hero pool).

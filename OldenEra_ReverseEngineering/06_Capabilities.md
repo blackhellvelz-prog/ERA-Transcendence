@@ -1,3 +1,5 @@
+**English** | [Русский](06_Capabilities.ru.md)
+
 # Olden Era — what is available to modding
 
 The classification required by the task. Tags are as in `00_Sources_and_Verification.md`.

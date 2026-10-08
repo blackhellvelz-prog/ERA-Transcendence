@@ -82,9 +82,10 @@ public sealed class WoGPlugin : BasePlugin
         var modList = Config.Bind("ERA", "ModList", "WoG Debug",
             "Mods to load, comma-separated, lowest priority first (the order of ERA's Mods/list.txt). Empty: use ModsRoot/list.txt.");
         var language = Config.Bind("ERA", "Language", "ru", "Language of ERA translations (Lang/<language>)");
-        var wogify = Config.Bind("WoG", "Wogify", 3,
-            "WoG option 5, WoGification of a new map: 0 never (ERA: no global scripts; WoG: classic rules), 1 WoG maps, " +
-            "2 all maps, 3 ask when the map starts (\"Do you wish to WoGify this map?\")");
+        var wogify = Config.Bind("WoG", "Wogify", -1,
+            "WoG option 5, WoGification of a new map: -1 as the WoG Options (3), 0 never (ERA: no global scripts; WoG: classic " +
+            "rules), 1 and 2 always, 3 always but ask a map with its own scripts (ERA) / ask every map (classic WoG). " +
+            "The full mod needs WoGification.");
         var debugEnabled = Config.Bind("Debug", "Enabled", false, "WoG Debug: command bridge (BepInEx/config/WoG/debug/in) and self-test");
         var allowUnverified = Config.Bind("Debug", "AllowUnverifiedSymbols", false,
             "Debug only: use resolved but not yet verified game symbols, so the self-test can verify them");
@@ -109,7 +110,7 @@ public sealed class WoGPlugin : BasePlugin
             new ErmRuntimeOptions { Dialect = era ? ErmDialect.Era : ErmDialect.Wog358, TimeLimitMs = timeLimit.Value });
         Host = host;
         Adapter = adapter;
-        host.WogifySetting = Math.Clamp(wogify.Value, 0, 3);
+        if (wogify.Value >= 0) host.WogifySetting = Math.Min(wogify.Value, 3);
         OldenEraGameAdapter.MethodTraceReal = MethodTrace.Real;
         host.ErmLog = m => Log.LogInfo("[ERM] " + m);
 

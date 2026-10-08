@@ -1,3 +1,5 @@
+**English** | [Русский](Architecture.ru.md)
+
 # Architecture — WoG 3.58 on Olden Era
 
 ```

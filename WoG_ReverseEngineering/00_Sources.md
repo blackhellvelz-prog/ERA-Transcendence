@@ -1,3 +1,5 @@
+**English** | [Русский](00_Sources.ru.md)
+
 # WoG 3.58 Reverse Engineering — Sources and Their Provenance
 
 Everything in this folder is derived from primary sources. Where a claim was obtained by reading code, the file and

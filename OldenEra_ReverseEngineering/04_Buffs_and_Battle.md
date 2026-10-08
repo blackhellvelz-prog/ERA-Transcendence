@@ -1,3 +1,5 @@
+**English** | [Русский](04_Buffs_and_Battle.ru.md)
+
 # Olden Era — buffs, creature stats and battle
 
 ## 1. Creature battle stats **[V-data]**

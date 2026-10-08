@@ -1,3 +1,5 @@
+**English** | [Русский](07_Battle_Map_Towns_Features.ru.md)
+
 # Battle, adventure map, towns, and the WoG feature set
 
 Sources: `T1/Monsters.cpp` (battle receivers and hooks), `T1/casdem.cpp` (towns, demolition), `T1/womo.cpp` (wandering

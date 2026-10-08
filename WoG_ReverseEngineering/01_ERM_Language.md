@@ -1,3 +1,5 @@
+**English** | [Русский](01_ERM_Language.ru.md)
+
 # ERM language — reverse-engineered specification (WoG 3.58f)
 
 Primary source: `T1/erm.cpp` from S1 (see `00_Sources.md`). Function names below refer to that file.

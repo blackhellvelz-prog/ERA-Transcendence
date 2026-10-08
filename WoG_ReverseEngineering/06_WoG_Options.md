@@ -1,3 +1,5 @@
+**English** | [Русский](06_WoG_Options.ru.md)
+
 # WoG Options — Reverse-Engineered Model
 
 Sources: `T1/erm.h` (`PL_*` macros), `T1/wogsetup.cpp` (options dialog, loading/saving), `T1/erm.cpp`

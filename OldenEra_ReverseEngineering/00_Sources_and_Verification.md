@@ -1,3 +1,5 @@
+**English** | [Русский](00_Sources_and_Verification.ru.md)
+
 # Olden Era Reverse Engineering — Sources and Verification Levels
 
 Heroes of Might and Magic: Olden Era (Unfrozen / Ubisoft), Steam app **3105440**, in early access since

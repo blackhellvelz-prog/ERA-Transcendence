@@ -1,3 +1,5 @@
+**English** | [Русский](04_Commanders.ru.md)
+
 # Commanders (WoG 3.58) — Reverse-Engineered Model
 
 Source: `T1/npc.cpp` (class `NPC`, `ERM_NPC`, `SetMonInitPars`, `ApplyCmdMonChanges`, `GetNPCMagicPower`,

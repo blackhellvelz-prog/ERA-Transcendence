@@ -1,3 +1,5 @@
+**English** | [Русский](SOURCE.ru.md)
+
 # Source
 
 The `mod-any-game` skill was copied unchanged from

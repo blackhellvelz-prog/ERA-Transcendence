@@ -1,3 +1,5 @@
+**English** | [Русский](02_ERA_Semantics.ru.md)
+
 # ERM Semantics in ERA (Differences from WoG 3.58)
 
 Source: `Erm.pas` (`Hook_ZvsGetNum`, `GetErmParamValue`, `SetErmParamValue`, `Hook_ZvsGetFlags`,

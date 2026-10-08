@@ -1,3 +1,5 @@
+**English** | [Русский](03_ERA_Events_Loading_Save.ru.md)
+
 # ERA events, loading of mods and scripts, translations, ERT, saved games
 
 Sources: `Erm.pas` (`RegisterErmEventNames`, `TScriptMan`, `GetOrderedPrioritizedFileList`,

@@ -7,6 +7,7 @@ using WoG.Core.Compat;
 using WoG.Core.Events;
 using WoG.Core.Model;
 using WoG.Core.Random;
+using WoG.Core.Options;
 using WoG.Core.Save;
 using WoG.Core.Services;
 using WoG.Core.State;
@@ -106,7 +107,46 @@ public sealed class WoGHost : IWoGServices
         var vfs = new WoG.Core.H3Data.EraVfs(EraGameFolder, eraMods);
         Vfs = vfs;
         H3 = vfs.IsEmpty ? new WoG.Core.H3Data.H3Tables() : WoG.Core.H3Data.H3Tables.Load(vfs);
+        LoadOptionSetup(vfs);
     }
+
+    /// <summary>
+    /// The WoG Options dialog of the installation (ZSETUP01.TXT as Era's VFS gives it — WoG Scripts' own over WoG's —
+    /// and the active mods' Data\s\*.ers, the highest-priority mod's file of a name) and the option values it starts
+    /// with, which a new map copies (ResetWogify). Null without an installation.
+    /// </summary>
+    void LoadOptionSetup(WoG.Core.H3Data.EraVfs vfs)
+    {
+        var setup = new WoGOptionSetup();
+        bool any = false;
+        var zsetup = vfs.IsEmpty ? null : vfs.Read("zsetup01.txt");
+        if (zsetup != null)
+        {
+            setup.Add(WoGOptionSetup.Parse(WoG.Core.H3Data.H3Text.Decode(zsetup), firstRow: 2));
+            any = true;
+        }
+        var ers = new SortedDictionary<string, string>(Comparer<string>.Create(WoG.Erm.Era.EraScriptSet.AnsiCompareText));
+        foreach (var mod in eraMods)
+        {
+            string dir = Path.Combine(mod, "Data", "s");
+            if (!Directory.Exists(dir)) continue;
+            foreach (var f in Directory.EnumerateFiles(dir, "*.ers"))
+                ers.TryAdd(Path.GetFileName(f), f);
+        }
+        foreach (var f in ers.Values)
+        {
+            setup.Add(WoGOptionSetup.Parse(WoG.Core.H3Data.H3Text.Decode(File.ReadAllBytes(f)), firstRow: 0));
+            any = true;
+        }
+        OptionSetup = any ? setup : null;
+        SetupOptions = any ? setup.Defaults() : null;
+    }
+
+    /// <summary>The WoG Options dialog's items (texts may be ERA language keys); null without an installation.</summary>
+    public WoGOptionSetup? OptionSetup { get; private set; }
+
+    /// <summary>The options a new map starts with (PL_WoGOptions row 1): the dialog's defaults; null without an installation.</summary>
+    public WoGOptions? SetupOptions { get; private set; }
 
     /// <summary>The resource files of the ERA installation and the active mods (pictures for the WoG interface).</summary>
     public WoG.Core.H3Data.EraVfs Vfs { get; private set; } = new(null, Array.Empty<string>());
@@ -177,9 +217,16 @@ public sealed class WoGHost : IWoGServices
 
     /// <summary>
     /// The player's WoGify setting (WoG option 5, the options dialog's value) a new map starts with: 0 never, 1 WoG
-    /// maps, 2 all, 3 ask (<see cref="Wogification"/>). "All" unless the engine sets it.
+    /// maps, 2 all, 3 ask (<see cref="Wogification"/>): the engine's choice, else the WoG Options default (3 in WoG's
+    /// ZSETUP01.TXT), else "all".
     /// </summary>
-    public int WogifySetting { get; set; } = Wogification.All;
+    public int WogifySetting
+    {
+        get => wogifySetting ?? SetupOptions?.Get(WoGOptionIds.ApplyWoG) ?? Wogification.All;
+        set => wogifySetting = value;
+    }
+
+    int? wogifySetting;
 
     /// <summary>What WoGification will do for the new map, and the question to ask the player first (then
     /// <see cref="StartNewGame(bool?)"/> with the answer).</summary>
@@ -286,6 +333,7 @@ public sealed class WoGHost : IWoGServices
             Build();
         }
         bool on = wogify ?? PlanWogify().Wogify;
+        if (SetupOptions != null) Array.Copy(SetupOptions.Values, State.Options.Values, WoGOptionIds.Count); // ResetWogify
         State.Wogified = on;
         State.Options.Set(WoG.Core.Options.WoGOptionIds.ApplyWoG, IsEra ? (on ? Wogification.All : Wogification.Never) : WogifySetting);
         if (!IsEra && !on) Wogification.ResetNoWoG(State.Options);

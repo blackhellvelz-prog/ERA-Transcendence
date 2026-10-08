@@ -1,62 +1,75 @@
-# How to continue the work on your own computer
+**English** | [Русский](HANDOFF.ru.md)
 
-> **Unfinished:** the switch to English-primary docs is almost done — see `TRANSLATION_STATUS.md` and finish it first.
+# How to continue the work
 
-This file is for you and for the Claude Code instance that will run on the computer with Olden Era. The cloud
-session in which the current part of the work was done cannot see your computer; a local Claude Code can see it
-and can verify everything directly in the game.
+This file is for you and for the Claude Code instance that continues the port on the computer with Olden Era and
+ERA installed. The full history with evidence is in `MODLOG.md`; the rules are in `CLAUDE.md`.
 
-## Where we are now (2026-10-07)
+## Where we are now (2026-10-08)
 
-* The goal is a port of **HoMM3 ERA** to Olden Era (the user's decision: ERA instead of WoG 3.58).
-* Done and verified without the game: reverse engineering of ERA/WoG/Olden Era (the `*_ReverseEngineering`
-  folders), the compatibility matrix, the core, the ERM runtime for WoG and **ERA** (ERM 2.0 preprocessor, ERA
-  semantics), commanders, stack experience, saving, the data overlay, the BepInEx plugin (it builds, but has not
-  been run in the game).
-* The entire ERA project (183 scripts) starts as a new game on the test engine without errors. 132 tests are
-  green.
-* **Nothing has been verified in Olden Era itself yet** — that is the next stage.
+* The goal is a port of **HoMM3 ERA** to Olden Era (the user's decision: ERA instead of WoG 3.58; ERA is built on
+  WoG, so all of WoG is the lower layer). The full mod is the target: every WoG and ERA function, the core mods first
+  (`WoG`, `Era Erm Framework`, `WoG Rus`, `WoG Scripts`, `WoG Scripts Rus`, `WoG Fix Lite`, `ERA Scripts`).
+* Since session 2 (2026-10-07) the port **runs in the real game** (Olden Era 0.81.04, BepInEx 6 be.785). Verified
+  in game: day start, object visits, save/load of the WoG state, the map layer, heroes, towns, players, mines,
+  creature types, battles with the triggers `!?BR`, `!?BG0/1` (every action: walk, attack, shot, wait, defend, hero
+  spell) and `!?MF1`, WoGification, the WoG Debug window.
+* A new map starts **WoGified with the installation's WoG Options defaults** (96 options on in the user's ERA:
+  commanders, stack experience, new objects, enhanced secondary skills…), as ERA does: an Olden Era map has no
+  scripts of its own, so ERA does not ask.
+* The headless reference engine runs the user's whole ERA (183 scripts) for a new game + 7 days with **0 ERM
+  errors**; 262 xUnit tests are green. What the engine cannot do yet is reported as *unsupported* in
+  `Compatibility/ERM_Compatibility_ERA.md`.
 
-## What to install
+## Local setup
 
-1. **Git** — https://git-scm.com/download/win
-2. **.NET 8 SDK** — https://dotnet.microsoft.com/download/dotnet/8.0
-3. **Claude Code** — the Claude desktop app (the Code tab) or the CLI in a terminal; how to install it —
-   https://code.claude.com/docs
-4. Heroes of Might and Magic: Olden Era (Steam) — you already have it.
+1. **.NET 8 SDK**, **Git**, Claude Code (desktop app or CLI).
+2. Heroes of Might and Magic: Olden Era (Steam, app 3105440) with **BepInEx 6 IL2CPP be.785** installed and run once
+   (it generates `BepInEx/interop`, which the plugins compile against). Back up the saves and
+   `HeroesOldenEra_Data/StreamingAssets/Core.zip` before any change in the game folder.
+3. An **ERA installation** (HoMM3 ERA 2.291 with the core mods). The port reads its scripts, texts and pictures at
+   run time; nothing of it is in the repository. It is a read-only corpus: never write into it.
+4. Environment variables: `OLDEN_ERA_DIR` — the Olden Era folder (the build of the plugins); `ERA_GAME_DIR` — the ERA
+   folder (installation tests); `ERA_MODS_DIR`, `WOG_SCRIPTS_DIR` — the script corpora (see `README.md`).
 
-## Steps
+## The working loop
 
-1. Unpack the archive (or clone: `git clone -b claude/wog-olden-era-port
-   https://github.com/blackhellvelz-prog/ERA-Transcendence`). The archive contains the repository with its git
-   history, so commits and `git push` work as usual.
-2. Open the repository folder in Claude Code: in the app, "Open folder"; in a terminal, `cd ERA-Transcendence`
-   and `claude`. Claude will read `CLAUDE.md` and pick up the `mod-any-game` skill from `.claude/skills`.
-3. Send the first message (you can copy it as is):
+1. Code + a headless test (`tests/WoG.Tests`) against the primary source (Era's Delphi, WoG's C++, the ERM help).
+2. `dotnet build WoGOldenEra.sln` (no warnings), `dotnet test tests/WoG.Tests`, the ERA corpus
+   (`WoG.ErmTool run --era …` with the mods highest priority first — the summary line must say `0 ERM errors`).
+3. With the game **closed**: `powershell -ExecutionPolicy Bypass -File tools/deploy/deploy.ps1 -DebugMode`.
+4. Launch the game (`steam://rungameid/3105440`), load a save or start a map, check the feature:
+   * the **WoG Debug window**: F8 or the round "WoG" button in the top bar; every feature has a tile there with its
+     ERM code — add a tile in `src/WoG.OldenEra.DebugUI/FeatureCatalog.cs` for each new feature;
+   * the **command bridge** (WoG Debug on): write a command into a new file in
+     `BepInEx/config/WoG/debug/in/<name>.txt`; the answer appears in `BepInEx/config/WoG/debug/out/<name>.txt`.
+     Commands: `erm <ERM code>`, `hero`, `town`, `objects`, `state`, `vars`, `peek`/`invoke`/`set` (reflection),
+     `battleevents`, `subskills`, `symbols`, `ui canvases|tree|sprites|fonts|keys`, `help`;
+   * the log: `BepInEx/LogOutput.log` (`WoG …`, `[ERM] …`).
+5. Record the finding in `MODLOG.md` and `MODLOG.ru.md`, update the matrix (and `Declare(...)` → regenerate the
+   compatibility tables), commit.
 
-> We are continuing the port of ERA to Olden Era. Read CLAUDE.md, HANDOFF.md and MODLOG.md. Then:
-> 1) run `tools\fetch-references\fetch-references.ps1` and check `dotnet test` (including the ERA and WoG script corpora);
-> 2) run `tools\oe-recon\collect.ps1` and analyze the output: game version, Unity, BepInEx, Core.zip data,
->    saves; record the facts in OldenEra_ReverseEngineering with a verification tag;
-> 3) propose a plan for installing BepInEx 6 IL2CPP be.785 (with backups) and ask me before installing it;
-> 4) after that — OldenEra_ReverseEngineering/07_InGame_RE_Plan.md: find the game symbols, fill in
->    wog_symbols.json, hook up the ERA mods in the plugin (WoGHost.AddEraMods) and verify the first vertical slice
->    in the game (for example, an ERA script on OnEveryDay that changes the player's resources).
-> Write documentation in English with a synchronized Russian copy (*.ru.md).
+In the game: never press F9 (the game's quick load); the game's own hotkeys are switched off while you type in the
+WoG Debug window. The user may be playing — check before closing the game or clicking into it.
 
-## What comes next in the plan (in brief)
+## What comes next
 
-1. Recon of the Olden Era installation (`collect.ps1`) → facts with verification tags.
-2. BepInEx 6 IL2CPP + `BepInEx/interop` → `probe-symbols` → `wog_symbols.json` (heroes, players, turn, objects,
-   battle, saves) → mark the verified symbols as `verified`.
-3. Plugin: hook up the ERA mods (the user's ERA mods folder or `BepInEx/config/WoG/mods`), ERA events
-   from Olden Era hooks, saving next to the saved game.
-4. Receivers that the ERA corpus needs: `UN` (map), `BM/BU/BG/BA` (battle), `CA`, `PO`, `OB`, `DL`.
-5. Commanders and stack experience in battle (buffs, the commander unit), the WoG Options UI.
+1. **Pool heroes in the game.** 97 Olden Era heroes have an H3 number; 59 H3 numbers have none (19..68, 80, 82, 88,
+   98, 107, 121, 122, 131, 140). The headless engine already treats them as H3 pool heroes (owner -1, not on the
+   map); the Olden Era adapter needs the same, or WoG Scripts' per-hero loops fail there.
+2. **What the full WoG exercises now** (the unsupported list of the corpus run): `SS:F/L/S` (ERA's secondary skills
+   plugin, ×490), `UN:C` (H3 memory, ×1498 — map the addresses scripts actually use), `SN:H` hints (×124), `HT`,
+   `UN:I` (placing objects), `OW:I`, `UN:B`, `SN:F^Erm_FillInt32Array^`, `SN:M`, `UN:J1`, `IF:D/E/F/G` dialogs,
+   `IF:M`/`IF:Q` messages (they need the ERM call to wait for the player's answer).
+3. **The WoG Options window** in the game's style: the dialog items are already loaded (`WoGHost.OptionSetup`, pages
+   × groups × items from ZSETUP01.TXT and the .ers files), the values are applied at a new map.
+4. **Commanders and stack experience in battle** (buffs, the commander as a unit), the battle receivers `BU`, `BF`,
+   `BH`, `BM`, `MR`.
+5. To see how an ERA feature behaves, the user's ERA may be launched and watched (read-only).
 
 ## Important
 
-* Single-player only. Before changing the game folder, make a copy of the saves and `Core.zip`.
-* Do not commit game files (Olden Era, ERA, WoG, H3) to the repository — it is public.
-* The reference sources (Era, WoG, ERA Project, universal-modder) are downloaded by the
-  `tools/fetch-references` script into `..\research` — they are not included in the archive.
+* Single-player only. No anti-cheat bypassing.
+* Do not commit game files (Olden Era, ERA, WoG, H3) or data derived from them — the repository is public.
+* The reference sources (Era, WoG, ERA Project, universal-modder) are downloaded by `tools/fetch-references` into
+  `..\research`.

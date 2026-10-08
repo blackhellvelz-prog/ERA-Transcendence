@@ -66,9 +66,14 @@ switch (args[0])
             game.AbsoluteDay = day;
             host.Erm.RunTimers(0, day);
         }
+        int errors = host.Erm.Diagnostics.Count(d => d.Severity == ErmSeverity.Error);
+        int options = host.State.Options.Values.Count(v => v != 0);
+        Console.WriteLine();
+        Console.WriteLine($"{(dialect == ErmDialect.Era ? host.EraScripts.Count + " scripts, " : "")}{errors} ERM errors, " +
+                          $"{options} WoG options on ({(host.State.Wogified ? "WoGified" : "not WoGified")})");
         Console.WriteLine();
         Console.WriteLine(host.Compat.ToMarkdown());
-        return 0;
+        return errors == 0 ? 0 : 2;
     }
     case "compat":
     {

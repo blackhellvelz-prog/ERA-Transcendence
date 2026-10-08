@@ -22,7 +22,7 @@ Magic: Olden Era** (Unity IL2CPP, BepInEx 6). Полное задание пол
   и их `.ru.md`) — из `WoG.ErmTool compat [--era] [--lang ru]`.
 * Сначала функциональность, потом графика. Не подделывать геймплей: чего нет — честно `Unsupported` в отчёте
   совместимости, ничего не «делать вид».
-* Не предполагать возможности Olden Era — проверять (метки `[V-code] [V-data] [V-community] [UNVERIFIED]`).
+* Не предполагать возможности Olden Era — проверять (метки `[V-code] [V-data] [V-community] [V-game] [UNVERIFIED]`).
   Не предполагать поведение ERA/WoG — читать исходники (`ethernidee/era`, `GrayFace/wog`) и проверять на
   корпусе скриптов.
 * Ассеты: переиспользовать ассеты Olden Era, перекрашивать раньше, чем моделировать; заглушки разрешены;
@@ -31,20 +31,27 @@ Magic: Olden Era** (Unity IL2CPP, BepInEx 6). Полное задание пол
   **не коммитить** и не распространять — порт читает их из установки пользователя.
 * Перед изменениями в папке игры: резервная копия сейвов и `HeroesOldenEra_Data/StreamingAssets/Core.zip`.
   Перед установкой загрузчика (BepInEx) или изменением настроек игры — **спросить пользователя**.
+* Установка ERA пользователя — корпус только для чтения: ничего в неё не писать. Запускать её, чтобы посмотреть,
+  как работает функция, можно (разрешение пользователя, 2026-10-08).
+* В запущенной игре: никогда не нажимать F9 (быстрая загрузка игры); не закрывать игру и не кликать в неё, пока
+  пользователь может играть, — сначала проверить; ставить плагин только при закрытой игре.
 * Каждое заметное открытие и неудача — в `MODLOG.ru.md` (что, почему, как проверено, как откатить).
 
 ## Код
 
 | Где | Что |
 |-----|-----|
-| `src/WoG.Core` | состояние (`WoGGameState`, `EraState`), модель, опции, события, сохранение, IdMap, интерфейсы адаптера |
+| `src/WoG.Core` | состояние (`WoGGameState`, `EraState`), модель, опции и пункты окна WoG Options (`WoGOptionSetup`), события, сохранение, IdMap, картинки H3 (`H3Data/`), интерфейсы адаптера |
 | `src/WoG.Erm` | ERM: `Syntax/` парсер (WoG и `ErmParserEra.cs`), `Era/` препроцессор ERM 2.0, события, порядок загрузки; `Runtime/` интерпретатор (`EraProcess.cs`, `EraValues.cs` — режим ERA); `Receivers/` ресиверы (`EraReceivers.cs`, `EraApi.cs`) |
 | `src/WoG.Commanders`, `src/WoG.CreatureExperience` | командиры и опыт стеков (порт `npc.cpp`, `crexpo.cpp`) |
-| `src/WoG.Host` | `WoGHost`: связывает всё; `AddEraMods` + `StartNewGame/SaveTo/LoadFrom` |
+| `src/WoG.Host` | `WoGHost`: связывает всё; `AddEraMods` + `StartNewGame/SaveTo/LoadFrom`; WoG'ификация (`Wogification.cs`), триггеры боя (`BattleActionTracker` в WoG.Core) |
 | `src/WoG.Headless` | эталонный движок в памяти для тестов |
-| `src/WoG.OldenEra` | плагин BepInEx 6 IL2CPP: символы игры из `wog_symbols.json`, адаптер, хуки Harmony |
+| `src/WoG.OldenEra` | плагин BepInEx 6 IL2CPP: символы игры из `wog_symbols.json`, адаптер, хуки Harmony, командный мост WoG Debug |
+| `src/WoG.OldenEra.DebugUI` | плагин интерфейса (uGUI из спрайтов и шрифтов самой игры): вопросы WoG как диалоги игры, окно WoG Debug (`FeatureCatalog.cs` — у каждой функции там своя плитка); собирается против Unity interop установленной игры, без него пустой |
 | `src/WoG.OldenEra.Data` | оверлей `Core.zip` (клоны юнитов, баффы, локализация) |
 | `tools/WoG.ErmTool` | `parse`, `run [--era]`, `compat [--era]`, `era-pp`, `probe-symbols` |
+| `tools/deploy/deploy.ps1` | собирает оба плагина и ставит их в игру (`-DebugMode` включает WoG Debug); игра должна быть закрыта |
+| `tools/docs/check-translations.py` | фрагменты кода и числа каждого `X.md` против его `X.ru.md` |
 | `tools/oe-recon/collect.ps1` | сбор данных об установке Olden Era (только чтение) |
 | `tools/fetch-references/` | скачать исходники для справки в `../research` |
 
@@ -60,14 +67,19 @@ dotnet test tests/WoG.Tests
 # корпуса (после tools/fetch-references):
 ERA_MODS_DIR=../research/era-eng/Mods dotnet test tests/WoG.Tests --filter EraCorpus
 WOG_SCRIPTS_DIR="../research/wogify/Mods/WoG Wogify Scripts 3.58f/Data/s" dotnet test tests/WoG.Tests --filter CorpusTests
-M=../research/era-eng/Mods
-dotnet run --project tools/WoG.ErmTool -- run --era "$M/Era Erm Framework" "$M/ERA Scripts" "$M/WoG Scripts" "$M/WoG"
+ERA_GAME_DIR="/path/to/ERA" dotnet test tests/WoG.Tests   # установка ERA пользователя: каждая картинка, значения WoG Options по умолчанию
+# ERA: моды от высшего приоритета (обратно Mods/list.txt); печатает "N scripts, E ERM errors, K WoG options on"
+M="/path/to/ERA/Mods"
+dotnet run --project tools/WoG.ErmTool -- run --era "$M/ERA Scripts" "$M/WoG Fix Lite" "$M/WoG Scripts Rus" "$M/WoG Scripts" "$M/WoG Rus" "$M/Era Erm Framework" "$M/WoG"
 dotnet run --project tools/WoG.ErmTool -- compat --era > Compatibility/ERM_Compatibility_ERA.md
 dotnet run --project tools/WoG.ErmTool -- compat --era --lang ru > Compatibility/ERM_Compatibility_ERA.ru.md
+python tools/docs/check-translations.py --verbose
 ```
 
-Перед коммитом: сборка без предупреждений, все тесты зелёные, корпус ERA без ошибок. Таблицы
-`Compatibility/ERM_Compatibility*.md` генерируются — правь `Declare(...)` в ресиверах, а не таблицы.
+Перед коммитом: сборка без предупреждений, все тесты зелёные, корпус ERA печатает `0 ERM errors` (смотреть
+итоговую строку; ошибки печатаются как `Error …`). Таблицы `Compatibility/ERM_Compatibility*.md` генерируются —
+правь `Declare(...)` в ресиверах, а не таблицы (каждой новой заметке нужен русский текст в
+`ReceiverRegistry.RussianNotes`).
 
 ## Git
 

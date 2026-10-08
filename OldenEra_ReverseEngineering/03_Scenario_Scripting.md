@@ -1,3 +1,5 @@
+**English** | [Русский](03_Scenario_Scripting.ru.md)
+
 # Olden Era — scenario scripting (map scripts)
 
 Source: O1 `src/schema/conditions.ts` / `actions.ts` (the registry was transcribed from the official Unfrozen Notion

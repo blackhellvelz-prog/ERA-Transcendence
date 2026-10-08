@@ -20,7 +20,7 @@ public class WogificationTests
     [InlineData(true, 0, 0, false, false, WogifyQuestion.None)]
     [InlineData(true, 1, 0, false, true, WogifyQuestion.None)]
     [InlineData(true, 2, 0, false, true, WogifyQuestion.None)]
-    [InlineData(true, 3, 0, false, true, WogifyQuestion.Map)]      // ERA would not ask: the port asks as WoG did
+    [InlineData(true, 3, 0, false, true, WogifyQuestion.None)]     // ERA asks only a map with its own scripts
     [InlineData(true, 3, 2, false, true, WogifyQuestion.MapScripts)]
     [InlineData(true, 2, 2, false, true, WogifyQuestion.None)]
     [InlineData(true, 0, 0, true, true, WogifyQuestion.None)]      // a fixed script set loads without asking
@@ -63,7 +63,7 @@ public class WogificationTests
     {
         using var t = Era();
         t.Host.WogifySetting = Wogification.Ask;
-        Assert.Equal(WogifyQuestion.Map, t.Host.PlanWogify().Question);
+        Assert.Equal(WogifyQuestion.None, t.Host.PlanWogify().Question); // an Olden Era map has no scripts of its own
         t.Host.StartNewGame(true);
         Assert.Equal((1, 1, 1), (t.V(1), t.V(2), t.V(3)));
         Assert.Equal(2, t.Host.State.Options.Get(WoGOptionIds.ApplyWoG));

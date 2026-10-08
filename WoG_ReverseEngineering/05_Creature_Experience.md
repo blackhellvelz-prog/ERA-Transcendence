@@ -1,3 +1,5 @@
+**English** | [Русский](05_Creature_Experience.ru.md)
+
 # Stack (Creature) Experience — Reverse-Engineered Model
 
 Sources: `T1/crexpo.h`, `T1/crexpo.cpp` (`CrExpo`, `CrExpoSet`, `CrExpMod`, `CrExpBon`), `ERM_StackExperience`
