@@ -405,6 +405,16 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
     public AdapterResult<int> GetObjectOwner(MapPos pos) =>
         Objects.TryGetValue(pos.Pack(), out var o) ? AdapterResult<int>.Ok(o.Owner) : AdapterResult<int>.Failed("no object");
 
+    public AdapterResult<WoGStack> GetObjectGuard(MapPos pos, int slot) =>
+        Objects.TryGetValue(pos.Pack(), out var o) ? AdapterResult<WoGStack>.Ok(o.Guards[slot].Clone()) : AdapterResult<WoGStack>.Failed("no object");
+
+    public AdapterResult SetObjectGuard(MapPos pos, int slot, int type, int count)
+    {
+        if (!Objects.TryGetValue(pos.Pack(), out var o)) return AdapterResult.Failed("no object");
+        o.Guards[slot] = new WoGStack { Type = type, Count = count };
+        return AdapterResult.Ok;
+    }
+
     public AdapterResult SetObjectOwner(MapPos pos, int owner)
     {
         if (!Objects.TryGetValue(pos.Pack(), out var o)) return AdapterResult.Failed("no object");

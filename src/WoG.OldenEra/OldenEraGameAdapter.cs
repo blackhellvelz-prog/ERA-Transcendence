@@ -1489,7 +1489,50 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         return o.Status == AdapterStatus.Ok ? AdapterResult<int>.Ok(o.Value.Owner) : o.Error<int>();
     }
 
-    public AdapterResult SetObjectOwner(MapPos pos, int owner) => Missing("object.setOwner");
+    /// <summary>The map object whose ERM position is <paramref name="pos"/> and its Olden Era map object id.</summary>
+    AdapterResult<int> MapIdAt(MapPos pos)
+    {
+        var snap = Snapshot();
+        if (!snap.IsOk) return snap.Error<int>();
+        foreach (var (id, o) in snap.Value.ById)
+            if (o.Position == pos) return AdapterResult<int>.Ok(id);
+        return AdapterResult<int>.Failed("no object");
+    }
+
+    object? SessionObject(int mapId) =>
+        OldenEraSymbols.Items(sym.Read("object.list", Root())).FirstOrDefault(o => o != null && Convert.ToInt32(sym.Read("object.mapId", o)) == mapId);
+
+    // The game's change of owner of a map object (fnt.bmiq(side id), -1 neutral) [V-game on a city].
+    public AdapterResult SetObjectOwner(MapPos pos, int owner)
+    {
+        if (!sym.Has("world.objectLogics") || !sym.Has("object.setOwner")) return Missing("object.setOwner");
+        var id = MapIdAt(pos);
+        if (!id.IsOk) return id.AsPlain();
+        int side = -1;
+        if (owner >= 0)
+        {
+            if (!sym.Has("player.id") || FindPlayer(owner) is not { } p) return AdapterResult.Failed($"player {owner} is not in the game");
+            side = Convert.ToInt32(sym.Read("player.id", p));
+        }
+        var all = sym.Read("world.objectLogics", null);
+        if (all == null || !Convert.ToBoolean(OldenEraSymbols.Call(all, "ContainsKey", id.Value))) return AdapterResult.Failed("the object has no map logic");
+        OldenEraSymbols.Call(MethodTrace.Real(OldenEraSymbols.Call(all, "get_Item", id.Value)!), sym.MemberOf("object.setOwner")!.Name, side);
+        return AdapterResult.Ok;
+    }
+
+    // An object's own guards are its session object's party (DataObject.garnisonParty) [V-game: empty for the mines of
+    // the test map; Olden Era guards mines with squads on the map]. Setting them is not mapped.
+    public AdapterResult<WoGStack> GetObjectGuard(MapPos pos, int slot)
+    {
+        if (!sym.Has("object.list") || !sym.Has("object.mapId") || !sym.Has("town.garrison") || !StackKeys.All(sym.Has)) return Missing<WoGStack>("town.garrison");
+        var id = MapIdAt(pos);
+        if (!id.IsOk) return id.Error<WoGStack>();
+        if (SessionObject(id.Value) is not { } o) return AdapterResult<WoGStack>.Ok(new WoGStack());
+        return slot >= WoGLimits.ArmySlots ? AdapterResult<WoGStack>.Ok(new WoGStack()) : ReadStack(sym.Read("town.garrison", MethodTrace.Real(o)), slot);
+    }
+
+    public AdapterResult SetObjectGuard(MapPos pos, int slot, int type, int count) =>
+        AdapterResult.Unsupported("the guards of a map object are not mapped: Olden Era guards mines with squads on the map");
 
     // ---- towns ------------------------------------------------------------------------------
     // Olden Era's cities are session objects (Data.objects: ObjCity) with their buildings (BuildingsData: one

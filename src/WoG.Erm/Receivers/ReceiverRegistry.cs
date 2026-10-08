@@ -75,6 +75,7 @@ public sealed class ReceiverRegistry
         reg.Register(new TrReceiver());
         reg.Register(new PoReceiver());
         reg.Register(new CaReceiver());
+        reg.Register(new MnReceiver());
         reg.Register(new BaReceiver());
         reg.Register(new TmReceiver());
         reg.Register(new HeReceiver());
@@ -111,6 +112,7 @@ public sealed class ReceiverRegistry
         reg.Register(new TrReceiver());
         reg.Register(new PoReceiver());
         reg.Register(new CaReceiver());
+        reg.Register(new MnReceiver());
         reg.Register(new BaReceiver());
         reg.Register(new TmReceiver());
         reg.Register(new HeReceiver());
@@ -213,6 +215,14 @@ public sealed class ReceiverRegistry
             "OW:N — города игрока по слотам списка; выбранный город и перестановка списка не отображены",
         ["OW:D/K/S — days without a town, keymaster tents and adventure-map spells have no Olden Era equivalent mapped"] =
             "OW:D/K/S — дни без города, палатки ключника и заклинания на карте приключений не имеют сопоставленного аналога в Olden Era",
+        ["MN:O — the owner of a mine; setting it is the game's change of owner (flag, income)"] =
+            "MN:O — владелец шахты; установка — родная смена владельца игрой (флаг, доход)",
+        ["MN:R — the resource a mine produces (id-maps/object.json); it cannot be changed"] =
+            "MN:R — ресурс, который даёт шахта (id-maps/object.json); изменить нельзя",
+        ["MN:M — the guards a mine keeps itself; an Olden Era mine has none (it is guarded by squads on the map), so they read as empty and cannot be set"] =
+            "MN:M — собственная охрана шахты; у шахты Olden Era её нет (её охраняют отряды на карте), поэтому читается пустой и задать её нельзя",
+        ["MN:R — changing what a mine produces: an Olden Era mine is its own object type"] =
+            "MN:R — смена ресурса шахты: шахта Olden Era — отдельный тип объекта",
         ["PO — WoG data of a map square, kept in the WoG state and saved with it"] =
             "PO — данные WoG для клетки карты, хранятся в состоянии WoG и сохраняются вместе с ним",
         ["CA:B — buildings by H3 number: dwellings, mage guild, fort/citadel/castle, village/town/city hall, tavern, marketplace, resource silo and grail are Olden Era's buildings (a higher level counts its lower ones as built); the other numbers read as not built and cannot be built; B1/B6 build through the game's construction, free and without using the day's one; B4/B5 allow or forbid; B3…/1 (bonus taken) reads as built; B2 is not possible: Olden Era has no demolition"] =

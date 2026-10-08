@@ -210,3 +210,62 @@ public sealed class PoReceiver : ErmReceiverBase
         else squares[key] = sq;
     }
 }
+
+/// <summary>!!MN — a mine or a lighthouse (erm.cpp ERM_Mine).</summary>
+public sealed class MnReceiver : ErmReceiverBase
+{
+    const string Resource = "MN:R — changing what a mine produces: an Olden Era mine is its own object type";
+
+    public MnReceiver() : base("MN")
+    {
+        Declare("O", CompatLevel.PartiallySupported, "MN:O — the owner of a mine; setting it is the game's change of owner (flag, income)");
+        Declare("R", CompatLevel.PartiallySupported, "MN:R — the resource a mine produces (id-maps/object.json); it cannot be changed");
+        Declare("M", CompatLevel.PartiallySupported, "MN:M — the guards a mine keeps itself; an Olden Era mine has none (it is guarded by squads on the map), so they read as empty and cannot be set");
+    }
+
+    protected override void Run(ErmCall c)
+    {
+        var pos = MapSelector.Resolve(c);
+        var game = c.Rt.Services.Game;
+        var obj = game.Map.GetObjectAt(pos);
+        if (obj.Status == Core.Adapters.AdapterStatus.Unsupported) c.Need(obj);
+        if (!obj.IsOk || obj.Value.type is not (53 or 42)) throw new ErmRuntimeException("\"!!MN:\"-not a mine.");
+        switch (c.Letter)
+        {
+            case 'O': // O$ owner (-2 = the current player), O$/1 without redrawing
+            {
+                int cur = c.Need(game.Map.GetObjectOwner(pos)), owner = cur;
+                if (!c.IsGetOrCheck(0))
+                {
+                    // ERM_Mine puts the resolved owner into the parameter before Apply
+                    if (c.N(0) == -2) owner = game.Players.CurrentPlayer;
+                    else if (c.N(0) < -1 || c.N(0) > 7) throw new ErmRuntimeException("\"!!MN:O\"-Owner out of range (-1...7).");
+                    else c.Apply(ref owner, 0);
+                }
+                else c.Apply(ref owner, 0);
+                if (owner != cur) c.Need(game.Map.SetObjectOwner(pos, owner));
+                break;
+            }
+            case 'R': // R$ resource (0..6, 100)
+            {
+                if (!c.IsGetOrCheck(0) && (c.N(0) < 0 || c.N(0) > 6) && c.N(0) != 100)
+                    throw new ErmRuntimeException("\"!!MN:R\"-Resource type out of range (0...6,100).");
+                MapSelector.ReadOnly(c, obj.Value.subtype, 0, Resource);
+                break;
+            }
+            case 'M': // M#/$type/$count guards
+            {
+                c.RequireMin(3);
+                int slot = c.N(0);
+                if (slot < 0 || slot > 7) throw new ErmRuntimeException("\"!!MN:M\"-wrong slot number (0...7).");
+                var st = c.Need(game.Map.GetObjectGuard(pos, slot));
+                int type = st.Type, count = st.Count;
+                bool get = c.Apply(ref type, 1) & c.Apply(ref count, 2);
+                if (!get && (type != st.Type || count != st.Count)) c.Need(game.Map.SetObjectGuard(pos, slot, type, count));
+                break;
+            }
+            default:
+                throw new ErmRuntimeException("wrong command");
+        }
+    }
+}

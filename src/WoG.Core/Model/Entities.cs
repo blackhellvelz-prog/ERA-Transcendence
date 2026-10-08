@@ -246,6 +246,8 @@ public sealed class WoGMapObject
     /// <summary>Native behaviour disabled for some players (OB:S/R).</summary>
     public int DisabledMask { get; set; }
     public Dictionary<string, int> Data { get; set; } = new();
+    /// <summary>The guards it keeps itself (H3 _Mine_ GType/GNumb: 8 entries).</summary>
+    public WoGStack[] Guards { get; set; } = { new(), new(), new(), new(), new(), new(), new(), new() };
 }
 
 /// <summary>A creature stack in battle (42 per battle in H3: 21 per side).</summary>

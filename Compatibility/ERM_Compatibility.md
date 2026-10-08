@@ -66,7 +66,7 @@ engine (`WoG.ErmTool run`) currently runs into: `HT:P/W`, `OW:T`, `UN:A/B/R/V/X`
 | `MF` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `ML` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `MM` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
-| `MN` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
+| `MN` | yes | `M` PARTIALLY SUPPORTED (MN:M — the guards a mine keeps itself; an Olden Era mine has none (it is guarded by squads on the map), so they read as empty and cannot be set); `O` PARTIALLY SUPPORTED (MN:O — the owner of a mine; setting it is the game's change of owner (flag, income)); `R` PARTIALLY SUPPORTED (MN:R — the resource a mine produces (id-maps/object.json); it cannot be changed) |
 | `MO` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `MP` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `MR` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |

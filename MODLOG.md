@@ -627,3 +627,15 @@ through the bridge `[V-game: peek]`, the commands themselves were **not run in g
   `[V-game]`; `OW:R` has been writing the amount directly (its fallback) all along. The matrix said the game's own
   add/spend is used — corrected.
 * 212 xUnit tests (`OwReceiverTests`).
+
+## 2026-10-08 — session 2, continued: mines (MN)
+
+* **`MN`** (erm.cpp `ERM_Mine`: a mine 53 or a lighthouse 42 at x/y/l or a v index). `O` the owner (-2 = the current
+  player, -1..7); setting it is the game's change of owner `fnt.bmiq(side)` on the object's map logic (the same call
+  that gave a city to the player; now also `IMapAdapter.SetObjectOwner`). `R` the resource (the subtype of
+  `id-maps/object.json`: mine_gold → 6); changing it is unsupported. `M` the guards a mine keeps itself (H3 slots
+  0..7): an Olden Era mine is `ObjResMine` with an empty `garnisonParty` `[V-game: peek, 8 gold mines of the test
+  map]` — it is guarded by squads on the map — so the guards read as empty and setting them is unsupported. Not run in
+  game yet (the game was in use).
+* WoG Debug: buttons for the mines (the first mine through `UN:U` into v10..v12, its owner/resource/guards, capturing it).
+* 218 xUnit tests (`MnReceiverTests`).

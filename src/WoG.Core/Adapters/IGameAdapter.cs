@@ -137,7 +137,11 @@ public interface IMapAdapter
     AdapterResult SetDifficulty(int level);
     AdapterResult<(int type, int subtype)> GetObjectAt(MapPos pos);
     AdapterResult<int> GetObjectOwner(MapPos pos);
+    /// <summary>The game's change of owner of the object at a square (-1 neutral).</summary>
     AdapterResult SetObjectOwner(MapPos pos, int owner);
+    /// <summary>The guards an object keeps itself (a mine's, MN:M), slots 0..7.</summary>
+    AdapterResult<WoGStack> GetObjectGuard(MapPos pos, int slot);
+    AdapterResult SetObjectGuard(MapPos pos, int slot, int type, int count);
 }
 
 /// <summary>
