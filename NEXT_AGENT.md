@@ -22,7 +22,7 @@ run the tests and the ERA corpus, then start with the backlog in NEXT_AGENT.md s
 
 ## 2. State at handoff (2026-10-08)
 
-* 39 commits on `claude/wog-olden-era-port`; the build has 0 warnings; **279 xUnit tests** green.
+* Branch `claude/wog-olden-era-port` (see `git log`); the build has 0 warnings; **279 xUnit tests** green.
 * ERA corpus (the user's ERA 2.291, core mods in Era's order): **183 scripts, 0 ERM errors, 96 WoG options on
   (WoGified)**. The remaining *unsupported* calls are listed in section 6.
 * Runs in the real game since 2026-10-07: Olden Era 0.81.04 (Unity 6000.0.66f1, IL2CPP), BepInEx 6 IL2CPP be.785.
@@ -33,10 +33,11 @@ run the tests and the ERA corpus, then start with the backlog in NEXT_AGENT.md s
   hero, towns (CA: buildings, construction, owner, name, dwellings, garrison, income), players (OW incl. absent
   players 0..7), mines (MN), creature types (MA on `UnitLogicConfig`), battles (BA, BM on battle units, `!?BR`,
   `!?BG0/1` for walk/attack/shot/wait/defend/hero spell, `!?MF1`), WoGification (ERA rules) with the installation's
-  WoG Options defaults, WoG's mithril, Era Erm Framework's artifact functions, Olden Era's experience table, the WoG
-  Debug window (F8) and the command bridge.
+  WoG Options defaults, WoG's mithril, Era Erm Framework's artifact functions, Olden Era's experience table, the H3
+  spell table (SS read: sptraits.txt + h3era.exe), the WoG Debug window (F8) and the command bridge.
 * Headless only (not yet in the game): most of ERM/ERA semantics (all corpus scripts run on the reference engine),
-  commanders and stack experience as state/formulas (not in Olden Era battles yet), SS (spells: read, changes kept).
+  commanders and stack experience as state/formulas (not in Olden Era battles yet), SS changes (kept, not applied to
+  Olden Era's spells).
 
 ## 3. Projects (do not duplicate any of them)
 
