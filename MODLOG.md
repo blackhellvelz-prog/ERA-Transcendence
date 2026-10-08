@@ -639,3 +639,12 @@ through the bridge `[V-game: peek]`, the commands themselves were **not run in g
   game yet (the game was in use).
 * WoG Debug: buttons for the mines (the first mine through `UN:U` into v10..v12, its owner/resource/guards, capturing it).
 * 218 xUnit tests (`MnReceiverTests`).
+
+## 2026-10-08 — the port's name: ERA:Transcendence
+
+* The user named the port **ERA:Transcendence** (its working name, to be used everywhere). The GitHub repository was
+  renamed from `ModsClaudeVelz` to `ERA-Transcendence` (GitHub allows only letters, digits, `-`, `_` and `.` in a
+  repository name; GitHub redirects the old address). The README, CLAUDE and HANDOFF documents and the BepInEx plugin
+  name (`ERA:Transcendence`, shown in the BepInEx log) use it; the plugin GUID (`wog.oldenera`) and its config file
+  stay, so existing installations and settings keep working. Code namespaces keep `WoG.*`: they name the WoG/ERA
+  layers being ported.

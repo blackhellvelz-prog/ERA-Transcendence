@@ -28,7 +28,7 @@ namespace WoG.OldenEra;
 ///  5. with [Debug] Enabled, runs the WoG Debug command bridge and method tracing.
 /// Every unverified piece stays off and is reported in BepInEx/LogOutput.log.
 /// </summary>
-[BepInPlugin(Guid, "In the Wake of Gods for Olden Era", Version)]
+[BepInPlugin(Guid, "ERA:Transcendence", Version)]
 public sealed class WoGPlugin : BasePlugin
 {
     public const string Guid = "wog.oldenera";

@@ -28,9 +28,9 @@ and can verify everything directly in the game.
 ## Steps
 
 1. Unpack the archive (or clone: `git clone -b claude/wog-olden-era-port
-   https://github.com/blackhellvelz-prog/ModsClaudeVelz`). The archive contains the repository with its git
+   https://github.com/blackhellvelz-prog/ERA-Transcendence`). The archive contains the repository with its git
    history, so commits and `git push` work as usual.
-2. Open the repository folder in Claude Code: in the app, "Open folder"; in a terminal, `cd ModsClaudeVelz`
+2. Open the repository folder in Claude Code: in the app, "Open folder"; in a terminal, `cd ERA-Transcendence`
    and `claude`. Claude will read `CLAUDE.md` and pick up the `mod-any-game` skill from `.claude/skills`.
 3. Send the first message (you can copy it as is):
 

@@ -28,9 +28,9 @@
 ## Шаги
 
 1. Распакуйте архив (или клонируйте: `git clone -b claude/wog-olden-era-port
-   https://github.com/blackhellvelz-prog/ModsClaudeVelz`). В архиве — репозиторий с историей git, так что
+   https://github.com/blackhellvelz-prog/ERA-Transcendence`). В архиве — репозиторий с историей git, так что
    коммиты и `git push` работают как обычно.
-2. Откройте папку репозитория в Claude Code: в приложении — «Open folder», в терминале — `cd ModsClaudeVelz`
+2. Откройте папку репозитория в Claude Code: в приложении — «Open folder», в терминале — `cd ERA-Transcendence`
    и `claude`. Claude прочитает `CLAUDE.md` и подхватит скилл `mod-any-game` из `.claude/skills`.
 3. Отправьте первое сообщение (можно скопировать как есть):
 

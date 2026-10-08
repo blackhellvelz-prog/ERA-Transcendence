@@ -1,6 +1,8 @@
 [English](README.md) | **Русский**
 
-# Heroes of Might and Magic: Olden Era — HoMM3 ERA (In the Wake of Gods)
+# ERA:Transcendence
+
+**ERA:Transcendence** — рабочее имя этого переноса: HoMM3 ERA для Heroes of Might and Magic: Olden Era.
 
 Порт **HoMM3 ERA** — развитой сборки *In the Wake of Gods* (WoG 3.58f + движок Era 3.9.31 + ERM 2.0 + скрипты
 ERA Project) — на **Heroes of Might and Magic: Olden Era**. Цель — не «мод по мотивам», а воспроизведение

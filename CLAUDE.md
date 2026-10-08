@@ -2,6 +2,9 @@
 
 ## Project
 
+**ERA:Transcendence** — the working name of the port (use it everywhere: documents, the plugin, the repository; the
+repository is `ERA-Transcendence` because GitHub does not allow ':' in names).
+
 A port of **HoMM3 ERA** (WoG 3.58f + Era 3.9.31 engine + ERM 2.0 + ERA Project scripts) to **Heroes of Might and
 Magic: Olden Era** (Unity IL2CPP, BepInEx 6). The user's full assignment and all decisions are in `MODLOG.md`,
 the current state and plan are in `HANDOFF.md`, and the overview is in `README.md`. Read these three files at the
@@ -69,5 +72,5 @@ Before committing: the build has no warnings, all tests are green, the ERA corpu
 
 ## Git
 
-Working branch: `claude/wog-olden-era-port` (`origin` = `github.com/blackhellvelz-prog/ModsClaudeVelz`).
+Working branch: `claude/wog-olden-era-port` (`origin` = `github.com/blackhellvelz-prog/ERA-Transcendence`).
 Do not create a PR until the user asks for one.

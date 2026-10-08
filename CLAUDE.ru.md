@@ -4,6 +4,9 @@
 
 ## Проект
 
+**ERA:Transcendence** — рабочее имя переноса (использовать везде: документы, плагин, репозиторий; репозиторий —
+`ERA-Transcendence`, потому что GitHub не допускает ':' в именах).
+
 Порт **HoMM3 ERA** (WoG 3.58f + движок Era 3.9.31 + ERM 2.0 + скрипты ERA Project) на **Heroes of Might and
 Magic: Olden Era** (Unity IL2CPP, BepInEx 6). Полное задание пользователя и все решения — в `MODLOG.ru.md`,
 текущее состояние и план — в `HANDOFF.ru.md`, обзор — в `README.ru.md`. Прочитай эти три файла в начале работы.
@@ -68,5 +71,5 @@ dotnet run --project tools/WoG.ErmTool -- compat --era --lang ru > Compatibility
 
 ## Git
 
-Рабочая ветка: `claude/wog-olden-era-port` (`origin` = `github.com/blackhellvelz-prog/ModsClaudeVelz`).
+Рабочая ветка: `claude/wog-olden-era-port` (`origin` = `github.com/blackhellvelz-prog/ERA-Transcendence`).
 PR не создавать, пока пользователь не попросит.

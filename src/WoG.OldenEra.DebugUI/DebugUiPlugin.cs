@@ -7,7 +7,7 @@ namespace WoG.OldenEra.DebugUI;
 /// The WoG Debug window in the running game. It exists only with WoG Debug on ([Debug] Enabled), next to the
 /// command bridge, and runs the same commands.
 /// </summary>
-[BepInPlugin(Guid, "WoG Debug window", WoGPlugin.Version)]
+[BepInPlugin(Guid, "ERA:Transcendence — WoG Debug window", WoGPlugin.Version)]
 [BepInDependency(WoGPlugin.Guid)]
 public sealed class DebugUiPlugin : BasePlugin
 {

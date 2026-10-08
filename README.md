@@ -1,4 +1,6 @@
-# Heroes of Might and Magic: Olden Era — HoMM3 ERA (In the Wake of Gods)
+# ERA:Transcendence
+
+**ERA:Transcendence** is the working name of this port: HoMM3 ERA for Heroes of Might and Magic: Olden Era.
 
 A port of **HoMM3 ERA** — the advanced build of *In the Wake of Gods* (WoG 3.58f + the Era 3.9.31 engine + ERM 2.0 +
 ERA Project scripts) — to **Heroes of Might and Magic: Olden Era**. The goal is not a "mod inspired by" ERA, but a
