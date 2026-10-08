@@ -1147,6 +1147,76 @@
       "Member": "heroesHirePool.heroes",
       "Status": "verified",
       "Note": "0.81.04: SideHeroesHirePool.heroes: int[2] of Olden Era hero ids (118, 70 for the human player on day 2) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "battle.logic": {
+      "Assembly": "Hex",
+      "Type": "elb",
+      "Member": "ckia.ckic",
+      "Status": "verified",
+      "Note": "0.81.04: elb.ckia: the battle controller instance (static), .ckic: eor, the battle logic (null outside battles) | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+    },
+    "battle.objects": {
+      "Assembly": "Hex",
+      "Type": "eor",
+      "Member": "clgt.ckzg",
+      "Status": "verified",
+      "Note": "0.81.04: enj.ckzg: List<FieldObject>, the 6 units in placement order (attacker slots 0,1,2, defender 0,1,2); eor.clhe.cmgo is the turn queue | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+    },
+    "battle.current": {
+      "Assembly": "Hex",
+      "Type": "eor",
+      "Member": "clhe.current",
+      "Status": "verified",
+      "Note": "0.81.04: eup.current: the unit whose turn it is | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+    },
+    "bunit.class": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Battle.Unit",
+      "Member": "",
+      "Status": "verified",
+      "Note": "0.81.04: Unit : eng : FieldObject | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+    },
+    "bunit.sid": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Battle.FieldObject",
+      "Member": "ckyo",
+      "Status": "verified",
+      "Note": "0.81.04: griffin, esquire_upg… | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+    },
+    "bunit.side": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Battle.FieldObject",
+      "Member": "ckys.clxl",
+      "Status": "verified",
+      "Note": "0.81.04: esw.clxl: 0 attacker, 1 defender (esw.clxo: TransferSide) | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+    },
+    "bunit.data": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Battle.Unit",
+      "Member": "cmwp",
+      "Status": "verified",
+      "Note": "0.81.04: UnitData: ctxq count, fullStacks, cnbx top creature's hit points, ctxt total hit points | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+    },
+    "bunit.army": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Battle.Unit",
+      "Member": "cmwm",
+      "Status": "verified",
+      "Note": "0.81.04: TransferUnit: configSid, stacks (count at the start), slotPos | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+    },
+    "bunit.stats": {
+      "Assembly": "Hex",
+      "Type": "eng",
+      "Member": "stats",
+      "Status": "verified",
+      "Note": "0.81.04: UnitStat totals (griffin: offence 9, defence 9, hp 30, speed 5, damage 5-9), recalculated by the game | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+    },
+    "bunit.mods": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Battle.Unit",
+      "Member": "cmws",
+      "Status": "verified",
+      "Note": "0.81.04: UnitStat battle modifier, all 0 at the start; offence +11 made the total 20 after the next recalculation | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
     }
   }
 }

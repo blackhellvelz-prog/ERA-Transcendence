@@ -155,6 +155,12 @@ public sealed class OldenEraSymbols
         "event.saveOk", "event.savePath", // MapSaved argument → saved / save path (relative to the user folder)
         "session.startInfo",         // static path to how the session started (StartInfo)
         "startInfo.load", "startInfo.hash", // StartInfo → ELoad (1 = LoadSave) / checksum of the loaded save
+        "battle.logic",              // static path to the logic of the battle being fought
+        "battle.objects", "battle.current", // battle logic → its field objects (units, obstacles) / the unit whose turn it is
+        "bunit.class",               // the type of a battle unit
+        "bunit.sid", "bunit.side",   // battle unit → unit sid / side (0 attacker, 1 defender)
+        "bunit.data", "bunit.army",  // battle unit → its battle data (count, top hit points) / the army stack it came from
+        "bunit.stats", "bunit.mods", // battle unit → its total stats / its battle modifier
         "squad.list",                // root → wandering monster squads
         "squad.node", "squad.units", "squad.released", // squad → node / unit stacks / defeated
         "squadunit.sid", "squadunit.amount",           // squad unit → unit sid / count

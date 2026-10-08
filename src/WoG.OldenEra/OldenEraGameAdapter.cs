@@ -2004,9 +2004,126 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
 
     public AdapterResult<int> GetHero(int side) =>
         CurrentBattle != null && side is 0 or 1 ? AdapterResult<int>.Ok(CurrentBattle.Heroes[side]) : AdapterResult<int>.Failed("not in battle");
-    public AdapterResult<int> StackCount() => Missing<int>("battle.start");
-    public AdapterResult<int> GetStack(int stackIndex, BattleStackStat stat) => Missing<int>("battle.stacks");
-    public AdapterResult SetStack(int stackIndex, BattleStackStat stat, int value) => Missing("battle.stacks");
+    // ---- battle stacks ----------------------------------------------------------------------
+    // The battle being fought is the battle controller's logic (static elb.ckia → .ckic: eor); its field objects
+    // (eor.clgt.ckzg) are the units of both sides in the order they were placed, attacker slots first; eor.clhe.current
+    // is the unit whose turn it is [V-game]. A unit: sid (FieldObject.ckyo), side (ckys.clxl: 0 attacker, 1 defender),
+    // the army stack it came from (cmwm: stacks = count at the start, slotPos), its battle data (cmwp: ctxq = count,
+    // fullStacks = creatures besides the top one, cnbx = hit points of the top one), its totals (stats) and its battle
+    // modifier (cmws), which every recalculation of the totals adds [V-game: griffins' modifier +11 attack → the total
+    // 9 → 20 after their next action; writing the total alone was recalculated back to 9].
+    // WoG numbers the stacks of a side 0..20 (the defender's from 21) in army-slot order; a number stays with its unit
+    // for the whole battle.
+    static readonly string[] BattleKeys = { "battle.logic", "battle.objects", "bunit.class", "bunit.sid", "bunit.side", "bunit.data", "bunit.army", "bunit.stats", "bunit.mods" };
+    readonly Dictionary<IntPtr, int> stackNumbers = new();
+    IntPtr numberedBattle;
+
+    /// <summary>The units of the battle being fought by WoG stack number.</summary>
+    AdapterResult<Dictionary<int, object>> BattleUnits()
+    {
+        if (BattleKeys.FirstOrDefault(k => !sym.Has(k)) is { } missing) return Missing<Dictionary<int, object>>(missing);
+        if (sym.Read("battle.logic", null) is not Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase logic)
+            return AdapterResult<Dictionary<int, object>>.Failed("not in battle");
+        if (logic.Pointer != numberedBattle) { stackNumbers.Clear(); numberedBattle = logic.Pointer; }
+        var cls = sym.TypeOf("bunit.class");
+        var units = OldenEraSymbols.Items(sym.Read("battle.objects", logic)).Where(o => o != null).Select(o => MethodTrace.Real(o!))
+            .Where(cls.IsInstanceOfType).Cast<Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase>().ToList();
+        // new units get the next numbers of their side, in army-slot order (summoned ones, slot -1, last)
+        foreach (var u in units.Where(u => !stackNumbers.ContainsKey(u.Pointer))
+                     .OrderBy(u => Convert.ToInt32(sym.Read("bunit.side", u)))
+                     .ThenBy(u => Convert.ToInt32(OldenEraSymbols.ReadMember(sym.Read("bunit.army", u)!, "slotPos")) is var s && s >= 0 ? s : 99))
+        {
+            int side = Convert.ToInt32(sym.Read("bunit.side", u)) == 0 ? 0 : 1;
+            int n = side * 21;
+            while (stackNumbers.ContainsValue(n) && n < side * 21 + 20) n++;
+            stackNumbers[u.Pointer] = n;
+        }
+        var byNumber = new Dictionary<int, object>();
+        foreach (var u in units) byNumber[stackNumbers[u.Pointer]] = u;
+        return AdapterResult<Dictionary<int, object>>.Ok(byNumber);
+    }
+
+    public AdapterResult<int> StackCount()
+    {
+        var units = BattleUnits();
+        return units.IsOk ? AdapterResult<int>.Ok(units.Value.Count) : units.Error<int>();
+    }
+
+    public AdapterResult<int> CurrentStack()
+    {
+        var units = BattleUnits();
+        if (!units.IsOk) return units.Error<int>();
+        if (!sym.Has("battle.current")) return Missing<int>("battle.current");
+        if (sym.Read("battle.current", sym.Read("battle.logic", null)) is not Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase cur)
+            return AdapterResult<int>.Ok(-1);
+        return AdapterResult<int>.Ok(stackNumbers.TryGetValue(cur.Pointer, out int n) ? n : -1);
+    }
+
+    // BattleStackStat → the field of the unit's totals and modifier (UnitStat)
+    static string? UnitStatName(BattleStackStat stat) => stat switch
+    {
+        BattleStackStat.Attack => "offence", BattleStackStat.Defence => "defence", BattleStackStat.HitPoints => "hp",
+        BattleStackStat.Speed => "speed", BattleStackStat.DamageLow => "damageMin", BattleStackStat.DamageHigh => "damageMax",
+        _ => null,
+    };
+
+    const string StackKept = "this stat of an Olden Era battle unit is not mapped (or cannot be changed)";
+
+    public AdapterResult<int> GetStack(int stackIndex, BattleStackStat stat)
+    {
+        var units = BattleUnits();
+        if (!units.IsOk) return units.Error<int>();
+        if (!units.Value.TryGetValue(stackIndex, out var u)) return AdapterResult<int>.Failed($"no battle stack {stackIndex}");
+        var data = sym.Read("bunit.data", u)!;
+        var stats = sym.Read("bunit.stats", u)!;
+        int Total(string name) => Convert.ToInt32(OldenEraSymbols.ReadMember(stats, name));
+        switch (stat)
+        {
+            case BattleStackStat.Type:
+            {
+                string sid = sym.Read("bunit.sid", u) as string ?? "";
+                return currentIds().TryGetWoG("creature", sid, out int type) ? AdapterResult<int>.Ok(type)
+                    : AdapterResult<int>.Unsupported($"Olden Era unit '{sid}' has no WoG creature mapping");
+            }
+            case BattleStackStat.Count: return AdapterResult<int>.Ok(Convert.ToInt32(OldenEraSymbols.ReadMember(data, "ctxq")));
+            case BattleStackStat.CountAtStart: return AdapterResult<int>.Ok(Convert.ToInt32(OldenEraSymbols.ReadMember(sym.Read("bunit.army", u)!, "stacks")));
+            case BattleStackStat.HitPointsLost: return AdapterResult<int>.Ok(Total("hp") - Convert.ToInt32(OldenEraSymbols.ReadMember(data, "cnbx")));
+            case BattleStackStat.Side: return AdapterResult<int>.Ok(Convert.ToInt32(sym.Read("bunit.side", u)) == 0 ? 0 : 1);
+            case BattleStackStat.ArmySlot: return AdapterResult<int>.Ok(Convert.ToInt32(OldenEraSymbols.ReadMember(sym.Read("bunit.army", u)!, "slotPos")));
+        }
+        return UnitStatName(stat) is { } field ? AdapterResult<int>.Ok(Total(field)) : AdapterResult<int>.Unsupported(StackKept);
+    }
+
+    public AdapterResult SetStack(int stackIndex, BattleStackStat stat, int value)
+    {
+        var units = BattleUnits();
+        if (!units.IsOk) return units.AsPlain();
+        if (!units.Value.TryGetValue(stackIndex, out var u)) return AdapterResult.Failed($"no battle stack {stackIndex}");
+        var data = sym.Read("bunit.data", u)!;
+        var stats = sym.Read("bunit.stats", u)!;
+        switch (stat)
+        {
+            case BattleStackStat.Count:
+                // the creatures besides the top one [V-game: fullStacks 6 → 19 showed 20 griffins on the field and in
+                // the turn queue]; removing a stack is not mapped
+                if (value < 1) return AdapterResult.Unsupported("removing a battle stack (BM:N0) is not mapped yet");
+                OldenEraSymbols.WriteMember(data, "fullStacks", value - 1);
+                return AdapterResult.Ok;
+            case BattleStackStat.HitPointsLost:
+            {
+                int hp = Convert.ToInt32(OldenEraSymbols.ReadMember(stats, "hp"));
+                OldenEraSymbols.WriteMember(data, "cnbx", Math.Clamp(hp - value, 1, Math.Max(1, hp)));
+                return AdapterResult.Ok;
+            }
+        }
+        if (UnitStatName(stat) is not { } field) return AdapterResult.Unsupported(StackKept);
+        // the battle modifier keeps the change through the game's recalculations; the total shows it at once
+        var mods = sym.Read("bunit.mods", u)!;
+        int delta = value - Convert.ToInt32(OldenEraSymbols.ReadMember(stats, field));
+        OldenEraSymbols.WriteMember(mods, field, Convert.ToInt32(OldenEraSymbols.ReadMember(mods, field)) + delta);
+        OldenEraSymbols.WriteMember(stats, field, value);
+        return AdapterResult.Ok;
+    }
     public AdapterResult ApplyBuff(int stackIndex, string buffId) => Missing("buff.apply");
     public AdapterResult<int> SummonUnit(int side, string unitKey, int count) => Missing<int>("battle.summon");
 

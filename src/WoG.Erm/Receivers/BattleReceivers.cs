@@ -1,3 +1,4 @@
+using WoG.Core.Adapters;
 using WoG.Core.Compat;
 using WoG.Erm.Runtime;
 
@@ -78,5 +79,67 @@ public sealed class BaReceiver : ErmReceiverBase
             default:
                 throw ErmCall.WrongCommand(c.Letter);
         }
+    }
+}
+
+/// <summary>!!BM — a stack in battle (Monsters.cpp ERM_BRound: the stack record at combatManager+0x54CC+0x548*n).</summary>
+public sealed class BmReceiver : ErmReceiverBase
+{
+    const string Spells = "BM:G/C/K/M/Q/V/U4/U5 — spells on a stack, casting, damage, magic obstacles, animations and spell or clone settings are not mapped yet";
+    const string Kept = "BM:T/B/I/O/P/F/E/R/J/U3 — the type, start count, side, army slot, position, flags, casts, retaliations, active spells and shots of a battle stack: read where Olden Era has them, changing them is not mapped";
+
+    public BmReceiver() : base("BM")
+    {
+        Declare("NLADHSU", CompatLevel.PartiallySupported,
+            "BM:N/L/A/D/H/S/U1/U2 — count, hit points lost by the top creature, attack, defence, hit points, speed and damage of a battle stack: Olden Era's own unit in the battle; a changed stat is the unit's battle modifier, so the game's recalculations keep it");
+        Declare("TBIOPFERJ", CompatLevel.PartiallySupported, Kept);
+        Declare("GCKMQV", CompatLevel.Unsupported, Spells);
+    }
+
+    // Offsets of ERM_BRound and the stat behind each command
+    static BattleStackStat? Stat(char letter) => letter switch
+    {
+        'T' => BattleStackStat.Type, 'N' => BattleStackStat.Count, 'L' => BattleStackStat.HitPointsLost,
+        'B' => BattleStackStat.CountAtStart, 'E' => BattleStackStat.Casts, 'I' => BattleStackStat.Side,
+        'A' => BattleStackStat.Attack, 'D' => BattleStackStat.Defence, 'H' => BattleStackStat.HitPoints,
+        'S' => BattleStackStat.Speed, 'F' => BattleStackStat.Flags, 'O' => BattleStackStat.ArmySlot,
+        'R' => BattleStackStat.Retaliations, 'P' => BattleStackStat.Position,
+        _ => null,
+    };
+
+    protected override void Run(ErmCall c)
+    {
+        var battle = c.Rt.Services.Game.Battle;
+        int mn = c.Selector(0);
+        if (mn < -1 || mn > 41) throw new ErmRuntimeException("\"!!BM:\"-monster index is incorrect (-1, 0...41).");
+        if (mn == -1) mn = c.Need(battle.CurrentStack());
+        BattleStackStat? stat = Stat(c.Letter);
+        switch (c.Letter)
+        {
+            case 'U': // U1/$ min damage, U2/$ max damage, U3/$ shots, U4 spell to cast, U5 clone
+                switch (c.N(0))
+                {
+                    case 1: stat = BattleStackStat.DamageLow; break;
+                    case 2: stat = BattleStackStat.DamageHigh; break;
+                    case 3: stat = BattleStackStat.Shots; break;
+                    case 4: case 5: throw new ErmUnsupportedException(Spells);
+                    default: throw new ErmRuntimeException("wrong syntax");
+                }
+                Value(c, battle, mn, stat.Value, 1);
+                return;
+            case 'J': // ?$ the number of active spells
+                throw new ErmUnsupportedException(Kept);
+            case 'G': case 'C': case 'K': case 'M': case 'Q': case 'V':
+                throw new ErmUnsupportedException(Spells);
+        }
+        if (stat == null) throw new ErmRuntimeException("wrong command");
+        Value(c, battle, mn, stat.Value, 0);
+    }
+
+    static void Value(ErmCall c, Core.Adapters.IBattleAdapter battle, int mn, BattleStackStat stat, int i)
+    {
+        int cur = c.Need(battle.GetStack(mn, stat)), v = cur;
+        if (c.Apply(ref v, i) || v == cur) return;
+        c.Need(battle.SetStack(mn, stat, v));
     }
 }

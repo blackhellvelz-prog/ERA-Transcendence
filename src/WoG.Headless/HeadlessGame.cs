@@ -566,10 +566,16 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
     public AdapterResult<int> StackCount() =>
         CurrentBattle != null ? AdapterResult<int>.Ok(CurrentBattle.Stacks.Count) : AdapterResult<int>.Failed("not in battle");
 
+    /// <summary>The stack whose turn it is (BM-1); -1 = none.</summary>
+    public int ActiveStack { get; set; } = -1;
+
+    public AdapterResult<int> CurrentStack() =>
+        CurrentBattle != null ? AdapterResult<int>.Ok(ActiveStack) : AdapterResult<int>.Failed("not in battle");
+
     public AdapterResult<int> GetStack(int i, BattleStackStat stat)
     {
-        if (CurrentBattle == null || i < 0 || i >= CurrentBattle.Stacks.Count) return AdapterResult<int>.Failed("no stack");
-        var s = CurrentBattle.Stacks[i];
+        var s = CurrentBattle?.Stacks.Find(x => x.Index == i);
+        if (s == null) return AdapterResult<int>.Failed("no stack");
         return AdapterResult<int>.Ok(stat switch
         {
             BattleStackStat.Type => s.Type, BattleStackStat.Count => s.Count, BattleStackStat.Attack => s.Attack,
@@ -577,14 +583,15 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
             BattleStackStat.Speed => s.Speed, BattleStackStat.DamageLow => s.DamageLow, BattleStackStat.DamageHigh => s.DamageHigh,
             BattleStackStat.Shots => s.Shots, BattleStackStat.Casts => s.Casts, BattleStackStat.Retaliations => s.Retaliations,
             BattleStackStat.Flags => unchecked((int)s.Flags), BattleStackStat.Position => s.Position, BattleStackStat.Side => s.Side,
+            BattleStackStat.CountAtStart => s.CountAtStart, BattleStackStat.ArmySlot => s.ArmySlot,
             _ => 0,
         });
     }
 
     public AdapterResult SetStack(int i, BattleStackStat stat, int v)
     {
-        if (CurrentBattle == null || i < 0 || i >= CurrentBattle.Stacks.Count) return AdapterResult.Failed("no stack");
-        var s = CurrentBattle.Stacks[i];
+        var s = CurrentBattle?.Stacks.Find(x => x.Index == i);
+        if (s == null) return AdapterResult.Failed("no stack");
         switch (stat)
         {
             case BattleStackStat.Type: s.Type = v; break;
@@ -601,6 +608,9 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
             case BattleStackStat.Retaliations: s.Retaliations = v; break;
             case BattleStackStat.Flags: s.Flags = unchecked((uint)v); break;
             case BattleStackStat.Position: s.Position = v; break;
+            case BattleStackStat.Side: s.Side = v; break;
+            case BattleStackStat.CountAtStart: s.CountAtStart = v; break;
+            case BattleStackStat.ArmySlot: s.ArmySlot = v; break;
         }
         return AdapterResult.Ok;
     }

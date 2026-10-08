@@ -213,7 +213,7 @@ public interface IGameClock
 public enum BattleStackStat
 {
     Type, Count, Attack, Defence, HitPoints, HitPointsLost, Speed, DamageLow, DamageHigh, Shots, Casts,
-    Retaliations, Flags, Position, Side,
+    Retaliations, Flags, Position, Side, CountAtStart, ArmySlot,
 }
 
 public interface IBattleAdapter
@@ -223,6 +223,9 @@ public interface IBattleAdapter
     AdapterResult<WoGBattle> GetBattle();
     AdapterResult<int> GetHero(int side);
     AdapterResult<int> StackCount();
+    /// <summary>The stack whose turn it is (BM-1); -1 = none.</summary>
+    AdapterResult<int> CurrentStack();
+    /// <summary>A battle stack by WoG's number: side * 21 + index (0..20 attacker, 21..41 defender).</summary>
     AdapterResult<int> GetStack(int stackIndex, BattleStackStat stat);
     AdapterResult SetStack(int stackIndex, BattleStackStat stat, int value);
     /// <summary>Applies a generated buff (overlay data) to a battle stack.</summary>

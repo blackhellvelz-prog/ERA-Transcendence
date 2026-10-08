@@ -668,3 +668,27 @@ Checked in the skirmish quicksave with the bridge `[V-game]`:
   towns kept their positions). Then: owner -1, resource 6, guards empty; `O-2` gave the mine to the player (its session
   object ownerSide 0 via `fnt.bmiq`); the map snapshot is read again after a change of owner, so the next read in the
   same call sees it. Setting R and M is reported unsupported.
+
+## 2026-10-08 — session 2, continued: battle stacks (BM)
+
+Reverse engineered in a manual battle (Istr: 18 esquires, 10 crossbowmen, 7 griffins against 6/8/9 knights) `[V-game]`:
+* The battle being fought is the controller's logic: static `elb.ckia` (the battle controller instance) → `.ckic`
+  (`eor`, null outside battles). Its field objects `eor.clgt.ckzg` are all the units in placement order (attacker
+  slots 0, 1, 2, then the defender's); `eor.clhe.cmgo` is only the turn queue (the acting unit leaves it) and
+  `eor.clhe.current` the unit whose turn it is.
+* A unit (`Hex.Session.Battle.Unit : eng : FieldObject`): sid `ckyo`, side `ckys.clxl` (0 attacker, 1 defender), the
+  army stack it came from `cmwm` (TransferUnit: stacks = count at the start, slotPos), battle data `cmwp` (UnitData:
+  `ctxq` count, `fullStacks` = creatures besides the top one, `cnbx` the top one's hit points, `ctxt` total hit points),
+  totals `stats` (UnitStat: offence 9, defence 9, hp 30, speed 5, damage 5-9 for griffins) and battle modifier `cmws`.
+* Writing `fullStacks` 6 → 19 showed 20 griffins on the field and in the turn queue. Writing the total attack 9 → 20
+  was recalculated back to 9 after the unit's action; +11 in the modifier `cmws` made the total 20 at the next
+  recalculation (+5 defence likewise) — so a changed stat goes into the modifier and into the total at once.
+* **`BM`** (Monsters.cpp `ERM_BRound`): stacks by WoG number (side × 21 + index, the index in army-slot order, kept
+  for the whole battle), `-1` the acting stack. N count, L hit points lost by the top creature, A/D/H/S/U1/U2 through
+  the modifier; T (IdMap; an Olden Era-only unit reads its number from 1000), B, I, O read; F/E/R/J/U3/P and the spell,
+  damage, obstacle and animation commands are reported unsupported. Checked: all six stacks read; `BM0:Nd10 Ad5` →
+  28 esquires shown on the field and in the queue, attack 11; `BM21:Dd-3` → 1; the values held through three turns;
+  `BM-1` gave the acting griffins.
+* WoG Debug: a "Бой (BM)" group of buttons. 223 xUnit tests (`BmReceiverTests`).
+* Next: the battle triggers (!?BR round, !?BG action, !?MF damage) and battlefield positions (H3 17×11 ↔ Olden Era
+  13×11) for BU/BG/BF.

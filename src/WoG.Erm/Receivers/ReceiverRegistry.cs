@@ -77,6 +77,7 @@ public sealed class ReceiverRegistry
         reg.Register(new CaReceiver());
         reg.Register(new MnReceiver());
         reg.Register(new BaReceiver());
+        reg.Register(new BmReceiver());
         reg.Register(new TmReceiver());
         reg.Register(new HeReceiver());
         reg.Register(new OwReceiver());
@@ -114,6 +115,7 @@ public sealed class ReceiverRegistry
         reg.Register(new CaReceiver());
         reg.Register(new MnReceiver());
         reg.Register(new BaReceiver());
+        reg.Register(new BmReceiver());
         reg.Register(new TmReceiver());
         reg.Register(new HeReceiver());
         reg.Register(new OwReceiver());
@@ -223,6 +225,12 @@ public sealed class ReceiverRegistry
             "MN:M — собственная охрана шахты; у шахты Olden Era её нет (её охраняют отряды на карте), поэтому читается пустой и задать её нельзя",
         ["MN:R — changing what a mine produces: an Olden Era mine is its own object type"] =
             "MN:R — смена ресурса шахты: шахта Olden Era — отдельный тип объекта",
+        ["BM:N/L/A/D/H/S/U1/U2 — count, hit points lost by the top creature, attack, defence, hit points, speed and damage of a battle stack: Olden Era's own unit in the battle; a changed stat is the unit's battle modifier, so the game's recalculations keep it"] =
+            "BM:N/L/A/D/H/S/U1/U2 — количество, потерянные ОЗ верхнего существа, атака, защита, ОЗ, скорость и урон отряда в бою: собственный юнит боя Olden Era; изменённая характеристика — модификатор юнита в бою, поэтому пересчёты игры её сохраняют",
+        ["BM:T/B/I/O/P/F/E/R/J/U3 — the type, start count, side, army slot, position, flags, casts, retaliations, active spells and shots of a battle stack: read where Olden Era has them, changing them is not mapped"] =
+            "BM:T/B/I/O/P/F/E/R/J/U3 — тип, количество в начале, сторона, слот армии, позиция, флаги, заклинания, ответные удары, активные заклинания и выстрелы отряда в бою: чтение там, где в Olden Era они есть; изменение не отображено",
+        ["BM:G/C/K/M/Q/V/U4/U5 — spells on a stack, casting, damage, magic obstacles, animations and spell or clone settings are not mapped yet"] =
+            "BM:G/C/K/M/Q/V/U4/U5 — заклинания на отряде, их применение, урон, магические препятствия, анимации и настройки заклинания или клона ещё не отображены",
         ["PO — WoG data of a map square, kept in the WoG state and saved with it"] =
             "PO — данные WoG для клетки карты, хранятся в состоянии WoG и сохраняются вместе с ним",
         ["CA:B — buildings by H3 number: dwellings, mage guild, fort/citadel/castle, village/town/city hall, tavern, marketplace, resource silo and grail are Olden Era's buildings (a higher level counts its lower ones as built); the other numbers read as not built and cannot be built; B1/B6 build through the game's construction, free and without using the day's one; B4/B5 allow or forbid; B3…/1 (bonus taken) reads as built; B2 is not possible: Olden Era has no demolition"] =
