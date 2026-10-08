@@ -185,6 +185,9 @@ internal static class FeatureCatalog
         new("Существа (MA)", "Копейщик: атака +5", "erm !!MA:A0/d5 A0/?x1;", note: "x1 — атака после", icon: Skill(22)),
         new("Существа (MA)", "Копейщик: атака −5", "erm !!MA:A0/d-5 A0/?x1;", note: "x1 — атака после", icon: "h3:dlg_npc1.def#8"),
 
+        new("Отладка", "WoG'ификация карты (UN:P5)", "erm !!UN:P5/?x1;",
+            note: "x1 — опция 5: 2 — карта WoG'ифицирована, 0 — нет (ERA: без глобальных скриптов); настройка игрока — [WoG] Wogify в wog.oldenera.cfg: 0 никогда, 1–2 всегда, 3 спрашивать при новой карте",
+            icon: "h3:wogcurse.def#9|h3:wogbttn.def#0"),
         new("Отладка", "Состояние игры", "state", icon: "h3:iam002.def#0|oe:Icon_PlayerStatus_KingdomStatistics"),
         new("Отладка", "Новый день (события дня)", "newday", icon: "h3:icm006.def#0"),
         new("Отладка", "Самопроверка WoG/ERA", "selftest", icon: "h3:wogbttn.def#0|h3:iOKAY.def#0"),

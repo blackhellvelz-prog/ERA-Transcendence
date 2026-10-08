@@ -6,10 +6,11 @@ using UnityEngine.InputSystem;
 namespace WoG.OldenEra.DebugUI;
 
 /// <summary>
-/// The WoG Debug window in the running game. It exists only with WoG Debug on ([Debug] Enabled), next to the
-/// command bridge, and runs the same commands.
+/// The WoG interface in the running game, built from its own interface pieces: WoG's questions (always) and the WoG
+/// Debug window, which exists only with WoG Debug on ([Debug] Enabled), next to the command bridge, and runs the same
+/// commands.
 /// </summary>
-[BepInPlugin(Guid, "ERA:Transcendence — WoG Debug window", WoGPlugin.Version)]
+[BepInPlugin(Guid, "ERA:Transcendence — interface", WoGPlugin.Version)]
 [BepInDependency(WoGPlugin.Guid)]
 public sealed class DebugUiPlugin : BasePlugin
 {
@@ -17,6 +18,11 @@ public sealed class DebugUiPlugin : BasePlugin
 
     public override void Load()
     {
+        // WoG's questions (the WoGify question of a new map) in the game's style, with or without WoG Debug
+        var dialogs = new GameDialogs(Log);
+        WoGPlugin.AskDialog = dialogs.Ask;
+        WoGPlugin.Frame += dialogs.Tick;
+
         var commands = WoGPlugin.Commands;
         if (commands == null)
         {

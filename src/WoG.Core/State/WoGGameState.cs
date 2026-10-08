@@ -53,6 +53,8 @@ public sealed class WoGGameState
     public const int SchemaVersion = 1;
 
     public WoGOptions Options { get; set; } = new();
+    /// <summary>The map was WoGified when it started (WoG option 5): its global scripts load again with a saved game.</summary>
+    public bool Wogified { get; set; } = true;
     public WoGVariables Erm { get; set; } = new();
     /// <summary>ERA (HoMM3 ERA) additions to the ERM state; empty for classic WoG scripts.</summary>
     public EraState Era { get; set; } = new();

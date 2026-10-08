@@ -755,3 +755,33 @@ buses and logs them) `[V-game]`:
 * The "WoG" button moved from the left edge (the players' banners grow down it, and in battle it covered the hero's
   panel) into the top bar, right of the game's two buttons and left of the battle's turn queue.
 * WoG Debug: `ui keys` lists the input actions of Unity's InputSystem (Olden Era only has the default UI ones).
+
+## 2026-10-08 — session 2, continued: WoGification (WoG option 5)
+
+* **WoG 3.58** (erm.cpp `CheckWogify`, `ResetNoWoG`): with option 5 (PL_ApplyWoG) = 0 a map without scripts is not
+  WoGified, with 3 the player is asked first (ZMESS00.TXT line 226, "Do you wish to WoGify this map?"); a map with its
+  own scripts asks (197, 198 for an external .erm) unless the option is 0. A map that is not WoGified gets the classic
+  rules — the hard-coded options 0..10 and 900..907 reset (commanders off, stack experience off; option 5, commanders
+  hired in town, the experience style and cheats kept), standard towers, monsters that leave, no town demolition — and
+  none of the global WoGify scripts.
+* **ERA** (Erm.pas `Hook_FindErm_AfterMapScripts`, era ii changelog "WoG Option 5 meaning was changed"): every map is a
+  WoG map — the hard-coded checks read a frozen "WoGify all" — and option 5 only decides whether the global scripts
+  (Data\s) load: 0 never, 1 and 2 always, 3 always but a map with its own scripts asks first
+  (`era.global_scripts_vs_map_scripts_warning`); a fixed set (Data\s\load only these scripts.txt) loads without asking.
+  The answer sets the option to 2 or 0. Lib and end-lib scripts load anyway.
+* **The port** (`Wogification`, WoG.Host): ERA's rules for maps with their own scripts, and for a map without them —
+  every Olden Era map — WoG 3.58's question when the setting is 3. ERA does not ask there; the port does, since an
+  Olden Era map is the classic map WoG asked about (the user's request: the question WoG players know). The setting
+  is `[WoG] Wogify` in wog.oldenera.cfg (default 3, ask; later the WoG Options window). The question is a dialog in the
+  game's style (its window frame, fonts and buttons, the screen dimmed, the game's hotkeys off while it waits) with the
+  installation's own text (ZMESS00.TXT through Era's VFS: WoG Rus's Russian; ERA's from the mods' Lang files); the ERM
+  instructions start after the answer. Not WoGified: ERA — no global scripts and option 5 = 0; WoG — ResetNoWoG and no
+  scripts. WoGified: option 5 = 2 (ERA). The choice is kept in the WoG state (`Wogified`), so a saved game loads the
+  same scripts. `load only these scripts.txt` is supported as in ERA.
+* Checked in the game `[V-game]`: a new random map (Arcade) → the question with WoG Rus's text 226; "Нет" → "not
+  WoGified", day 1 started, UN:P5 = 0, the compatibility report empty (no global scripts ran), the game's hotkeys back.
+  `WogificationTests` (258 xUnit tests).
+* The interface plugin (WoG.OldenEra.DebugUI, now "ERA:Transcendence — interface") runs the game dialogs always and the
+  WoG Debug window only with WoG Debug on. WoG Debug: "WoG'ификация карты (UN:P5)".
+* Not yet: IF:M / IF:Q messages and questions from scripts (a question needs the script to wait for the answer:
+  ERM suspension), map scripts for Olden Era maps (ERA's Maps\<map>\Data\s).

@@ -57,6 +57,12 @@ public sealed class WoGPlugin : BasePlugin
             if (value != null && Symbols?.Has("input.hotkeys") == true) Symbols.Write("input.hotkeys", null, value.Value);
         }
     }
+    /// <summary>
+    /// A yes/no question in the game's own style (text with H3 markup, the answer), shown by the interface plugin;
+    /// null without it. The WoGify question of a new map uses it.
+    /// </summary>
+    public static Action<string, Action<bool>>? AskDialog;
+
     /// <summary>Every frame on the game thread (the in-game debug window draws and reads keys here).</summary>
     public static event Action? Frame;
     internal static void RaiseFrame() => Frame?.Invoke();
@@ -76,6 +82,9 @@ public sealed class WoGPlugin : BasePlugin
         var modList = Config.Bind("ERA", "ModList", "WoG Debug",
             "Mods to load, comma-separated, lowest priority first (the order of ERA's Mods/list.txt). Empty: use ModsRoot/list.txt.");
         var language = Config.Bind("ERA", "Language", "ru", "Language of ERA translations (Lang/<language>)");
+        var wogify = Config.Bind("WoG", "Wogify", 3,
+            "WoG option 5, WoGification of a new map: 0 never (ERA: no global scripts; WoG: classic rules), 1 WoG maps, " +
+            "2 all maps, 3 ask when the map starts (\"Do you wish to WoGify this map?\")");
         var debugEnabled = Config.Bind("Debug", "Enabled", false, "WoG Debug: command bridge (BepInEx/config/WoG/debug/in) and self-test");
         var allowUnverified = Config.Bind("Debug", "AllowUnverifiedSymbols", false,
             "Debug only: use resolved but not yet verified game symbols, so the self-test can verify them");
@@ -100,6 +109,7 @@ public sealed class WoGPlugin : BasePlugin
             new ErmRuntimeOptions { Dialect = era ? ErmDialect.Era : ErmDialect.Wog358, TimeLimitMs = timeLimit.Value });
         Host = host;
         Adapter = adapter;
+        host.WogifySetting = Math.Clamp(wogify.Value, 0, 3);
         OldenEraGameAdapter.MethodTraceReal = MethodTrace.Real;
         host.ErmLog = m => Log.LogInfo("[ERM] " + m);
 
@@ -259,14 +269,37 @@ internal static class WoGSession
             }
             return true;
         }
-        WoGPlugin.L?.LogInfo("WoG: new game session — running ERM instructions");
-        host.StartNewGame();
-        adapter.ApplySavedTexts();
-        firstDayPending = true;
+        // WoGification first: the player may be asked whether to WoGify the map; the scripts start with the answer
+        var plan = host.PlanWogify();
+        firstDayPending = false;
+        if (plan.Question != WogifyQuestion.None && WoGPlugin.AskDialog is { } ask)
+        {
+            var session = ptr;
+            WoGPlugin.L?.LogInfo($"WoG: new game session — asking whether to WoGify it ({plan.Question})");
+            ask(host.WogifyText(plan.Question), yes =>
+            {
+                if (current != session) return; // another game started meanwhile
+                Begin(host, adapter, yes);
+            });
+            return true;
+        }
+        Begin(host, adapter, null);
         return true;
     }
 
     static bool firstDayPending;
+
+    static void Begin(WoGHost host, OldenEraGameAdapter adapter, bool? wogify)
+    {
+        try
+        {
+            host.StartNewGame(wogify);
+            adapter.ApplySavedTexts();
+            firstDayPending = true;
+            WoGPlugin.L?.LogInfo($"WoG: new game session — {(host.State.Wogified ? "WoGified" : "not WoGified")}, ERM instructions done");
+        }
+        catch (Exception ex) { WoGPlugin.L?.LogError("WoG: starting the new game failed: " + ex); }
+    }
 
     /// <summary>
     /// Olden Era does not call its day start (turn.start) on day 1, while ERA runs OnEveryDay and the timers on

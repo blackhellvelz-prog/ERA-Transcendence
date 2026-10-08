@@ -23,10 +23,16 @@ public static class EraScriptSet
     public const string ErmLibDirName = "lib";
     public const string ErmEndLibDirName = "lib_end";
 
+    /// <summary>The file naming the only global scripts to load (TScriptMan.LoadFixedScriptSet).</summary>
+    public const string FixedSetFile = "load only these scripts.txt";
+
     /// <param name="modRoots">Mod folders, highest priority first (each contains Data\s).</param>
     /// <param name="mapScriptsDir">Optional Maps\&lt;map&gt;\Data\s folder.</param>
-    public static List<EraScriptFile> Collect(IReadOnlyList<string> modRoots, string? mapScriptsDir = null)
+    /// <param name="globalScripts">False: no global scripts (Data\s), as ERA with WoG option 5 = 0; lib, map and
+    /// end-lib scripts load anyway.</param>
+    public static List<EraScriptFile> Collect(IReadOnlyList<string> modRoots, string? mapScriptsDir = null, bool globalScripts = true)
     {
+        var fixedSet = FixedScriptSet(modRoots);
         var all = new List<EraScriptFile>();
         var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -35,6 +41,7 @@ public static class EraScriptSet
             var dirs = roots.Select(r => Path.Combine(r, sub)).Where(Directory.Exists).ToList();
             foreach (var f in OrderedPrioritizedFileList(dirs))
             {
+                if (kind == EraScriptKind.Global && fixedSet != null && !fixedSet.Contains(f.FileName)) continue;
                 // TScriptMan.LoadScript: an already loaded script name is skipped
                 string name = prefix + f.FileName;
                 if (!names.Add(name)) continue;
@@ -46,9 +53,26 @@ public static class EraScriptSet
         AddDir(Path.Combine(dataS, ErmLibDirName), ErmLibDirName + "\\", EraScriptKind.Lib, modRoots);
         if (mapScriptsDir != null && Directory.Exists(mapScriptsDir))
             AddDir("", Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(mapScriptsDir)!)!) + "\\", EraScriptKind.Map, new[] { mapScriptsDir });
-        AddDir(dataS, "", EraScriptKind.Global, modRoots);
+        if (globalScripts) AddDir(dataS, "", EraScriptKind.Global, modRoots);
         AddDir(Path.Combine(dataS, ErmEndLibDirName), ErmEndLibDirName + "\\", EraScriptKind.LibEnd, modRoots);
         return all;
+    }
+
+    /// <summary>
+    /// The fixed global script set (TScriptMan.LoadFixedScriptSet): the names in Data\s\load only these scripts.txt
+    /// (one a line) as Era's virtual file system finds it — the highest-priority mod that has it — or null.
+    /// </summary>
+    public static HashSet<string>? FixedScriptSet(IReadOnlyList<string> modRoots)
+    {
+        foreach (var root in modRoots)
+        {
+            string path = Path.Combine(root, "Data", "s", FixedSetFile);
+            if (!File.Exists(path)) continue;
+            return new HashSet<string>(
+                EraText.Decode(File.ReadAllBytes(path)).Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0),
+                StringComparer.OrdinalIgnoreCase);
+        }
+        return null;
     }
 
     public sealed record PrioritizedFile(string FileName, string Path, int Priority);

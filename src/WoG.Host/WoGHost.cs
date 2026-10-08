@@ -175,6 +175,48 @@ public sealed class WoGHost : IWoGServices
         LoadH3Tables();
     }
 
+    /// <summary>
+    /// The player's WoGify setting (WoG option 5, the options dialog's value) a new map starts with: 0 never, 1 WoG
+    /// maps, 2 all, 3 ask (<see cref="Wogification"/>). "All" unless the engine sets it.
+    /// </summary>
+    public int WogifySetting { get; set; } = Wogification.All;
+
+    /// <summary>What WoGification will do for the new map, and the question to ask the player first (then
+    /// <see cref="StartNewGame(bool?)"/> with the answer).</summary>
+    public WogifyPlan PlanWogify() =>
+        Wogification.Plan(IsEra, WogifySetting, mapScripts: 0, fixedScriptSet: IsEra && WoG.Erm.Era.EraScriptSet.FixedScriptSet(eraMods) != null);
+
+    /// <summary>
+    /// The text of a WoGify question in the language of the installation: ZMESS00.TXT (lines 226, 197) through Era's
+    /// virtual file system, ERA's era.global_scripts_vs_map_scripts_warning from the mods' Lang files; English
+    /// fallbacks. H3 markup: {…} highlighted.
+    /// </summary>
+    public string WogifyText(WogifyQuestion question)
+    {
+        if (question == WogifyQuestion.MapScripts && IsEra)
+        {
+            var lang = new EraLang();
+            lang.LoadMods(eraMods, eraLanguage);
+            return lang.TryGet("era.global_scripts_vs_map_scripts_warning", out var t) ? t
+                : "{Load global scripts?}\n\nThis map has its own set of ERM scripts. Do you want to additionally load global ERM scripts?";
+        }
+        int line = question == WogifyQuestion.MapScripts ? 197 : 226;
+        try
+        {
+            var bytes = Vfs.Read("zmess00.txt");
+            if (bytes != null)
+            {
+                // one text a CRLF record; a text keeps its own line breaks (LF), so no H3Text.Records here
+                var records = WoG.Core.H3Data.H3Text.Decode(bytes).Split("\r\n");
+                if (line < records.Length && records[line].Length > 0) return records[line];
+            }
+        }
+        catch (IOException) { }
+        return question == WogifyQuestion.MapScripts
+            ? "{!!! VERY IMPORTANT !!!}\n\nThis map has internal ERM scripts. WoGify it only if its author says so.\n\nDo you still want to WoGify this map?"
+            : "{Do you wish to WoGify this map?}";
+    }
+
     /// <summary>ERA: preprocess (shared function/constant names) and parse every script in Era's load order.</summary>
     void PrepareEraScripts(bool newGame)
     {
@@ -188,7 +230,7 @@ public sealed class WoGHost : IWoGServices
         names.ResetConstants();
         State.Era.Ert.Clear();
         scripts.Clear();
-        EraScripts = WoG.Erm.Era.EraScriptSet.Collect(eraMods);
+        EraScripts = WoG.Erm.Era.EraScriptSet.Collect(eraMods, globalScripts: State.Wogified);
         foreach (var f in EraScripts)
         {
             string text = WoG.Erm.Era.EraText.Decode(File.ReadAllBytes(f.Path));
@@ -223,8 +265,16 @@ public sealed class WoGHost : IWoGServices
         }
     }
 
-    /// <summary>New game: load scripts (running instructions), then fire !?PI (post-instruction).</summary>
-    public void StartNewGame()
+    /// <summary>New game: WoGification without a question (the plan's decision), then <see cref="StartNewGame(bool?)"/>.</summary>
+    public void StartNewGame() => StartNewGame(null);
+
+    /// <summary>
+    /// New game: WoGification (<paramref name="wogify"/>: the player's answer to the plan's question; null: the plan's
+    /// own decision), load scripts (running instructions), then fire !?PI (post-instruction). ERA: a map that is not
+    /// WoGified loads no global scripts and WoG option 5 becomes 0 (else 2). WoG: it gets the classic rules
+    /// (ResetNoWoG) and none of the WoGify scripts.
+    /// </summary>
+    public void StartNewGame(bool? wogify)
     {
         CreatureTypes.Restore(); // a new game starts from the engine's own creature types
         if (State.InstructionsDone)
@@ -235,9 +285,14 @@ public sealed class WoGHost : IWoGServices
             State = new WoGGameState { Ids = State.Ids };
             Build();
         }
+        bool on = wogify ?? PlanWogify().Wogify;
+        State.Wogified = on;
+        State.Options.Set(WoG.Core.Options.WoGOptionIds.ApplyWoG, IsEra ? (on ? Wogification.All : Wogification.Never) : WogifySetting);
+        if (!IsEra && !on) Wogification.ResetNoWoG(State.Options);
         if (Erm == null) return;
         if (IsEra) PrepareEraScripts(newGame: true);
-        foreach (var s in scripts) Erm.Load(s, newGame: true);
+        if (IsEra || on)
+            foreach (var s in scripts) Erm.Load(s, newGame: true);
         State.InstructionsDone = true;
         var ctx = new ErmEventContext { Player = Game.Players.CurrentPlayer };
         Erm.Raise(30370, ctx);
@@ -294,7 +349,8 @@ public sealed class WoGHost : IWoGServices
             PrepareEraScripts(newGame: false);
             foreach (var kv in ert) State.Era.Ert[kv.Key] = kv.Value;
         }
-        foreach (var s in scripts) Erm.Load(s, newGame: false);
+        if (IsEra || State.Wogified)
+            foreach (var s in scripts) Erm.Load(s, newGame: false);
         if (IsEra) Erm.Raise(WoG.Erm.Era.EraEvents.SavegameRead, ctx);
         Erm.Raise(30360, ctx);
         if (IsEra) Erm.Raise(WoG.Erm.Era.EraEvents.GameEnter, ctx);
