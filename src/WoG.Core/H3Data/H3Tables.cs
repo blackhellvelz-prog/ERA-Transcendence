@@ -20,6 +20,11 @@ public sealed class H3Tables
     public IReadOnlyList<string> Spells { get; private set; } = Array.Empty<string>();
     /// <summary>Secondary skills by H3 number: name and the basic/advanced/expert descriptions (sstraits.txt).</summary>
     public IReadOnlyList<string[]> SecondarySkills { get; private set; } = Array.Empty<string[]>();
+    /// <summary>
+    /// The H3 spell table (WoG 3.58's 81 spells, creature abilities from 70) from sptraits.txt; target, animation and
+    /// flags from the installation's executable when it was read (<see cref="ExeSpellTable"/>).
+    /// </summary>
+    public IReadOnlyList<WoGSpell> SpellTable { get; private set; } = Array.Empty<WoGSpell>();
     /// <summary>Hero names by H3 hero number (hotraits.txt).</summary>
     public IReadOnlyList<string> HeroNames { get; private set; } = Array.Empty<string>();
     /// <summary>Where each table came from (for the log).</summary>
@@ -35,7 +40,14 @@ public sealed class H3Tables
         if (cr == null) { crName = "crtraits.txt"; cr = vfs.Read(crName, out from); }
         if (cr != null) { t.Creatures = ParseCreatures(H3Text.Decode(cr)); t.Sources[crName] = from!; }
         var sp = vfs.Read("sptraits.txt", out from);
-        if (sp != null) { t.Spells = ParseSpells(H3Text.Decode(sp)); t.Sources["sptraits.txt"] = from!; }
+        if (sp != null)
+        {
+            string text = H3Text.Decode(sp);
+            t.Spells = ParseSpells(text);
+            t.SpellTable = ParseSpellTable(text);
+            t.Sources["sptraits.txt"] = from!;
+            if (vfs.GameFolder != null && ExeSpellTable.Apply(vfs.GameFolder, t.SpellTable) is { } exe) t.Sources["spell flags"] = exe;
+        }
         var ss = vfs.Read("sstraits.txt", out from);
         if (ss != null) { t.SecondarySkills = ParseSkills(H3Text.Decode(ss)); t.Sources["sstraits.txt"] = from!; }
         var ho = vfs.Read("hotraits.txt", out from);
@@ -110,6 +122,40 @@ public sealed class H3Tables
         H3Text.Records(text).Skip(2)
             .Where(r => r.Length > 2 && r[0].Trim().Length > 0 && int.TryParse(r[2].Trim(), out _))
             .Select(r => r[0]).ToList();
+
+    /// <summary>WoG 3.58's spell count (SPELLNUM): adventure 0..9, battle 10..69, creature abilities 70..80.</summary>
+    public const int SpellCount = 81;
+
+    /// <summary>
+    /// sptraits.txt as WoG's ParseSpTraitsTxt reads it: spell i on row i+5 (adventure), i+8 (battle), i+11 (creature
+    /// abilities); columns Name, Abbreviation, Level, the schools Earth/Water/Fire/Air (any mark but a blank sets it),
+    /// Cost ×4, Power, Effect ×4, the 9 towns' chances, AI value ×4, Description ×4.
+    /// </summary>
+    public static List<WoGSpell> ParseSpellTable(string text)
+    {
+        var rows = H3Text.Records(text);
+        var list = new List<WoGSpell>();
+        int[] schoolBits = { 8, 4, 2, 1 };
+        for (int i = 0; i < SpellCount; i++)
+        {
+            int row = i < 10 ? i + 5 : i < 70 ? i + 8 : i + 11;
+            if (row >= rows.Count) break;
+            var r = rows[row];
+            string F(int c) => c < r.Length ? r[c] : "";
+            var s = new WoGSpell { Id = i, Name = F(0), AbbrName = F(1), Level = H3Text.Int(r, 2), Power = H3Text.Int(r, 11) };
+            for (int k = 0; k < 4; k++)
+            {
+                if (F(3 + k).Length > 0 && F(3 + k)[0] != ' ') s.Schools |= schoolBits[k];
+                s.Cost[k] = H3Text.Int(r, 7 + k);
+                s.Effect[k] = H3Text.Int(r, 12 + k);
+                s.AiValue[k] = H3Text.Int(r, 25 + k);
+                s.Description[k] = F(29 + k);
+            }
+            for (int k = 0; k < 9; k++) s.Chance[k] = H3Text.Int(r, 16 + k);
+            list.Add(s);
+        }
+        return list;
+    }
 
     /// <summary>sstraits.txt: two header rows, then Name, Basic, Advanced, Expert.</summary>
     public static List<string[]> ParseSkills(string text) =>

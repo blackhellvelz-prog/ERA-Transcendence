@@ -180,17 +180,54 @@ public sealed class WoGArtifact
     public WoGArtifact Clone() => (WoGArtifact)MemberwiseClone();
 }
 
+/// <summary>
+/// A spell type as H3's spell table holds it (WoG's _Spell_) — what SS reads and writes: sptraits.txt gives the texts
+/// and numbers; the target, animation and flags come from the executable's own table.
+/// </summary>
+public sealed class WoGSpell
+{
+    public int Id { get; set; }
+    /// <summary>-1 an enemy stack, 0 a square or the whole field, 1 a friendly stack (FRposNOzerENneg).</summary>
+    public int Target { get; set; }
+    /// <summary>Index of the spell's animation (DefIndex), -1 none.</summary>
+    public int DefIndex { get; set; } = -1;
+    /// <summary>1 battle, 2 adventure map, 4 lasts rounds, 8 creature ability, 0x10 one stack, 0x200 damage, 0x400 mind…</summary>
+    public int Flags { get; set; }
+    /// <summary>True when Target, DefIndex and Flags were read from the installation's executable.</summary>
+    public bool FromExecutable { get; set; }
+    public string Name { get; set; } = "";
+    public string AbbrName { get; set; } = "";
+    public int Level { get; set; }
+    /// <summary>Magic schools: Air 1, Fire 2, Water 4, Earth 8.</summary>
+    public int Schools { get; set; }
+    /// <summary>Mana cost by the caster's school skill: none, basic, advanced, expert.</summary>
+    public int[] Cost { get; set; } = new int[4];
+    public int Power { get; set; }
+    public int[] Effect { get; set; } = new int[4];
+    /// <summary>Chance to appear in the mage guild of each of the 9 town types.</summary>
+    public int[] Chance { get; set; } = new int[9];
+    public int[] AiValue { get; set; } = new int[4];
+    public string[] Description { get; set; } = { "", "", "", "" };
+    /// <summary>The z variables of texts a script gave (SS:N, A, D0..D3, W); 0 = the original text.</summary>
+    public int[] TextVars { get; set; } = new int[7];
+
+    public WoGSpell Clone()
+    {
+        var c = (WoGSpell)MemberwiseClone();
+        c.Cost = (int[])Cost.Clone();
+        c.Effect = (int[])Effect.Clone();
+        c.Chance = (int[])Chance.Clone();
+        c.AiValue = (int[])AiValue.Clone();
+        c.Description = (string[])Description.Clone();
+        c.TextVars = (int[])TextVars.Clone();
+        return c;
+    }
+}
+
 public sealed class WoGSkill
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";
-}
-
-public sealed class WoGSpell
-{
-    public int Id { get; set; }
-    public string Name { get; set; } = "";
-    public int Level { get; set; }
 }
 
 /// <summary>A town as H3's _CastleSetup_ keeps it (the headless engine; Olden Era maps its own city data).</summary>

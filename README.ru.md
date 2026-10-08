@@ -34,7 +34,7 @@ ERA Project) — на **Heroes of Might and Magic: Olden Era**. Цель — н�
 | Плагин Olden Era (`src/WoG.OldenEra`) | BepInEx 6 IL2CPP; загружает моды ERA из установки ERA пользователя; символы игры проверены в игре (`wog_symbols.json`); хуки дней, посещений объектов, боёв и их событий; командный мост WoG Debug |
 | Плагин интерфейса (`src/WoG.OldenEra.DebugUI`) | собран из рамки окна, кнопок и шрифтов самой Olden Era: вопросы WoG в стиле игры (всегда) и **окно WoG Debug** (при включённом WoG Debug): каждая функция порта — плитка с круглой иконкой (картинки HoMM3, WoG и ERA читаются из установки ERA во время игры, спрайты Olden Era), круглые вкладки групп, поиск, консоль ERM; F8 или круглая кнопка «WoG» в верхней полосе |
 | Оверлей данных (`src/WoG.OldenEra.Data`) | чтение `Core.zip`, клоны юнитов, баффы рангов опыта, локализация в формате OE |
-| Тесты (`tests/WoG.Tests`) | 273 теста xUnit; тесты корпусов прогоняют настоящие скрипты WoG и ERA и декодируют каждую картинку установки ERA |
+| Тесты (`tests/WoG.Tests`) | 279 тестов xUnit; тесты корпусов прогоняют настоящие скрипты WoG и ERA и декодируют каждую картинку установки ERA |
 | Инструменты (`tools/`) | `WoG.ErmTool`: `parse`, `run`, `compat`, `era-pp`, `probe-symbols`; `deploy/deploy.ps1` — сборка и установка в игру; `docs/check-translations.py` — фрагменты кода и числа каждой пары X.md и X.ru.md; `oe-recon/collect.ps1` |
 
 Проверка на настоящих скриптах:
@@ -110,5 +110,5 @@ python tools/docs/check-translations.py --verbose
 * `OldenEra_ReverseEngineering/` — 00 источники и метки проверки · 01 движок · 02 данные `Core.zip` ·
   03 скриптинг сценариев · 04 баффы и бой · 05 сейвы · 06 что доступно · 07 план проверки в игре.
 * `Compatibility/` — архитектура · матрица · ERM по командам (WoG и ERA) · `id-maps/` · `options-defaults.json`.
-* `MODLOG.md` — журнал работ; `HANDOFF.md` — как продолжить работу; `TRANSLATION_STATUS.md` — состояние
-  двуязычной документации.
+* `MODLOG.md` — журнал работ; `HANDOFF.md` — как продолжить работу; `NEXT_AGENT.md` — передача следующему агенту
+  (состояние, измеренный список работ, задание); `TRANSLATION_STATUS.md` — состояние двуязычной документации.

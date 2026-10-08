@@ -10,7 +10,7 @@ repository is `ERA-Transcendence` because GitHub does not allow ':' in names).
 A port of **HoMM3 ERA** (WoG 3.58f + Era 3.9.31 engine + ERM 2.0 + ERA Project scripts) to **Heroes of Might and
 Magic: Olden Era** (Unity IL2CPP, BepInEx 6). The user's full assignment and all decisions are in `MODLOG.md`,
 the current state and plan are in `HANDOFF.md`, and the overview is in `README.md`. Read these three files at the
-start of work.
+start of work; a new agent starts with `NEXT_AGENT.md` (the handoff, the measured backlog and the task).
 
 Work follows the `mod-any-game` skill (located in `.claude/skills/mod-any-game`, from
 `rehan-remade/universal-modder`): recon → cheapest route → primary sources → vertical slice →
@@ -54,6 +54,7 @@ oracle check → log.
 | `tools/WoG.ErmTool` | `parse`, `run [--era]`, `compat [--era]`, `era-pp`, `probe-symbols` |
 | `tools/deploy/deploy.ps1` | builds both plugins and installs them into the game (`-DebugMode` turns WoG Debug on); the game must be closed |
 | `tools/docs/check-translations.py` | code spans and numbers of every `X.md` against its `X.ru.md` |
+| `tools/debug/bridge.sh` | runs one WoG Debug command in the running game (`OLDEN_ERA_DIR`) |
 | `tools/oe-recon/collect.ps1` | collects data about the Olden Era installation (read-only) |
 | `tools/fetch-references/` | downloads reference sources into `../research` |
 

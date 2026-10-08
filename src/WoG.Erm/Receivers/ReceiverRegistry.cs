@@ -130,7 +130,7 @@ public sealed class ReceiverRegistry
         reg.Register(new UnsupportedReceiver("IP", "network ERM is out of scope (single-player only)"));
         reg.Register(new UnsupportedReceiver("MP", "MP — H3 music (mp3): Olden Era has its own music"));
         reg.Register(new UnsupportedReceiver("RD", "RD — H3 creature recruitment window (Dwellings.pas): needs a UI adapter"));
-        reg.Register(new UnsupportedReceiver("SS", "SS — receiver of the secondary skills plugin (closed-source ERA DLL)"));
+        reg.Register(new SsReceiver());
         reg.Register(new UnsupportedReceiver("PA", "PA — receiver of the \"receiver pa.era\" plugin (closed-source ERA DLL)"));
         reg.Register(new UnsupportedReceiver("QU", "QU — receiver of the \"receiver qu.era\" plugin (closed-source ERA DLL)"));
         return reg;
@@ -148,7 +148,17 @@ public sealed class ReceiverRegistry
         ["network ERM is out of scope (single-player only)"] = "сетевой ERM вне рамок проекта (только одиночная игра)",
         ["MP — H3 music (mp3): Olden Era has its own music"] = "MP — музыка H3 (mp3): у Olden Era своя музыка",
         ["RD — H3 creature recruitment window (Dwellings.pas): needs a UI adapter"] = "RD — окно найма существ H3 (Dwellings.pas): нужен UI-адаптер",
-        ["SS — receiver of the secondary skills plugin (closed-source ERA DLL)"] = "SS — ресивер плагина вторичных навыков (закрытая DLL ERA)",
+        ["SS — the H3 spell table of the ERA installation (sptraits.txt): level, schools, costs, power, effects, guild chances, AI values; a change is kept with the WoG state and read back, Olden Era's spells do not change yet"] =
+            "SS — таблица заклинаний H3 из установки ERA (sptraits.txt): уровень, школы, стоимость, сила, эффекты, шансы в гильдиях, ценность для ИИ; изменение хранится в состоянии WoG и читается обратно, заклинания Olden Era пока не меняются",
+        ["SS:O/X/F — target, animation and flags from the spell table of the ERA executable (h3era.exe); a change is kept and read back, Olden Era's spells do not change yet"] =
+            "SS:O/X/F — цель, анимация и флаги из таблицы заклинаний исполняемого файла ERA (h3era.exe); изменение хранится и читается обратно, заклинания Olden Era пока не меняются",
+        ["SS:N/A/D/W — the z variable of a text a script gave (0 = the original), as WoG 3.58; Olden Era shows its own spell texts"] =
+            "SS:N/A/D/W — z-переменная текста, заданного скриптом (0 — исходный), как в WoG 3.58; Olden Era показывает свои тексты заклинаний",
+        ["SS — the change is kept with the WoG state and read back, but Olden Era's spells do not change yet"] =
+            "SS — изменение хранится в состоянии WoG и читается обратно, но заклинания Olden Era пока не меняются",
+        ["SS:O/X/F — the spell table of the ERA executable was not read (h3era.exe)"] =
+            "SS:O/X/F — таблица заклинаний исполняемого файла ERA не прочитана (h3era.exe)",
+        ["SS — the ERA installation's sptraits.txt was not read"] = "SS — sptraits.txt установки ERA не прочитан",
         ["PA — receiver of the \"receiver pa.era\" plugin (closed-source ERA DLL)"] = "PA — ресивер плагина «receiver pa.era» (закрытая DLL ERA)",
         ["QU — receiver of the \"receiver qu.era\" plugin (closed-source ERA DLL)"] = "QU — ресивер плагина «receiver qu.era» (закрытая DLL ERA)",
         // CoreReceivers, EraReceivers

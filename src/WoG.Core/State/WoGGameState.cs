@@ -76,6 +76,8 @@ public sealed class WoGGameState
     public int MonInfoDlgPopUp { get; set; }
     /// <summary>Artifacts banned from the map by UN:A#/1 (ArtDisabled).</summary>
     public HashSet<int> BannedArtifacts { get; set; } = new();
+    /// <summary>Spell types changed by SS (only changed ones; the rest come from the H3 spell table).</summary>
+    public Dictionary<int, WoGSpell> SpellOverrides { get; set; } = new();
     /// <summary>Combination table entries changed by UN:A (index 0..31 → [combo artifact, parts…]; 0 = empty entry).</summary>
     public Dictionary<int, int[]> ComboOverrides { get; set; } = new();
     public IdMap Ids { get; set; } = new();

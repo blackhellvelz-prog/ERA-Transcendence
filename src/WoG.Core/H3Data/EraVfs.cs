@@ -19,11 +19,15 @@ public sealed class EraVfs
     /// <param name="modFoldersHighestFirst">Active mods in Era's priority order, highest first.</param>
     public EraVfs(string? gameFolder, IEnumerable<string> modFoldersHighestFirst)
     {
+        GameFolder = gameFolder;
         foreach (var mod in modFoldersHighestFirst) AddLayer(DataFolder(mod), baseGame: false);
         if (gameFolder != null) AddLayer(DataFolder(gameFolder), baseGame: true);
     }
 
     public bool IsEmpty => layers.Count == 0;
+
+    /// <summary>The ERA installation (its executables are read for data the text tables do not have); null when none.</summary>
+    public string? GameFolder { get; }
 
     static string? DataFolder(string root)
     {

@@ -877,3 +877,27 @@ buses and logs them) `[V-game]`:
   natively on the same table [V-game: level 2 → 1000, 13 → 43 700, 50 → 29 750 000, 51 → unreachable]. Enhanced
   secondary skills (Learning), the arcane tower, map rules and the self-education option read it.
 * WoG Debug tile "Опыт уровней (UN:J1, FU)". 273 xUnit tests.
+
+## 2026-10-08 — session 2, continued: SS is WoG's spell receiver; the H3 spell table from sptraits.txt and h3era.exe
+
+* **A wrong classification fixed.** The port listed `SS` as "the receiver of a closed-source secondary skills
+  plugin" and reported every call unsupported (×490 each of SS:S/L/F in the corpus). It is WoG's own **spell**
+  receiver (WoG 3.58 TE, kept by ERA): `spell.cpp` `ERM_Spell`, ERM help `ress_r.htm` [V-code]. WoG Scripts read
+  spell levels, schools, flags and target types with it (map options, enhanced secondary skills, protection from the
+  elements, living scrolls…) and change costs and flags (summon elementals: cost ×10 while the adventure spellbook is
+  open, the four summon spells marked as adventure spells).
+* **The H3 spell table of the installation** `[V-code]` `[V-data]`. sptraits.txt as WoG's `ParseSpTraitsTxt` reads it
+  (spell i on row i+5, i+8 for battle spells, i+11 for creature abilities; name, abbreviation, level, the four
+  schools, costs ×4, power, effects ×4, the 9 guild chances, AI values ×4, descriptions ×4) — WoG Rus' copy through
+  Era's VFS. The target, the animation and the flags are not in the text: WoG's `ResetSpells` copies them from the
+  SoD executable's table at 0x6854A0 (81 × 0x88 bytes). `ExeSpellTable` reads that table from the installation's
+  `h3era.exe` (PE sections, read only) and checks it is H3's (Summon Boat an adventure spell, Magic Arrow a battle
+  damage spell at an enemy). In the user's h3era.exe: Magic Arrow target -1, flags 0x8211; Bless target 1, flags
+  0x40845; Summon Boat 0x100002 — the ERM help's flag lists agree.
+* **SsReceiver**: O, W, X, F, N, A, L, S, C, P, E, H, I, D with WoG's semantics (index checks, texts by z variable as
+  in 3.58). A change is kept in `WoGGameState.SpellOverrides` (WoG keeps it with the saved game, SaveSpells) and read
+  back; Olden Era's spells do not change yet, so a change is reported unsupported. Olden Era's magic configs
+  (`DB/magics/*.json`: `rank`, `manaCost[4]`, `school_`) are the next step for costs and levels.
+* `WoG.ErmTool run --era`: when the mods are in one ERA installation's `Mods` folder, the installation is the game
+  folder (its LODs and executable are read; written files go to a temporary folder) — as the plugin does. The corpus:
+  183 scripts, 0 ERM errors; SS is gone from the unsupported list, UN:C 1498 → 1291. 279 xUnit tests.

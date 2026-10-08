@@ -57,7 +57,16 @@ switch (args[0])
     {
         var game = new HeadlessGame();
         var host = new WoGHost(game, new VisualResolver(new NoAssets()), null, new ErmRuntimeOptions { Dialect = dialect });
-        if (dialect == ErmDialect.Era) host.AddEraMods(args.Skip(1).Where(a => !a.StartsWith("--")));
+        if (dialect == ErmDialect.Era)
+        {
+            var mods = args.Skip(1).Where(a => !a.StartsWith("--")).ToList();
+            // Mods of one ERA installation's Mods folder: Era runs in its parent (its LODs and executable are read);
+            // files scripts write go to a temporary folder, never into the installation (as the plugin does).
+            var parents = mods.Select(m => Path.GetDirectoryName(Path.GetFullPath(m).TrimEnd('\\', '/'))).Distinct().ToList();
+            if (parents.Count == 1 && parents[0] is { } modsFolder && string.Equals(Path.GetFileName(modsFolder), "Mods", StringComparison.OrdinalIgnoreCase))
+                host.SetEraFolders(Path.GetDirectoryName(modsFolder), Path.Combine(Path.GetTempPath(), "wog-ermtool-era-root"));
+            host.AddEraMods(mods);
+        }
         else foreach (var f in Files(args[1]).OrderBy(x => x, StringComparer.Ordinal)) host.AddScriptFile(f);
         host.Erm!.Log = Console.WriteLine;
         host.StartNewGame();

@@ -9,7 +9,8 @@
 
 Порт **HoMM3 ERA** (WoG 3.58f + движок Era 3.9.31 + ERM 2.0 + скрипты ERA Project) на **Heroes of Might and
 Magic: Olden Era** (Unity IL2CPP, BepInEx 6). Полное задание пользователя и все решения — в `MODLOG.ru.md`,
-текущее состояние и план — в `HANDOFF.ru.md`, обзор — в `README.ru.md`. Прочитай эти три файла в начале работы.
+текущее состояние и план — в `HANDOFF.ru.md`, обзор — в `README.ru.md`. Прочитай эти три файла в начале работы;
+новый агент начинает с `NEXT_AGENT.ru.md` (передача, измеренный список работ и задание).
 
 Работа ведётся по скиллу `mod-any-game` (лежит в `.claude/skills/mod-any-game`, из
 `rehan-remade/universal-modder`): разведка → самый дешёвый путь → первоисточники → вертикальный срез →
@@ -52,6 +53,7 @@ Magic: Olden Era** (Unity IL2CPP, BepInEx 6). Полное задание пол
 | `tools/WoG.ErmTool` | `parse`, `run [--era]`, `compat [--era]`, `era-pp`, `probe-symbols` |
 | `tools/deploy/deploy.ps1` | собирает оба плагина и ставит их в игру (`-DebugMode` включает WoG Debug); игра должна быть закрыта |
 | `tools/docs/check-translations.py` | фрагменты кода и числа каждого `X.md` против его `X.ru.md` |
+| `tools/debug/bridge.sh` | выполняет одну команду WoG Debug в запущенной игре (`OLDEN_ERA_DIR`) |
 | `tools/oe-recon/collect.ps1` | сбор данных об установке Olden Era (только чтение) |
 | `tools/fetch-references/` | скачать исходники для справки в `../research` |
 

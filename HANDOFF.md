@@ -3,7 +3,7 @@
 # How to continue the work
 
 This file is for you and for the Claude Code instance that continues the port on the computer with Olden Era and
-ERA installed. The full history with evidence is in `MODLOG.md`; the rules are in `CLAUDE.md`.
+ERA installed. A new agent starts with `NEXT_AGENT.md` (the handoff, the measured backlog and the task). The full history with evidence is in `MODLOG.md`; the rules are in `CLAUDE.md`.
 
 ## Where we are now (2026-10-08)
 
@@ -18,7 +18,7 @@ ERA installed. The full history with evidence is in `MODLOG.md`; the rules are i
   commanders, stack experience, new objects, enhanced secondary skills…), as ERA does: an Olden Era map has no
   scripts of its own, so ERA does not ask.
 * The headless reference engine runs the user's whole ERA (183 scripts) for a new game + 7 days with **0 ERM
-  errors**; 273 xUnit tests are green. What the engine cannot do yet is reported as *unsupported* in
+  errors**; 279 xUnit tests are green. What the engine cannot do yet is reported as *unsupported* in
   `Compatibility/ERM_Compatibility_ERA.md`.
 
 ## Local setup
@@ -41,7 +41,7 @@ ERA installed. The full history with evidence is in `MODLOG.md`; the rules are i
 4. Launch the game (`steam://rungameid/3105440`), load a save or start a map, check the feature:
    * the **WoG Debug window**: F8 or the round "WoG" button in the top bar; every feature has a tile there with its
      ERM code — add a tile in `src/WoG.OldenEra.DebugUI/FeatureCatalog.cs` for each new feature;
-   * the **command bridge** (WoG Debug on): write a command into a new file in
+   * the **command bridge** (WoG Debug on; `tools/debug/bridge.sh "<command>"` does it): write a command into a new file in
      `BepInEx/config/WoG/debug/in/<name>.txt`; the answer appears in `BepInEx/config/WoG/debug/out/<name>.txt`.
      Commands: `erm <ERM code>`, `hero`, `town`, `objects`, `state`, `vars`, `peek`/`invoke`/`set` (reflection),
      `battleevents`, `subskills`, `symbols`, `ui canvases|tree|sprites|fonts|keys`, `help`;
