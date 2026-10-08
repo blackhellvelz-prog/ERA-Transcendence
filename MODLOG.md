@@ -901,3 +901,6 @@ buses and logs them) `[V-game]`:
 * `WoG.ErmTool run --era`: when the mods are in one ERA installation's `Mods` folder, the installation is the game
   folder (its LODs and executable are read; written files go to a temporary folder) — as the plugin does. The corpus:
   183 scripts, 0 ERM errors; SS is gone from the unsupported list, UN:C 1498 → 1291. 279 xUnit tests.
+* In the game `[V-game]`: the plugin read "spell flags ← h3era.exe"; `SS15` → level 1, schools 15, flags 33297
+  (0x8211), target -1, basic cost 4; `SS41` → target 1, flags 264261 (0x40845); `SS0` → flags 1048578 (0x100002).
+  WoG Debug tile "Заклинание из таблицы H3 (SS)".
