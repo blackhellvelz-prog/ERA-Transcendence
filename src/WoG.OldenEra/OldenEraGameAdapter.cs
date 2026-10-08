@@ -917,6 +917,22 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     }
     public AdapterResult Kill(int hero) => Missing("hero.kill");
 
+    // Experience by level: the experience logic of a hero on the map holds the level table of its type's expVariant
+    // (dyx.chmm, the total experience of levels 1..) [V-game 0.81.04: 50 levels, 29 750 000 for level 50 =
+    // exp_standard of DB/heroes_exp]. Hero -1, or a hero not on the map: the table of the first hero on the map
+    // (the game's heroes share exp_standard; campaign heroes have their own).
+    public AdapterResult<int> ExperienceForLevel(int hero, int level)
+    {
+        if (!sym.Has("herologic.experience") || !sym.Has("experience.table")) return Missing<int>("experience.table");
+        if (level < 1) return AdapterResult<int>.Ok(0);
+        object? logic = hero >= 0 && FindHero(hero) is { } h ? HeroLogic(h) : null;
+        logic ??= sym.Has("world.heroLogics") ? OldenEraSymbols.Items(sym.Read("world.heroLogics", null)).FirstOrDefault(l => l != null) : null;
+        if (logic == null || sym.Read("herologic.experience", logic) is not { } xp)
+            return AdapterResult<int>.Failed("no hero on the map to read Olden Era's experience table from");
+        var table = OldenEraSymbols.Items(sym.Read("experience.table", xp)).Select(Convert.ToInt32).ToList();
+        return AdapterResult<int>.Ok(level <= table.Count ? table[level - 1] : int.MaxValue);
+    }
+
     // ---- players ----------------------------------------------------------------------------
 
     // A WoG player number is the index of the side in the game's side array (OE has no fixed 8 colours).

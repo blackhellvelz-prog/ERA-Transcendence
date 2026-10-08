@@ -57,6 +57,8 @@ public static class EraNativeLibrary
                 x[0] = rt.Services.Game.Map.IsRandomMap() is { Status: AdapterStatus.Ok, Value: true } ? 1 : 0;
         }
         n["WOG_GameMgr_GetPlayer_Me"] = (rt, x, _) => x[0] = LocalPlayer(rt);
+        // H3's experience of a level (SN:E to 0x4DA690): the engine's level table; int.MaxValue past its last level
+        n["WOG_GetExpRequirementOfLevel"] = (rt, x, _) => x[1] = x[0] < 1 ? 0 : Need(rt.Services.Game.Heroes.ExperienceForLevel(-1, x[0]));
         n["WOG_GameMgr_GetPlayer_Team"] = (rt, x, _) =>
             x[1] = rt.Services.Game.Players.GetTeam(x[0]) is { Status: AdapterStatus.Ok, Value: var t } ? t : x[0];
     }

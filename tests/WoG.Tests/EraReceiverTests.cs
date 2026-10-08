@@ -1,3 +1,4 @@
+using System.Linq;
 using Xunit;
 
 namespace WoG.Tests;
@@ -111,6 +112,31 @@ public class EraResourceAndTerrainTests
         Assert.Equal((5, 0), (t.V(1), t.V(2)));
         var loaded = WoG.Core.Save.WoGSaveSerializer.Deserialize(WoG.Core.Save.WoGSaveSerializer.Serialize(t.Host.State, "id"), "id");
         Assert.Equal(5, loaded.Mithril[1]);
+    }
+
+    [Fact]
+    public void H3_experience_table_continues_by_one_point_two()
+    {
+        var levels = new[] { 0, 1, 2, 12, 13, 14, 20 }.Select(WoG.Core.Adapters.HeroRecords.H3Experience).ToArray();
+        Assert.Equal(new[] { 0, 0, 1000, 20600, 24320, 28784, 81961 }, levels);
+        Assert.Equal(int.MaxValue, WoG.Core.Adapters.HeroRecords.H3Experience(200));
+    }
+
+    [Fact]
+    public void Un_j1_keeps_the_level_limit_and_gives_the_experience_of_a_level()
+    {
+        using var t = new EraTestHost().Script("t.erm", "ZVSE2\n!?FU(Go);\n" +
+            "!!UN:J1/?v1/?v2;\n" +                                // no limit: 0, its experience 0
+            "!!FU(WOG_GetExpRequirementOfLevel):P2/?v3;\n" +
+            "!!FU(WOG_GetExpRequirementOfLevel):P13/?v4;\n" +
+            "!!FU(WOG_GetExpRequirementOfLevel):P0/?v5;\n" +
+            "!!UN:J1/14/?v6;\n!!UN:J1/?v7/d;\n").Start();
+        t.Call("Go");
+        Assert.Equal("", t.ErrorText);
+        Assert.Equal((0, 0, 1000, 24320, 0), (t.V(1), t.V(2), t.V(3), t.V(4), t.V(5)));
+        Assert.Equal((28784, 14), (t.V(6), t.V(7)));
+        Assert.Equal(14, t.Host.State.LevelLimit);
+        Assert.Contains(t.Host.Compat.Entries, e => e.Reason.Contains("level limit"));   // not enforced yet
     }
 
     [Fact]

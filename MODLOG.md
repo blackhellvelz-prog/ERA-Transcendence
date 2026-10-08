@@ -859,3 +859,21 @@ buses and logs them) `[V-game]`:
   hero. 271 xUnit tests (`PoolHeroTests`, the natives, mithril, TR:T); the corpus still 183 scripts, 0 ERM errors.
 * Next from the same run: `UN:J1` and `WOG_GetExpRequirementOfLevel` (Olden Era's experience table), `BA:M`, `CH:B`,
   hints (`SN:H`, `HT`), `UN:I`, `DW:M`, `CB:A`, `MO`, `AR`, `EA`.
+
+## 2026-10-08 — session 2, continued: Olden Era's experience table (UN:J1, WOG_GetExpRequirementOfLevel)
+
+* **Where the table is** `[V-data]` `[V-game]`. Core.zip `DB/heroes_exp/exp_variants_table.json` has several level
+  tables (`exp_standard`, `_30`, `_50`, campaign ones…); a hero type picks one with `expVariant` (only the campaign
+  heroes name one). The live table is in the hero's experience logic: `dyx.chmm` (dze's base) — int[] of the total
+  experience of levels 1.., `chmo` the last level, `chmp` its experience. Peeked in a skirmish: 50 levels, 29 750 000
+  at level 50 = `exp_standard`. New symbol `experience.table` (verified).
+* `IHeroAdapter.ExperienceForLevel(hero, level)`: Olden Era — the table of the hero (hero -1 or a hero not on the map:
+  the first hero on the map), int.MaxValue past the last level; headless — H3's table (levels 1..12, then each step
+  1.2 times the last, truncated: 24 320 for 13, 81 961 for 20). WoG's own `GetExpo` (UN:J1) returns the step, not the
+  total, above level 12 — not reproduced: the port uses the engine's table, in which HE:E works.
+* **UN:J1/$limit/$exp**: WoG's level limit is kept in the WoG state (`LevelLimit`, 0 = none, as in WoG); setting a
+  non-zero limit is reported unsupported — Olden Era's heroes are not held to it yet (its own `chmo` is a candidate).
+  The experience is the engine's. **WOG_GetExpRequirementOfLevel** (WoG Scripts' stdlib: SN:E to H3's 0x4DA690) runs
+  natively on the same table [V-game: level 2 → 1000, 13 → 43 700, 50 → 29 750 000, 51 → unreachable]. Enhanced
+  secondary skills (Learning), the arcane tower, map rules and the self-education option read it.
+* WoG Debug tile "Опыт уровней (UN:J1, FU)". 273 xUnit tests.

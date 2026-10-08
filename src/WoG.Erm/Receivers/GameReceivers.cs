@@ -116,7 +116,7 @@ public sealed class UnReceiver : ErmReceiverBase
             "UN:N — names of artifacts, spells, creatures and secondary skills from the ERA installation's text tables; N5/N6 ini values (written under BepInEx/config/WoG/era-root); N2 building names are not read yet");
         Declare("R", CompatLevel.PartiallySupported,
             "UN:R — R1-R4 redraws: Olden Era redraws its screens itself; R5-R7 (mouse pointer shape, delay) are cosmetic and do nothing");
-        Declare("J", CompatLevel.PartiallySupported, "UN:J — J0 spell bans (kept; Olden Era's guilds do not use them yet), J2 difficulty (Olden Era's AI difficulty), J8/J9 files and folders (the write folder first, then the ERA installation), J10 variable log, J11; J1, J3-J7, J12, J13 are not mapped yet");
+        Declare("J", CompatLevel.PartiallySupported, "UN:J — J0 spell bans (kept; Olden Era's guilds do not use them yet), J1 the WoG level limit (kept, 0 = none; a limit is not enforced yet) and the experience of a level (the engine's table), J2 difficulty (Olden Era's AI difficulty), J8/J9 files and folders (the write folder first, then the ERA installation), J10 variable log, J11; J3-J7, J12, J13 are not mapped yet");
         Declare("C", CompatLevel.Unsupported, "UN:C writes to H3 memory addresses — impossible on a different engine");
         Declare("BDEFGHIKLMOQSTWYZ", CompatLevel.Unsupported, "UN map/object/global commands are not mapped yet");
     }
@@ -387,7 +387,19 @@ public sealed class UnReceiver : ErmReceiverBase
                 break;
             }
             case 1:
-                throw new ErmUnsupportedException("UN:J1 — the hero level limit and Olden Era's experience table are not mapped yet");
+            {
+                // J1/$limit/$exp (erm.cpp; GetLimitLvl, SetLimitLvl, GetExpo): WoG's level limit (0 = none), then the
+                // experience of that level. The experience comes from the engine's own level table (Olden Era's
+                // differs from H3's: HE:E works in it); WoG's GetExpo gives the step, not the total, above level 12.
+                c.RequireMin(3);
+                int limit = s.State.LevelLimit, v = limit;
+                bool set = !c.Apply(ref v, 1) && v != limit;
+                if (set) s.State.LevelLimit = v;
+                int exp = c.Need(s.Game.Heroes.ExperienceForLevel(-1, v));
+                c.Apply(ref exp, 2);
+                if (set && v != 0) throw new ErmUnsupportedException("UN:J1 — the WoG level limit is kept, but the engine's heroes are not held to it yet");
+                break;
+            }
             case 3:
                 throw new ErmUnsupportedException("UN:J3 — WoGification settings files (.dat presets) are not read yet");
             case 4:

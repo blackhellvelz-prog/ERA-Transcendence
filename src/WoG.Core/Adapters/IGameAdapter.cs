@@ -81,6 +81,11 @@ public interface IHeroAdapter
     AdapterResult<(int Type, int Min, int Max)> GetStartArmy(int hero, int slot);
     AdapterResult SetStartArmy(int hero, int slot, int type, int min, int max);
     AdapterResult Kill(int hero);
+    /// <summary>
+    /// The total experience a hero needs for a level, from the engine's level table (hero -1: the table of the game's
+    /// heroes); 0 for a level below 1, int.MaxValue above the last level the engine has.
+    /// </summary>
+    AdapterResult<int> ExperienceForLevel(int hero, int level);
 }
 
 public interface IPlayerAdapter

@@ -83,6 +83,7 @@ public sealed class OldenEraSymbols
         "herologic.stats",           // hero logic → the hero's total stats (type, growth, items, skills)
         "herologic.logic", "herologic.recalc", // hero logic → Logic.Hero; its method that recalculates the totals
         "herologic.experience", "experience.add", // hero logic → experience logic; its method that adds experience
+        "experience.table",          // experience logic → total experience by level (the hero type's expVariant)
         "hero.levelUpPool", "levelups.add",     // hero → its pending level-ups; the pool's method that adds one
         "herologic.levelUps", "levelups.register", "levelups.show", // hero logic → level-up logic; register one; show
         "skilllogic.pickSub",        // method of a skill logic: activate one of its sub-skills

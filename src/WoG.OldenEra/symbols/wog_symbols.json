@@ -812,6 +812,13 @@
       "Status": "verified",
       "Note": "0.81.04: Logic.Hero.chnq: dze, the experience logic | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
     },
+    "experience.table": {
+      "Assembly": "Hex",
+      "Type": "dyx",
+      "Member": "chmm",
+      "Status": "verified",
+      "Note": "0.81.04: dyx (the base of dze, the hero's experience logic).chmm: int[] total experience by level from 1 (the hero type's expVariant); chmo is the last level, chmp its experience | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish: 50 levels, [0] 0, chmp 29750000 = exp_standard"
+    },
     "experience.add": {
       "Assembly": "Hex",
       "Type": "dze",

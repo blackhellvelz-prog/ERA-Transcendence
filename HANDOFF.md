@@ -18,7 +18,7 @@ ERA installed. The full history with evidence is in `MODLOG.md`; the rules are i
   commanders, stack experience, new objects, enhanced secondary skills…), as ERA does: an Olden Era map has no
   scripts of its own, so ERA does not ask.
 * The headless reference engine runs the user's whole ERA (183 scripts) for a new game + 7 days with **0 ERM
-  errors**; 271 xUnit tests are green. What the engine cannot do yet is reported as *unsupported* in
+  errors**; 273 xUnit tests are green. What the engine cannot do yet is reported as *unsupported* in
   `Compatibility/ERM_Compatibility_ERA.md`.
 
 ## Local setup
@@ -54,8 +54,8 @@ WoG Debug window. The user may be playing — check before closing the game or c
 
 ## What comes next
 
-1. **Olden Era's experience table**: `UN:J1` (the level limit) and `WOG_GetExpRequirementOfLevel` (WoG Scripts'
-   stdlib calls H3's function by address) — find the table in Core.zip or the game's logic.
+1. **The WoG level limit** (`UN:J1` with a limit): hold Olden Era's heroes to it (the experience logic's last level,
+   `dyx.chmo`, is the candidate); the experience table itself is done.
 2. **What the full WoG exercises now** (the unsupported list of the corpus run): `SS:F/L/S` (ERA's secondary skills
    plugin, ×490), `UN:C` (H3 memory, ×1498 — map the addresses scripts actually use), `SN:H` hints (×124), `HT`,
    `UN:I` (placing objects), `OW:I`, `UN:B`, `SN:F^Erm_FillInt32Array^`, `SN:M`, `UN:J1`, `IF:D/E/F/G` dialogs,

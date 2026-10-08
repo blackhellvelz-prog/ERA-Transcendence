@@ -56,4 +56,6 @@ public sealed class PoolHeroAdapter : IHeroAdapter
     public AdapterResult<(int Type, int Min, int Max)> GetStartArmy(int hero, int slot) => Of(hero).GetStartArmy(hero, slot);
     public AdapterResult SetStartArmy(int hero, int slot, int type, int min, int max) => Of(hero).SetStartArmy(hero, slot, type, min, max);
     public AdapterResult Kill(int hero) => Of(hero).Kill(hero);
+    /// <summary>A pool hero levels by the table of the game's heroes.</summary>
+    public AdapterResult<int> ExperienceForLevel(int hero, int level) => game.ExperienceForLevel(game.Exists(hero) ? hero : -1, level);
 }

@@ -253,6 +253,29 @@ public class HeroRecords : IHeroAdapter
         return AdapterResult.Ok;
     }
 
+    public AdapterResult<int> ExperienceForLevel(int hero, int level) => AdapterResult<int>.Ok(H3Experience(level));
+
+    /// <summary>H3's experience table (levels 1..12, then each step 1.2 times the last, truncated).</summary>
+    static readonly int[] H3Levels = { 0, 1000, 2000, 3200, 4600, 6200, 8000, 10000, 12200, 14700, 17500, 20600 };
+
+    /// <summary>
+    /// The total experience of an H3 level: levels 1..12 from the table, then each step 1.2 times the one before
+    /// (truncated) — 24320 for 13, 28784 for 14; past int's range, int.MaxValue.
+    /// </summary>
+    public static int H3Experience(int level)
+    {
+        if (level < 1) return 0;
+        if (level <= H3Levels.Length) return H3Levels[level - 1];
+        long total = H3Levels[^1], step = H3Levels[^1] - H3Levels[^2];
+        for (int l = H3Levels.Length + 1; l <= level; l++)
+        {
+            step = (long)(step * 1.2);
+            total += step;
+            if (total >= int.MaxValue) return int.MaxValue;
+        }
+        return (int)total;
+    }
+
     public AdapterResult Kill(int hero)
     {
         if (!TryHero(hero, out var h)) return AdapterResult.Failed("no hero");

@@ -85,6 +85,8 @@ public sealed class WoGGameState
     public Dictionary<int, WoGHero> PoolHeroes { get; set; } = new();
     /// <summary>Free-form module data (module name → JSON).</summary>
     public Dictionary<string, string> Modules { get; set; } = new();
+    /// <summary>WoG's hero level limit (UN:J1; 0 = none).</summary>
+    public int LevelLimit { get; set; }
     /// <summary>The last day whose day start (OnEveryDay, timers) ran: a loaded game does not run it again.</summary>
     public int DayStarted { get; set; }
     /// <summary>True once instructions (!#) and !?PI ran for this game.</summary>
