@@ -231,18 +231,20 @@ internal static class WoGSession
             if (File.Exists(file))
             {
                 host.LoadFrom(file, hash);
-                adapter.RestoreTownNames();
+                adapter.ApplySavedTexts();
                 WoGPlugin.L?.LogInfo($"WoG: loaded game — WoG state restored ({hash})");
             }
             else
             {
                 host.LoadWithoutSavedState();
+                adapter.ApplySavedTexts();
                 WoGPlugin.L?.LogInfo($"WoG: loaded game — no WoG state was saved with it ({hash}); a fresh one, without instructions");
             }
             return true;
         }
         WoGPlugin.L?.LogInfo("WoG: new game session — running ERM instructions");
         host.StartNewGame();
+        adapter.ApplySavedTexts();
         firstDayPending = true;
         return true;
     }

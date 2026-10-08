@@ -104,7 +104,7 @@ public sealed class OldenEraSymbols
         "battle.start", "battle.end", "battle.round", "battle.action",
         "buff.apply",                // method: apply buff by id to a unit
         "save.write", "save.read",   // methods: save/load (side-car WoG state)
-        "hero.position", "hero.move", "hero.skills", "hero.name", "hero.kill",
+        "hero.position", "hero.move", "hero.skills", "hero.kill",
         "stack.create", "player.activeHero", "player.heroes",
         "map.objects", "battle.stacks", "battle.summon",
         "town.class",                // the session object type of a city (ObjCity)
@@ -126,6 +126,13 @@ public sealed class OldenEraSymbols
         "loc.text",                  // static method: the localized text of a key
         "loc.entries",               // static path to the localization table (key → entry)
         "locentry.key", "locentry.text", "locentry.args", // localization entry → key / text / format arguments
+        "hero.typeConfig",           // hero → its type config (HeroConfig)
+        "heroconfig.nameKey", "heroconfig.bioKey", // hero type config → localization keys of its name / biography
+        "heroconfig.fraction", "heroconfig.classType", // hero type config → faction / might or magic
+        "hero.specialization",       // hero → its specialization config
+        "heroconfig.startSquad",     // hero type config → the army it is hired with
+        "squadslot.sid", "squadslot.min", "squadslot.max", // start squad entry → unit sid / minimum / maximum
+        "spec.bonuses", "bonus.type", "bonus.parameters", // specialization → bonuses; bonus → type / parameters
         "map.root",                  // static path to the adventure map (Hex.Map.Map)
         "map.sizeX", "map.sizeZ",    // map → width / height in nodes (node = x + z·sizeX)
         "mapobj.id", "mapobj.node",  // map object → its map object id / pivot node

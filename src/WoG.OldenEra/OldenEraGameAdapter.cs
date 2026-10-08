@@ -189,6 +189,9 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
 
     public AdapterResult Set(int hero, HeroStat stat, int value)
     {
+        if (stat == HeroStat.HeroClass)
+            return GetHeroClass(hero) is { Status: AdapterStatus.Ok } cls && cls.Value == value ? AdapterResult.Ok
+                : AdapterResult.Unsupported("an Olden Era hero's class comes with its type and cannot be changed");
         var key = StatKey(stat);
         if (key == null) return AdapterResult.Unsupported($"hero stat {stat} has no Olden Era equivalent");
         if (stat == HeroStat.Owner) return AdapterResult.Unsupported("changing a hero's owner is not mapped");
@@ -220,6 +223,7 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     /// <summary>Without the bonuses of items (HE:F…/1): the type's base plus the growth by level.</summary>
     public AdapterResult<int> GetBase(int hero, HeroStat stat)
     {
+        if (stat == HeroStat.HeroClass) return GetHeroClass(hero);
         var key = StatKey(stat);
         if (key == null) return AdapterResult<int>.Unsupported($"hero stat {stat} has no Olden Era equivalent");
         if (!sym.Has(key)) return Missing<int>(key);
@@ -711,8 +715,197 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
             }
         return AdapterResult.Ok; // no free slot of its type: it stays in the backpack
     }
-    public AdapterResult<string> GetName(int hero) => Missing<string>("hero.name");
-    public AdapterResult SetName(int hero, string name) => Missing("hero.name");
+    // H3 hero classes (Format HC) are two per town: might, then magic. An Olden Era hero type has a faction and a
+    // might/magic kind (HeroConfig.fraction / classType) [V-data: human_hero_1 human might].
+    AdapterResult<int> GetHeroClass(int hero)
+    {
+        if (!sym.Has("hero.typeConfig") || !sym.Has("heroconfig.fraction") || !sym.Has("heroconfig.classType")) return Missing<int>("hero.typeConfig");
+        if (FindHero(hero) is not { } h || sym.Read("hero.typeConfig", h) is not { } cfg) return AdapterResult<int>.Failed($"hero {hero} does not exist");
+        string faction = sym.Read("heroconfig.fraction", cfg)?.ToString() ?? "";
+        if (!TownOfFraction.TryGetValue(faction, out int town)) return AdapterResult<int>.Unsupported($"Olden Era faction '{faction}' has no H3 town");
+        bool magic = string.Equals(sym.Read("heroconfig.classType", cfg)?.ToString(), "magic", StringComparison.OrdinalIgnoreCase);
+        return AdapterResult<int>.Ok(town * 2 + (magic ? 1 : 0));
+    }
+
+    // A hero's name and biography are the texts of its type's localization keys (HeroConfig: human_hero_1 → «Истр»,
+    // human_hero_1_description) [V-game]. A hero type is in a game once, so a new name or biography is the text of that
+    // key for the session: the game shows it everywhere it names the hero. The original texts are given back when the
+    // session ends; the new ones are kept in the WoG state (IdMap "heroName" / "heroBio" by WoG hero number) and set
+    // again when a game is loaded.
+    const string HeroNameDomain = "heroName", HeroBioDomain = "heroBio";
+
+    AdapterResult<string> HeroTextKey(int hero, string key)
+    {
+        if (!sym.Has("hero.typeConfig") || !sym.Has(key)) return Missing<string>(key);
+        if (FindHero(hero) is not { } h || sym.Read("hero.typeConfig", h) is not { } cfg) return AdapterResult<string>.Failed($"hero {hero} does not exist");
+        return sym.Read(key, cfg) is string k && k.Length > 0 ? AdapterResult<string>.Ok(k) : AdapterResult<string>.Failed($"hero {hero} has no {key}");
+    }
+
+    public AdapterResult<string> GetName(int hero)
+    {
+        var key = HeroTextKey(hero, "heroconfig.nameKey");
+        return key.IsOk ? AdapterResult<string>.Ok(Localize(key.Value) ?? key.Value) : key;
+    }
+
+    public AdapterResult SetName(int hero, string name)
+    {
+        var key = HeroTextKey(hero, "heroconfig.nameKey");
+        if (!key.IsOk) return key.AsPlain();
+        if (!OverrideText(key.Value, name)) return Missing("loc.entries");
+        currentIds().Set(HeroNameDomain, hero, name);
+        return AdapterResult.Ok;
+    }
+
+    public AdapterResult<string> GetBiography(int hero, bool original)
+    {
+        var key = HeroTextKey(hero, "heroconfig.bioKey");
+        if (!key.IsOk) return key;
+        if (original) return AdapterResult<string>.Ok(OriginalText(key.Value) ?? "");
+        return AdapterResult<string>.Ok(currentIds().TryGetEngine(HeroBioDomain, hero, out var bio) ? bio : "");
+    }
+
+    public AdapterResult SetBiography(int hero, string text)
+    {
+        var key = HeroTextKey(hero, "heroconfig.bioKey");
+        if (!key.IsOk) return key.AsPlain();
+        if (!OverrideText(key.Value, text)) return Missing("loc.entries");
+        currentIds().Set(HeroBioDomain, hero, text);
+        return AdapterResult.Ok;
+    }
+
+    // Olden Era specializations are sets of bonuses (DB/heroes_specializations; SpecializationConfig.bonuses: type,
+    // parameters) [V-data: 108 of the six factions: 28 creatures, 23 spells, 9 resources, 48 others]. The closest H3
+    // specialty: a spell it improves (heroMagicReplace [base, special]) → 3, a creature it grows (cityUnitsIncrement
+    // [unit]) → 1, a resource it brings (sideRes [resource, amount]) → 2, a hero stat that is an H3 skill's effect → 0;
+    // the rest (magic schools, battle abilities, energy, immunities) have no H3 specialty.
+    static readonly (string Stat, int Skill)[] SkillOfStat =
+    {
+        ("movementPerBonus", 2), ("viewRadius", 3), ("diplomacyEfficiencyPerBonus", 4), ("moral", 6), ("luck", 9),
+        ("necromancyPerBonus", 12), ("tacticsPlacementSize", 19), ("expPerBonus", 21), ("manaBonusPercent", 24),
+        ("magicAttackPerBonus", 25),
+    };
+
+    public AdapterResult<int[]> GetSpecialty(int hero)
+    {
+        if (!sym.Has("hero.specialization") || !sym.Has("spec.bonuses") || !sym.Has("bonus.type") || !sym.Has("bonus.parameters"))
+            return Missing<int[]>("hero.specialization");
+        if (FindHero(hero) is not { } h) return AdapterResult<int[]>.Failed($"hero {hero} does not exist");
+        if (sym.Read("hero.specialization", h) is not { } spec) return AdapterResult<int[]>.Unsupported("the hero has no specialization");
+        var bonuses = OldenEraSymbols.Items(sym.Read("spec.bonuses", spec)).Where(b => b != null)
+            .Select(b => (Type: sym.Read("bonus.type", b!)?.ToString() ?? "",
+                          Params: OldenEraSymbols.Items(sym.Read("bonus.parameters", b!)).Select(x => x?.ToString() ?? "").ToList()))
+            .ToList();
+        var ids = currentIds();
+        int[]? Record(int type, string domain, string sid) =>
+            ids.TryGetWoG(domain, sid, out int n) ? new[] { type, n, 0, 0, 0, 0, 0 } : null;
+        foreach (var (type, prm) in bonuses)
+            if (prm.Count > 0 && (type == "heroMagicReplace" ? Record(3, "spell", prm[0])
+                    : type.StartsWith("cityUnitsIncrement", StringComparison.Ordinal) ? Record(1, "creature", prm[0])
+                    : type == "sideRes" ? Record(2, "resource", prm[0]) : null) is { } found)
+                return AdapterResult<int[]>.Ok(found);
+        foreach (var (type, prm) in bonuses)
+            if (type == "heroStat" && prm.Count > 0 && SkillOfStat.FirstOrDefault(s => s.Stat == prm[0]) is { Stat: not null } m)
+                return AdapterResult<int[]>.Ok(new[] { 0, m.Skill, 0, 0, 0, 0, 0 });
+        string first = bonuses.Count > 0 ? $"{bonuses[0].Type} {string.Join(" ", bonuses[0].Params)}" : "none";
+        return AdapterResult<int[]>.Unsupported($"the hero's Olden Era specialization ({first}) has no H3 specialty");
+    }
+
+    public AdapterResult SetSpecialty(int hero, int[] record) =>
+        GetSpecialty(hero) is { Status: AdapterStatus.Ok } cur && cur.Value.SequenceEqual(record) ? AdapterResult.Ok
+            : AdapterResult.Unsupported("an Olden Era hero's specialization comes with its type and cannot be changed");
+
+    // HE:H — a hero type's start squad (HeroConfig.startSquad: {sid, min, max} per slot) [V-game: human_hero_1 esquire
+    // 14-20, crossbowman 10-14, griffin 5-7]. The config lives for the whole run of the game, so the original squad is
+    // given back when a session ends; a squad WoG set is kept in the WoG state (IdMap "heroArmy": hero * 3 + slot →
+    // "type/min/max") and set again when a game is loaded. Which hires use it is the game's affair [UNVERIFIED: not
+    // hired in game yet].
+    const string HeroArmyDomain = "heroArmy";
+    readonly Dictionary<object, object?> originalSquads = new(ReferenceEqualityComparer.Instance);
+
+    AdapterResult<(object Config, List<object?> Slots)> StartSquad(int hero)
+    {
+        if (!sym.Has("hero.typeConfig") || !sym.Has("heroconfig.startSquad") || !sym.Has("squadslot.sid") || !sym.Has("squadslot.min") || !sym.Has("squadslot.max"))
+            return Missing<(object, List<object?>)>("heroconfig.startSquad");
+        if (FindHero(hero) is not { } h || sym.Read("hero.typeConfig", h) is not { } cfg) return AdapterResult<(object, List<object?>)>.Failed($"hero {hero} does not exist");
+        return AdapterResult<(object, List<object?>)>.Ok((cfg, OldenEraSymbols.Items(sym.Read("heroconfig.startSquad", cfg)).ToList()));
+    }
+
+    public AdapterResult<(int Type, int Min, int Max)> GetStartArmy(int hero, int slot)
+    {
+        var sq = StartSquad(hero);
+        if (!sq.IsOk) return sq.Error<(int, int, int)>();
+        if (slot >= sq.Value.Slots.Count || sq.Value.Slots[slot] is not { } e) return AdapterResult<(int, int, int)>.Ok((-1, 0, 0));
+        string sid = sym.Read("squadslot.sid", e) as string ?? "";
+        if (!currentIds().TryGetWoG("creature", sid, out int type))
+            return AdapterResult<(int, int, int)>.Unsupported($"Olden Era unit '{sid}' has no WoG creature mapping");
+        return AdapterResult<(int, int, int)>.Ok((type, Convert.ToInt32(sym.Read("squadslot.min", e)), Convert.ToInt32(sym.Read("squadslot.max", e))));
+    }
+
+    public AdapterResult SetStartArmy(int hero, int slot, int type, int min, int max)
+    {
+        var sq = StartSquad(hero);
+        if (!sq.IsOk) return sq.AsPlain();
+        string? sid = null;
+        if (type >= 0 && !currentIds().TryGetEngine("creature", type, out sid))
+            return AdapterResult.Unsupported($"creature {type} has no Olden Era unit (IdMap \"creature\")");
+        var (cfg, slots) = sq.Value;
+        if (!originalSquads.ContainsKey(cfg)) originalSquads[cfg] = sym.Read("heroconfig.startSquad", cfg);
+        while (slots.Count <= slot) slots.Add(null);
+        if (sid == null) slots[slot] = null;
+        else
+        {
+            // a new entry: the game's own entries stay as they are, shared with the original squad
+            var e = Activator.CreateInstance(sym.TypeOf("squadslot.sid"))!;
+            sym.Write("squadslot.sid", e, sid);
+            sym.Write("squadslot.min", e, min);
+            sym.Write("squadslot.max", e, max);
+            slots[slot] = e;
+        }
+        WriteSquad(cfg, slots.Where(x => x != null).ToList());
+        currentIds().Set(HeroArmyDomain, hero * 3 + slot, $"{type}/{min}/{max}");
+        return AdapterResult.Ok;
+    }
+
+    void WriteSquad(object cfg, List<object?> slots)
+    {
+        var arrayType = sym.TypeOf("heroconfig.startSquad").GetProperty("startSquad")?.PropertyType
+                        ?? throw new InvalidOperationException("HeroConfig.startSquad has no array type");
+        var array = Activator.CreateInstance(arrayType, (long)slots.Count)!;
+        for (int i = 0; i < slots.Count; i++) OldenEraSymbols.Call(array, "set_Item", i, slots[i]);
+        sym.Write("heroconfig.startSquad", cfg, array);
+    }
+
+    // Localization texts WoG changed for this session, with the game's own text to give back (null: a key WoG added).
+    readonly Dictionary<string, string?> originalTexts = new();
+
+    bool OverrideText(string key, string text)
+    {
+        if (!originalTexts.ContainsKey(key)) originalTexts[key] = Localize(key);
+        return RegisterText(key, text);
+    }
+
+    string? OriginalText(string key) => originalTexts.TryGetValue(key, out var t) ? t : Localize(key);
+
+    /// <summary>
+    /// A session starts: the game's own texts come back, then the names and biographies WoG gave in this game (its
+    /// WoG state) are set again.
+    /// </summary>
+    public void ApplySavedTexts()
+    {
+        foreach (var (key, text) in originalTexts)
+            if (text != null) RegisterText(key, text);
+        originalTexts.Clear();
+        foreach (var (cfg, squad) in originalSquads) sym.Write("heroconfig.startSquad", cfg, squad);
+        originalSquads.Clear();
+        if (currentIds().Forward.TryGetValue(HeroArmyDomain, out var armies))
+            foreach (var (key, value) in armies.ToList())
+                if (value.Split('/') is { Length: 3 } v)
+                    SetStartArmy(key / 3, key % 3, int.Parse(v[0]), int.Parse(v[1]), int.Parse(v[2]));
+        RestoreTownNames();
+        foreach (var (domain, set) in new (string, Func<int, string, AdapterResult>)[] { (HeroNameDomain, SetName), (HeroBioDomain, SetBiography) })
+            if (currentIds().Forward.TryGetValue(domain, out var saved))
+                foreach (var (hero, text) in saved.ToList()) set(hero, text);
+    }
     public AdapterResult Kill(int hero) => Missing("hero.kill");
 
     // ---- players ----------------------------------------------------------------------------

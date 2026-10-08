@@ -584,3 +584,30 @@ unsupported commands. 166 xUnit tests.
 * Not verified on screen: the new name in the town screen (the town screen did not open by a click in this session);
   the game resolves the key (`it.iap`).
 * 198 xUnit tests (`CaReceiverTests`: selectors, errors, B1-B6, M1/M2/M4, O/N/H/G/S, unsupported changes).
+
+## 2026-10-08 — session 2, continued: hero name, biography, class, specialty, hired army (HE:B, X, H)
+
+Chosen by use in the core mods (HE:B0 80 calls, X 47 + X4/X0/X6…, H 58). In code with tests; the game data was read
+through the bridge `[V-game: peek]`, the commands themselves were **not run in game yet** (the game was in use).
+* **`HE:B`** (erm.cpp: B0 name up to 12 characters, B1 a script's biography — empty while the hero has its own, B2
+  class, B3 its own biography, get only into a z variable). Olden Era has no name field on a hero: the name and the
+  biography are the texts of its type's localization keys (`HeroConfig.cswm` human_hero_1 → «Истр», `cswo`
+  human_hero_1_description). A hero type is in a game once, so `B0`/`B1` change the text of that key for the session
+  (the game then shows it wherever it names the hero); the game's own texts are given back when a session starts, and
+  the names WoG gave are kept in the WoG state (IdMap `heroName`/`heroBio`) and set again after a load. The class is
+  the H3 class of the faction's town (human → Castle) and the type's might/magic kind (`fraction`, `classType`);
+  it cannot be changed.
+* **`HE:X`** — ERA rewrote it (Erm.pas `Hook_HE_X`): X6/X7 with fewer than 7 parameters set their own cells, otherwise
+  each parameter is applied to its cell (so `X?type/?subtype` reads); WoG 3.58 sets through `MakeHeroSpec`. Olden Era
+  specializations are sets of bonuses (`SpecializationConfig.bonuses`: type, parameters; DB: 28 creature, 23 spell,
+  9 resource, 48 other specialists among the six factions). Read as the closest H3 specialty: a spell it improves
+  (`heroMagicReplace`) → 3, a creature it grows (`cityUnitsIncrement`) → 1, a resource it brings (`sideRes`) → 2, a hero
+  stat that is an H3 skill's effect (movement → Logistics, view → Scouting, diplomacy, morale → Leadership, luck,
+  necromancy, tactics, experience → Learning, mana → Intelligence, spell damage → Sorcery) → 0; magic schools, battle
+  abilities, energy and immunities have none (Unsupported). It cannot be changed.
+* **`HE:H`** — the army a hero type is hired with: Olden Era's `HeroConfig.startSquad` ({sid, min, max} ×3; human_hero_1
+  esquire 14-20, crossbowman 10-14, griffin 5-7). The config lives for the whole run of the game: the original squad is
+  given back when a session starts, a squad WoG set is kept in the WoG state (IdMap `heroArmy`).
+* WoG Debug: `erm` also prints the z1..z10 a snippet changed; `hero` shows the class and the specialty; new buttons
+  (name/biography/class, rename, biography, specialty, army when hired).
+* 205 xUnit tests (`HeroNameTests`: both dialects).

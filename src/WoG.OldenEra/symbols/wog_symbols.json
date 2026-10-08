@@ -1049,6 +1049,97 @@
       "Member": "bmiq",
       "Status": "verified",
       "Note": "0.81.04: fnt.bmiq(int side): a neutral city (map id 4) given to side 0 got ownerSide 0, joined the player's town list, opened its view radius and raised the daily income | verified 2026-10-08 (0.81.04) with WoG Debug invoke in a skirmish"
+    },
+    "hero.typeConfig": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "cnih",
+      "Status": "verified",
+      "Note": "0.81.04: Hero.cnih: HeroConfig of the hero type (human_hero_1: fraction human, classType might) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "heroconfig.nameKey": {
+      "Assembly": "Hex",
+      "Type": "Hex.Configs.HeroConfig",
+      "Member": "cswm",
+      "Status": "verified",
+      "Note": "0.81.04: the name key human_hero_1 (it.iap → «Истр»); the config field name is empty | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "heroconfig.bioKey": {
+      "Assembly": "Hex",
+      "Type": "Hex.Configs.HeroConfig",
+      "Member": "cswo",
+      "Status": "verified",
+      "Note": "0.81.04: the biography key human_hero_1_description | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "heroconfig.fraction": {
+      "Assembly": "Hex",
+      "Type": "Hex.Configs.HeroConfig",
+      "Member": "fraction",
+      "Status": "verified",
+      "Note": "0.81.04: \"human\" | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "heroconfig.classType": {
+      "Assembly": "Hex",
+      "Type": "Hex.Configs.HeroConfig",
+      "Member": "classType",
+      "Status": "verified",
+      "Note": "0.81.04: might / magic | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "hero.specialization": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "specialization.cnka",
+      "Status": "verified",
+      "Note": "0.81.04: HeroSpecialization (sid human_hero_1_specialization).cnka: SpecializationConfig | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "spec.bonuses": {
+      "Assembly": "Hex",
+      "Type": "Hex.Configs.SpecializationConfig",
+      "Member": "bonuses",
+      "Status": "verified",
+      "Note": "0.81.04: BonusConfig[8] for human_hero_1 | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "bonus.type": {
+      "Assembly": "Hex",
+      "Type": "Hex.Configs.BonusConfig",
+      "Member": "type",
+      "Status": "verified",
+      "Note": "0.81.04: heroStat, heroBattleAbility, ... | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "bonus.parameters": {
+      "Assembly": "Hex",
+      "Type": "Hex.Configs.BonusConfig",
+      "Member": "parameters",
+      "Status": "verified",
+      "Note": "0.81.04: Il2CppStringArray, e.g. [movementPerBonus, 0.05] | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "heroconfig.startSquad": {
+      "Assembly": "Hex",
+      "Type": "Hex.Configs.HeroConfig",
+      "Member": "startSquad",
+      "Status": "verified",
+      "Note": "0.81.04: HeroStartSquadUnitConfig[3] for human_hero_1: esquire 14-20, crossbowman 10-14, griffin 5-7 (startSquadAlt: esquire 1-1) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "squadslot.sid": {
+      "Assembly": "Hex",
+      "Type": "Hex.Configs.HeroStartSquadUnitConfig",
+      "Member": "sid",
+      "Status": "verified",
+      "Note": "0.81.04: esquire | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "squadslot.min": {
+      "Assembly": "Hex",
+      "Type": "Hex.Configs.HeroStartSquadUnitConfig",
+      "Member": "min",
+      "Status": "verified",
+      "Note": "0.81.04: 14 | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "squadslot.max": {
+      "Assembly": "Hex",
+      "Type": "Hex.Configs.HeroStartSquadUnitConfig",
+      "Member": "max",
+      "Status": "verified",
+      "Note": "0.81.04: 20 | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
     }
   }
 }

@@ -66,6 +66,13 @@ public sealed class WoGHero
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";
+    /// <summary>A biography a script set (HE:B1); null while the hero has its own.</summary>
+    public string? Biography { get; set; }
+    public string DefaultBiography { get; set; } = "";
+    /// <summary>H3's specialty record (HE:X): type, subtype, settings.</summary>
+    public int[] Specialty { get; set; } = new int[7];
+    /// <summary>The army it is hired with (HE:H): slots 0..2 of creature (-1 none), minimum, maximum.</summary>
+    public int[][] StartArmy { get; set; } = { new[] { -1, 0, 0 }, new[] { -1, 0, 0 }, new[] { -1, 0, 0 } };
     public int Owner { get; set; } = -1;
     public int HeroClass { get; set; }
     public MapPos Position { get; set; } = MapPos.None;

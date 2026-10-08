@@ -68,6 +68,18 @@ public interface IHeroAdapter
     AdapterResult EquipArtifact(int hero, int artifact);
     AdapterResult<string> GetName(int hero);
     AdapterResult SetName(int hero, string name);
+    /// <summary>HE:B1 the biography a script gave the hero ("" while it has its own), HE:B3 (original) its own.</summary>
+    AdapterResult<string> GetBiography(int hero, bool original);
+    AdapterResult SetBiography(int hero, string text);
+    /// <summary>
+    /// HE:X — the hero's specialty as H3's record of 7 numbers: type (0 skill, 1 creature, 2 resource, 3 spell,
+    /// 4 creature with bonuses, 5 speed, 6 upgrade, 7 dragons, 8 WoG), then its subtype and settings.
+    /// </summary>
+    AdapterResult<int[]> GetSpecialty(int hero);
+    AdapterResult SetSpecialty(int hero, int[] record);
+    /// <summary>HE:H — the army a hero of this type is hired with, slots 0..2: creature (-1 none), minimum, maximum.</summary>
+    AdapterResult<(int Type, int Min, int Max)> GetStartArmy(int hero, int slot);
+    AdapterResult SetStartArmy(int hero, int slot, int type, int min, int max);
     AdapterResult Kill(int hero);
 }
 

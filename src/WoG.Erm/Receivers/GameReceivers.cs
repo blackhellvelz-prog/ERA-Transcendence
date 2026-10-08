@@ -591,7 +591,10 @@ public sealed class HeReceiver : ErmReceiverBase
         Declare("S", CompatLevel.PartiallySupported, "S: secondary skills; Olden Era maps H3 skills by effect (id-maps/skill.json, 14 of 28) and a level 2 or 3 given by a script brings the game's own sub-skill choice; a skill it does not have reads as not learned and cannot be learned, lowering a learned skill and changing the hero-screen order are not mapped, Olden Era-only skills are invisible to scripts");
         Declare("A", CompatLevel.PartiallySupported, "A: artifacts by position (0..18 worn, 19..82 backpack); Olden Era maps H3 artifacts by effect or name (id-maps/artifact.json, 61 of 171), its items fit only their own slot type, has no war machines (the spellbook is always there) and no gaps in the backpack; A5 slot locks are not mapped");
         Declare("C", CompatLevel.PartiallySupported, "ids via IdMap; display-slot forms are not supported");
-        Declare("BDGHLRTUVXY", CompatLevel.Unsupported, "not mapped yet");
+        Declare("B", CompatLevel.PartiallySupported, "B: name (B0), biography (B1, B3) and class (B2); Olden Era shows a hero's name and biography through its localization, so a new one is the text of that hero's key for the game, kept with the WoG state; the class is the closest H3 class of the hero's faction and might/magic kind and cannot be changed");
+        Declare("X", CompatLevel.PartiallySupported, "X: the specialty as H3's record; an Olden Era specialty reads as the closest H3 one (a creature, a spell, a resource, or a secondary skill whose effect it has), others have none; it cannot be changed");
+        Declare("H", CompatLevel.PartiallySupported, "H: the army a hero type is hired with (Olden Era's start squad of the type, kept with the WoG state); creatures without an Olden Era unit cannot be set");
+        Declare("DGLRTUVY", CompatLevel.Unsupported, "not mapped yet");
     }
 
     protected override void Run(ErmCall c)
@@ -670,8 +673,115 @@ public sealed class HeReceiver : ErmReceiverBase
             case 'C':
                 Creatures(c, heroes, h);
                 break;
+            case 'B':
+                NameAndClass(c, heroes, h);
+                break;
+            case 'X':
+                Specialty(c, heroes, h);
+                break;
+            case 'H': // Hslot/type/min/max — the army of a newly hired hero
+            {
+                c.RequireMin(4);
+                int slot = c.N(0);
+                if (slot < 0 || slot > 2) throw new ErmRuntimeException("\"HE:H\"-slot number out of range (0...2).");
+                var (type, min, max) = c.Need(heroes.GetStartArmy(h, slot));
+                int t = type, lo = min, hi = max;
+                bool got = c.Apply(ref t, 1) & c.Apply(ref lo, 2) & c.Apply(ref hi, 3);
+                if (!got && (t != type || lo != min || hi != max)) c.Need(heroes.SetStartArmy(h, slot, t, lo, hi));
+                break;
+            }
             default:
                 throw ErmCall.WrongCommand(c.Letter);
+        }
+    }
+
+    /// <summary>
+    /// HE:X — the specialty record. ERA (Erm.pas Hook_HE_X): X6/creature/from/to and X7/attack/defence set their own
+    /// cells; otherwise each parameter is applied to its cell. WoG 3.58 (erm.cpp, MakeHeroSpec): fewer than 7
+    /// parameters set the type and its settings (d adds), 7 apply cell by cell.
+    /// </summary>
+    static void Specialty(ErmCall c, IHeroAdapter heroes, int h)
+    {
+        var rec = c.Need(heroes.GetSpecialty(h));
+        var was = (int[])rec.Clone();
+        if (c.Num < 2) throw new ErmRuntimeException("HE:X wrong number of parameters");
+        int type = c.N(0);
+        bool plainSet = !c.IsGetOrCheck(0) && !(c.P(0).Add || c.P(0).Modifier != default);
+        if (c.Num < 7 && plainSet && (c.IsEra ? type is 6 or 7 : true))
+        {
+            if (c.IsEra)
+            {
+                rec[0] = type;
+                if (type == 6)
+                {
+                    c.Apply(ref rec[1], 1);
+                    if (c.Num > 2) c.Apply(ref rec[5], 2);
+                    if (c.Num > 3) c.Apply(ref rec[6], 3);
+                }
+                else
+                {
+                    c.Apply(ref rec[2], 1);
+                    if (c.Num > 2) c.Apply(ref rec[3], 2);
+                }
+            }
+            else
+            {
+                // MakeHeroSpec: dsp[i] = dsp[i]*f[i] + n[i] (f = 1 with the d modifier)
+                if (type < 0 || type > 8) throw new ErmRuntimeException("wrong specialty type (0...8)");
+                int Cell(int cur, int i) => (c.P(i).Add ? cur : 0) + c.N(i);
+                rec[0] = type;
+                rec[1] = Cell(rec[1], 1);
+                if (type == 4)
+                {
+                    if (c.Num < 5) throw new ErmRuntimeException("wrong number of parameters");
+                    rec[2] = Cell(rec[2], 2); rec[3] = Cell(rec[3], 3); rec[4] = Cell(rec[4], 4);
+                }
+                else if (type == 6)
+                {
+                    if (c.Num < 4) throw new ErmRuntimeException("wrong number of parameters");
+                    rec[5] = Cell(rec[5], 2); rec[6] = Cell(rec[6], 3);
+                }
+                else if (type == 7) rec[2] = Cell(rec[2], 2);
+            }
+        }
+        else
+            for (int i = 0; i < System.Math.Min(c.Num, 7); i++) c.Apply(ref rec[i], i);
+        if (!System.Linq.Enumerable.SequenceEqual(rec, was)) c.Need(heroes.SetSpecialty(h, rec));
+    }
+
+    /// <summary>HE:B — name, biography, class (WoG erm.cpp, HE Cmd=='B').</summary>
+    static void NameAndClass(ErmCall c, IHeroAdapter heroes, int h)
+    {
+        c.RequireMin(2);
+        switch (c.N(0))
+        {
+            case 0: // B0/$ name: H3 keeps it in 13 bytes (StrMan::Apply(p->Name, &M, 1, 13))
+            {
+                string name = c.Need(heroes.GetName(h)), set = name;
+                if (c.ApplyText(ref set, name, 1)) break;
+                if (set.Length > 12) set = set[..12];
+                if (set != name) c.Need(heroes.SetName(h, set));
+                break;
+            }
+            case 1: // B1/$ biography ("" while the hero has its own)
+            {
+                string bio = c.Need(heroes.GetBiography(h, false)), set = bio;
+                if (c.ApplyText(ref set, "", 1)) break;
+                c.Need(heroes.SetBiography(h, set));
+                break;
+            }
+            case 2: // B2/$ class (Format HC)
+                c.ApplyAdapter(heroes.Get(h, HeroStat.HeroClass), v => heroes.Set(h, HeroStat.HeroClass, v), 1);
+                break;
+            case 3: // B3/?z the hero's own biography
+                if (!c.IsGet(1)) throw new ErmRuntimeException("\"HE:B3\"-cannot use set syntax.");
+                {
+                    string own = c.Need(heroes.GetBiography(h, true));
+                    c.ApplyText(ref own, own, 1);
+                }
+                break;
+            default:
+                throw new ErmRuntimeException("wrong syntax");
         }
     }
 

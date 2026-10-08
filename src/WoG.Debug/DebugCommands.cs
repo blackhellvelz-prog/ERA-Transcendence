@@ -133,13 +133,24 @@ public sealed class DebugCommands
         if (code.Length == 0) return "usage: erm <code>";
         // A single line typed without ';' gets one, as in the ERM console of Era's debug mode.
         if (!code.Contains('\n') && !code.TrimEnd().EndsWith(";")) code += ";";
+        var zBefore = Strings();
         var r = Console.Run(code);
         var sb = new StringBuilder(r.Summary()).Append('\n');
         // x1..x16 the code left: a snippet returns values this way
         var xs = r.Returns.Select((v, i) => (v, i)).Where(p => p.v != 0).Select(p => $"x{p.i + 1}={p.v}").ToList();
         if (xs.Count > 0) sb.Append("  ").Append(string.Join(" ", xs)).Append('\n');
+        // and the z1..z10 it changed (names, texts)
+        var zAfter = Strings();
+        for (int i = 0; i < zAfter.Length; i++)
+            if (zAfter[i] != zBefore[i]) sb.Append($"  z{i + 1}=\"{zAfter[i]}\"\n");
         foreach (var l in r.Log) sb.Append("  log: ").Append(l).Append('\n');
         return sb.ToString();
+    }
+
+    string[] Strings()
+    {
+        var rt = host.Erm;
+        return rt == null ? Array.Empty<string>() : Enumerable.Range(1, 10).Select(i => rt.IsEra ? rt.EraZRaw(i) : rt.GetStringRaw(i)).ToArray();
     }
 
     // H3 town types (Format T) and buildings (ERM help, building list)
@@ -239,6 +250,16 @@ public sealed class DebugCommands
         string Val<T>(AdapterResult<T> r) => r.IsOk ? r.Value?.ToString() ?? "-" : "?";
         var sb = new StringBuilder();
         sb.Append($"hero {h} \"{Val(heroes.GetName(h))}\", owner {Val(heroes.Get(h, HeroStat.Owner))}, at {Val(heroes.GetPosition(h))}\n");
+        var spec = heroes.GetSpecialty(h);
+        string SpecText() => !spec.IsOk ? "-" : spec.Value[0] switch
+        {
+            0 => "навык " + Name(h3.SecondarySkills, spec.Value[1], x => x[0]),
+            1 => "существо " + Name(h3.Creatures, spec.Value[1], x => x.Name),
+            2 => "ресурс " + spec.Value[1],
+            3 => "заклинание " + Name(h3.Spells, spec.Value[1], x => x),
+            _ => string.Join("/", spec.Value),
+        };
+        sb.Append($"  class {Val(heroes.Get(h, HeroStat.HeroClass))}, specialty {SpecText()}\n");
         sb.Append("  ").Append(string.Join(", ", new[] { HeroStat.Attack, HeroStat.Defence, HeroStat.Power, HeroStat.Knowledge,
             HeroStat.Level, HeroStat.Experience, HeroStat.Mana, HeroStat.Movement }.Select(s => $"{s} {Val(heroes.Get(h, s))}"))).Append('\n');
         var skills = new List<string>();

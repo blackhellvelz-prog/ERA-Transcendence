@@ -248,6 +248,37 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
         return AdapterResult.Ok;
     }
 
+    public AdapterResult<string> GetBiography(int hero, bool original) =>
+        HeroList.TryGetValue(hero, out var h) ? AdapterResult<string>.Ok(original ? h.DefaultBiography : h.Biography ?? "") : NoHero<string>(hero);
+
+    public AdapterResult<int[]> GetSpecialty(int hero) =>
+        HeroList.TryGetValue(hero, out var h) ? AdapterResult<int[]>.Ok((int[])h.Specialty.Clone()) : NoHero<int[]>(hero);
+
+    public AdapterResult SetSpecialty(int hero, int[] record)
+    {
+        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        h.Specialty = (int[])record.Clone();
+        return AdapterResult.Ok;
+    }
+
+    public AdapterResult<(int Type, int Min, int Max)> GetStartArmy(int hero, int slot) =>
+        HeroList.TryGetValue(hero, out var h)
+            ? AdapterResult<(int, int, int)>.Ok((h.StartArmy[slot][0], h.StartArmy[slot][1], h.StartArmy[slot][2])) : NoHero<(int, int, int)>(hero);
+
+    public AdapterResult SetStartArmy(int hero, int slot, int type, int min, int max)
+    {
+        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        h.StartArmy[slot] = new[] { type, min, max };
+        return AdapterResult.Ok;
+    }
+
+    public AdapterResult SetBiography(int hero, string text)
+    {
+        if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
+        h.Biography = text;
+        return AdapterResult.Ok;
+    }
+
     public AdapterResult Kill(int hero)
     {
         if (!HeroList.TryGetValue(hero, out var h)) return AdapterResult.Failed("no hero");
