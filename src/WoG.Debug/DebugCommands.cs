@@ -41,6 +41,13 @@ public sealed class DebugCommands
 
     public ErmConsole Console { get; }
 
+    readonly Dictionary<string, (Func<string, string> run, string help)> extra = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Adds a command (an engine-side module such as the in-game window registers its own).</summary>
+    public void Add(string name, Func<string, string> run, string help) => extra[name] = (run, help);
+
+    string FullHelp() => Help + string.Concat(extra.Select(kv => $"  {kv.Key,-28} {kv.Value.help}\n"));
+
     /// <summary>The last self-test report (Markdown), for writing next to the log.</summary>
     public string? LastReport { get; private set; }
 
@@ -70,7 +77,7 @@ public sealed class DebugCommands
         {
             return cmd switch
             {
-                "help" => Help,
+                "help" => FullHelp(),
                 "state" => State(),
                 "erm" => Erm(rest),
                 "event" => Event(rest),
@@ -81,7 +88,8 @@ public sealed class DebugCommands
                 "vars" => Vars(rest),
                 "peek" => engine?.Peek(rest) ?? "no engine",
                 "invoke" => engine?.Invoke(rest) ?? "no engine",
-                _ => "unknown command '" + cmd + "'\n" + Help,
+                _ when extra.TryGetValue(cmd, out var x) => x.run(rest),
+                _ => "unknown command '" + cmd + "'\n" + FullHelp(),
             };
         }
         catch (Exception ex)

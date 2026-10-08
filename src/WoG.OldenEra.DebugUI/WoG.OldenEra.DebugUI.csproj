@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    The WoG Debug window inside Olden Era: a uGUI window built from the game's own UI pieces (its sprites and
+    TextMeshPro fonts), on top of the WoG Debug commands of the main plugin.
+
+    Unlike the main plugin it compiles against Unity's interop assemblies of the installed game (UnityEngine.*,
+    Unity.TextMeshPro, Il2Cppmscorlib): engine code, not the game's obfuscated code, and never shipped
+    (Private=false). It needs OldenEraDir (or OLDEN_ERA_DIR) with BepInEx run once (BepInEx/interop); without
+    them it builds an empty assembly, so the solution still builds anywhere.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>WoG.OldenEra.DebugUI</AssemblyName>
+    <RootNamespace>WoG.OldenEra.DebugUI</RootNamespace>
+    <!-- the interop assemblies carry their own System.Runtime.CompilerServices types: no nullable metadata here -->
+    <Nullable>disable</Nullable>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <OldenEraDir Condition="'$(OldenEraDir)' == ''">$(OLDEN_ERA_DIR)</OldenEraDir>
+    <BepInExCore>$(OldenEraDir)\BepInEx\core</BepInExCore>
+    <Interop>$(OldenEraDir)\BepInEx\interop</Interop>
+    <HasGame Condition="'$(OldenEraDir)' != '' And Exists('$(BepInExCore)\BepInEx.Unity.IL2CPP.dll') And Exists('$(Interop)\UnityEngine.UI.dll')">true</HasGame>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(HasGame)' != 'true'">
+    <Compile Remove="**\*.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(HasGame)' == 'true'">
+    <Reference Include="BepInEx.Core" HintPath="$(BepInExCore)\BepInEx.Core.dll" Private="false" />
+    <Reference Include="BepInEx.Unity.Common" HintPath="$(BepInExCore)\BepInEx.Unity.Common.dll" Private="false" />
+    <Reference Include="BepInEx.Unity.IL2CPP" HintPath="$(BepInExCore)\BepInEx.Unity.IL2CPP.dll" Private="false" />
+    <Reference Include="Il2CppInterop.Common" HintPath="$(BepInExCore)\Il2CppInterop.Common.dll" Private="false" />
+    <Reference Include="Il2CppInterop.Runtime" HintPath="$(BepInExCore)\Il2CppInterop.Runtime.dll" Private="false" />
+    <Reference Include="0Harmony" HintPath="$(BepInExCore)\0Harmony.dll" Private="false" />
+    <Reference Include="Il2Cppmscorlib" HintPath="$(Interop)\Il2Cppmscorlib.dll" Private="false" />
+    <Reference Include="Il2CppSystem" HintPath="$(Interop)\Il2CppSystem.dll" Private="false" />
+    <Reference Include="UnityEngine" HintPath="$(Interop)\UnityEngine.dll" Private="false" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(Interop)\UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="UnityEngine.UI" HintPath="$(Interop)\UnityEngine.UI.dll" Private="false" />
+    <Reference Include="UnityEngine.UIModule" HintPath="$(Interop)\UnityEngine.UIModule.dll" Private="false" />
+    <Reference Include="UnityEngine.TextRenderingModule" HintPath="$(Interop)\UnityEngine.TextRenderingModule.dll" Private="false" />
+    <Reference Include="UnityEngine.InputLegacyModule" HintPath="$(Interop)\UnityEngine.InputLegacyModule.dll" Private="false" />
+    <Reference Include="Unity.InputSystem" HintPath="$(Interop)\Unity.InputSystem.dll" Private="false" />
+    <Reference Include="Unity.TextMeshPro" HintPath="$(Interop)\Unity.TextMeshPro.dll" Private="false" />
+    <ProjectReference Include="..\WoG.OldenEra\WoG.OldenEra.csproj" Private="false" />
+  </ItemGroup>
+</Project>

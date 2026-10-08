@@ -21,6 +21,7 @@ internal sealed class DebugBridge
 {
     readonly string dir, inDir, outDir;
     readonly DebugCommands commands;
+    public DebugCommands Commands => commands;
     readonly ManualLogSource log;
 
     public DebugBridge(string dir, WoGHost host, IDebugEngine engine, ManualLogSource log)

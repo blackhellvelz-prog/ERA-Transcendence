@@ -40,6 +40,11 @@ public sealed class WoGPlugin : BasePlugin
     internal static OldenEraSymbols? Symbols;
     internal static ManualLogSource? L;
     internal static DebugBridge? DebugBridge;
+    /// <summary>The WoG Debug commands (null when WoG Debug is off); the in-game window runs them.</summary>
+    public static WoG.Debug.DebugCommands? Commands => DebugBridge?.Commands;
+    /// <summary>Every frame on the game thread (the in-game debug window draws and reads keys here).</summary>
+    public static event Action? Frame;
+    internal static void RaiseFrame() => Frame?.Invoke();
 
     public override void Load()
     {
@@ -460,6 +465,8 @@ internal static class FrameHook
     static void Tick()
     {
         OldenEraGameAdapter.Frame++;
+        try { WoGPlugin.RaiseFrame(); }
+        catch (Exception ex) { WoGPlugin.L?.LogError("WoG frame handler failed: " + ex); }
         var now = DateTime.UtcNow;
         if (now < next) return;
         next = now.AddMilliseconds(250);

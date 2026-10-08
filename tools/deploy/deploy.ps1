@@ -4,7 +4,8 @@
     powershell -ExecutionPolicy Bypass -File tools\deploy\deploy.ps1 [-GamePath <dir>] [-DebugMode] [-NoBuild]
 
   Installs:
-    BepInEx\plugins\WoG\WoG.*.dll                 the plugin and the WoG libraries
+    BepInEx\plugins\WoG\WoG.*.dll                 the plugin and the WoG libraries (WoG.OldenEra.DebugUI.dll: the
+                                                  in-game WoG Debug window, active only with WoG Debug on)
     BepInEx\config\wog_symbols.json               game symbols (src\WoG.OldenEra\symbols; the old file is kept as .bak)
     BepInEx\config\WoG\id-maps\*.json             WoG/H3 id <-> Olden Era id tables (Compatibility\id-maps)
     BepInEx\config\WoG\mods\WoG Debug\            the ERA mod of the vertical slice
@@ -46,12 +47,17 @@ if (-not $NoBuild) {
     if (Test-Path $dotnet) { $env:DOTNET_ROOT = Split-Path $dotnet } else { $dotnet = "dotnet" }
     & $dotnet build (Join-Path $repo "src\WoG.OldenEra\WoG.OldenEra.csproj") -nologo -v q "-p:OldenEraDir=$GamePath"
     if ($LASTEXITCODE -ne 0) { throw "build failed" }
+    # the in-game WoG Debug window (needs BepInEx\interop, which BepInEx writes on the game's first start)
+    & $dotnet build (Join-Path $repo "src\WoG.OldenEra.DebugUI\WoG.OldenEra.DebugUI.csproj") -nologo -v q "-p:OldenEraDir=$GamePath"
+    if ($LASTEXITCODE -ne 0) { throw "build failed (debug window)" }
 }
 
 $plugin = Join-Path $bep "plugins\WoG"
 New-Item -ItemType Directory -Force $plugin | Out-Null
 Copy-Item (Join-Path $repo "src\WoG.OldenEra\bin\Debug\net6.0\WoG.*.dll") $plugin -Force
 Copy-Item (Join-Path $repo "src\WoG.OldenEra\bin\Debug\net6.0\WoG.*.pdb") $plugin -Force
+$ui = Join-Path $repo "src\WoG.OldenEra.DebugUI\bin\Debug\net6.0\WoG.OldenEra.DebugUI.dll"
+if (Test-Path $ui) { Copy-Item $ui, ($ui -replace '\.dll$', '.pdb') $plugin -Force }
 
 $cfg = Join-Path $bep "config"
 $wogCfg = Join-Path $cfg "WoG"

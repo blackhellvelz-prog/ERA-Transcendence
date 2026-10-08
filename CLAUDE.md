@@ -40,6 +40,7 @@ oracle check → log.
 | `src/WoG.Host` | `WoGHost`: ties everything together; `AddEraMods` + `StartNewGame/SaveTo/LoadFrom` |
 | `src/WoG.Headless` | in-memory headless reference engine for tests |
 | `src/WoG.OldenEra` | BepInEx 6 IL2CPP plugin: game symbols from `wog_symbols.json`, adapter, Harmony hooks |
+| `src/WoG.OldenEra.DebugUI` | in-game WoG Debug window (uGUI from the game's own sprites/fonts); compiles against Unity interop of the installed game, empty without it |
 | `src/WoG.OldenEra.Data` | `Core.zip` overlay (unit clones, buffs, localization) |
 | `tools/WoG.ErmTool` | `parse`, `run [--era]`, `compat [--era]`, `era-pp`, `probe-symbols` |
 | `tools/oe-recon/collect.ps1` | collects data about the Olden Era installation (read-only) |

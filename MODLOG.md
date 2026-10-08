@@ -489,3 +489,27 @@ unsupported commands. 166 xUnit tests.
   only their bits as in WoG (`H300` reads 44, `O9` reads -7); positions are checked against the map size. The engine
   is not involved, so it is fully supported on Olden Era. The unused `Squares` placeholder of the state was replaced.
 * Used 207 times in the core mod set. 187 xUnit tests.
+
+## 2026-10-08 — session 2, continued: the WoG Debug window in the game
+
+* **What:** `src/WoG.OldenEra.DebugUI` — a second BepInEx plugin (`wog.oldenera.debugui`, depends on the main one)
+  with an in-game console over the WoG Debug commands: a line starting with `!` is ERM code, anything else a debug
+  command (`state`, `vars v 1 10`, `help`, ...); buttons State / New day / Self-test / Compatibility / Help; history
+  with the arrow keys; errors red, *unsupported* yellow, passes green. F9 or the "WoG" button on the left edge opens
+  it; the title drags it. It exists only with WoG Debug on.
+* **The game's look, borrowed** `[V-game]`: a new bridge command `ui canvases | tree <name> | sprites <filter> | fonts`
+  reads the game's interface. The window uses the sprites of the game's message box (`ScMessageBox`: the 9-piece
+  frame `Window_ModalWindow_*`, buttons `buttom`/`buttom_MouseOver`, `buttom_violet`), the input frame of its input
+  box (`ScInputBox`: `TextFrame`), the golden scrollbar of the load screen (`Gold_Beck`/`Gold_Top`), `text_background`
+  behind the output, and the Amrys fonts with the game's own materials, taken from its visible texts (`RU-Regular` /
+  `AmrysRegular...SDF Material`, `RU-Medium` for headers). The game's fonts lack some symbols (✕, arrows): the window
+  uses plain letters.
+* **Build:** unlike the main plugin this project compiles against Unity's interop assemblies of the installed game
+  (`UnityEngine.*`, `Unity.TextMeshPro`, `Il2Cppmscorlib`; engine code, not obfuscated game code, never shipped,
+  `Private=false`); without `OLDEN_ERA_DIR` it builds an empty assembly. Nullable is off there: the interop assemblies
+  carry their own `System.Runtime.CompilerServices` types (CS0656). `deploy.ps1` builds and installs it.
+* **Plumbing:** `DebugCommands.Add(name, run, help)` lets modules add commands; `WoGPlugin.Commands` and the per-frame
+  `WoGPlugin.Frame` event.
+* **Verified:** the window builds in the main menu, opens, runs `state` typed into its input (the user tried it).
+* **Next (the user's idea):** a similar button for a **WoG Options** window with the ERA scripts in it (the WoG/ERA
+  options screen), in the same style.

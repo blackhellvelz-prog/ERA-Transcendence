@@ -27,8 +27,9 @@ the cheapest route → reading primary sources → vertical slice → oracle che
 | Commanders (`src/WoG.Commanders`) | the `npc.cpp` tables and formulas: levels, skills, special bonuses, artifacts, hiring/resurrection, battle profile |
 | Stack experience (`src/WoG.CreatureExperience`) | ranks, gaining experience after battle, merging, bonuses, `CREXPMOD/CREXPBON.TXT` loaders |
 | Olden Era plugin (`src/WoG.OldenEra`) | BepInEx 6 IL2CPP, builds against the real API; game symbols come from a config; everything unverified is disabled and reports *unsupported* |
+| WoG Debug window (`src/WoG.OldenEra.DebugUI`) | an in-game ERM and debug-command console (F9 or the "WoG" button), built from Olden Era's own window frame, buttons, fonts and scrollbar; only with WoG Debug on |
 | Data overlay (`src/WoG.OldenEra.Data`) | reading `Core.zip`, unit clones, experience-rank buffs, localization in the OE format |
-| Tests (`tests/WoG.Tests`) | 132 xUnit tests; the corpus tests run the real WoG and ERA scripts |
+| Tests (`tests/WoG.Tests`) | 187 xUnit tests; the corpus tests run the real WoG and ERA scripts |
 | Tools (`tools/`) | `WoG.ErmTool`: `parse`, `run`, `compat`, `era-pp`, `probe-symbols`; `oe-recon/collect.ps1` — collects data about an Olden Era installation |
 
 Verification on real scripts:
@@ -36,9 +37,10 @@ Verification on real scripts:
   of commands): preprocessing, parsing and running a new game + 7 days — **0 errors**;
 * WoG 3.58f (78 files) and WoG 3.59 (117 files): parsing and running — 0 errors.
 
-**Main limitation:** the work was done without a copy of Olden Era. Nothing has been **verified in game** yet.
-The next step is `OldenEra_ReverseEngineering/07_InGame_RE_Plan.md` on a machine with the game (best of all — a local
-Claude Code in the repository folder, see `HANDOFF.md`).
+**Status:** since session 2 (2026-10-07) the port runs in the real game (Olden Era 0.81.04, BepInEx 6): day start,
+object visits, battles, save/load of the WoG state, the map layer, heroes (skills, spells, artifacts), creature types
+and more are verified in game — each step with its evidence is in `MODLOG.md`; what is missing is reported as
+*unsupported* in `Compatibility/`.
 
 ## Build and tests
 
