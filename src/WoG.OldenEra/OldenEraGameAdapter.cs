@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using WoG.Core.Adapters;
 using WoG.Core.Ids;
 using WoG.Core.Model;
@@ -452,21 +453,14 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         return AdapterResult.Ok;
     }
 
+    static readonly string[] StackKeys = { "stack.unitSid", "stack.count", "stack.slot" };
+
     public AdapterResult<WoGStack> GetStack(int hero, int slot)
     {
-        if (!sym.Has("hero.army") || !sym.Has("stack.unitSid") || !sym.Has("stack.count") || !sym.Has("stack.slot"))
-            return Missing<WoGStack>("hero.army");
+        if (!sym.Has("hero.army") || StackKeys.Any(k => !sym.Has(k))) return Missing<WoGStack>("hero.army");
         var h = FindHero(hero);
         if (h == null) return AdapterResult<WoGStack>.Failed($"hero {hero} does not exist");
-        // OE keeps a list of units, each with its slot position; an empty slot has no unit.
-        var st = OldenEraSymbols.Items(sym.Read("hero.army", h))
-            .FirstOrDefault(u => u != null && Convert.ToInt32(sym.Read("stack.slot", u)) == slot);
-        if (st == null) return AdapterResult<WoGStack>.Ok(new WoGStack());
-        string sid = sym.Read("stack.unitSid", st)?.ToString() ?? "";
-        int count = Convert.ToInt32(sym.Read("stack.count", st));
-        if (!currentIds().TryGetWoG("creature", sid, out int type))
-            return AdapterResult<WoGStack>.Unsupported($"Olden Era unit '{sid}' has no WoG creature mapping");
-        return AdapterResult<WoGStack>.Ok(new WoGStack { Type = type, Count = count });
+        return ReadStack(sym.Read("hero.army", h), slot);
     }
 
     /// <summary>
@@ -475,13 +469,29 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     /// </summary>
     public AdapterResult SetStack(int hero, int slot, int type, int count)
     {
-        if (!sym.Has("hero.army") || !sym.Has("stack.unitSid") || !sym.Has("stack.count") || !sym.Has("stack.slot"))
-            return Missing("hero.army");
+        if (!sym.Has("hero.army") || StackKeys.Any(k => !sym.Has(k))) return Missing("hero.army");
         if (slot < 0 || slot >= WoGLimits.ArmySlots) return AdapterResult.Failed($"army slot {slot} out of range");
         var h = FindHero(hero);
         if (h == null) return AdapterResult.Failed($"hero {hero} does not exist");
         var list = sym.Read("hero.army", h);
-        if (list == null) return AdapterResult.Failed($"hero {hero} has no army");
+        return list == null ? AdapterResult.Failed($"hero {hero} has no army") : WriteStack(list, slot, type, count);
+    }
+
+    // An army (a hero's party, a town's garrison) is a list of units, each with its slot position; an empty slot
+    // has no unit.
+    AdapterResult<WoGStack> ReadStack(object? army, int slot)
+    {
+        var st = OldenEraSymbols.Items(army).FirstOrDefault(u => u != null && Convert.ToInt32(sym.Read("stack.slot", u)) == slot);
+        if (st == null) return AdapterResult<WoGStack>.Ok(new WoGStack());
+        string sid = sym.Read("stack.unitSid", st)?.ToString() ?? "";
+        int count = Convert.ToInt32(sym.Read("stack.count", st));
+        if (!currentIds().TryGetWoG("creature", sid, out int type))
+            return AdapterResult<WoGStack>.Unsupported($"Olden Era unit '{sid}' has no WoG creature mapping");
+        return AdapterResult<WoGStack>.Ok(new WoGStack { Type = type, Count = count });
+    }
+
+    AdapterResult WriteStack(object list, int slot, int type, int count)
+    {
         var existing = OldenEraSymbols.Items(list)
             .FirstOrDefault(u => u != null && Convert.ToInt32(sym.Read("stack.slot", u)) == slot);
         if (type < 0 || count <= 0)
@@ -1273,10 +1283,410 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     }
 
     public AdapterResult SetObjectOwner(MapPos pos, int owner) => Missing("object.setOwner");
-    public AdapterResult<int> TownAt(MapPos pos) => Missing<int>("town.list");
-    public AdapterResult<int> GetMageGuildLevel(int town) => Missing<int>("town.buildings");
-    public AdapterResult<bool> IsBuilt(int town, int building) => Missing<bool>("town.buildings");
-    public AdapterResult SetBuilt(int town, int building, bool built) => Missing("town.buildings");
+
+    // ---- towns ------------------------------------------------------------------------------
+    // Olden Era's cities are session objects (Data.objects: ObjCity) with their buildings (BuildingsData: one
+    // BuildingData per building of the faction, sid + level + isConstructed + bansPerLevel), dwellings (BuildingHire:
+    // HiredUnitSet currentAmount / weeklyIncrement), garrison (garnisonParty) and heroes (garnisonHeroId /
+    // visitorHeroId = Olden Era hero ids) [V-game: peeked in a skirmish]. WoG numbers towns 0..n-1 in the order of
+    // that list (H3: the order of the map file). The map object of a city (idMapObject) gives its ERM position.
+
+    static readonly string[] TownKeys = { "object.list", "town.class", "object.mapId", "object.owner", "town.buildings", "building.sid", "building.level", "building.built" };
+
+    List<object>? towns;
+    long townCacheTime;
+
+    /// <summary>The cities of this game in WoG numbering, refreshed at most every 100 ms.</summary>
+    List<object> TownTable()
+    {
+        long now = Environment.TickCount64;
+        if (towns != null && now - townCacheTime < 100) return towns;
+        townCacheTime = now;
+        towns = new List<object>();
+        if (Root() is not { } root) return towns;
+        var cls = sym.TypeOf("town.class");
+        foreach (var o in OldenEraSymbols.Items(sym.Read("object.list", root)))
+            if (o != null && MethodTrace.Real(o) is { } real && cls.IsInstanceOfType(real)) towns.Add(real);
+        return towns;
+    }
+
+    AdapterResult<object> City(int town)
+    {
+        if (TownKeys.FirstOrDefault(k => !sym.Has(k)) is { } missing) return Missing<object>(missing);
+        var all = TownTable();
+        return town >= 0 && town < all.Count ? AdapterResult<object>.Ok(all[town]) : AdapterResult<object>.Failed($"town {town} does not exist");
+    }
+
+    AdapterResult<T> FromCity<T>(int town, Func<object, AdapterResult<T>> read)
+    {
+        var c = City(town);
+        return c.IsOk ? read(c.Value) : c.Error<T>();
+    }
+
+    AdapterResult ChangeCity(int town, Func<object, AdapterResult> write)
+    {
+        var c = City(town);
+        return c.IsOk ? write(c.Value) : c.AsPlain();
+    }
+
+    public AdapterResult<int> TownCount() =>
+        TownKeys.FirstOrDefault(k => !sym.Has(k)) is { } missing ? Missing<int>(missing) : AdapterResult<int>.Ok(TownTable().Count);
+
+    public AdapterResult<int> TownAt(MapPos pos)
+    {
+        if (TownKeys.FirstOrDefault(k => !sym.Has(k)) is { } missing) return Missing<int>(missing);
+        var snap = Snapshot();
+        if (!snap.IsOk) return snap.Error<int>();
+        var all = TownTable();
+        for (int i = 0; i < all.Count; i++)
+            if (snap.Value.ById.TryGetValue(Convert.ToInt32(sym.Read("object.mapId", all[i])), out var o) && o.Position == pos)
+                return AdapterResult<int>.Ok(i);
+        return AdapterResult<int>.Failed("no town");
+    }
+
+    public AdapterResult<int> CurrentTown() => Missing<int>("town.current");
+
+    public AdapterResult<MapPos> GetTownPosition(int town) => FromCity(town, c =>
+    {
+        var snap = Snapshot();
+        if (!snap.IsOk) return snap.Error<MapPos>();
+        return snap.Value.ById.TryGetValue(Convert.ToInt32(sym.Read("object.mapId", c)), out var o)
+            ? AdapterResult<MapPos>.Ok(o.Position) : AdapterResult<MapPos>.Failed("the town has no map object");
+    });
+
+    public AdapterResult<int> GetTownOwner(int town) => FromCity(town, c =>
+    {
+        int side = Convert.ToInt32(sym.Read("object.owner", c));
+        return AdapterResult<int>.Ok(side >= 0 ? PlayerOfSide(side) : -1);
+    });
+
+    // The game's change of owner of a map object (fnt.bmiq(side id), -1 neutral) [V-game: a neutral city given to
+    // side 0 joined the player's town list, its view radius opened, the daily income grew].
+    public AdapterResult SetTownOwner(int town, int owner) => ChangeCity(town, c =>
+    {
+        if (!sym.Has("world.objectLogics") || !sym.Has("object.setOwner")) return Missing("object.setOwner");
+        int side = -1;
+        if (owner >= 0)
+        {
+            if (!sym.Has("player.id") || FindPlayer(owner) is not { } p) return AdapterResult.Failed($"player {owner} is not in the game");
+            side = Convert.ToInt32(sym.Read("player.id", p));
+        }
+        if (CityLogicObject(c) is not { } logic) return AdapterResult.Failed("the town has no map logic");
+        OldenEraSymbols.Call(logic, sym.MemberOf("object.setOwner")!.Name, side);
+        return AdapterResult.Ok;
+    });
+
+    // The faction of a city (its config sid "<faction>_city") as the closest H3 town (same table as creatures).
+    public AdapterResult<int> GetTownType(int town) => FromCity(town, c =>
+    {
+        if (!sym.Has("object.sid")) return Missing<int>("object.sid");
+        string sid = sym.Read("object.sid", c) as string ?? "";
+        string faction = sid.EndsWith("_city") ? sid[..^5] : sid;
+        return TownOfFraction.TryGetValue(faction, out int t) ? AdapterResult<int>.Ok(t)
+            : AdapterResult<int>.Unsupported($"Olden Era faction '{faction}' has no H3 town");
+    });
+
+    /// <summary>Olden Era's localized text of a key (it.iap); null when the game has none for it.</summary>
+    string? Localize(string key)
+    {
+        if (!sym.Has("loc.text") || sym.MemberOf("loc.text") is not MethodInfo m) return null;
+        var text = m.Invoke(null, new object[] { key }) as string;
+        return text == null || text.StartsWith("LOC:", StringComparison.Ordinal) ? null : text;
+    }
+
+    // A city's name is a localization key (human_city_name_16 → "Кузня Сердца") [V-game].
+    public AdapterResult<string> GetTownName(int town) => FromCity(town, c =>
+    {
+        if (!sym.Has("town.name")) return Missing<string>("town.name");
+        string key = sym.Read("town.name", c) as string ?? "";
+        if (Localize(key) is { } text) return AdapterResult<string>.Ok(text);
+        return AdapterResult<string>.Ok(currentIds().TryGetEngine(TownNameDomain, Convert.ToInt32(sym.Read("object.mapId", c)), out var name)
+            && RegisterText(key, name) ? name : key);
+    });
+
+    // A new name gets a localization key of its own (wog_town_<map object id>) in the game's table (it.btdt.cafu:
+    // key → {key, text, args}), which the town shows wherever the game names it. The table is not saved: the name is
+    // kept in the WoG state (IdMap "townName") and its key registered again when a game is loaded.
+    const string TownNameDomain = "townName", TownNameKey = "wog_town_";
+
+    public AdapterResult SetTownName(int town, string name) => ChangeCity(town, c =>
+    {
+        if (!sym.Has("town.name")) return Missing("town.name");
+        int id = Convert.ToInt32(sym.Read("object.mapId", c));
+        string key = TownNameKey + id;
+        if (!RegisterText(key, name)) return Missing("loc.entries");
+        currentIds().Set(TownNameDomain, id, name);
+        sym.Write("town.name", c, key);
+        return AdapterResult.Ok;
+    });
+
+    /// <summary>Registers the names WoG gave towns again (after a load: the localization table starts without them).</summary>
+    public void RestoreTownNames()
+    {
+        if (!TownKeys.All(sym.Has) || !sym.Has("town.name")) return;
+        foreach (var c in TownTable())
+            if (sym.Read("town.name", c) is string key && key.StartsWith(TownNameKey, StringComparison.Ordinal)
+                && currentIds().TryGetEngine(TownNameDomain, Convert.ToInt32(sym.Read("object.mapId", c)), out var name))
+                RegisterText(key, name);
+    }
+
+    bool RegisterText(string key, string text)
+    {
+        if (!sym.Has("loc.entries") || !sym.Has("locentry.key") || !sym.Has("locentry.text") || !sym.Has("locentry.args")) return false;
+        if (sym.Read("loc.entries", null) is not { } table) return false;
+        object entry;
+        if (Convert.ToBoolean(OldenEraSymbols.Call(table, "ContainsKey", key))) entry = OldenEraSymbols.Call(table, "get_Item", key)!;
+        else
+        {
+            entry = Activator.CreateInstance(sym.TypeOf("locentry.key"))!;
+            sym.Write("locentry.key", entry, key);
+            sym.Write("locentry.args", entry, new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStringArray(0));
+            OldenEraSymbols.Call(table, "set_Item", key, entry);
+        }
+        sym.Write("locentry.text", entry, text);
+        return true;
+    }
+
+    public AdapterResult<int> GetTownHero(int town, bool visitor) => FromCity(town, c =>
+    {
+        string key = visitor ? "town.visitorHero" : "town.garrisonHero";
+        if (!sym.Has(key)) return Missing<int>(key);
+        int id = Convert.ToInt32(sym.Read(key, c));
+        return AdapterResult<int>.Ok(id < 0 ? -1 : HeroNumber(id));
+    });
+
+    public AdapterResult SetTownHero(int town, bool visitor, int hero) =>
+        AdapterResult.Unsupported("moving a hero into a town or out of it is not mapped yet");
+
+    // H3 buildings (ERM help, building list) as Olden Era buildings and the level that makes them built. Olden Era
+    // levels are cumulative (a city hall is a main building of level 3), as WoG scripts expect of H3: they check the
+    // fort before the citadel, the basic dwelling before the upgraded one (ERA Scripts option 724, Tobyn's scripts).
+    static (string Sid, int Level)? OeBuilding(int b) => b switch
+    {
+        >= 0 and <= 4 => ("Build_Magic_Guild", b + 1),
+        5 => ("Build_Tavern", 1),
+        >= 7 and <= 9 => ("Build_Wall", b - 6),
+        >= 10 and <= 12 => ("Build_Main", b - 9),
+        14 => ("Build_Market", 1),
+        15 => ("Build_Resource_Depot", 1),
+        26 => (Grail, 1),
+        >= 30 and <= 36 => ($"Build_Tier_{b - 29}", 1),
+        >= 37 and <= 43 => ($"Build_Tier_{b - 36}", 2),
+        _ => null,
+    };
+
+    const string Grail = "<grail>";
+    // The grail building of each faction (DB/objects_logic/cities/*.json "graals") [V-data, 0.81.04].
+    static readonly HashSet<string> GrailSids = new()
+    {
+        "Build_Golden_Calf", "Build_Spring_of_Life", "Build_Eternal_Flame", "Build_Gaping_Maw", "Build_Spy_Network", "Build_Frigid_Firmament",
+    };
+
+    object? BuildingOf(object city, string sid) =>
+        OldenEraSymbols.Items(sym.Read("town.buildings", city))
+            .FirstOrDefault(b => b != null && sym.Read("building.sid", b) is string s && (sid == Grail ? GrailSids.Contains(s) : s == sid));
+
+    int BuiltLevel(object building) =>
+        Convert.ToBoolean(sym.Read("building.built", building)) ? Convert.ToInt32(sym.Read("building.level", building)) : 0;
+
+    /// <summary>How many levels a building has in this town (one ban flag per level: a human guild has 4).</summary>
+    int Levels(object building) => sym.Has("building.bans") ? OldenEraSymbols.Items(sym.Read("building.bans", building)).Count : int.MaxValue;
+
+    public AdapterResult<int> GetMageGuildLevel(int town) => FromCity(town, c =>
+        AdapterResult<int>.Ok(BuildingOf(c, "Build_Magic_Guild") is { } g ? BuiltLevel(g) : 0));
+
+    public AdapterResult SetMageGuildLevel(int town, int level) =>
+        AdapterResult.Unsupported("CA:G1 — Olden Era's guild level is its building: build it with CA:B1/B6");
+
+    // The spells a mage guild level offers: the city logic's list (fmr.bmdd(level 1..5) -> spell sids) [V-game: 7
+    // spells at level 1 of a guild of level 1, none at level 2]. Changing them is not mapped.
+    AdapterResult<IReadOnlyList<object?>> GuildSpells(object city, int level)
+    {
+        if (!sym.Has("world.objectLogics") || !sym.Has("citylogic.guildSpells")) return Missing<IReadOnlyList<object?>>("citylogic.guildSpells");
+        if (CityLogicObject(city) is not { } logic) return AdapterResult<IReadOnlyList<object?>>.Failed("the town has no map logic");
+        return AdapterResult<IReadOnlyList<object?>>.Ok(OldenEraSymbols.Items(OldenEraSymbols.Call(logic, sym.MemberOf("citylogic.guildSpells")!.Name, level + 1)));
+    }
+
+    const string GuildSpellChange = "CA:G2/G3 — changing the spells of an Olden Era mage guild is not mapped yet";
+
+    public AdapterResult<int> GetGuildSpellCount(int town, int level) => FromCity(town, c =>
+    {
+        var spells = GuildSpells(c, level);
+        return spells.IsOk ? AdapterResult<int>.Ok(spells.Value.Count) : spells.Error<int>();
+    });
+
+    public AdapterResult SetGuildSpellCount(int town, int level, int count) => AdapterResult.Unsupported(GuildSpellChange);
+
+    public AdapterResult<int> GetGuildSpell(int town, int level, int slot) => FromCity(town, c =>
+    {
+        var spells = GuildSpells(c, level);
+        if (!spells.IsOk) return spells.Error<int>();
+        if (slot >= spells.Value.Count) return AdapterResult<int>.Ok(-1);
+        string sid = spells.Value[slot] as string ?? "";
+        return currentIds().TryGetWoG("spell", sid, out int spell) ? AdapterResult<int>.Ok(spell)
+            : AdapterResult<int>.Unsupported($"Olden Era spell '{sid}' has no H3 number (id-maps/spell.json)");
+    });
+
+    public AdapterResult SetGuildSpell(int town, int level, int slot, int spell) => AdapterResult.Unsupported(GuildSpellChange);
+
+    public AdapterResult<bool> GetBuildingFlag(int town, int building, int check) => FromCity(town, c =>
+    {
+        if (OeBuilding(building) is not var (sid, level) || BuildingOf(c, sid) is not { } b) return AdapterResult<bool>.Ok(false);
+        if (check != 2) return AdapterResult<bool>.Ok(BuiltLevel(b) >= level); // the bonus of a building is its being built
+        if (!sym.Has("building.bans")) return Missing<bool>("building.bans");
+        var bans = OldenEraSymbols.Items(sym.Read("building.bans", b));
+        return AdapterResult<bool>.Ok(level - 1 < bans.Count && !Convert.ToBoolean(bans[level - 1]));
+    });
+
+    public AdapterResult SetAllowed(int town, int building, bool allowed) => ChangeCity(town, c =>
+    {
+        if (!sym.Has("building.bans")) return Missing("building.bans");
+        if (OeBuilding(building) is not var (sid, level) || BuildingOf(c, sid) is not { } b)
+            return AdapterResult.Unsupported($"building {building} has no Olden Era building in this town");
+        var bans = sym.Read("building.bans", b);
+        if (bans == null || level - 1 >= OldenEraSymbols.Items(bans).Count) return AdapterResult.Failed("the building has no ban for that level");
+        OldenEraSymbols.Call(bans, "set_Item", level - 1, !allowed);
+        return AdapterResult.Ok;
+    });
+
+    // B1 and B6 build through the game's own construction, one level at a time, without its cost and keeping the
+    // day's construction (WoG's B6 restores BuiltThisTurn; B1 never touches it).
+    public AdapterResult SetBuilt(int town, int building, bool built) =>
+        built ? Build(town, building) : Demolish(town, building);
+
+    public AdapterResult Build(int town, int building) => ChangeCity(town, c =>
+    {
+        if (!sym.Has("world.objectLogics") || !sym.Has("citylogic.buildings") || !sym.Has("buildings.construct")) return Missing("buildings.construct");
+        if (OeBuilding(building) is not var (sid, level) || BuildingOf(c, sid) is not { } b)
+            return AdapterResult.Unsupported($"building {building} has no Olden Era building in this town");
+        var logic = CityLogic(c);
+        if (logic == null) return AdapterResult.Failed("the town has no map logic");
+        sid = (string)sym.Read("building.sid", b)!;
+        if (level > Levels(b)) return AdapterResult.Unsupported($"{sid} of this Olden Era town has {Levels(b)} levels, not {level}");
+        // egz.bdkr is the player's construction: one per day, paid by the owner [V-game: Build_Wall 1 took 2500 gold
+        // and 5 ore, todaysConstructionsCount 0 -> 1; a second level the same day was refused; the grail, which costs
+        // a "graal" resource, was refused]. WoG's construction is free and keeps the day's one: the count is cleared
+        // before each level, the owner can afford anything meanwhile, and both are restored afterwards.
+        int today = sym.Has("town.builtToday") ? Convert.ToInt32(sym.Read("town.builtToday", c)) : -1;
+        int side = Convert.ToInt32(sym.Read("object.owner", c)), owner = side >= 0 ? PlayerOfSide(side) : -1;
+        var before = Resources(owner);
+        int built = BuiltLevel(b);
+        try
+        {
+            foreach (var (r, was) in before) sym.Write("resource.value", r, was + 1_000_000);
+            for (int l = built + 1; l <= level; l++)
+            {
+                if (today >= 0) sym.Write("town.builtToday", c, 0);
+                OldenEraSymbols.Call(logic, sym.MemberOf("buildings.construct")!.Name, sid, l);
+                if (BuiltLevel(b) < l) return AdapterResult.Failed($"the game does not let {sid} reach level {l} yet (what it needs is not built)");
+            }
+        }
+        finally
+        {
+            if (today >= 0) sym.Write("town.builtToday", c, today);
+            foreach (var (r, was) in before) sym.Write("resource.value", r, was);
+        }
+        return AdapterResult.Ok;
+    });
+
+    /// <summary>All resource objects of a player with their amounts (the heap holds more than H3's seven).</summary>
+    List<(object Resource, int Value)> Resources(int player)
+    {
+        var all = new List<(object, int)>();
+        if (!sym.Has("player.resources") || !sym.Has("resource.value") || FindPlayer(player) is not { } p) return all;
+        if (sym.Read("player.resources", p) is not { } heap) return all;
+        var resType = sym.TypeOf("resource.value");
+        foreach (var prop in heap.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            if (prop.PropertyType == resType && prop.GetValue(heap) is { } r)
+                all.Add((r, Convert.ToInt32(sym.Read("resource.value", r))));
+        return all;
+    }
+
+    // B2: Olden Era has no demolition of buildings.
+    AdapterResult Demolish(int town, int building) => ChangeCity(town, c =>
+    {
+        if (OeBuilding(building) is not var (sid, level) || BuildingOf(c, sid) is not { } b || BuiltLevel(b) < level) return AdapterResult.Ok;
+        return AdapterResult.Unsupported("CA:B2 — Olden Era has no demolition of buildings");
+    });
+
+    /// <summary>The map logic of a city (fmr), from the object logics by map object id.</summary>
+    object? CityLogicObject(object city)
+    {
+        var all = sym.Read("world.objectLogics", null);
+        int id = Convert.ToInt32(sym.Read("object.mapId", city));
+        if (all == null || !Convert.ToBoolean(OldenEraSymbols.Call(all, "ContainsKey", id))) return null;
+        return OldenEraSymbols.Call(all, "get_Item", id) is { } l ? MethodTrace.Real(l) : null;
+    }
+
+    /// <summary>The buildings logic of a city (egz).</summary>
+    object? CityLogic(object city) => CityLogicObject(city) is { } l ? sym.Read("citylogic.buildings", l) : null;
+
+    public AdapterResult<int> GetBuiltThisTurn(int town) => FromCity(town, c =>
+        sym.Has("town.builtToday") ? AdapterResult<int>.Ok(Convert.ToInt32(sym.Read("town.builtToday", c)) > 0 ? 1 : 0) : Missing<int>("town.builtToday"));
+
+    public AdapterResult SetBuiltThisTurn(int town, int value) => ChangeCity(town, c =>
+    {
+        if (!sym.Has("town.builtToday")) return Missing("town.builtToday");
+        sym.Write("town.builtToday", c, Math.Max(0, value));
+        return AdapterResult.Ok;
+    });
+
+    // Dwellings: Build_Tier_<level+1> (level 2 = upgraded) hires from one HiredUnitSet whose currentAmount serves both
+    // its basic and upgraded creatures; WoG's row of the building that stands is that number.
+    AdapterResult<(object Set, bool Upgraded)> Dwelling(object city, int level)
+    {
+        if (!sym.Has("town.hires") || !sym.Has("hire.sets") || !sym.Has("unitset.amount")) return Missing<(object, bool)>("town.hires");
+        string sid = $"Build_Tier_{level + 1}";
+        foreach (var h in OldenEraSymbols.Items(sym.Read("town.hires", city)))
+        {
+            if (h == null || sym.Read("building.sid", h) as string != sid) continue;
+            var set = OldenEraSymbols.Items(sym.Read("hire.sets", h)).FirstOrDefault(x => x != null);
+            return set == null ? AdapterResult<(object, bool)>.Failed("the dwelling has no creatures")
+                : AdapterResult<(object, bool)>.Ok((set, BuiltLevel(h) >= 2));
+        }
+        return AdapterResult<(object, bool)>.Failed($"the town has no dwelling of level {level}");
+    }
+
+    public AdapterResult<int> GetAvailable(int town, int level, int row) => FromCity(town, c =>
+    {
+        var d = Dwelling(c, level);
+        return d.IsOk ? AdapterResult<int>.Ok(Convert.ToInt32(sym.Read("unitset.amount", d.Value.Set))) : d.Error<int>();
+    });
+
+    public AdapterResult SetAvailable(int town, int level, int row, int count) => ChangeCity(town, c =>
+    {
+        var d = Dwelling(c, level);
+        if (!d.IsOk) return d.AsPlain();
+        if ((row == 1) == d.Value.Upgraded) sym.Write("unitset.amount", d.Value.Set, count);
+        return AdapterResult.Ok;
+    });
+
+    public AdapterResult<int> GetGrowth(int town, int level) => FromCity(town, c =>
+    {
+        if (!sym.Has("unitset.growth")) return Missing<int>("unitset.growth");
+        var d = Dwelling(c, level);
+        return d.IsOk ? AdapterResult<int>.Ok(Convert.ToInt32(sym.Read("unitset.growth", d.Value.Set))) : d.Error<int>();
+    });
+
+    public AdapterResult<WoGStack> GetGuard(int town, int slot) => FromCity(town, c =>
+        sym.Has("town.garrison") && StackKeys.All(sym.Has) ? ReadStack(sym.Read("town.garrison", c), slot) : Missing<WoGStack>("town.garrison"));
+
+    public AdapterResult SetGuard(int town, int slot, int type, int count) => ChangeCity(town, c =>
+    {
+        if (!sym.Has("town.garrison") || !StackKeys.All(sym.Has)) return Missing("town.garrison");
+        var list = sym.Read("town.garrison", c);
+        return list == null ? AdapterResult.Failed("the town has no garrison") : WriteStack(list, slot, type, count);
+    });
+
+    // The city logic's daily income by resource (fmr.bmcz -> {gold 1250, gemstones 1, dust 5}) [V-game]; WoG's S is the gold.
+    public AdapterResult<int> GetIncome(int town) => FromCity(town, c =>
+    {
+        if (!sym.Has("world.objectLogics") || !sym.Has("citylogic.income")) return Missing<int>("citylogic.income");
+        if (CityLogicObject(c) is not { } logic) return AdapterResult<int>.Failed("the town has no map logic");
+        var income = OldenEraSymbols.Call(logic, sym.MemberOf("citylogic.income")!.Name);
+        var gold = income == null ? null : OldenEraSymbols.Pairs(income)?.FirstOrDefault(x => x.Key as string == "gold").Value;
+        return AdapterResult<int>.Ok(gold == null ? 0 : Convert.ToInt32(gold));
+    });
 
     // ---- UI ---------------------------------------------------------------------------------
 

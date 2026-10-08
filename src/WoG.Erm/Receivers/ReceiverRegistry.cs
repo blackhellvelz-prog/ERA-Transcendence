@@ -74,6 +74,7 @@ public sealed class ReceiverRegistry
         reg.Register(new ObReceiver());
         reg.Register(new TrReceiver());
         reg.Register(new PoReceiver());
+        reg.Register(new CaReceiver());
         reg.Register(new BaReceiver());
         reg.Register(new TmReceiver());
         reg.Register(new HeReceiver());
@@ -109,6 +110,7 @@ public sealed class ReceiverRegistry
         reg.Register(new ObReceiver());
         reg.Register(new TrReceiver());
         reg.Register(new PoReceiver());
+        reg.Register(new CaReceiver());
         reg.Register(new BaReceiver());
         reg.Register(new TmReceiver());
         reg.Register(new HeReceiver());
@@ -201,6 +203,18 @@ public sealed class ReceiverRegistry
             "A: артефакты по позициям (0..18 надеты, 19..82 рюкзак); в Olden Era артефакты H3 сопоставлены по эффекту или названию (id-maps/artifact.json, 61 из 171), её предметы встают только в свой тип слота, боевых машин нет (книга заклинаний есть всегда), рюкзак без пропусков; A5 (замки слотов) не отображены",
         ["PO — WoG data of a map square, kept in the WoG state and saved with it"] =
             "PO — данные WoG для клетки карты, хранятся в состоянии WoG и сохраняются вместе с ним",
+        ["CA:B — buildings by H3 number: dwellings, mage guild, fort/citadel/castle, village/town/city hall, tavern, marketplace, resource silo and grail are Olden Era's buildings (a higher level counts its lower ones as built); the other numbers read as not built and cannot be built; B1/B6 build through the game's construction, free and without using the day's one; B4/B5 allow or forbid; B3…/1 (bonus taken) reads as built; B2 is not possible: Olden Era has no demolition"] =
+            "CA:B — здания по номерам H3: жилища, гильдия магов, форт/цитадель/замок, управа/ратуша/муниципалитет, таверна, рынок, склад ресурсов и Грааль — здания Olden Era (более высокий уровень засчитывает нижние как построенные); остальные номера читаются как не построенные и не строятся; B1/B6 строят через строительство игры, бесплатно и не тратя постройку дня; B4/B5 разрешают или запрещают; B3…/1 (бонус получен) читается как построено; B2 невозможен: сноса в Olden Era нет",
+        ["CA:M — M1 creatures to hire (Olden Era keeps one number per dwelling: the row of the building that stands is used), M2 the town's own garrison (creature ids via IdMap), M4 weekly growth (read only, as in WoG); M3 (summoning portal) is not mapped"] =
+            "CA:M — M1 существа для найма (в Olden Era одно число на жилище: используется строка того здания, что стоит), M2 собственный гарнизон города (id существ через IdMap), M4 недельный прирост (только чтение, как в WoG); M3 (портал призыва) не отображён",
+        ["CA:O/G/N/R/S — owner, mage guild level and spells, name (Olden Era's own, localized), built today, daily gold income; see the matrix for what can be changed"] =
+            "CA:O/G/N/R/S — владелец, уровень и заклинания гильдии магов, название (своё у Olden Era, локализованное), строился ли сегодня, дневной доход золота; что можно менять — см. матрицу",
+        ["CA:H/P/T/U — garrison and visiting hero, position, town type (Olden Era factions as the closest H3 town), town number: read; moving heroes into a town, moving a town, changing its type or number are not mapped"] =
+            "CA:H/P/T/U — герой в гарнизоне и гость, позиция, тип города (фракции Olden Era как ближайший город H3), номер города: чтение; перемещение героев в город, перенос города, смена его типа или номера не отображены",
+        ["CA:I — the ruined looks of a town (I-1, I1..I3) are not mapped; I0 (the look of its buildings) is what Olden Era shows"] =
+            "CA:I — разрушенный вид города (I-1, I1..I3) не отображён; I0 (вид по постройкам) — то, что Olden Era и так показывает",
+        ["CA:D — the recruitment window with several creatures of the Battery plugin (closed-source ERA DLL)"] =
+            "CA:D — окно найма нескольких существ из плагина Battery (закрытая DLL ERA)",
         ["ids via IdMap; display-slot forms are not supported"] = "id через IdMap; формы со слотами отображения не поддерживаются",
         ["not mapped yet"] = "ещё не отображено",
         ["resource ids via IdMap"] = "id ресурсов через IdMap",

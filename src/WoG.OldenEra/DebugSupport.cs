@@ -302,6 +302,15 @@ internal sealed class OldenEraDebugEngine : IDebugEngine
         {
             if (o == null) { error = $"null at {string.Join(".", segs.Take(i))}"; return null; }
             string s = segs[i];
+            if (s.StartsWith("[") && OldenEraSymbols.Pairs(o) is { } pairs)
+            {
+                // a dictionary: [key]
+                string key = s[1..^1];
+                var hit = pairs.FirstOrDefault(p => p.Key?.ToString() == key);
+                if (hit.Key == null) { error = $"key {key} not found (count {pairs.Count})"; return null; }
+                o = hit.Value;
+                continue;
+            }
             if (s.StartsWith("["))
             {
                 var items = OldenEraSymbols.Items(o);
@@ -353,10 +362,17 @@ internal sealed class OldenEraDebugEngine : IDebugEngine
     {
         var words = SplitArgs(args);
         if (words.Count < 2) return "usage: invoke <path> <method> [arg...]";
-        var target = Resolve(words[0], out var error);
-        if (error != null) return error;
-        if (target == null) return "null target";
-        target = MethodTrace.Real(target);
+        // a type of the game alone: its static methods
+        var staticType = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == "Hex")?.GetType(words[0]);
+        object? target = null;
+        if (staticType == null)
+        {
+            target = Resolve(words[0], out var error);
+            if (error != null) return error;
+            if (target == null) return "null target";
+            target = MethodTrace.Real(target);
+        }
+        var type = staticType ?? target!.GetType();
         var values = new List<object?>();
         foreach (var w in words.Skip(2))
         {
@@ -368,8 +384,8 @@ internal sealed class OldenEraDebugEngine : IDebugEngine
             }
             else values.Add(w);
         }
-        foreach (var m in target.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static)
-                     .Where(x => x.Name == words[1] && x.GetParameters().Length == values.Count))
+        foreach (var m in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.Static)
+                     .Where(x => x.Name == words[1] && x.GetParameters().Length == values.Count && (target != null || x.IsStatic)))
         {
             var ps = m.GetParameters();
             var call = new object?[values.Count];
@@ -381,7 +397,7 @@ internal sealed class OldenEraDebugEngine : IDebugEngine
             return $"{m.DeclaringType?.Name}.{m.Name}({string.Join(", ", ps.Select(x => x.ParameterType.Name))}) → " +
                    (m.ReturnType == typeof(void) ? "void" : Show(result, 10));
         }
-        return $"no method {words[1]}/{values.Count} accepting these arguments\n" + TypeMembers(target.GetType(), statics: false);
+        return $"no method {words[1]}/{values.Count} accepting these arguments\n" + TypeMembers(type, statics: target == null);
     }
 
     /// <summary>Words of a command line; "quoted text" stays one word (without the quotes, marked by a leading \0).</summary>
@@ -488,6 +504,13 @@ internal sealed class OldenEraDebugEngine : IDebugEngine
         var t = o.GetType();
         if (t.IsPrimitive || t.IsEnum || o is string) return o.ToString() ?? "";
         IReadOnlyList<object?>? items = null;
+        if (OldenEraSymbols.Pairs(o) is { } pairs)
+        {
+            var sb0 = new StringBuilder($"{MethodTrace.Describe(o)}\ncount {pairs.Count}\n");
+            foreach (var (key, value) in pairs.Take(max))
+                sb0.Append($"[{key}] {(only == null ? MethodTrace.Describe(value) : Project(value, only))}\n");
+            return sb0.ToString();
+        }
         try { items = OldenEraSymbols.Items(o); } catch (InvalidOperationException) { }
         if (items == null) return MethodTrace.Describe(o);
         var sb = new StringBuilder($"{MethodTrace.Describe(o)}\ncount {items.Count}\n");

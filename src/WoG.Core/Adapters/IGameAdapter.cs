@@ -123,12 +123,55 @@ public interface IMapAdapter
     AdapterResult SetObjectOwner(MapPos pos, int owner);
 }
 
+/// <summary>
+/// Towns, numbered as H3 keeps them (CA0/n, CA:U): 0..TownCount-1. Buildings are H3's numbers 0..43 (ERM help,
+/// building list); town types are H3's (Format T: 0 Castle … 8 Conflux).
+/// </summary>
 public interface ITownAdapter
 {
+    AdapterResult<int> TownCount();
+    /// <summary>The town whose ERM position (its entrance) is <paramref name="pos"/>.</summary>
     AdapterResult<int> TownAt(MapPos pos);
+    /// <summary>The town whose screen is open (CA-1).</summary>
+    AdapterResult<int> CurrentTown();
+    AdapterResult<MapPos> GetTownPosition(int town);
+    AdapterResult<int> GetTownOwner(int town);
+    /// <summary>The game's own change of owner (H3 0x4C5EA0); -1 = neutral.</summary>
+    AdapterResult SetTownOwner(int town, int owner);
+    AdapterResult<int> GetTownType(int town);
+    AdapterResult<string> GetTownName(int town);
+    AdapterResult SetTownName(int town, string name);
+    /// <summary>The hero in the garrison (<paramref name="visitor"/> false) or visiting the town; -1 = none.</summary>
+    AdapterResult<int> GetTownHero(int town, bool visitor);
+    AdapterResult SetTownHero(int town, bool visitor, int hero);
     AdapterResult<int> GetMageGuildLevel(int town);
-    AdapterResult<bool> IsBuilt(int town, int building);
+    AdapterResult SetMageGuildLevel(int town, int level);
+    /// <summary>G2/G3: the spells of mage guild level 0..4: how many it offers, and which (slot 0..5).</summary>
+    AdapterResult<int> GetGuildSpellCount(int town, int level);
+    AdapterResult SetGuildSpellCount(int town, int level, int count);
+    AdapterResult<int> GetGuildSpell(int town, int level, int slot);
+    AdapterResult SetGuildSpell(int town, int level, int slot, int spell);
+    /// <summary>B3: built (<paramref name="check"/> 0), its bonus taken (1), allowed to be built (2).</summary>
+    AdapterResult<bool> GetBuildingFlag(int town, int building, int check);
+    /// <summary>B1 (built) and B2 (destroyed; an upgrade leaves what it upgraded, WoG CSCheckERM).</summary>
     AdapterResult SetBuilt(int town, int building, bool built);
+    /// <summary>B4/B5: allow or forbid building it.</summary>
+    AdapterResult SetAllowed(int town, int building, bool allowed);
+    /// <summary>B6: the game's own construction (H3 0x5BF1E0): no cost, the day's construction is kept.</summary>
+    AdapterResult Build(int town, int building);
+    /// <summary>R: 1 when the town has built today.</summary>
+    AdapterResult<int> GetBuiltThisTurn(int town);
+    AdapterResult SetBuiltThisTurn(int town, int value);
+    /// <summary>M1: creatures to hire at a dwelling of level 0..6; row 0 its basic, 1 its upgraded building.</summary>
+    AdapterResult<int> GetAvailable(int town, int level, int row);
+    AdapterResult SetAvailable(int town, int level, int row, int count);
+    /// <summary>M4: weekly growth of a dwelling of level 0..6.</summary>
+    AdapterResult<int> GetGrowth(int town, int level);
+    /// <summary>M2: the town's own garrison, slots 0..6.</summary>
+    AdapterResult<WoGStack> GetGuard(int town, int slot);
+    AdapterResult SetGuard(int town, int slot, int type, int count);
+    /// <summary>S: the town's gold income per day.</summary>
+    AdapterResult<int> GetIncome(int town);
 }
 
 public interface IUiAdapter

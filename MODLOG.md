@@ -541,3 +541,46 @@ unsupported commands. 166 xUnit tests.
   the hero's square, PO; MA; debug commands), the result next to it in the console. New features get their buttons
   as they are made. The window got wider, draggable by its title, tighter lines.
 * 187 xUnit tests.
+
+## 2026-10-08 — session 2, continued: towns (CA)
+
+* **`CA` on Olden Era** (port of casdem.cpp `ERM_Castle`: selectors `CA0/n`, `CA-1`, x/y/l and a v index; commands
+  B G H I M N O P R S T U). A city is a session object `ObjCity` (`Data.objects.cnja`) with its buildings
+  (`BuildingsData.cniw`: `BuildingData` sid, level, isConstructed, bansPerLevel), dwellings (`BuildingHire`:
+  `HiredUnitSet` currentAmount / weeklyIncrement), garrison (`garnisonParty`) and heroes (`garnisonHeroId` /
+  `visitorHeroId` = Olden Era hero ids). Its map logic is `fmr` (`dbx.me.cfjj.cnmf.cozn[map object id]`), with the
+  buildings logic `egz` (`fmr.covs`). Towns are numbered in the order of the session objects; the position is that of
+  its map object. Verified in a skirmish `[V-game]`:
+  * names: `cityName` is a localization key (`human_city_name_16` → «Кузня Сердца» via `it.iap`); WoG reads the
+    localized name. A new name (`CA:N`, WoG script 169 "towns may be renamed") gets a key of its own
+    (`wog_town_<map id>`) in the game's table `it.btdt.cafu` (key → `cae` {key, text, args}); the name is kept in the
+    WoG state (IdMap `townName`) and registered again when a game is loaded. `it.iat(a, b)` is **not** "add a text": it
+    reinitialises fonts (it threw in `BhFont.Init`) — do not call it.
+  * buildings: H3's numbers map to Olden Era's buildings and levels (guild 1..5, fort/citadel/castle = wall 1..3,
+    village/town/city hall = main 1..3, tavern, marketplace, resource silo = resource depot, grail = the faction's grail
+    building, dwellings 1..7 = tier level 1, upgraded = level 2); a higher level counts the lower ones as built, as
+    WoG scripts expect (ERA Scripts option 724 checks the fort before the citadel; Tobyn's scripts check the basic
+    dwelling inside the upgraded one). `egz.bdkr(sid, level)` is the player's construction: it took 2500 gold and 5 ore
+    for the wall, raised `todaysConstructionsCount` to 1, refused a second level the same day and refused the grail
+    without the `graal` resource. WoG's construction (H3 0x5BF1E0) is free and keeps the day's construction, so
+    `B1`/`B6` clear the count before each level, let the owner afford anything meanwhile and restore both: castle
+    (wall 3), grail and city hall were built with the player's resources unchanged. A level the town's building does
+    not have (a human guild has 4) is unsupported (not verified in game yet); the game refusing (requirements) is an error. `B2`: no demolition.
+    `B4`/`B5`: `bansPerLevel` (the guild's level 3 forbidden and allowed again).
+  * owner: `fnt.bmiq(side)` is the game's change of owner (a neutral city given to the player joined his town list,
+    opened its view radius and raised the income).
+  * income `fmr.bmcz()` → {gold 1250, gemstones 1, dust 5}; guild spells `fmr.bmdd(level)` (7 at level 1); building a
+    second guild level gave it 6 spells. `BuildingMagicGuild.bjkh(int, int, string)` threw IndexOutOfRange — changing
+    guild spells stays unsupported.
+  * `M1` +10 creatures applied once (both H3 rows read Olden Era's single number; the row of the dwelling that stands
+    is written), `M2` put 5 pikemen into the garrison, `M4` reads `weeklyIncrement`.
+  * the game's "add resource" (`ecc.bbqk`) does not change the amount (`OW:R` has been using its fallback, a direct
+    write) — to be looked into.
+* Debug: `peek`/`invoke` walk IL2CPP dictionaries (`cozn[3]` by key, a listing shows `[key] value`); new command
+  `town [n]` (the towns; one town: owner, heroes, H3 buildings, dwellings, garrison); `{town}` in a command is the town
+  the active hero visits, else the current player's first. The WoG Debug window got a "Город" group (list, summary,
+  O/T/P/H, B3, build fort / citadel / guild, forbid / allow, B2, M1, M4, M2, R, G/S, rename); duplicated hero buttons
+  were removed.
+* Not verified on screen: the new name in the town screen (the town screen did not open by a click in this session);
+  the game resolves the key (`it.iap`).
+* 198 xUnit tests (`CaReceiverTests`: selectors, errors, B1-B6, M1/M2/M4, O/N/H/G/S, unsupported changes).

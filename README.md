@@ -38,8 +38,8 @@ Verification on real scripts:
 * WoG 3.58f (78 files) and WoG 3.59 (117 files): parsing and running — 0 errors.
 
 **Status:** since session 2 (2026-10-07) the port runs in the real game (Olden Era 0.81.04, BepInEx 6): day start,
-object visits, battles, save/load of the WoG state, the map layer, heroes (skills, spells, artifacts), creature types
-and more are verified in game — each step with its evidence is in `MODLOG.md`; what is missing is reported as
+object visits, battles, save/load of the WoG state, the map layer, heroes (skills, spells, artifacts), towns (buildings,
+creatures to hire, garrison, owner, name), creature types and more are verified in game — each step with its evidence is in `MODLOG.md`; what is missing is reported as
 *unsupported* in `Compatibility/`.
 
 ## Build and tests

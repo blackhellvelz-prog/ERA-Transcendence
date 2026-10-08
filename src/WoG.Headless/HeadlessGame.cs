@@ -370,25 +370,122 @@ public sealed class HeadlessGame : IGameAdapter, IHeroAdapter, IPlayerAdapter, I
         return AdapterResult.Ok;
     }
 
+    // ---- towns (H3's _CastleSetup_, erm.cpp/casdem.cpp ERM_Castle) ----------------------------
+
+    /// <summary>The town whose screen is open (CA-1); -1 = none.</summary>
+    public int CurrentTownId { get; set; } = -1;
+
+    public WoGTown AddTown(int id, int type, MapPos pos, int owner = -1)
+    {
+        var t = new WoGTown { Id = id, Type = type, Position = pos, Owner = owner };
+        TownList[id] = t;
+        Objects[pos.Pack()] = new WoGMapObject { Position = pos, Type = 98, SubType = type, Owner = owner };
+        return t;
+    }
+
+    AdapterResult<T> WithTown<T>(int town, Func<WoGTown, T> read) =>
+        TownList.TryGetValue(town, out var t) ? AdapterResult<T>.Ok(read(t)) : AdapterResult<T>.Failed($"town {town} does not exist");
+
+    AdapterResult ChangeTown(int town, Action<WoGTown> write)
+    {
+        if (!TownList.TryGetValue(town, out var t)) return AdapterResult.Failed($"town {town} does not exist");
+        write(t);
+        return AdapterResult.Ok;
+    }
+
+    public AdapterResult<int> TownCount() => AdapterResult<int>.Ok(TownList.Count);
+
     public AdapterResult<int> TownAt(MapPos pos)
     {
         foreach (var t in TownList.Values) if (t.Position == pos) return AdapterResult<int>.Ok(t.Id);
         return AdapterResult<int>.Failed("no town");
     }
 
-    public AdapterResult<int> GetMageGuildLevel(int town) =>
-        TownList.TryGetValue(town, out var t) ? AdapterResult<int>.Ok(t.MageGuildLevel) : AdapterResult<int>.Failed("no town");
+    public AdapterResult<int> CurrentTown() =>
+        CurrentTownId >= 0 ? AdapterResult<int>.Ok(CurrentTownId) : AdapterResult<int>.Failed("no town screen is open");
 
-    public AdapterResult<bool> IsBuilt(int town, int building) =>
-        TownList.TryGetValue(town, out var t) ? AdapterResult<bool>.Ok(t.Buildings.TryGetValue(building, out var b) && b.Built) : AdapterResult<bool>.Failed("no town");
+    public AdapterResult<MapPos> GetTownPosition(int town) => WithTown(town, t => t.Position);
+    public AdapterResult<int> GetTownOwner(int town) => WithTown(town, t => t.Owner);
 
-    public AdapterResult SetBuilt(int town, int building, bool built)
+    public AdapterResult SetTownOwner(int town, int owner) => ChangeTown(town, t =>
     {
-        if (!TownList.TryGetValue(town, out var t)) return AdapterResult.Failed("no town");
-        if (!t.Buildings.TryGetValue(building, out var b)) t.Buildings[building] = b = new WoGBuilding { Id = building };
-        b.Built = built;
-        return AdapterResult.Ok;
-    }
+        t.Owner = owner;
+        if (Objects.TryGetValue(t.Position.Pack(), out var o)) o.Owner = owner;
+    });
+
+    public AdapterResult<int> GetTownType(int town) => WithTown(town, t => t.Type);
+    public AdapterResult<string> GetTownName(int town) => WithTown(town, t => t.Name);
+    public AdapterResult SetTownName(int town, string name) => ChangeTown(town, t => t.Name = name);
+    public AdapterResult<int> GetTownHero(int town, bool visitor) => WithTown(town, t => visitor ? t.VisitorHero : t.GarrisonHero);
+
+    public AdapterResult SetTownHero(int town, bool visitor, int hero) => ChangeTown(town, t =>
+    {
+        if (visitor) t.VisitorHero = hero; else t.GarrisonHero = hero;
+        if (HeroList.TryGetValue(hero, out var h)) h.Position = t.Position;
+    });
+
+    public AdapterResult<int> GetMageGuildLevel(int town) => WithTown(town, t => t.MageGuildLevel);
+    public AdapterResult SetMageGuildLevel(int town, int level) => ChangeTown(town, t => t.MageGuildLevel = level);
+    public AdapterResult<int> GetGuildSpellCount(int town, int level) => WithTown(town, t => t.GuildSpellCount[level]);
+    public AdapterResult SetGuildSpellCount(int town, int level, int count) => ChangeTown(town, t => t.GuildSpellCount[level] = count);
+    public AdapterResult<int> GetGuildSpell(int town, int level, int slot) => WithTown(town, t => t.GuildSpells[level][slot]);
+    public AdapterResult SetGuildSpell(int town, int level, int slot, int spell) => ChangeTown(town, t => t.GuildSpells[level][slot] = spell);
+
+    public AdapterResult<bool> GetBuildingFlag(int town, int building, int check) =>
+        WithTown(town, t => t.Has(building, check switch { 0 => t.Built, 1 => t.Bonus, _ => t.Allowed }));
+
+    // CSCheckERM: what destroying a building leaves built (a guild level, a fort, a hall, a basic dwelling)
+    static int Predecessor(int building) => building switch
+    {
+        >= 1 and <= 4 => building - 1,
+        8 or 9 or 11 or 12 or 13 => building - 1,
+        >= 37 and <= 43 => building - 7,
+        _ => -1,
+    };
+
+    public AdapterResult SetBuilt(int town, int building, bool built) => ChangeTown(town, t =>
+    {
+        ulong bit = 1UL << building;
+        if (built)
+        {
+            t.Built |= bit;
+            t.Bonus |= bit;
+            return;
+        }
+        t.Built &= ~bit;
+        t.Bonus &= ~bit;
+        if (Predecessor(building) is var p and >= 0)
+        {
+            t.Built |= 1UL << p;
+            t.Bonus |= 1UL << p;
+        }
+    });
+
+    public AdapterResult SetAllowed(int town, int building, bool allowed) =>
+        ChangeTown(town, t => t.Allowed = allowed ? t.Allowed | 1UL << building : t.Allowed & ~(1UL << building));
+
+    // The game's construction builds what an upgrade needs first and fills the mage guild.
+    public AdapterResult Build(int town, int building) => ChangeTown(town, t =>
+    {
+        for (int b = building; b >= 0; b = Predecessor(b))
+        {
+            t.Built |= 1UL << b;
+            t.Bonus |= 1UL << b;
+        }
+        if (building <= 4) t.MageGuildLevel = Math.Max(t.MageGuildLevel, building + 1);
+    });
+
+    public AdapterResult<int> GetBuiltThisTurn(int town) => WithTown(town, t => t.BuiltThisTurn);
+    public AdapterResult SetBuiltThisTurn(int town, int value) => ChangeTown(town, t => t.BuiltThisTurn = value);
+    public AdapterResult<int> GetAvailable(int town, int level, int row) => WithTown(town, t => t.Available[row][level]);
+    public AdapterResult SetAvailable(int town, int level, int row, int count) => ChangeTown(town, t => t.Available[row][level] = count);
+    public AdapterResult<int> GetGrowth(int town, int level) => WithTown(town, t => t.Growth[level]);
+    public AdapterResult<WoGStack> GetGuard(int town, int slot) => WithTown(town, t => t.Garrison.Slots[slot].Clone());
+
+    public AdapterResult SetGuard(int town, int slot, int type, int count) =>
+        ChangeTown(town, t => t.Garrison.Slots[slot] = new WoGStack { Type = type, Count = count });
+
+    public AdapterResult<int> GetIncome(int town) => WithTown(town, t => t.Income);
 
     // ---- UI ---------------------------------------------------------------------------------
 

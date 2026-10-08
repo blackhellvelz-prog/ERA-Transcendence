@@ -66,6 +66,8 @@ public sealed class DebugCommands
         "  compat                       commands the engine could not perform so far\n" +
         "  vars v|z <from> <to>         ERM variables; vars i <name> for i^name^\n" +
         "  hero [number]                a hero through the WoG layer: stats, skills, spells, artifacts by position\n" +
+        "  town [number]                the towns (CA numbers); one town: owner, heroes, H3 buildings, dwellings, garrison\n" +
+        "                               {town} in any command: the town the active hero visits, else the player's first\n" +
         "  peek <path> [max]            read a game object: root.heroes.list[0].node, Type.staticMember.member...\n" +
         "  invoke <path> <method> [arg...]  call a game method; args: numbers, \"text\", true/false, null, @<path>\n" +
         "  set <path>.<member> <value>  write a member of a game object (same values as invoke)\n" +
@@ -78,6 +80,7 @@ public sealed class DebugCommands
         int sp = text.IndexOfAny(new[] { ' ', '\n', '\r', '\t' });
         string cmd = (sp < 0 ? text : text[..sp]).ToLowerInvariant();
         string rest = sp < 0 ? "" : text[(sp + 1)..].Trim();
+        if (rest.Contains("{town}")) rest = rest.Replace("{town}", DefaultTown().ToString());
         try
         {
             return cmd switch
@@ -92,6 +95,7 @@ public sealed class DebugCommands
                 "compat" => host.Compat.ToMarkdown(),
                 "vars" => Vars(rest),
                 "hero" => Hero(rest),
+                "town" => Town(rest),
                 "peek" => engine?.Peek(rest) ?? "no engine",
                 "invoke" => engine?.Invoke(rest) ?? "no engine",
                 "set" => engine?.Set(rest) ?? "no engine",
@@ -135,6 +139,79 @@ public sealed class DebugCommands
         var xs = r.Returns.Select((v, i) => (v, i)).Where(p => p.v != 0).Select(p => $"x{p.i + 1}={p.v}").ToList();
         if (xs.Count > 0) sb.Append("  ").Append(string.Join(" ", xs)).Append('\n');
         foreach (var l in r.Log) sb.Append("  log: ").Append(l).Append('\n');
+        return sb.ToString();
+    }
+
+    // H3 town types (Format T) and buildings (ERM help, building list)
+    static readonly string[] TownTypes = { "Замок", "Оплот", "Башня", "Инферно", "Некрополис", "Темница", "Цитадель", "Крепость", "Сопряжение" };
+
+    static readonly string[] BuildingNames =
+    {
+        "гильдия магов 1", "гильдия магов 2", "гильдия магов 3", "гильдия магов 4", "гильдия магов 5", "таверна", "верфь",
+        "форт", "цитадель", "замок", "управа", "ратуша", "муниципалитет", "капитолий", "рынок", "склад ресурсов", "кузница",
+        "особое 1", "орда 1", "орда 1+", "корабль", "особое 2", "особое 3", "особое 4", "орда 2", "орда 2+", "Грааль",
+        "декор 1", "декор 2", "декор 3",
+        "жилище 1", "жилище 2", "жилище 3", "жилище 4", "жилище 5", "жилище 6", "жилище 7",
+        "жилище 1+", "жилище 2+", "жилище 3+", "жилище 4+", "жилище 5+", "жилище 6+", "жилище 7+",
+    };
+
+    /// <summary>The town the active hero visits, else the current player's first town, else town 0 ({town} in commands).</summary>
+    int DefaultTown()
+    {
+        var g = host.Game;
+        int count = g.Towns.TownCount() is { IsOk: true } c ? c.Value : 0;
+        if (g.Players.GetActiveHero(g.Players.CurrentPlayer) is { IsOk: true } h)
+            for (int t = 0; t < count; t++)
+                if (g.Towns.GetTownHero(t, true) is { IsOk: true } v && v.Value == h.Value) return t;
+        for (int t = 0; t < count; t++)
+            if (g.Towns.GetTownOwner(t) is { IsOk: true } o && o.Value == g.Players.CurrentPlayer) return t;
+        return 0;
+    }
+
+    /// <summary>town [number] — the towns as ERM numbers them, or one town as the WoG layer sees it.</summary>
+    string Town(string args)
+    {
+        var g = host.Game;
+        var towns = g.Towns;
+        string Val<T>(AdapterResult<T> r) => r.IsOk ? r.Value?.ToString() ?? "-" : "?";
+        string Type(int t) => towns.GetTownType(t) is { IsOk: true } r ? (r.Value >= 0 && r.Value < TownTypes.Length ? TownTypes[r.Value] : "#" + r.Value) : "?";
+        var count = towns.TownCount();
+        if (!count.IsOk) return "towns: " + count;
+        var sb = new StringBuilder();
+        if (args.Length == 0)
+        {
+            sb.Append($"towns: {count.Value}\n");
+            for (int t = 0; t < count.Value; t++)
+                sb.Append($"  {t} \"{Val(towns.GetTownName(t))}\" {Type(t)}, owner {Val(towns.GetTownOwner(t))}, at {Val(towns.GetTownPosition(t))}\n");
+            return sb.ToString();
+        }
+        int n = int.Parse(args.Trim());
+        sb.Append($"town {n} \"{Val(towns.GetTownName(n))}\" {Type(n)}, owner {Val(towns.GetTownOwner(n))}, at {Val(towns.GetTownPosition(n))}\n");
+        sb.Append($"  heroes: garrison {Val(towns.GetTownHero(n, false))}, visitor {Val(towns.GetTownHero(n, true))}; " +
+                  $"mage guild {Val(towns.GetMageGuildLevel(n))}; built today {Val(towns.GetBuiltThisTurn(n))}; income {Val(towns.GetIncome(n))}\n");
+        var built = new List<string>();
+        var banned = new List<string>();
+        for (int b = 0; b < WoGTown.Buildings; b++)
+        {
+            if (towns.GetBuildingFlag(n, b, 0) is { IsOk: true, Value: true }) built.Add($"{b} {BuildingNames[b]}");
+            else if (towns.GetBuildingFlag(n, b, 2) is { IsOk: true, Value: false } && towns.GetBuildingFlag(n, b, 0).IsOk) banned.Add(b.ToString());
+        }
+        sb.Append("  built: ").Append(built.Count == 0 ? "-" : string.Join(", ", built)).Append('\n');
+        sb.Append("  not allowed: ").Append(banned.Count == 0 ? "-" : string.Join(" ", banned)).Append('\n');
+        var dwellings = new List<string>();
+        for (int l = 0; l < WoGTown.Levels; l++)
+            if (towns.GetAvailable(n, l, 0) is { IsOk: true } a)
+                dwellings.Add($"{l}: {a.Value}/{Val(towns.GetAvailable(n, l, 1))} (+{Val(towns.GetGrowth(n, l))})");
+        sb.Append("  to hire (basic/upgraded, +growth): ").Append(dwellings.Count == 0 ? "-" : string.Join(", ", dwellings)).Append('\n');
+        var guards = new List<string>();
+        for (int s = 0; s < WoGLimits.ArmySlots; s++)
+        {
+            var st = towns.GetGuard(n, s);
+            if (!st.IsOk) { guards.Add($"{s}: {st}"); break; }
+            if (!st.Value.IsEmpty)
+                guards.Add($"{s}: {st.Value.Count} x {st.Value.Type} {(st.Value.Type < host.H3.Creatures.Count ? host.H3.Creatures[st.Value.Type].Name : "")}".TrimEnd());
+        }
+        sb.Append("  garrison: ").Append(guards.Count == 0 ? "-" : string.Join(", ", guards)).Append('\n');
         return sb.ToString();
     }
 

@@ -106,7 +106,26 @@ public sealed class OldenEraSymbols
         "save.write", "save.read",   // methods: save/load (side-car WoG state)
         "hero.position", "hero.move", "hero.skills", "hero.name", "hero.kill",
         "stack.create", "player.activeHero", "player.heroes",
-        "map.objects", "town.list", "town.buildings", "battle.stacks", "battle.summon",
+        "map.objects", "battle.stacks", "battle.summon",
+        "town.class",                // the session object type of a city (ObjCity)
+        "object.sid",                // session object → its config sid ("human_city")
+        "town.name",                 // city → its name (a localization key)
+        "town.garrisonHero", "town.visitorHero", // city → Olden Era hero id in the garrison / visiting (-1 none)
+        "town.buildings",            // city → all its buildings (BuildingData)
+        "building.sid", "building.level", "building.built", "building.bans", // building → sid / level / constructed / bans per level
+        "town.hires", "hire.sets",   // city → its dwellings; dwelling → its unit sets
+        "unitset.amount", "unitset.growth", // unit set → creatures to hire / weekly growth
+        "town.garrison",             // city → the units of its own garrison
+        "town.builtToday",           // city → constructions made today
+        "world.objectLogics",        // static path to the logic objects of the map objects, by map object id
+        "object.setOwner",           // method of a map object's logic: change its owner (side id, -1 neutral)
+        "citylogic.buildings",       // city logic → its buildings logic
+        "citylogic.income",          // method of the city logic: daily income by resource name
+        "citylogic.guildSpells",     // method of the city logic: the spell sids of a mage guild level (1..5)
+        "buildings.construct",       // method of the buildings logic: construct (sid, level)
+        "loc.text",                  // static method: the localized text of a key
+        "loc.entries",               // static path to the localization table (key → entry)
+        "locentry.key", "locentry.text", "locentry.args", // localization entry → key / text / format arguments
         "map.root",                  // static path to the adventure map (Hex.Map.Map)
         "map.sizeX", "map.sizeZ",    // map → width / height in nodes (node = x + z·sizeX)
         "mapobj.id", "mapobj.node",  // map object → its map object id / pivot node
@@ -288,6 +307,7 @@ public sealed class OldenEraSymbols
     {
         if (collection == null) return Array.Empty<object?>();
         if (collection is IEnumerable e) return e.Cast<object?>().ToList();
+        if (Pairs(collection) is { } pairs) return pairs.Select(p => p.Value).ToList();
         var t = collection.GetType();
         var count = t.GetProperty("Count");
         var item = t.GetMethod("get_Item", new[] { typeof(int) });
@@ -296,5 +316,25 @@ public sealed class OldenEraSymbols
         var list = new List<object?>(n);
         for (int i = 0; i < n; i++) list.Add(item.Invoke(collection, new object[] { i }));
         return list;
+    }
+
+    /// <summary>
+    /// The key/value pairs of an IL2CPP dictionary (its enumerator's KeyValuePairs), or null when the object is not
+    /// one. Its get_Item takes a key, not an index, so <see cref="Items"/> gives its values.
+    /// </summary>
+    public static List<(object? Key, object? Value)>? Pairs(object collection)
+    {
+        var t = collection.GetType();
+        if (t.GetMethod("ContainsKey") == null || t.GetMethod("GetEnumerator", Type.EmptyTypes) is not { } get) return null;
+        var en = get.Invoke(collection, null)!;
+        var move = en.GetType().GetMethod("MoveNext", Type.EmptyTypes)!;
+        var current = en.GetType().GetProperty("Current")!;
+        var pairs = new List<(object?, object?)>();
+        while ((bool)move.Invoke(en, null)!)
+        {
+            var kv = current.GetValue(en)!;
+            pairs.Add((kv.GetType().GetProperty("Key")!.GetValue(kv), kv.GetType().GetProperty("Value")!.GetValue(kv)));
+        }
+        return pairs;
     }
 }

@@ -860,6 +860,195 @@
       "Member": "bayw",
       "Status": "verified",
       "Note": "0.81.04: eah.bayw(subSkillSid): the pick of a sub-skill (traced: LevelUp.batq → eah.bayw(sub_skill_luck_6) → PermanentActive) | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+    },
+    "town.class": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.ObjCity",
+      "Member": "",
+      "Status": "verified",
+      "Note": "0.81.04: the session object of a city (Data.objects.cnja holds 7 of them on the test map) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "object.sid": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataObject",
+      "Member": "sidConfig",
+      "Status": "verified",
+      "Note": "0.81.04: \"human_city\", \"undead_city\"… | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "town.name": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.ObjCity",
+      "Member": "cityName",
+      "Status": "verified",
+      "Note": "0.81.04: a localization key: human_city_name_16 → it.iap → \"Кузня Сердца\" | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "town.garrisonHero": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.ObjCity",
+      "Member": "garnisonHeroId",
+      "Status": "verified",
+      "Note": "0.81.04: -1 none | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "town.visitorHero": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.ObjCity",
+      "Member": "visitorHeroId",
+      "Status": "verified",
+      "Note": "0.81.04: 105 while hero 105 stood in the town | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "town.buildings": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.ObjCity",
+      "Member": "buildings.cniw",
+      "Status": "verified",
+      "Note": "0.81.04: List<BuildingData>, 20 for a human city (Build_Main level 2, Build_Wall level 1 isConstructed False…) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "building.sid": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.BuildingData",
+      "Member": "sid",
+      "Status": "verified",
+      "Note": "0.81.04: \"Build_Tier_7\" | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "building.level": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.BuildingData",
+      "Member": "level",
+      "Status": "verified",
+      "Note": "0.81.04: 1..3; 1 also for a building not constructed | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "building.built": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.BuildingData",
+      "Member": "isConstructed",
+      "Status": "verified",
+      "Note": "0.81.04:  | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "building.bans": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.BuildingData",
+      "Member": "bansPerLevel",
+      "Status": "verified",
+      "Note": "0.81.04: bool[] per level (4 for a human mage guild, 3 for a wall), all False; set_Item(2, True) forbade the guild's level 3 (CA:B5/2, B3/2/2 → 0) and False allowed it again | verified 2026-10-08 (0.81.04) with WoG Debug peek and CA in a skirmish"
+    },
+    "town.hires": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.ObjCity",
+      "Member": "buildings.hires",
+      "Status": "verified",
+      "Note": "0.81.04: List<BuildingHire>: Build_Tier_1..7 | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "hire.sets": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.BuildingHire",
+      "Member": "assortment.unitSets",
+      "Status": "verified",
+      "Note": "0.81.04: HiredUnitSet {sids [esquire, esquire_upg, esquire_upg_alt], level, weeklyIncrement, currentAmount, selectedIndex} | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "unitset.amount": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.HiredUnitSet",
+      "Member": "currentAmount",
+      "Status": "verified",
+      "Note": "0.81.04:  | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "unitset.growth": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.HiredUnitSet",
+      "Member": "weeklyIncrement",
+      "Status": "verified",
+      "Note": "0.81.04: HiredUnitSet.weeklyIncrement: 18 for level-1 esquires (= the amount at the start of the week) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "town.garrison": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataObject",
+      "Member": "garnisonParty.units",
+      "Status": "verified",
+      "Note": "0.81.04: List<Unit> (empty in the player's town) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "town.builtToday": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.ObjCity",
+      "Member": "buildings.todaysConstructionsCount",
+      "Status": "verified",
+      "Note": "0.81.04: 0 at the start of a day | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "world.objectLogics": {
+      "Assembly": "Hex",
+      "Type": "dbx",
+      "Member": "me.cfjj.cnmf.cozn",
+      "Status": "verified",
+      "Note": "0.81.04: Dictionary<int, fnt>: map object id → its logic (213 on the test map; 3 → fmr, the city logic) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "citylogic.buildings": {
+      "Assembly": "Hex",
+      "Type": "fmr",
+      "Member": "covs",
+      "Status": "verified",
+      "Note": "0.81.04: fmr.covs: egz, the buildings logic of a city | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "buildings.construct": {
+      "Assembly": "Hex",
+      "Type": "egz",
+      "Member": "bdkr",
+      "Status": "verified",
+      "Note": "0.81.04: egz.bdkr(String sid, Int32 level): the player's construction — Build_Wall 1 became constructed, 2500 gold and 5 ore were taken, todaysConstructionsCount 0 → 1 | verified 2026-10-08 (0.81.04) with WoG Debug invoke in a skirmish"
+    },
+    "loc.text": {
+      "Assembly": "Hex",
+      "Type": "it",
+      "Member": "iap",
+      "Status": "verified",
+      "Note": "0.81.04: static it.iap(key) → localized text; \"LOC:key\" when there is none | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "citylogic.income": {
+      "Assembly": "Hex",
+      "Type": "fmr",
+      "Member": "bmcz",
+      "Status": "verified",
+      "Note": "0.81.04: fmr.bmcz() → Dictionary<string,int> {gold 1250, gemstones 1, dust 5} for the player's human city | verified 2026-10-08 (0.81.04) with WoG Debug invoke in a skirmish"
+    },
+    "citylogic.guildSpells": {
+      "Assembly": "Hex",
+      "Type": "fmr",
+      "Member": "bmdd",
+      "Status": "verified",
+      "Note": "0.81.04: fmr.bmdd(int level 1..5) → List<string> spell sids (7 at level 1 of a level-1 guild, 0 at level 2) | verified 2026-10-08 (0.81.04) with WoG Debug invoke in a skirmish"
+    },
+    "loc.entries": {
+      "Assembly": "Hex",
+      "Type": "it",
+      "Member": "btdt.cafu",
+      "Status": "verified",
+      "Note": "0.81.04: static it.btdt (cad, language russian).cafu: Dictionary<string, cae>, 13991 entries | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "locentry.key": {
+      "Assembly": "Hex",
+      "Type": "cae",
+      "Member": "cafy",
+      "Status": "verified",
+      "Note": "0.81.04: cae.cafy = the key (human_city_name_16); the type has a parameterless constructor | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "locentry.text": {
+      "Assembly": "Hex",
+      "Type": "cae",
+      "Member": "cafz",
+      "Status": "verified",
+      "Note": "0.81.04: cae.cafz = the text (Кузня Сердца) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "locentry.args": {
+      "Assembly": "Hex",
+      "Type": "cae",
+      "Member": "caga",
+      "Status": "verified",
+      "Note": "0.81.04: cae.caga = Il2CppStringArray of format arguments (empty for a city name) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+    },
+    "object.setOwner": {
+      "Assembly": "Hex",
+      "Type": "fnt",
+      "Member": "bmiq",
+      "Status": "verified",
+      "Note": "0.81.04: fnt.bmiq(int side): a neutral city (map id 4) given to side 0 got ownerSide 0, joined the player's town list, opened its view radius and raised the daily income | verified 2026-10-08 (0.81.04) with WoG Debug invoke in a skirmish"
     }
   }
 }

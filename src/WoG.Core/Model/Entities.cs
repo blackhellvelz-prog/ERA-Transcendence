@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WoG.Core.Model;
 
@@ -185,23 +186,34 @@ public sealed class WoGSpell
     public int Level { get; set; }
 }
 
-public sealed class WoGBuilding
-{
-    public int Id { get; set; }
-    public bool Built { get; set; }
-    public bool Enabled { get; set; } = true;
-}
-
+/// <summary>A town as H3's _CastleSetup_ keeps it (the headless engine; Olden Era maps its own city data).</summary>
 public sealed class WoGTown
 {
+    public const int Buildings = 44, Levels = 7;
+
     public int Id { get; set; }
     public int Type { get; set; }
     public string Name { get; set; } = "";
     public int Owner { get; set; } = -1;
     public MapPos Position { get; set; } = MapPos.None;
+    public int GarrisonHero { get; set; } = -1;
+    public int VisitorHero { get; set; } = -1;
     public int MageGuildLevel { get; set; }
-    public Dictionary<int, WoGBuilding> Buildings { get; set; } = new();
+    /// <summary>Spells of the mage guild levels 0..4: how many each offers, and which (6 slots, -1 = none).</summary>
+    public int[] GuildSpellCount { get; set; } = new int[5];
+    public int[][] GuildSpells { get; set; } = Enumerable.Range(0, 5).Select(_ => Enumerable.Repeat(-1, 6).ToArray()).ToArray();
+    /// <summary>Building bits 0..43: built, bonus taken, allowed to be built (Built, Bonus, BMask).</summary>
+    public ulong Built { get; set; }
+    public ulong Bonus { get; set; }
+    public ulong Allowed { get; set; } = (1UL << Buildings) - 1;
+    public int BuiltThisTurn { get; set; }
+    /// <summary>Creatures to hire: [0] basic dwellings, [1] upgraded ones, levels 0..6.</summary>
+    public int[][] Available { get; set; } = { new int[Levels], new int[Levels] };
+    public int[] Growth { get; set; } = new int[Levels];
     public WoGArmy Garrison { get; set; } = new();
+    public int Income { get; set; }
+
+    public bool Has(int building, ulong mask) => building is >= 0 and < Buildings && (mask & (1UL << building)) != 0;
 }
 
 /// <summary>

@@ -231,6 +231,7 @@ internal static class WoGSession
             if (File.Exists(file))
             {
                 host.LoadFrom(file, hash);
+                adapter.RestoreTownNames();
                 WoGPlugin.L?.LogInfo($"WoG: loaded game — WoG state restored ({hash})");
             }
             else
