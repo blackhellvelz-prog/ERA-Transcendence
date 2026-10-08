@@ -68,6 +68,7 @@ public sealed class ErmConsole
             erm.Load(script, newGame: true);
             // FireErmEventEx: an ERA function (95000+) is called like any event, with x1..x16 = args.
             erm.RaiseEra(erm.EraNames.Functions[name], new ErmEventContext { Player = host.Game.Players.CurrentPlayer }, args);
+            result.Returns = erm.LastReturns;
         }
         else
         {

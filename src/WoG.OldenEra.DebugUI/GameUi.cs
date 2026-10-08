@@ -170,16 +170,7 @@ internal static class GameUi
     /// <summary>A scrolling text area with the golden scrollbar of the game's load screen.</summary>
     public static (ScrollRect scroll, TextMeshProUGUI text) Output(RectTransform parent)
     {
-        Img(parent, "text_background", Image.Type.Sliced, new Color(1, 1, 1, 0.85f));
-        var scroll = parent.gameObject.AddComponent<ScrollRect>();
-        var viewport = Place(Rect("Viewport", parent), 0, 0, 1, 1, 24, 16, 60, 16);
-        viewport.gameObject.AddComponent<RectMask2D>();
-        var content = Rect("Content", viewport);
-        content.anchorMin = new Vector2(0, 1);
-        content.anchorMax = new Vector2(1, 1);
-        content.pivot = new Vector2(0.5f, 1);
-        content.offsetMin = new Vector2(0, 0);
-        content.offsetMax = new Vector2(0, 0);
+        var (scroll, content) = Scrolling(parent);
         var text = content.gameObject.AddComponent<TextMeshProUGUI>();
         text.font = Font;
         text.fontSharedMaterial = FontMaterial;
@@ -190,6 +181,43 @@ internal static class GameUi
         text.richText = true;
         text.raycastTarget = false;
         text.textWrappingMode = TextWrappingModes.Normal;
+        return (scroll, text);
+    }
+
+    /// <summary>A vertical list (headers, buttons) in a scrolling area; children set their height with <see cref="Height"/>.</summary>
+    public static RectTransform List(RectTransform parent)
+    {
+        var (_, content) = Scrolling(parent);
+        var layout = content.gameObject.AddComponent<VerticalLayoutGroup>();
+        layout.spacing = 10;
+        layout.padding = new RectOffset { left = 8, right = 8, top = 4, bottom = 12 };
+        layout.childControlWidth = true;
+        layout.childForceExpandWidth = true;
+        layout.childControlHeight = true;
+        layout.childForceExpandHeight = false;
+        return content;
+    }
+
+    public static void Height(RectTransform rt, float height)
+    {
+        var e = rt.gameObject.AddComponent<LayoutElement>();
+        e.minHeight = height;
+        e.preferredHeight = height;
+    }
+
+    /// <summary>A text background with a vertical scroll area (its content grows with what it holds) and the scrollbar.</summary>
+    static (ScrollRect scroll, RectTransform content) Scrolling(RectTransform parent)
+    {
+        Img(parent, "text_background", Image.Type.Sliced, new Color(1, 1, 1, 0.85f));
+        var scroll = parent.gameObject.AddComponent<ScrollRect>();
+        var viewport = Place(Rect("Viewport", parent), 0, 0, 1, 1, 24, 16, 60, 16);
+        viewport.gameObject.AddComponent<RectMask2D>();
+        var content = Rect("Content", viewport);
+        content.anchorMin = new Vector2(0, 1);
+        content.anchorMax = new Vector2(1, 1);
+        content.pivot = new Vector2(0.5f, 1);
+        content.offsetMin = new Vector2(0, 0);
+        content.offsetMax = new Vector2(0, 0);
         var fit = content.gameObject.AddComponent<ContentSizeFitter>();
         fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
@@ -210,6 +238,6 @@ internal static class GameUi
         scroll.scrollSensitivity = 60;
         scroll.verticalScrollbar = sb;
         scroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.Permanent;
-        return (scroll, text);
+        return (scroll, content);
     }
 }

@@ -79,6 +79,12 @@ public sealed class OldenEraSymbols
         "skill.sid", "skill.level",  // hero skill → sid / level 1..3
         "world.heroLogics",          // static path to the logic objects of the heroes on the map
         "herologic.skills",          // hero logic → its skills logic (one skill logic per applied skill)
+        "herologic.stats",           // hero logic → the hero's total stats (type, growth, items, skills)
+        "herologic.logic", "herologic.recalc", // hero logic → Logic.Hero; its method that recalculates the totals
+        "herologic.experience", "experience.add", // hero logic → experience logic; its method that adds experience
+        "hero.levelUpPool", "levelups.add",     // hero → its pending level-ups; the pool's method that adds one
+        "herologic.levelUps", "levelups.register", "levelups.show", // hero logic → level-up logic; register one; show
+        "skilllogic.pickSub",        // method of a skill logic: activate one of its sub-skills
         "skilllogic.list", "skilllogic.sid", // skills logic → skill logics; skill logic → sid
         "skills.learn",              // method of the skills logic: build and apply the logic of a skill entry
         "skilllogic.levelUp",        // method of a skill logic: raise the skill by one level

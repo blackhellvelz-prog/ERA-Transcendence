@@ -84,7 +84,7 @@ internal sealed class DebugWindow
         var toggle = GameUi.Button(top, "WoG toggle", "WoG", ToggleWindow, violet: true, size: 30);
         GameUi.Place(toggle.GetComponent<RectTransform>(), 0, 1, 0, 1, 24, -470, -224, 404);
 
-        window = GameUi.Place(GameUi.Rect("Window", top), 1, 0.5f, 1, 0.5f, -1880, -760, 80, -760);
+        window = GameUi.Place(GameUi.Rect("Window", top), 1, 0.5f, 1, 0.5f, -2760, -780, 60, -780);
         GameUi.Frame(window);
         var body = GameUi.Place(GameUi.Rect("Body", window), 0, 0, 1, 1, 110, 100, 110, 70);
 
@@ -94,8 +94,27 @@ internal sealed class DebugWindow
         var close = GameUi.Button(body, "Close", "X", ToggleWindow, violet: true, size: 30);
         GameUi.Place(close.GetComponent<RectTransform>(), 1, 1, 1, 1, -110, -82, 0, 8);
 
-        // the frequent commands
-        var bar = GameUi.Place(GameUi.Rect("Toolbar", body), 0, 1, 1, 1, 0, -200, 0, 110);
+        // left: every feature as a button, by group (FeatureCatalog)
+        const float Left = 700;
+        var features = GameUi.Place(GameUi.Rect("Features", body), 0, 0, 0, 1, 0, 100, -(Left - 20), 110);
+        var list = GameUi.List(features);
+        string group = null;
+        foreach (var f in FeatureCatalog.All)
+        {
+            if (f.Group != group)
+            {
+                group = f.Group;
+                var head = GameUi.Rect("Group " + group, list);
+                GameUi.Text(head, "Text", group, 34, GameUi.Gold, TextAlignmentOptions.BottomLeft, header: true);
+                GameUi.Height(head, 60);
+            }
+            var feature = f;
+            var b = GameUi.Button(list, f.Label, f.Label, () => RunFeature(feature), size: 28);
+            GameUi.Height(b.GetComponent<RectTransform>(), 64);
+        }
+
+        // right: the frequent commands, the output and the input line
+        var bar = GameUi.Place(GameUi.Rect("Toolbar", body), 0, 1, 1, 1, Left, -200, 0, 110);
         var layout = bar.gameObject.AddComponent<HorizontalLayoutGroup>();
         layout.spacing = 16;
         layout.childForceExpandWidth = true;
@@ -104,25 +123,23 @@ internal sealed class DebugWindow
         layout.childControlHeight = true;
         foreach (var (label, command) in new[]
                  {
-                     ("Состояние", "state"), ("Новый день", "newday"), ("Самопроверка", "selftest"),
+                     ("Состояние", "state"), ("Герой", "hero"), ("Самопроверка", "selftest"),
                      ("Совместимость", "compat"), ("Справка", "help"),
                  })
             GameUi.Button(bar, label, label, () => Run(command), size: 30);
 
-        // the output
-        var outRect = GameUi.Place(GameUi.Rect("Output", body), 0, 0, 1, 1, 0, 190, 0, 230);
+        var outRect = GameUi.Place(GameUi.Rect("Output", body), 0, 0, 1, 1, Left, 190, 0, 230);
         (scroll, text) = GameUi.Output(outRect);
 
-        // the input line
-        var line = GameUi.Place(GameUi.Rect("Line", body), 0, 0, 1, 0, 0, 80, 0, -160);
-        input = GameUi.Input(line, "!!HE-1:… — ERM, или команда: state, vars v 1 10, help", Submit);
+        var line = GameUi.Place(GameUi.Rect("Line", body), 0, 0, 1, 0, Left, 80, 0, -160);
+        input = GameUi.Input(line, "!!HE-1:… — ERM, или команда: state, hero, vars v 1 10, help", Submit);
         GameUi.Place(input.GetComponent<RectTransform>(), 0, 0, 1, 1, 0, 0, 340, 0);
         var run = GameUi.Button(line, "Run", "Выполнить", () => Submit(input.text), size: 32);
         GameUi.Place(run.GetComponent<RectTransform>(), 1, 0, 1, 1, -320, 0, 0, 0);
 
         var hint = GameUi.Place(GameUi.Rect("Hint", body), 0, 0, 1, 0, 0, 0, 0, -64);
-        GameUi.Text(hint, "Text", "F9 — открыть/закрыть · Enter — выполнить · стрелки вверх/вниз — история команд", 26, GameUi.Grey,
-            TextAlignmentOptions.Center);
+        GameUi.Text(hint, "Text", "F9 — открыть/закрыть · Enter — выполнить · стрелки вверх/вниз — история команд · заголовок — перетащить окно",
+            26, GameUi.Grey, TextAlignmentOptions.Center);
 
         Append("<color=#DDB484>WoG Debug</color> — консоль ERM и команд отладки. Строка, начинающаяся с «!», — код ERM; " +
                "иначе — команда (help — список).\n");
@@ -181,6 +198,12 @@ internal sealed class DebugWindow
     }
 
     void Run(string command) => Run(command, command);
+
+    void RunFeature(Feature f)
+    {
+        Run(f.Command, f.Label + (f.Note != null ? "  (" + f.Note + ")" : ""));
+        if (f.Then != null) Run(f.Then);
+    }
 
     void Run(string command, string shown)
     {

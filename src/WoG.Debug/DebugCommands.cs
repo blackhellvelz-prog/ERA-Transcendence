@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using WoG.Core.Adapters;
 using WoG.Core.Model;
 using WoG.Host;
 
@@ -21,6 +22,8 @@ public interface IDebugEngine
     string Peek(string args) => "peek is not supported by this engine";
     /// <summary>Calls a game method on an object found by a member path (reverse engineering only).</summary>
     string Invoke(string args) => "invoke is not supported by this engine";
+    /// <summary>Writes a member of a game object found by a member path (reverse engineering only).</summary>
+    string Set(string args) => "set is not supported by this engine";
 }
 
 /// <summary>
@@ -62,8 +65,10 @@ public sealed class DebugCommands
         "  selftest [interactive] [id-prefix]  run the WoG/ERA self-test (Markdown report)\n" +
         "  compat                       commands the engine could not perform so far\n" +
         "  vars v|z <from> <to>         ERM variables; vars i <name> for i^name^\n" +
+        "  hero [number]                a hero through the WoG layer: stats, skills, spells, artifacts by position\n" +
         "  peek <path> [max]            read a game object: root.heroes.list[0].node, Type.staticMember.member...\n" +
         "  invoke <path> <method> [arg...]  call a game method; args: numbers, \"text\", true/false, null, @<path>\n" +
+        "  set <path>.<member> <value>  write a member of a game object (same values as invoke)\n" +
         "                               (a type alone: its static members; a list: its first max items)\n";
 
     public string Execute(string text)
@@ -86,8 +91,10 @@ public sealed class DebugCommands
                 "selftest" => RunSelfTest(rest),
                 "compat" => host.Compat.ToMarkdown(),
                 "vars" => Vars(rest),
+                "hero" => Hero(rest),
                 "peek" => engine?.Peek(rest) ?? "no engine",
                 "invoke" => engine?.Invoke(rest) ?? "no engine",
+                "set" => engine?.Set(rest) ?? "no engine",
                 _ when extra.TryGetValue(cmd, out var x) => x.run(rest),
                 _ => "unknown command '" + cmd + "'\n" + FullHelp(),
             };
@@ -124,7 +131,67 @@ public sealed class DebugCommands
         if (!code.Contains('\n') && !code.TrimEnd().EndsWith(";")) code += ";";
         var r = Console.Run(code);
         var sb = new StringBuilder(r.Summary()).Append('\n');
+        // x1..x16 the code left: a snippet returns values this way
+        var xs = r.Returns.Select((v, i) => (v, i)).Where(p => p.v != 0).Select(p => $"x{p.i + 1}={p.v}").ToList();
+        if (xs.Count > 0) sb.Append("  ").Append(string.Join(" ", xs)).Append('\n');
         foreach (var l in r.Log) sb.Append("  log: ").Append(l).Append('\n');
+        return sb.ToString();
+    }
+
+    static readonly string[] SlotNames =
+    {
+        "голова", "плечи", "шея", "правая рука", "левая рука", "торс", "кольцо П", "кольцо Л", "ноги",
+        "разное 1", "разное 2", "разное 3", "разное 4", "баллиста", "тележка", "палатка", "катапульта", "книга", "разное 5",
+    };
+
+    /// <summary>hero [number] — a hero as the WoG layer sees it (by default the active hero of the current player).</summary>
+    string Hero(string args)
+    {
+        var g = host.Game;
+        var heroes = g.Heroes;
+        int h;
+        if (args.Length > 0) h = int.Parse(args.Trim());
+        else
+        {
+            var active = g.Players.GetActiveHero(g.Players.CurrentPlayer);
+            if (!active.IsOk) return "no active hero: " + active;
+            h = active.Value;
+        }
+        var h3 = host.H3;
+        string Name<T>(IReadOnlyList<T> table, int i, Func<T, string> name) => i >= 0 && i < table.Count ? name(table[i]) : "#" + i;
+        string Val<T>(AdapterResult<T> r) => r.IsOk ? r.Value?.ToString() ?? "-" : "?";
+        var sb = new StringBuilder();
+        sb.Append($"hero {h} \"{Val(heroes.GetName(h))}\", owner {Val(heroes.Get(h, HeroStat.Owner))}, at {Val(heroes.GetPosition(h))}\n");
+        sb.Append("  ").Append(string.Join(", ", new[] { HeroStat.Attack, HeroStat.Defence, HeroStat.Power, HeroStat.Knowledge,
+            HeroStat.Level, HeroStat.Experience, HeroStat.Mana, HeroStat.Movement }.Select(s => $"{s} {Val(heroes.Get(h, s))}"))).Append('\n');
+        var skills = new List<string>();
+        for (int s = 0; s < WoGLimits.SecondarySkillCount; s++)
+            if (heroes.GetSecondarySkill(h, s) is { IsOk: true, Value: > 0 } r)
+                skills.Add($"{s} {Name(h3.SecondarySkills, s, x => x[0])} {r.Value}");
+        sb.Append("  skills: ").Append(skills.Count == 0 ? "-" : string.Join(", ", skills)).Append('\n');
+        var spells = new List<string>();
+        for (int s = 0; s < WoGLimits.SpellCount; s++)
+            if (heroes.HasSpell(h, s) is { IsOk: true, Value: true })
+                spells.Add($"{s} {Name(h3.Spells, s, x => x)}");
+        sb.Append("  spells: ").Append(spells.Count == 0 ? "-" : string.Join(", ", spells)).Append('\n');
+        var arts = heroes.GetArtifacts(h);
+        if (!arts.IsOk) sb.Append("  artifacts: ").Append(arts).Append('\n');
+        else
+        {
+            var worn = new List<string>();
+            var pack = new List<string>();
+            for (int p = 0; p < arts.Value.Length; p++)
+            {
+                int a = arts.Value[p];
+                if (a < 0) continue;
+                string name = a >= ArtifactSlots.ScrollBase ? "свиток: " + Name(h3.Spells, a - ArtifactSlots.ScrollBase, x => x)
+                    : Name(h3.Artifacts, a, x => x.Name);
+                if (p < ArtifactSlots.Worn) worn.Add($"{SlotNames[p]}: {a} {name}");
+                else pack.Add($"{a} {name}");
+            }
+            sb.Append("  worn: ").Append(worn.Count == 0 ? "-" : string.Join(", ", worn)).Append('\n');
+            sb.Append("  backpack: ").Append(pack.Count == 0 ? "-" : string.Join(", ", pack)).Append('\n');
+        }
         return sb.ToString();
     }
 

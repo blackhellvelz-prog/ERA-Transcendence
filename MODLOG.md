@@ -513,3 +513,31 @@ unsupported commands. 166 xUnit tests.
 * **Verified:** the window builds in the main menu, opens, runs `state` typed into its input (the user tried it).
 * **Next (the user's idea):** a similar button for a **WoG Options** window with the ERA scripts in it (the WoG/ERA
   options screen), in the same style.
+
+## 2026-10-08 — session 2, continued: sub-skills, experience and primary skills through the game; the window's feature list
+
+* **Sub-skills (the user's remark):** a skill given by `HE:S` came without sub-skills, and nothing let the player pick
+  them later. In Olden Era each skill has six sub-skills; reaching level 2 or 3 the player picks one of that level's
+  three (`skills.json` `parametersPerLevel[].subSkills`; `HeroSkill.subSkills` status Inactive / PermanentActive).
+  Traced on a natural level-up `[V-game]`: `DataLevelUpPool.bjhn` adds a level-up, `LevelUp.Init`, the skill pick
+  `LevelUp.batp(sid)` → `eah.LevelUp()`, the sub-skill pick `LevelUp.batq(sid)` → `eah.bayw(subSkillSid)`, then
+  `dzm.baum`, `bjho` (removed), `dzm.bauh` (next). Now `HE:S` raising a skill to level 2 or 3 adds a level-up with only
+  the sub-skill stage active (`skillSid`, `skillLevel`), registers it (`dzm.baue`) and shows it (`dzm.bauh`): the
+  game's own window offers that level's three sub-skills, the hero keeps his level. Verified: `HE:S2/3` (logistics
+  1 → 3) offered the level-2 choice, then the level-3 one; both picks became PermanentActive. Heroes of an AI player
+  (and heroes without map logic) get one of the three at random (`eah.bayw`).
+* **Experience:** WoG's `HE:E` calls `AddExp` after setting it; in Olden Era a gain now goes through the game
+  (`dze.barm(gain, true)`): the hero levels up with the game's level-up window (verified: +1000 → level 2, skill choice
+  shown). A lower value is written as before.
+* **Primary skills:** H3's primary skills include the bonuses of worn artifacts (equipping adds them; WoG's HE:A1 does
+  too), so `HE:F` now reads the hero logic's total (`Logic.Hero.chnt`; the hero panel) and `HE:F…/1` the type base +
+  growth; writing changes the growth and recalculates (`Logic.Hero.baql`). Verified: with Crown of the Supreme Magi
+  `F` reads knowledge 5, `F…/1` 1; attack +1 → 3 after the recalculation.
+* **Debug:** `erm` prints the x1..x16 a snippet leaves (ERA functions return them); new commands `hero` (a hero
+  through the WoG layer: stats, skills, spells, artifacts by position, with names from the H3 tables), `subskills`
+  (Olden Era sub-skills with status) and `set <path>.<member> <value>` (write a game field while reverse engineering).
+* **The WoG Debug window** now has a feature list on the left (`FeatureCatalog.cs`): every verified feature as a button
+  (hero skills, spells, artifacts, primary skills, experience, mana, movement; player resources, difficulty; map size,
+  the hero's square, PO; MA; debug commands), the result next to it in the console. New features get their buttons
+  as they are made. The window got wider, draggable by its title, tighter lines.
+* 187 xUnit tests.

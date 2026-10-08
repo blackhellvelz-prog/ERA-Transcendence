@@ -323,6 +323,32 @@ internal sealed class OldenEraDebugEngine : IDebugEngine
     /// that many parameters whose types accept the arguments). Arguments: numbers, "text", true/false, null,
     /// @&lt;path&gt; for a game object. Reverse engineering only: it runs game code with whatever it is given.
     /// </summary>
+    public string Set(string args)
+    {
+        var words = SplitArgs(args);
+        if (words.Count != 2) return "usage: set <path>.<member> <value>  (value: number, \"text\", true/false, null, enum name, @<path>)";
+        int dot = words[0].LastIndexOf('.');
+        if (dot <= 0) return "set needs <object path>.<member>";
+        var target = Resolve(words[0][..dot], out var error);
+        if (error != null) return error;
+        if (target == null) return "null target";
+        target = MethodTrace.Real(target);
+        string name = words[0][(dot + 1)..];
+        var member = target.GetType().GetMember(name, Members).FirstOrDefault(x => x is FieldInfo or PropertyInfo);
+        if (member == null) return $"{target.GetType().FullName}.{name} not found";
+        var type = member is FieldInfo f ? f.FieldType : ((PropertyInfo)member).PropertyType;
+        object? value = words[1];
+        if (words[1].StartsWith("@"))
+        {
+            value = Resolve(words[1][1..], out var e);
+            if (e != null) return e;
+        }
+        if (!TryConvert(value, type, out var converted)) return $"cannot convert {words[1]} to {type.Name}";
+        if (member is FieldInfo fi) fi.SetValue(target, converted);
+        else ((PropertyInfo)member).SetValue(target, converted);
+        return $"{target.GetType().Name}.{name} = {Show(converted, 1)}";
+    }
+
     public string Invoke(string args)
     {
         var words = SplitArgs(args);

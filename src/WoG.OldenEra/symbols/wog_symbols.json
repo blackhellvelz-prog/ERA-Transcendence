@@ -783,6 +783,83 @@
       "Member": "bbck",
       "Status": "verified",
       "Note": "0.81.04: eas.bbck(EType, int index, bool, EListenerCallbackCall) → bool with false, Real: removes the item at that slot (also from Data.items; the head torch's view radius bonus went away) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+    },
+    "herologic.stats": {
+      "Assembly": "Hex",
+      "Type": "fdq",
+      "Member": "cnsj.chnt",
+      "Status": "verified",
+      "Note": "0.81.04: Logic.Hero.chnt: HeroStat with every bonus (fdq.cuab holds the same) | verified 2026-10-08 (0.81.04) with WoG Debug peek: with Crown of the Supreme Magi worn intelligence 5 (the hero panel 5) while statsByLevel + type base give 1 and additionalStats 0"
+    },
+    "herologic.logic": {
+      "Assembly": "Hex",
+      "Type": "fdq",
+      "Member": "cnsj",
+      "Status": "verified",
+      "Note": "0.81.04: fdq.cnsj = Hex.Session.Logic.Hero | verified 2026-10-08 (0.81.04) with WoG Debug invoke: after HE:F raised the growth of attack by 1, chnt.offence stayed 2 until baql(), then 3"
+    },
+    "herologic.recalc": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Logic.Hero",
+      "Member": "baql",
+      "Status": "verified",
+      "Note": "0.81.04: Logic.Hero.baql() (46 callers): recalculates the hero's total stats | verified 2026-10-08 (0.81.04) with WoG Debug invoke: after HE:F raised the growth of attack by 1, chnt.offence stayed 2 until baql(), then 3"
+    },
+    "herologic.experience": {
+      "Assembly": "Hex",
+      "Type": "fdq",
+      "Member": "cnsj.chnq",
+      "Status": "verified",
+      "Note": "0.81.04: Logic.Hero.chnq: dze, the experience logic | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+    },
+    "experience.add": {
+      "Assembly": "Hex",
+      "Type": "dze",
+      "Member": "barm",
+      "Status": "verified",
+      "Note": "0.81.04: dze.barm(int gain, bool): +10 at currentExp 1000 → level 2, a level-up (bjhn, LevelUp.Init) and the game's level-up window | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+    },
+    "hero.levelUpPool": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.Hero",
+      "Member": "levelUpPool",
+      "Status": "verified",
+      "Note": "0.81.04: DataLevelUpPool: list of DataLevelUp {skillStage, subSkillStage, alternativeSubSkillStage, id} | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+    },
+    "levelups.add": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Data.DataLevelUpPool",
+      "Member": "bjhn",
+      "Status": "verified",
+      "Note": "0.81.04: bjhn(bool = false) → a new DataLevelUp (traced on a natural level-up) | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+    },
+    "herologic.levelUps": {
+      "Assembly": "Hex",
+      "Type": "fdq",
+      "Member": "cnsj.chnn",
+      "Status": "verified",
+      "Note": "0.81.04: Logic.Hero.chnn: dzm, the level-up logic (chpk List<LevelUp>) | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+    },
+    "levelups.register": {
+      "Assembly": "Hex",
+      "Type": "dzm",
+      "Member": "baue",
+      "Status": "verified",
+      "Note": "0.81.04: dzm.baue(DataLevelUp, bool): makes its LevelUp (Init, stage queue); a level-up with only subSkillStage active (skill_luck, level 2) showed the three level-2 luck sub-skills | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+    },
+    "levelups.show": {
+      "Assembly": "Hex",
+      "Type": "dzm",
+      "Member": "bauh",
+      "Status": "verified",
+      "Note": "0.81.04: dzm.bauh(): shows the next pending level-up in the game's window (also called after each pick) | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+    },
+    "skilllogic.pickSub": {
+      "Assembly": "Hex",
+      "Type": "eah",
+      "Member": "bayw",
+      "Status": "verified",
+      "Note": "0.81.04: eah.bayw(subSkillSid): the pick of a sub-skill (traced: LevelUp.batq → eah.bayw(sub_skill_luck_6) → PermanentActive) | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
     }
   }
 }

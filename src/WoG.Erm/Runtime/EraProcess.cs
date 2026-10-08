@@ -29,6 +29,8 @@ public sealed partial class ErmRuntime
     // ArgXVars / RetXVars / RetStrVars and the argument bookkeeping of FU:P, DO:P, FU:A, FU:S
     internal int[] ArgX = new int[16];
     internal int[] RetX = new int[16];
+    /// <summary>x1..x16 as the last ERA event or function left them (the debug console shows them).</summary>
+    public int[] LastReturns => (int[])RetX.Clone();
     internal string[] RetStr = new string[17];
     internal int NumFuncArgsPassed, NumFuncArgsReceived;
     internal int FuncArgsGetSyntaxFlagsPassed, FuncArgsGetSyntaxFlagsReceived;

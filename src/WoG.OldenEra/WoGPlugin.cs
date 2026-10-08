@@ -128,6 +128,13 @@ public sealed class WoGPlugin : BasePlugin
         if (debugEnabled.Value)
         {
             DebugBridge = new DebugBridge(Path.Combine(cfgDir, "debug"), host, new OldenEraDebugEngine(), Log);
+            DebugBridge.Commands.Add("subskills", a =>
+            {
+                var players = host.Game.Players;
+                int hero = a.Trim().Length > 0 ? int.Parse(a.Trim())
+                    : players.GetActiveHero(players.CurrentPlayer) is { IsOk: true } active ? active.Value : -1;
+                return Adapter!.DescribeSubSkills(hero);
+            }, "sub-skills of a hero's skills in Olden Era (the active hero by default): sid, level, status");
             MethodTrace.Install(harmony, trace.Value, Log);
             Log.LogWarning("WoG Debug is ON: command bridge in " + Path.Combine(cfgDir, "debug", "in"));
         }

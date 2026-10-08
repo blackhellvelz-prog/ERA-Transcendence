@@ -153,27 +153,34 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
 
     public AdapterResult<int> Get(int hero, HeroStat stat)
     {
-        var key = StatKey(stat);
-        if (key == null) return AdapterResult<int>.Unsupported($"hero stat {stat} has no Olden Era equivalent");
-        if (!sym.Has(key)) return Missing<int>(key);
-        var h = FindHero(hero);
-        if (h == null) return AdapterResult<int>.Failed($"hero {hero} does not exist");
-        int v = Convert.ToInt32(sym.Read(key, h)) + BaseStat(stat, h);
-        return AdapterResult<int>.Ok(stat == HeroStat.Owner ? PlayerOfSide(v) : v);
+        var own = GetBase(hero, stat);
+        if (own.Status != AdapterStatus.Ok || PrimaryName(stat) == null) return own;
+        // H3's primary skills include the bonuses of worn artifacts (equipping adds them; WoG's HE:A1 does it too):
+        // the total of the hero's logic, as the hero panel shows it [V-game: Crown of the Supreme Magi, knowledge 1 → 5].
+        var h = FindHero(hero)!;
+        return TotalStat(stat, h) is int total ? AdapterResult<int>.Ok(total) : own;
+    }
+
+    static string? PrimaryName(HeroStat stat) => stat switch
+    {
+        HeroStat.Attack => "offence", HeroStat.Defence => "defence",
+        HeroStat.Power => "spellPower", HeroStat.Knowledge => "intelligence", _ => null,
+    };
+
+    /// <summary>The primary skill with every bonus (items, skills) from the logic of a hero on the map.</summary>
+    int? TotalStat(HeroStat stat, object hero)
+    {
+        if (PrimaryName(stat) is not { } name || !sym.Has("herologic.stats") || HeroLogic(hero) is not { } l) return null;
+        return sym.Read("herologic.stats", l) is { } block ? Convert.ToInt32(OldenEraSymbols.ReadMember(block, name)) : null;
     }
 
     /// <summary>
     /// The primary skill a hero type starts with (Olden Era keeps it in the type config; the hero's own block holds
-    /// the growth by level). H3 primary skill = type base + growth; bonuses of items and skills (additionalStats)
-    /// are not part of it, as artifacts are not part of H3's PSkill.
+    /// the growth by level): type base + growth is the hero's own value, without the bonuses of items.
     /// </summary>
     int BaseStat(HeroStat stat, object hero)
     {
-        string? name = stat switch
-        {
-            HeroStat.Attack => "offence", HeroStat.Defence => "defence",
-            HeroStat.Power => "spellPower", HeroStat.Knowledge => "intelligence", _ => null,
-        };
+        string? name = PrimaryName(stat);
         if (name == null || !sym.Has("hero.statsBase")) return 0;
         var block = sym.Read("hero.statsBase", hero);
         return block == null ? 0 : Convert.ToInt32(OldenEraSymbols.ReadMember(block, name));
@@ -187,11 +194,39 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         if (!sym.Has(key)) return Missing(key);
         var h = FindHero(hero);
         if (h == null) return AdapterResult.Failed($"hero {hero} does not exist");
-        sym.Write(key, h, value - BaseStat(stat, h));
+        if (stat == HeroStat.Experience && sym.Has("herologic.experience") && sym.Has("experience.add") && HeroLogic(h) is { } xl)
+        {
+            int gain = value - Convert.ToInt32(sym.Read(key, h));
+            if (gain > 0)
+            {
+                // WoG's HE:E calls AddExp after setting it: the game's own gain (dze.barm(gain, true)) levels the hero up
+                // and opens its level-up window [V-game: +10 at 1000 → level 2, the skill choice was shown]
+                OldenEraSymbols.Call(sym.Read("herologic.experience", xl)!, sym.MemberOf("experience.add")!.Name, gain, true);
+                return AdapterResult.Ok;
+            }
+        }
+        // a new total changes the growth by the difference (the bonuses of items stay theirs)
+        int current = Get(hero, stat) is { Status: AdapterStatus.Ok } t ? t.Value : 0;
+        int growth = Convert.ToInt32(sym.Read(key, h));
+        sym.Write(key, h, PrimaryName(stat) != null ? growth + value - current : value - BaseStat(stat, h));
+        // the hero logic's totals follow only after a recalculation (Logic.Hero.baql) [V-game: attack 2 → 3]
+        if (PrimaryName(stat) != null && sym.Has("herologic.logic") && sym.Has("herologic.recalc")
+            && HeroLogic(h) is { } l && sym.Read("herologic.logic", l) is { } logic)
+            OldenEraSymbols.Call(logic, sym.MemberOf("herologic.recalc")!.Name);
         return AdapterResult.Ok;
     }
 
-    public AdapterResult<int> GetBase(int hero, HeroStat stat) => Get(hero, stat);
+    /// <summary>Without the bonuses of items (HE:F…/1): the type's base plus the growth by level.</summary>
+    public AdapterResult<int> GetBase(int hero, HeroStat stat)
+    {
+        var key = StatKey(stat);
+        if (key == null) return AdapterResult<int>.Unsupported($"hero stat {stat} has no Olden Era equivalent");
+        if (!sym.Has(key)) return Missing<int>(key);
+        var h = FindHero(hero);
+        if (h == null) return AdapterResult<int>.Failed($"hero {hero} does not exist");
+        int v = Convert.ToInt32(sym.Read(key, h)) + BaseStat(stat, h);
+        return AdapterResult<int>.Ok(stat == HeroStat.Owner ? PlayerOfSide(v) : v);
+    }
     public AdapterResult<MapPos> GetPosition(int hero)
     {
         if (!sym.Has("hero.position")) return Missing<MapPos>("hero.position");
@@ -254,6 +289,7 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
             var entry = OldenEraSymbols.Call(sym.Read("hero.skillsHolder", h)!, sym.MemberOf("hero.skillsAdd")!.Name, sid, level);
             if (logic != null && entry != null && sym.Has("skills.learn"))
                 OldenEraSymbols.Call(logic, sym.MemberOf("skills.learn")!.Name, entry);
+            OfferSubSkills(hero, h, sid, 1, level);
             return AdapterResult.Ok;
         }
         if (!sym.Has("skilllogic.levelUp")) return Missing("skilllogic.levelUp");
@@ -263,7 +299,70 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
             return AdapterResult.Unsupported("raising a skill of a hero that is not on the map (no skill logic to level up)");
         // eah.LevelUp(): the game's level-up of a learned skill (data level and bonuses), one level per call.
         for (int n = cur.Value; n < level; n++) OldenEraSymbols.Call(own, sym.MemberOf("skilllogic.levelUp")!.Name);
+        OfferSubSkills(hero, h, sid, cur.Value, level);
         return AdapterResult.Ok;
+    }
+
+    // Sub-skills: reaching level 2 or 3 of a skill the player picks one of that level's three sub-skills
+    // (DB skills.json parametersPerLevel[].subSkills; HeroSkill.subSkills with status Inactive / PermanentActive).
+    // A level given by a script brings the same choice: a level-up in the hero's pool with only the sub-skill stage,
+    // registered with the hero's level-up logic and shown in the game's own level-up window [V-game: skill_luck 2
+    // offered sub_skill_luck_1..3, the pick became PermanentActive, the hero kept his level and experience].
+    // Heroes of an AI player, and heroes without map logic, get one of the choices at once (eah.bayw).
+    void OfferSubSkills(int hero, object h, string sid, int from, int to)
+    {
+        if (!sym.Has("hero.levelUpPool") || !sym.Has("levelups.add") || SkillEntry(h, sid) is not { } entry) return;
+        var logic = HeroLogic(h);
+        var levelUps = logic != null && sym.Has("herologic.levelUps") ? sym.Read("herologic.levelUps", logic) : null;
+        bool ai = levelUps == null || !(Get(hero, HeroStat.Owner) is { Status: AdapterStatus.Ok } o && IsHuman(o.Value) is { Status: AdapterStatus.Ok, Value: true });
+        bool offered = false;
+        for (int level = Math.Max(from + 1, 2); level <= to; level++)
+        {
+            var choices = OldenEraSymbols.Items(OldenEraSymbols.ReadMember(entry, "subSkills")).Where(s => s != null).Select(s => s!)
+                .Where(s => Convert.ToInt32(OldenEraSymbols.ReadMember(s, "level")) == level).ToList();
+            if (choices.Count == 0 || choices.Any(s => OldenEraSymbols.ReadMember(s, "status")!.ToString() != "Inactive"))
+                continue; // no sub-skills at this level, or one is picked already
+            if (ai)
+            {
+                var own = SkillLogic(h) is { } skills ? OldenEraSymbols.Items(sym.Read("skilllogic.list", skills))
+                    .FirstOrDefault(e => e != null && sym.Read("skilllogic.sid", e) as string == sid) : null;
+                if (own != null && sym.Has("skilllogic.pickSub"))
+                {
+                    string pick = (string)OldenEraSymbols.ReadMember(choices[Random.Shared.Next(choices.Count)], "sid")!;
+                    OldenEraSymbols.Call(own, sym.MemberOf("skilllogic.pickSub")!.Name, pick);
+                }
+                continue;
+            }
+            // DataLevelUpPool.bjhn(false): a new level-up; only its sub-skill stage is active
+            var levelUp = OldenEraSymbols.Call(sym.Read("hero.levelUpPool", h)!, sym.MemberOf("levelups.add")!.Name, false)!;
+            OldenEraSymbols.WriteMember(OldenEraSymbols.ReadMember(levelUp, "skillStage")!, "isActive", false);
+            OldenEraSymbols.WriteMember(OldenEraSymbols.ReadMember(levelUp, "alternativeSubSkillStage")!, "isActive", false);
+            var stage = OldenEraSymbols.ReadMember(levelUp, "subSkillStage")!;
+            OldenEraSymbols.WriteMember(stage, "isActive", true);
+            OldenEraSymbols.WriteMember(stage, "skillSid", sid);
+            OldenEraSymbols.WriteMember(stage, "skillLevel", level);
+            // dzm.baue(levelUp, false): its logic (LevelUp, the stage queue)
+            OldenEraSymbols.Call(levelUps!, sym.MemberOf("levelups.register")!.Name, levelUp, false);
+            offered = true;
+        }
+        if (offered && sym.Has("levelups.show")) OldenEraSymbols.Call(levelUps!, sym.MemberOf("levelups.show")!.Name);
+    }
+
+    /// <summary>The sub-skills of a hero's skills, for WoG Debug: sid, level, status.</summary>
+    public string DescribeSubSkills(int hero)
+    {
+        var h = FindHero(hero);
+        if (h == null || !sym.Has("hero.skills")) return $"hero {hero}: not found";
+        var sb = new System.Text.StringBuilder($"hero {hero} sub-skills:\n");
+        foreach (var s in OldenEraSymbols.Items(sym.Read("hero.skills", h)))
+        {
+            if (s == null) continue;
+            sb.Append($"  {sym.Read("skill.sid", s)} {sym.Read("skill.level", s)}: ");
+            sb.Append(string.Join(", ", OldenEraSymbols.Items(OldenEraSymbols.ReadMember(s, "subSkills")).Where(x => x != null)
+                .Select(x => $"{OldenEraSymbols.ReadMember(x!, "sid")} (ур. {OldenEraSymbols.ReadMember(x!, "level")}, {OldenEraSymbols.ReadMember(x!, "status")})")));
+            sb.Append('\n');
+        }
+        return sb.ToString();
     }
 
     // The hero screen lists the skills in learning order; H3 scripts see only the skills that have an H3 number.
@@ -290,26 +389,23 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     }
 
     /// <summary>The skills logic (eaj) of a hero on the map, null for heroes without map logic (hire pool).</summary>
-    object? SkillLogic(object hero)
+    object? SkillLogic(object hero) =>
+        sym.Has("herologic.skills") && sym.Has("skilllogic.list") && HeroLogic(hero) is { } l ? sym.Read("herologic.skills", l) : null;
+
+    /// <summary>The logic object (fdq) of a hero on the map; null for heroes without map logic (hire pool).</summary>
+    object? HeroLogic(object hero)
     {
-        if (!sym.Has("world.heroLogics") || !sym.Has("visitor.hero") || !sym.Has("herologic.skills") || !sym.Has("skilllogic.list"))
-            return null;
+        if (!sym.Has("world.heroLogics") || !sym.Has("visitor.hero")) return null;
         int id = HeroEngineId(hero);
         foreach (var l in OldenEraSymbols.Items(sym.Read("world.heroLogics", null)))
-            if (l != null && sym.Read("visitor.hero", l) is { } d && HeroEngineId(d) == id) return sym.Read("herologic.skills", l);
+            if (l != null && sym.Read("visitor.hero", l) is { } d && HeroEngineId(d) == id) return l;
         return null;
     }
     // Spells: Hero.magics.list of MagicData {sidConfig, level, isLearned} plus the magic logic of a hero on the map
     // (eaa, one dzx per spell); H3 spells map by effect (id-maps/spell.json). A specialist knows a spell as its
     // "_special" variant, which eaa.baxy names (learning the base sid gives the variant by itself).
-    object? MagicLogic(object hero)
-    {
-        if (!sym.Has("world.heroLogics") || !sym.Has("visitor.hero") || !sym.Has("herologic.magics")) return null;
-        int id = HeroEngineId(hero);
-        foreach (var l in OldenEraSymbols.Items(sym.Read("world.heroLogics", null)))
-            if (l != null && sym.Read("visitor.hero", l) is { } d && HeroEngineId(d) == id) return sym.Read("herologic.magics", l);
-        return null;
-    }
+    object? MagicLogic(object hero) =>
+        sym.Has("herologic.magics") && HeroLogic(hero) is { } l ? sym.Read("herologic.magics", l) : null;
 
     string? SpellVariant(object? logic, string sid) =>
         logic != null && sym.Has("magics.variant") ? OldenEraSymbols.Call(logic, sym.MemberOf("magics.variant")!.Name, sid) as string : null;
@@ -465,14 +561,8 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     /// <summary>The doll and backpack logic (eas) of a hero on the map; null for heroes without map logic.</summary>
     (object doll, object pack)? ItemLogic(object hero)
     {
-        if (!sym.Has("world.heroLogics") || !sym.Has("visitor.hero") || !sym.Has("herologic.doll") || !sym.Has("herologic.backpack"))
-            return null;
-        int id = HeroEngineId(hero);
-        foreach (var l in OldenEraSymbols.Items(sym.Read("world.heroLogics", null)))
-            if (l != null && sym.Read("visitor.hero", l) is { } d && HeroEngineId(d) == id
-                && sym.Read("herologic.doll", l) is { } doll && sym.Read("herologic.backpack", l) is { } pack)
-                return (doll, pack);
-        return null;
+        if (!sym.Has("herologic.doll") || !sym.Has("herologic.backpack") || HeroLogic(hero) is not { } l) return null;
+        return sym.Read("herologic.doll", l) is { } doll && sym.Read("herologic.backpack", l) is { } pack ? (doll, pack) : null;
     }
 
     /// <summary>Calls a bound game method; text arguments for enum parameters are enum value names.</summary>
