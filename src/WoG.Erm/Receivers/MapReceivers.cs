@@ -99,7 +99,9 @@ public sealed class TrReceiver : ErmReceiverBase
         {
             case 'T':
             {
-                c.RequireExactly(8);
+                // Era: any number of parameters (Erm.pas "Fix TR:T command": WriteDataPatch $73B771 jumps over
+                // CHECK_ParamsNum(8)); the ones not given are ignored (Hook_ZvsApply)
+                if (!c.Rt.IsEra) c.RequireExactly(8);
                 var sq = c.Need(map.GetSquare(pos));
                 int attrib = (sq.Blocked ? 0x01 : 0) | (sq.Entrance ? 0x10 : 0);
                 int[] values = { sq.Land, 0, 0, 0, sq.Road, 0, 0, attrib };

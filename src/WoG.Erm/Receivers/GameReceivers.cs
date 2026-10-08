@@ -595,6 +595,7 @@ public sealed class HeReceiver : ErmReceiverBase
         Declare("X", CompatLevel.PartiallySupported, "X: the specialty as H3's record; an Olden Era specialty reads as the closest H3 one (a creature, a spell, a resource, or a secondary skill whose effect it has), others have none; it cannot be changed");
         Declare("H", CompatLevel.PartiallySupported, "H: the army a hero type is hired with (Olden Era's start squad of the type, kept with the WoG state); creatures without an Olden Era unit cannot be set");
         Declare("DGLRTUVY", CompatLevel.Unsupported, "not mapped yet");
+        Declare("Z", CompatLevel.Unsupported, "HE:Z (ERA) — the address of H3's hero structure, for UN:C and SN:E: H3 memory, a different engine; Era Erm Framework's artifact functions that use it run natively");
     }
 
     protected override void Run(ErmCall c)
@@ -1001,7 +1002,7 @@ public sealed class OwReceiver : ErmReceiverBase
 {
     public OwReceiver() : base("OW")
     {
-        Declare("RCAIG", CompatLevel.PartiallySupported, "resource ids via IdMap");
+        Declare("RCAIG", CompatLevel.PartiallySupported, "resource ids via IdMap; OW:R resource 7 is WoG's mithril, kept by the port per player and saved with the game (Olden Era has no mithril)");
         Declare("HOTVW", CompatLevel.PartiallySupported, "OW:H/O/T/V/W — the player's heroes and hero list, team, tavern heroes and towns (the player's towns in town-number order); reordering the lists, changing teams and the tavern are not mapped");
         Declare("N", CompatLevel.PartiallySupported, "OW:N — the player's towns by list slot; the selected town and reordering the list are not mapped");
         Declare("DKS", CompatLevel.Unsupported, "OW:D/K/S — days without a town, keymaster tents and adventure-map spells have no Olden Era equivalent mapped");
@@ -1017,7 +1018,15 @@ public sealed class OwReceiver : ErmReceiverBase
             {
                 c.RequireMin(3);
                 int p = Owner(c.N(0)), res = c.N(1);
-                if (res < 0 || res >= WoGLimits.ResourceCount) throw new ErmRuntimeException("wrong resource number");
+                if (res < 0 || res > WoGLimits.ResourceCount) throw new ErmRuntimeException("wrong resource number");
+                if (res == WoGLimits.ResourceCount)
+                {
+                    // WoG's mithril: MithrillVal[owner], WoG's own value saved with the game (erm.cpp ERM_Owner)
+                    var mithril = c.Rt.Services.State.Mithril;
+                    if (p < 0 || p >= mithril.Length) throw new ErmRuntimeException("owner out of range (-1...7)");
+                    c.Apply(ref mithril[p], 2);
+                    break;
+                }
                 c.ApplyAdapter(players.GetResource(p, res), v => players.SetResource(p, res, v), 2);
                 break;
             }
@@ -1051,9 +1060,14 @@ public sealed class OwReceiver : ErmReceiverBase
             case 'I':
             {
                 c.RequireMin(2);
-                int v = c.Need(players.IsHuman(Owner(c.N(0)))) ? 0 : 1;
-                if (!c.Apply(ref v, 1)) throw new ErmUnsupportedException("changing AI/human control is not mapped");
-                if (c.Num > 2) { int dead = c.Need(players.IsAlive(Owner(c.N(0)))) ? 0 : 1; c.Apply(ref dead, 2); }
+                int ai = c.Need(players.IsHuman(Owner(c.N(0)))) ? 0 : 1, v = ai;
+                // SetAI(owner, val) after Apply: only a different value changes anything (Iowner/d/?dead reads)
+                if (!c.Apply(ref v, 1) && v != ai) throw new ErmUnsupportedException("changing AI/human control is not mapped");
+                if (c.Num > 2)
+                {
+                    int dead = c.Need(players.IsAlive(Owner(c.N(0)))) ? 0 : 1, d = dead;
+                    if (!c.Apply(ref d, 2) && d != dead) throw new ErmUnsupportedException("killing or reviving a player is not mapped");
+                }
                 break;
             }
             case 'G':

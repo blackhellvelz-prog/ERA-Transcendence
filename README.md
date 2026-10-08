@@ -34,7 +34,7 @@ the cheapest route → reading primary sources → vertical slice → oracle che
 | Olden Era plugin (`src/WoG.OldenEra`) | BepInEx 6 IL2CPP; loads the ERA mods from the user's ERA installation; game symbols verified in game (`wog_symbols.json`); hooks for days, object visits, battles and their events; the command bridge of WoG Debug |
 | Interface plugin (`src/WoG.OldenEra.DebugUI`) | built from Olden Era's own window frame, buttons and fonts: WoG's questions in the game's style (always) and the **WoG Debug window** (with WoG Debug on): every feature of the port as a tile with a round icon (HoMM3, WoG and ERA pictures read from the ERA installation at run time, Olden Era sprites), round group tabs, a search, an ERM console; F8 or the round "WoG" button in the top bar |
 | Data overlay (`src/WoG.OldenEra.Data`) | reading `Core.zip`, unit clones, experience-rank buffs, localization in the OE format |
-| Tests (`tests/WoG.Tests`) | 262 xUnit tests; the corpus tests run the real WoG and ERA scripts and decode every picture of an ERA installation |
+| Tests (`tests/WoG.Tests`) | 271 xUnit tests; the corpus tests run the real WoG and ERA scripts and decode every picture of an ERA installation |
 | Tools (`tools/`) | `WoG.ErmTool`: `parse`, `run`, `compat`, `era-pp`, `probe-symbols`; `deploy/deploy.ps1` — build and install into the game; `docs/check-translations.py` — code spans and numbers of every X.md against X.ru.md; `oe-recon/collect.ps1` |
 
 Verification on real scripts:

@@ -824,3 +824,38 @@ buses and logs them) `[V-game]`:
 * Docs: the language switch line in every English document; `tools/docs/check-translations.py` compares the code
   spans and numbers of every X.md and X.ru.md (what remains are translated placeholders and number/date formats; the
   one real gap, the DebugUI row of CLAUDE.ru.md, is fixed). 262 xUnit tests (`WoGOptionSetupTests`, the hero pool).
+
+## 2026-10-08 — session 2, continued: the full WoG in the game — pool heroes, absent players, mithril, Era's library functions
+
+* **The first in-game run of the full WoG** (the user's whole mod list, 96 WoG options on, a new ARCADE map, 9 days,
+  autosave and quick save loaded) `[V-game]`. Errors the headless corpus did not show, each fixed and checked again in
+  the game:
+  * `78 wog - wogify.erm:1537` `!!TR…:T?t/?s` — "8 parameters expected". WoG's `CHECK_ParamsNum(8)`, but Era patches
+    it out (Erm.pas "Fix TR:T command: allow any number of arguments", `WriteDataPatch $73B771`); the parameters not
+    given are ignored (Hook_ZvsApply). The ERA dialect now takes any number.
+  * `42 wog - mithril enhancements.erm:428` `!!OW:R…/7/…` — "wrong resource number". Resource 7 is WoG's mithril
+    (erm.cpp `ERM_Owner`: `MithrillVal[owner]`, saved with the game, reset at a new game). Olden Era has no mithril: the
+    port keeps `WoGGameState.Mithril` per player [V-game: +5, read back 5].
+  * `9999 era - stdlib.erm:3132/3199/3210` `!!HE:Z` — "wrong command". ERA's HE:Z gives the address of H3's hero
+    structure, which Era Erm Framework's artifact functions pass to UN:C and SN:E. HE:Z is now an honest *unsupported*,
+    and those functions run natively through the hero adapter (`EraNativeLibrary`): `GetArtAtSlot`,
+    `ChangeArtModAtSlot`, `AddArtToHero`, `EquipArtToSlot`, `UnequipArtFromSlot`, `GetHeroPrimarySkillsWithoutArts`,
+    with ERA's numbers (NO_ART -1, a scroll is 1 with its spell as modifier) [V-game: the Crown of the Supreme Magi given,
+    taken off and put back on the head of a real hero; skills without artifacts 2/3/1/1].
+  * `30 wog - enhanced secondary skills.erm:189` `!!OW:Ii/d/?dead` for players 2..7 — "player does not exist". In H3
+    all eight players exist; one not in the game is AI and dead (WoG `IsAI`, `IsPlayerKilled`). The Olden Era adapter
+    now answers so for a player number without a side (no heroes, no tavern, its own team) [V-game: OW:I7 → 1/1]. The
+    same line's `d` (add 0) counted as changing AI control — a set of the same value changes nothing in WoG
+    (`SetAI(owner, val)`), so only a different value is unsupported.
+* **Pool heroes in the game.** 59 H3 hero numbers have no Olden Era hero. `PoolHeroAdapter` (WoG.Core) gives each of
+  them an H3 pool hero — owner -1, not on the map, its name from the installation's hotraits.txt, kept in
+  `WoGGameState.PoolHeroes` and saved with the game; it never enters play. The headless engine's hero code moved to
+  `HeroRecords`, which both use [V-game: 154 heroes without an owner on a 2-player map; hero 19 "Ryland"].
+* **Day start and loading** `[V-game]`. Loading an autosave started that day again (`ebe.OnStartDay` after the load).
+  The WoG snapshot of `as_9` holds the state of day 8: Olden Era's autosave is taken *before* its day starts, so the
+  day start after loading it is right. A game saved during a day does not start it again (quick save, quick load).
+  `WoGGameState.DayStarted` makes a day run once for a WoG state whatever the order.
+* WoG Debug window: tiles for the artifact functions, skills without artifacts, mithril, an absent player and a pool
+  hero. 271 xUnit tests (`PoolHeroTests`, the natives, mithril, TR:T); the corpus still 183 scripts, 0 ERM errors.
+* Next from the same run: `UN:J1` and `WOG_GetExpRequirementOfLevel` (Olden Era's experience table), `BA:M`, `CH:B`,
+  hints (`SN:H`, `HT`), `UN:I`, `DW:M`, `CB:A`, `MO`, `AR`, `EA`.

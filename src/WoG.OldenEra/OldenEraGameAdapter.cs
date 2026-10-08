@@ -25,14 +25,23 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     readonly OldenEraSymbols sym;
     readonly Func<IdMap> currentIds;
 
-    public OldenEraGameAdapter(OldenEraSymbols symbols, Func<IdMap> ids)
+    /// <param name="poolHeroes">The WoG state's records of the H3 pool heroes (<see cref="PoolHeroAdapter"/>).</param>
+    public OldenEraGameAdapter(OldenEraSymbols symbols, Func<IdMap> ids, Func<Dictionary<int, WoGHero>> poolHeroes)
     {
         sym = symbols;
         currentIds = ids; // read lazily: the host that owns the IdMap is created after the adapter
+        PoolHeroes = new HeroRecords(poolHeroes);
+        heroes = new PoolHeroAdapter(this, PoolHeroes);
     }
 
+    readonly PoolHeroAdapter heroes;
+
+    /// <summary>H3 hero numbers without an Olden Era hero (<see cref="PoolHeroAdapter"/>).</summary>
+    public HeroRecords PoolHeroes { get; }
+
     public string EngineName => "Heroes of Might and Magic: Olden Era";
-    public IHeroAdapter Heroes => this;
+    /// <summary>Olden Era's heroes, and an H3 pool hero for every other number 0..155.</summary>
+    public IHeroAdapter Heroes => heroes;
     public IPlayerAdapter Players => this;
     public ICreatureTypeAdapter Creatures => this;
     public IMapAdapter Map => this;
@@ -931,6 +940,13 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         return player >= 0 && player < all.Count ? all[player] : null;
     }
 
+    /// <summary>
+    /// An H3 player number 0..7 without an Olden Era side in this game. In H3 all eight players exist all the time;
+    /// one not in the game is not human and is dead (WoG's IsAI, IsPlayerKilled), with no heroes — scripts walk over
+    /// all eight (WoG Scripts' enhanced secondary skills counts the players alive).
+    /// </summary>
+    bool Absent(int player) => player >= 0 && player < WoGLimits.PlayerCount && Root() != null && FindPlayer(player) == null;
+
     /// <summary>The game's resource object for a WoG resource id (IdMap "resource" → member of the resource heap).</summary>
     AdapterResult<object> ResourceObject(int player, int resource)
     {
@@ -986,6 +1002,7 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     public AdapterResult<bool> IsHuman(int player)
     {
         if (!sym.Has("player.isHuman")) return Missing<bool>("player.isHuman");
+        if (Absent(player)) return AdapterResult<bool>.Ok(false);
         var p = FindPlayer(player);
         if (p == null) return AdapterResult<bool>.Failed($"player {player} does not exist");
         return AdapterResult<bool>.Ok(Convert.ToInt32(sym.Read("player.isHuman", p)) == 0);
@@ -1008,6 +1025,7 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     public AdapterResult<int> GetActiveHero(int player)
     {
         if (!sym.Has("player.activeHero") || !sym.Has("hero.id")) return Missing<int>("player.activeHero");
+        if (Absent(player)) return AdapterResult<int>.Ok(-1);
         var p = FindPlayer(player);
         if (p == null) return AdapterResult<int>.Failed($"player {player} does not exist");
         int id = Convert.ToInt32(sym.Read("player.activeHero", p));
@@ -1023,6 +1041,7 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     public AdapterResult<(int Left, int Right)> GetTavernHeroes(int player)
     {
         if (!sym.Has("player.tavern")) return Missing<(int, int)>("player.tavern");
+        if (Absent(player)) return AdapterResult<(int, int)>.Ok((-1, -1));
         if (FindPlayer(player) is not { } p) return AdapterResult<(int, int)>.Failed($"player {player} does not exist");
         var ids = OldenEraSymbols.Items(sym.Read("player.tavern", p)).Select(x => x == null ? -1 : HeroNumber(Convert.ToInt32(x))).ToList();
         return AdapterResult<(int, int)>.Ok((ids.Count > 0 ? ids[0] : -1, ids.Count > 1 ? ids[1] : -1));
@@ -1034,6 +1053,7 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     public AdapterResult<IReadOnlyList<int>> GetHeroes(int player)
     {
         if (!sym.Has("player.heroes") || !sym.Has("hero.id")) return Missing<IReadOnlyList<int>>("player.heroes");
+        if (Absent(player)) return AdapterResult<IReadOnlyList<int>>.Ok(Array.Empty<int>());
         var p = FindPlayer(player);
         if (p == null) return AdapterResult<IReadOnlyList<int>>.Failed($"player {player} does not exist");
         IReadOnlyList<int> list = OldenEraSymbols.Items(sym.Read("player.heroes", p)).Where(x => x != null)
@@ -1202,6 +1222,7 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         if (!sym.Has("alliance.list") || !sym.Has("alliance.sides") || !sym.Has("player.id")) return Missing<int>("alliance.list");
         if (Root() is not { } root) return AdapterResult<int>.Failed("no game session");
         var sides = PlayerObjects();
+        if (Absent(player)) return AdapterResult<int>.Ok(player);
         if (player < 0 || player >= sides.Count || sides[player] == null) return AdapterResult<int>.Failed($"player {player} is not in the game");
         int side = Convert.ToInt32(sym.Read("player.id", sides[player]));
         foreach (var alliance in OldenEraSymbols.Items(sym.Read("alliance.list", root)))

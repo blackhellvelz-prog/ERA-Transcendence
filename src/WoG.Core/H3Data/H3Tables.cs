@@ -20,6 +20,8 @@ public sealed class H3Tables
     public IReadOnlyList<string> Spells { get; private set; } = Array.Empty<string>();
     /// <summary>Secondary skills by H3 number: name and the basic/advanced/expert descriptions (sstraits.txt).</summary>
     public IReadOnlyList<string[]> SecondarySkills { get; private set; } = Array.Empty<string[]>();
+    /// <summary>Hero names by H3 hero number (hotraits.txt).</summary>
+    public IReadOnlyList<string> HeroNames { get; private set; } = Array.Empty<string>();
     /// <summary>Where each table came from (for the log).</summary>
     public Dictionary<string, string> Sources { get; } = new(StringComparer.OrdinalIgnoreCase);
 
@@ -36,6 +38,8 @@ public sealed class H3Tables
         if (sp != null) { t.Spells = ParseSpells(H3Text.Decode(sp)); t.Sources["sptraits.txt"] = from!; }
         var ss = vfs.Read("sstraits.txt", out from);
         if (ss != null) { t.SecondarySkills = ParseSkills(H3Text.Decode(ss)); t.Sources["sstraits.txt"] = from!; }
+        var ho = vfs.Read("hotraits.txt", out from);
+        if (ho != null) { t.HeroNames = ParseHeroNames(H3Text.Decode(ho)); t.Sources["hotraits.txt"] = from!; }
         return t;
     }
 
@@ -111,6 +115,10 @@ public sealed class H3Tables
     public static List<string[]> ParseSkills(string text) =>
         H3Text.Records(text).Skip(2).Where(r => r.Length > 0 && r[0].Trim().Length > 0)
             .Select(r => new[] { r[0], r.Length > 1 ? r[1] : "", r.Length > 2 ? r[2] : "", r.Length > 3 ? r[3] : "" }).ToList();
+
+    /// <summary>hotraits.txt: two header rows, then one row a hero: Name, then the hired army (Low, High, Army) ×3.</summary>
+    public static List<string> ParseHeroNames(string text) =>
+        H3Text.Records(text).Skip(2).Where(r => r.Length > 0 && r[0].Trim().Length > 0).Select(r => r[0].Trim()).ToList();
 
     public static List<WoGArtifact> ParseArtifacts(string text)
     {

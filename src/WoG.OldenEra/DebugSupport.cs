@@ -233,7 +233,7 @@ internal sealed class OldenEraDebugEngine : IDebugEngine
         return string.Join(", ", parts);
     }
 
-    public string NewDay() => WoGSession.StartDay();
+    public string NewDay() => WoGSession.StartDay(force: true);
 
     public string Symbols()
     {

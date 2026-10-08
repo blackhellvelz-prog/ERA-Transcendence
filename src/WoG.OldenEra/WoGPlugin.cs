@@ -105,11 +105,12 @@ public sealed class WoGPlugin : BasePlugin
 
         bool era = string.Equals(dialect.Value, "Era", StringComparison.OrdinalIgnoreCase);
         WoGHost? host = null;
-        var adapter = new OldenEraGameAdapter(symbols, () => host!.State.Ids);
+        var adapter = new OldenEraGameAdapter(symbols, () => host!.State.Ids, () => host!.State.PoolHeroes);
         host = new WoGHost(adapter, new VisualResolver(new UnityAssetProbe()), new WoGModules(),
             new ErmRuntimeOptions { Dialect = era ? ErmDialect.Era : ErmDialect.Wog358, TimeLimitMs = timeLimit.Value });
         Host = host;
         Adapter = adapter;
+        adapter.PoolHeroes.PoolName = n => n < host.H3.HeroNames.Count ? host.H3.HeroNames[n] : null;
         if (wogify.Value >= 0) host.WogifySetting = Math.Min(wogify.Value, 3);
         OldenEraGameAdapter.MethodTraceReal = MethodTrace.Real;
         host.ErmLog = m => Log.LogInfo("[ERM] " + m);
@@ -321,15 +322,21 @@ internal static class WoGSession
 
     /// <summary>
     /// The start of a day: ERA OnEveryDay and the timers for every player still in the game, in side order,
-    /// each with that player as the current one (Olden Era starts a day for all sides at once).
+    /// each with that player as the current one (Olden Era starts a day for all sides at once). Olden Era's autosave is
+    /// taken before its day starts and loading it starts that day [V-game: as_9 holds the WoG state of day 8, then
+    /// ebe.OnStartDay]; a game saved during a day does not start it again [V-game: quick save, quick load]. Whatever the
+    /// order, a day runs once for a WoG state (<see cref="WoGGameState.DayStarted"/>); <paramref name="force"/> (WoG
+    /// Debug) runs it anyway.
     /// </summary>
-    public static string StartDay()
+    public static string StartDay(bool force = false)
     {
         var host = WoGPlugin.Host;
         var adapter = WoGPlugin.Adapter;
         if (host == null || adapter == null) return "WoG is not loaded";
         if (!Ensure()) return "no game session";
         int day = host.Game.Clock.AbsoluteDay;
+        if (!force && host.State.DayStarted == day) return $"day {day} has started already (a loaded game)";
+        host.State.DayStarted = day;
         var players = new List<int>();
         int count = adapter.PlayerObjects().Count;
         for (int p = 0; p < count; p++)

@@ -79,8 +79,14 @@ public sealed class WoGGameState
     /// <summary>Combination table entries changed by UN:A (index 0..31 → [combo artifact, parts…]; 0 = empty entry).</summary>
     public Dictionary<int, int[]> ComboOverrides { get; set; } = new();
     public IdMap Ids { get; set; } = new();
+    /// <summary>WoG's mithril per player (erm.cpp MithrillVal: OW:R resource 7, mithril piles); saved with the game.</summary>
+    public int[] Mithril { get; set; } = new int[WoGLimits.PlayerCount];
+    /// <summary>H3 pool heroes of numbers the engine has no hero for (<see cref="WoG.Core.Adapters.PoolHeroAdapter"/>).</summary>
+    public Dictionary<int, WoGHero> PoolHeroes { get; set; } = new();
     /// <summary>Free-form module data (module name → JSON).</summary>
     public Dictionary<string, string> Modules { get; set; } = new();
+    /// <summary>The last day whose day start (OnEveryDay, timers) ran: a loaded game does not run it again.</summary>
+    public int DayStarted { get; set; }
     /// <summary>True once instructions (!#) and !?PI ran for this game.</summary>
     public bool InstructionsDone { get; set; }
 }

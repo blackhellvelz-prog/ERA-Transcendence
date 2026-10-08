@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using WoG.Core.Adapters;
+using WoG.Core.H3Data;
 using WoG.Core.Model;
 using WoG.Core.State;
+using WoG.Erm.Receivers;
 using WoG.Erm.Runtime;
 
 namespace WoG.Erm.Era;
@@ -33,6 +35,19 @@ public static class EraNativeLibrary
         n["Array_Merge"] = ArrayMerge;
         n["Array_Slice"] = ArraySlice;
         n["Array_Shuffle"] = ArrayShuffle;
+        // artifacts: ERA reads and changes H3's hero structure (HE:Z + UN:C, SN:E to H3's own functions); here the
+        // hero adapter does it, with ERA's artifact numbers (NO_ART -1, a spell scroll is 1 with its spell as modifier)
+        n["GetArtAtSlot"] = GetArtAtSlot;
+        n["ChangeArtModAtSlot"] = ChangeArtModAtSlot;
+        n["AddArtToHero"] = AddArtToHero;
+        n["EquipArtToSlot"] = EquipArtToSlot;
+        n["UnequipArtFromSlot"] = UnequipArtFromSlot;
+        n["GetHeroPrimarySkillsWithoutArts"] = (rt, x, _) =>
+        {
+            int hero = Hero(rt, x[0]);
+            var stats = new[] { HeroStat.Attack, HeroStat.Defence, HeroStat.Power, HeroStat.Knowledge };
+            for (int i = 0; i < 4; i++) x[i + 1] = Need(rt.Services.Game.Heroes.GetBase(hero, stats[i]));
+        };
         // ---- WoG Scripts (9000 wog - stdlib.erm) and ERA Scripts (1000 es - stdlib.erm) ----
         foreach (var prefix in new[] { "WOG_", "ES_" })
         {
@@ -44,6 +59,105 @@ public static class EraNativeLibrary
         n["WOG_GameMgr_GetPlayer_Me"] = (rt, x, _) => x[0] = LocalPlayer(rt);
         n["WOG_GameMgr_GetPlayer_Team"] = (rt, x, _) =>
             x[1] = rt.Services.Game.Players.GetTeam(x[0]) is { Status: AdapterStatus.Ok, Value: var t } ? t : x[0];
+    }
+
+    // ---- artifacts ------------------------------------------------------------------------------
+
+    // Era Erm Framework's constants: NO_ART, NO_ART_MOD, ART_SPELL_SCROLL, NO_ART_SLOT; slots 0..18 worn, 19..82 backpack
+    const int NoArt = -1, NoArtMod = -1, SpellScroll = 1, NoArtSlot = -1;
+
+    /// <summary>A hero argument: (CURRENT_HERO) = -1 is the hero of the trigger.</summary>
+    static int Hero(ErmRuntime rt, int hero)
+    {
+        if (hero == -1)
+        {
+            if (rt.Context.Hero < 0) throw new ErmRuntimeException("no current hero");
+            return rt.Context.Hero;
+        }
+        if (hero < 0 || hero >= WoGLimits.HeroCount || !rt.Services.Game.Heroes.Exists(hero))
+            throw new ErmRuntimeException($"hero {hero} does not exist");
+        return hero;
+    }
+
+    static T Need<T>(AdapterResult<T> r) => r.Status switch
+    {
+        AdapterStatus.Ok => r.Value,
+        AdapterStatus.Unsupported => throw new ErmUnsupportedException(r.Reason ?? "unsupported"),
+        _ => throw new ErmRuntimeException(r.Reason ?? "failed"),
+    };
+
+    static bool Done(AdapterResult r) => r.Status switch
+    {
+        AdapterStatus.Ok => true,
+        AdapterStatus.Unsupported => throw new ErmUnsupportedException(r.Reason ?? "unsupported"),
+        _ => false,
+    };
+
+    /// <summary>A position of HE:A (-1 empty, 1001 + spell = a scroll) as ERA's artifact and modifier.</summary>
+    static (int Art, int Mod) Decode(int position) =>
+        position < 0 ? (NoArt, NoArtMod)
+        : position >= ArtifactSlots.ScrollBase ? (SpellScroll, position - ArtifactSlots.ScrollBase)
+        : (position, NoArtMod);
+
+    static int Encode(int art, int mod) => art == SpellScroll && mod >= 0 ? ArtifactSlots.ScrollBase + mod : art;
+
+    static int CheckSlot(string fn, int slot) =>
+        slot >= 0 && slot < ArtifactSlots.Positions ? slot : throw new ErmRuntimeException($"{fn}: invalid artifact slot ID: {slot}");
+
+    /// <summary>GetArtAtSlot(hero, slot, ?art, ?artMod): the artifact at a worn or backpack slot.</summary>
+    static void GetArtAtSlot(ErmRuntime rt, int[] x, int _)
+    {
+        int hero = Hero(rt, x[0]), slot = CheckSlot("GetArtAtSlot", x[1]);
+        (x[2], x[3]) = Decode(Need(rt.Services.Game.Heroes.GetArtifacts(hero))[slot]);
+    }
+
+    /// <summary>ChangeArtModAtSlot(hero, slot, artMod): the spell of a scroll; other artifacts have no modifier here.</summary>
+    static void ChangeArtModAtSlot(ErmRuntime rt, int[] x, int _)
+    {
+        int hero = Hero(rt, x[0]), slot = CheckSlot("GetArtAtSlot", x[1]), mod = x[2];
+        var heroes = rt.Services.Game.Heroes;
+        var (art, old) = Decode(Need(heroes.GetArtifacts(hero))[slot]);
+        if (art == NoArt || mod == old) return;
+        if (art != SpellScroll || mod < 0)
+            throw new ErmUnsupportedException("ChangeArtModAtSlot: a custom artifact modifier (other than a scroll's spell) has no Olden Era equivalent");
+        if (Done(heroes.RemoveArtifactAt(hero, slot))) Done(heroes.PutArtifact(hero, slot, Encode(art, mod)));
+    }
+
+    /// <summary>AddArtToHero(hero, art, artMod, ?result): the game's own "give an artifact" (a fitting slot, else the backpack).</summary>
+    static void AddArtToHero(ErmRuntime rt, int[] x, int _)
+    {
+        int hero = Hero(rt, x[0]);
+        x[3] = Done(rt.Services.Game.Heroes.EquipArtifact(hero, Encode(x[1], x[2]))) ? 1 : 0;
+    }
+
+    /// <summary>
+    /// EquipArtToSlot(hero, art, artMod, slot, ?result): puts the artifact into an empty worn slot it fits (slot
+    /// NO_ART_SLOT: the first one); FALSE when the slot is wrong, taken or does not fit it.
+    /// </summary>
+    static void EquipArtToSlot(ErmRuntime rt, int[] x, int _)
+    {
+        x[4] = 0;
+        int slot = x[3];
+        if (slot < NoArtSlot || slot > ArtifactSlots.Misc5) return;
+        int hero = Hero(rt, x[0]), art = x[1];
+        var heroes = rt.Services.Game.Heroes;
+        int p2 = art == SpellScroll ? 9 : rt.Services.Artifact(art)?.Position ?? 0;
+        var arts = Need(heroes.GetArtifacts(hero));
+        foreach (int s in ArtifactSlots.ForPosition(p2))
+        {
+            if (slot != NoArtSlot && s != slot || arts[s] >= 0) continue;
+            x[4] = Done(heroes.PutArtifact(hero, s, Encode(art, x[2]))) ? 1 : 0;
+            return;
+        }
+    }
+
+    /// <summary>UnequipArtFromSlot(hero, slot): takes the artifact off a worn slot (it is gone, as in H3).</summary>
+    static void UnequipArtFromSlot(ErmRuntime rt, int[] x, int _)
+    {
+        int hero = Hero(rt, x[0]), slot = x[1];
+        if (slot < 0 || slot >= ArtifactSlots.Worn) return;
+        var heroes = rt.Services.Game.Heroes;
+        if (Need(heroes.GetArtifacts(hero))[slot] >= 0) Done(heroes.RemoveArtifactAt(hero, slot));
     }
 
     /// <summary>ARTNUM-like bound for monsters: the installation's creature table, or WoG 3.58's 197.</summary>
