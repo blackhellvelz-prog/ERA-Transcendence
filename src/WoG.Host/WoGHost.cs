@@ -104,8 +104,12 @@ public sealed class WoGHost : IWoGServices
     public void LoadH3Tables()
     {
         var vfs = new WoG.Core.H3Data.EraVfs(EraGameFolder, eraMods);
+        Vfs = vfs;
         H3 = vfs.IsEmpty ? new WoG.Core.H3Data.H3Tables() : WoG.Core.H3Data.H3Tables.Load(vfs);
     }
+
+    /// <summary>The resource files of the ERA installation and the active mods (pictures for the WoG interface).</summary>
+    public WoG.Core.H3Data.EraVfs Vfs { get; private set; } = new(null, Array.Empty<string>());
 
 
     public string? EraGameFolder { get; private set; }

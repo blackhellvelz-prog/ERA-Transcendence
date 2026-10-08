@@ -42,6 +42,21 @@ public sealed class WoGPlugin : BasePlugin
     internal static DebugBridge? DebugBridge;
     /// <summary>The WoG Debug commands (null when WoG Debug is off); the in-game window runs them.</summary>
     public static WoG.Debug.DebugCommands? Commands => DebugBridge?.Commands;
+    /// <summary>The resource files of the ERA installation and its mods (HoMM3, WoG, ERA pictures), read only.</summary>
+    public static WoG.Core.H3Data.EraVfs? EraFiles => Host?.Vfs;
+
+    /// <summary>
+    /// Whether the game reacts to its hotkeys (cov.instance.canProcessHotkeys; null when unknown): it binds most letters,
+    /// so the debug window turns them off while text is typed into it.
+    /// </summary>
+    public static bool? GameHotkeys
+    {
+        get => Symbols?.Has("input.hotkeys") == true ? Symbols.Read("input.hotkeys", null) as bool? : null;
+        set
+        {
+            if (value != null && Symbols?.Has("input.hotkeys") == true) Symbols.Write("input.hotkeys", null, value.Value);
+        }
+    }
     /// <summary>Every frame on the game thread (the in-game debug window draws and reads keys here).</summary>
     public static event Action? Frame;
     internal static void RaiseFrame() => Frame?.Invoke();

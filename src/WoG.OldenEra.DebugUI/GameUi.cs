@@ -35,6 +35,9 @@ internal static class GameUi
         return sprites.TryGetValue(name, out var sprite) ? sprite : null;
     }
 
+    /// <summary>Looks the sprites up again: the game loads more of them as its screens open.</summary>
+    public static void ResetSprites() => sprites = null;
+
     /// <summary>
     /// The game's fonts as its own visible texts use them (the localized font asset and its material): regular for
     /// text, medium for headers. False until the game has shown such texts and loaded the window sprites.
@@ -130,6 +133,7 @@ internal static class GameUi
         states.selectedSprite = SpriteOf(normal);
         b.spriteState = states;
         b.onClick.AddListener(DelegateSupport.ConvertDelegate<UnityAction>(onClick));
+        if (label == null) return b; // the caller lays out its own content
         var t = Text(rt, "label", label, size, Light, TextAlignmentOptions.Center);
         t.enableAutoSizing = true;
         t.fontSizeMin = 18;
@@ -196,6 +200,20 @@ internal static class GameUi
         layout.childControlHeight = true;
         layout.childForceExpandHeight = false;
         return content;
+    }
+
+    /// <summary>A grid of cells (the feature tiles) in a scrolling area, <paramref name="columns"/> to a row.</summary>
+    public static (ScrollRect Scroll, RectTransform Content) Grid(RectTransform parent, Vector2 cell, Vector2 spacing, int columns)
+    {
+        var (scroll, content) = Scrolling(parent);
+        var grid = content.gameObject.AddComponent<GridLayoutGroup>();
+        grid.cellSize = cell;
+        grid.spacing = spacing;
+        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        grid.constraintCount = columns;
+        grid.childAlignment = TextAnchor.UpperLeft;
+        grid.padding = new RectOffset { left = 4, right = 4, top = 6, bottom = 12 };
+        return (scroll, content);
     }
 
     public static void Height(RectTransform rt, float height)

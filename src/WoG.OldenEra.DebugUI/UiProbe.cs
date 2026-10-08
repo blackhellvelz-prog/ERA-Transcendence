@@ -17,7 +17,7 @@ internal static class UiProbe
     public static string Run(string args)
     {
         var w = args.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (w.Length == 0) return "usage: ui canvases | ui tree <name> [depth] | ui sprites <filter> [max] | ui fonts";
+        if (w.Length == 0) return "usage: ui canvases | ui tree <name> [depth] | ui sprites <filter> [max] | ui fonts | ui keys [filter]";
         int Int(int i, int def) => w.Length > i && int.TryParse(w[i], out int v) ? v : def;
         return w[0] switch
         {
@@ -25,8 +25,42 @@ internal static class UiProbe
             "tree" => w.Length > 1 ? Tree(w[1], Int(2, 4)) : "usage: ui tree <name> [depth]",
             "sprites" => Sprites(w.Length > 1 ? w[1] : "", Int(2, 100)),
             "fonts" => Fonts(),
+            "keys" => Keys(w.Length > 1 ? w[1] : ""),
             _ => "unknown: " + w[0],
         };
+    }
+
+    /// <summary>
+    /// The game's input actions (every loaded InputActionAsset: map/action [on|off]: bound paths), to find keys the
+    /// game does not use for the window's hotkey.
+    /// </summary>
+    static string Keys(string filter)
+    {
+        var sb = new StringBuilder();
+        foreach (var asset in Resources.FindObjectsOfTypeAll<UnityEngine.InputSystem.InputActionAsset>())
+        {
+            if (asset == null) continue;
+            var maps = asset.actionMaps;
+            for (int m = 0; m < maps.Count; m++)
+            {
+                var map = maps[m];
+                var actions = map.actions;
+                for (int a = 0; a < actions.Count; a++)
+                {
+                    var action = actions[a];
+                    var paths = new List<string>();
+                    var bindings = action.bindings;
+                    for (int b = 0; b < bindings.Count; b++)
+                    {
+                        var binding = bindings[b];
+                        if (!binding.isComposite) paths.Add(binding.effectivePath);
+                    }
+                    string line = $"{asset.name}/{map.name}/{action.name} [{(action.enabled ? "on" : "off")}]: {string.Join(", ", paths)}";
+                    if (filter.Length == 0 || line.Contains(filter, StringComparison.OrdinalIgnoreCase)) sb.Append(line).Append('\n');
+                }
+            }
+        }
+        return sb.Length == 0 ? "no input actions" + (filter.Length > 0 ? " with " + filter : "") : sb.ToString();
     }
 
     static bool InScene(Component c) => c != null && c.gameObject.scene.IsValid();

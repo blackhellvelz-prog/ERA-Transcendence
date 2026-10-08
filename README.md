@@ -29,7 +29,7 @@ the cheapest route → reading primary sources → vertical slice → oracle che
 | Commanders (`src/WoG.Commanders`) | the `npc.cpp` tables and formulas: levels, skills, special bonuses, artifacts, hiring/resurrection, battle profile |
 | Stack experience (`src/WoG.CreatureExperience`) | ranks, gaining experience after battle, merging, bonuses, `CREXPMOD/CREXPBON.TXT` loaders |
 | Olden Era plugin (`src/WoG.OldenEra`) | BepInEx 6 IL2CPP, builds against the real API; game symbols come from a config; everything unverified is disabled and reports *unsupported* |
-| WoG Debug window (`src/WoG.OldenEra.DebugUI`) | an in-game ERM and debug-command console (F9 or the "WoG" button), built from Olden Era's own window frame, buttons, fonts and scrollbar; only with WoG Debug on |
+| WoG Debug window (`src/WoG.OldenEra.DebugUI`) | an in-game ERM and debug-command console with every feature of the port as a tile with a round icon (HoMM3, WoG and ERA pictures read from the ERA installation at run time, Olden Era sprites), round group tabs and a search (F8 or the round "WoG" button in the top bar), built from Olden Era's own window frame, buttons, fonts and scrollbar; only with WoG Debug on |
 | Data overlay (`src/WoG.OldenEra.Data`) | reading `Core.zip`, unit clones, experience-rank buffs, localization in the OE format |
 | Tests (`tests/WoG.Tests`) | 187 xUnit tests; the corpus tests run the real WoG and ERA scripts |
 | Tools (`tools/`) | `WoG.ErmTool`: `parse`, `run`, `compat`, `era-pp`, `probe-symbols`; `oe-recon/collect.ps1` — collects data about an Olden Era installation |

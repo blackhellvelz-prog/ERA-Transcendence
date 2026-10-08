@@ -168,6 +168,7 @@ public sealed class OldenEraSymbols
         "battleevent.defend", "battleevent.wait", // events: a unit skips its turn (H3's defend), waits
         "battleevent.magicStart", "battleevent.magicEnd", // events: a hero's spell starts, ends
         "battleevent.damage",        // event: a unit took damage
+        "input.hotkeys",             // static: whether the game reacts to its hotkeys (off while text is typed)
         "squad.list",                // root → wandering monster squads
         "squad.node", "squad.units", "squad.released", // squad → node / unit stacks / defeated
         "squadunit.sid", "squadunit.amount",           // squad unit → unit sid / count

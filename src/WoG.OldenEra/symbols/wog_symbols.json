@@ -1308,6 +1308,13 @@
       "Member": "cksq",
       "Status": "verified",
       "Note": "0.81.04: ObjectTookDamageEventArgs target = the unit hit, damage 16, stacksDestroyed 1 (after the damage is dealt) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+    },
+    "input.hotkeys": {
+      "Assembly": "Hex",
+      "Type": "cov",
+      "Member": "instance.canProcessHotkeys",
+      "Status": "verified",
+      "Note": "0.81.04: cov.instance (static) .canProcessHotkeys (bool, true in the main menu and on the map). The game's hotkeys are Hex.InputSys.EInputAction bound by a JSON TextAsset in resources.assets (JsonBindingContainer: QuickSave F5, QuickLoad F9, BugReport F1, CheatPanel F2, FlyTrailer F7, most letters) | verified 2026-10-08 (0.81.04) with WoG Debug peek"
     }
   }
 }

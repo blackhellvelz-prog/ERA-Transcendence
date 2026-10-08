@@ -721,5 +721,37 @@ buses and logs them) `[V-game]`:
 * Checked in the battle (the first version of the bridge): !?BR twice (v997 0, then 1), !?BG0/1 thirteen times,
   !?MF1 with 13 damage to stack 21 (the crossbowmen's shot); the waits and the skipped turn came as "no action", the
   griffins' walk-and-attack as a walk — the tracker now tells them apart (`cksw`, `cksv`, a walk held back until the
-  attack), checked by `BattleTriggerTests` (233 xUnit tests).
+  attack), checked by `BattleTriggerTests` (233 xUnit tests). Checked again with the tracker `[V-game]`: the griffins'
+  wait → BG:A 8; the enemies' walks → 2 at their turn's end; Bless by the hero → 1 (stack 0, target 0) and !?BG1, then
+  the skipped turn → 3; the crossbowmen's shot → 7 on stack 22 with !?MF1 16; the knights' walk-and-attack → 6 on the
+  griffins, and the griffins' retaliations (41, 47) raise !?MF1 too; v997 0, 1, 2 at the round starts.
 * WoG Debug: `wogdebug - battle.erm` counts the triggers into i^wogdebug_*^; buttons "Триггеры боя" and "События боя".
+
+## 2026-10-08 — session 2, continued: the WoG Debug window with round icons; F9 was the game's quick load
+
+* **Round icons** from HoMM3, WoG, ERA and Olden Era. `H3Images` (WoG.Core) decodes Heroes III pictures — PCX (palette
+  or BGR) and DEF frames in all four formats, with the key colors (0 transparent, 1/4 shadow, 5..7 where they hold a
+  key color) as VCMI's CDefFile does — and cuts them round (a picture is zoomed past its frame, a glyph fitted inside).
+  The window reads them at run time through Era's VFS (`EraVfs`: the active mods' Data folders and .pac archives, then
+  the game's LODs) from the user's ERA installation — nothing is copied or committed. Checked: every frame of every DEF
+  and PCX of H3sprite.lod, H3bitmap.lod and WoG's .pac archives decodes (49 530 frames; WoG's flame.def and zobj018.def
+  have frames wider than their full size — the picture grows to hold them; SoD's SGTWMTA/B have broken frame headers)
+  — `H3ImagesTests` with ERA_GAME_DIR. Olden Era icons are its loaded sprites by name (Icon_Stats_Attack,
+  Icon_Resource_Gold, Button_CityNavigation_Build, Button_BugReport_Normal…), fitted inside the circle.
+* **The window**: round tabs for the feature groups on the left; the group's features as tiles (the game's button with
+  a round icon, the label and the ERM code in gold); a search over all features; under them what the feature under the
+  mouse does (its note and command); round buttons for the frequent commands (state, hero, self-test, compatibility,
+  help, clear) over the console. Each feature and group has an icon spec (`h3:Secskill.def#32|oe:Icon_Stats_Attack`, the
+  first found wins): H3 skills at expert level, spells, artifacts, creature portraits, town and fort icons, WoG's
+  curse/blessing and commander icons, WoG options buttons. Built in-game: tabs, tiles, search ("HE:M" → the four spell
+  features), hover line, toolbar — `[V-game]`.
+* **F9 reloaded the game**: Olden Era binds it to its quick load. Its hotkeys are `Hex.InputSys.EInputAction` bound by a
+  JSON TextAsset in resources.assets (JsonBindingContainer) `[V-data]`: F1 bug report, F2 cheat panel, F5 quick save, F7
+  fly-through, F9 quick load, F12 hot-seat side, the back quote (hero strike, continue moving) and most letters, Enter,
+  Space. The window's key is now a setting (`[Window] Hotkey` in wog.oldenera.debugui.cfg, F8 by default; F10 is
+  avoided — Windows opens the window menu with it). While text is typed into the window, the game's hotkeys are off
+  (`cov.instance.canProcessHotkeys`, symbol `input.hotkeys`) and back as they were afterwards: typing "hero" + Enter ran
+  the command and nothing on the map — `[V-game]`.
+* The "WoG" button moved from the left edge (the players' banners grow down it, and in battle it covered the hero's
+  panel) into the top bar, right of the game's two buttons and left of the battle's turn queue.
+* WoG Debug: `ui keys` lists the input actions of Unity's InputSystem (Olden Era only has the default UI ones).
