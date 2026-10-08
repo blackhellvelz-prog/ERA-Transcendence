@@ -648,3 +648,23 @@ through the bridge `[V-game: peek]`, the commands themselves were **not run in g
   name (`ERA:Transcendence`, shown in the BepInEx log) use it; the plugin GUID (`wog.oldenera`) and its config file
   stay, so existing installations and settings keep working. Code namespaces keep `WoG.*`: they name the WoG/ERA
   layers being ported.
+
+## 2026-10-08 — session 2, continued: in-game check of HE:B/X/H, OW, MN, CA; one object per square
+
+Checked in the skirmish quicksave with the bridge `[V-game]`:
+* **HE:B** — B0 read «Истр», B1 "" (no script biography), B3 the game's own biography, B2 0 (Knight: human, might).
+  `B0/^Сэр WoG^` renamed the hero: the game's localization returned the new text and the **hero window showed
+  «Сэр WoG»** (the hero panel at the bottom keeps the old text until it is redrawn). B1 set and read back. B2/X sets are
+  reported unsupported. **HE:X** read 0/2 (Logistics: human_hero_1's movement bonus). **HE:H** read esquire (0) 14-20,
+  archer→crossbowman (2) 10-14, griffin (4) 5-7, and set slot 2 to royal griffins 3-5 (read back); hiring a hero with
+  it was not tried.
+* **OW** — H: one hero (105), O slot 0 = 105, W: one town (0), T: 0 and 1 for the two players, V: tavern heroes 118 and
+  70; setting V is reported unsupported.
+* **CA** — `B1/4` in a human town: "Build_Magic_Guild of this Olden Era town has 4 levels, not 5" (unsupported);
+  `B3/4/2` reads not allowed, `B3/3/2` allowed.
+* **MN** — found "not a mine" at the mine `UN:U` gave: two objects had the same ERM position, the mine and a gold pile
+  lying on the mine's first entrance (new debug command `objects x y l`). In H3 a square holds one object, so a
+  building now stands at its first entrance in scan order that no pick-up lies on (mine_gold moved to 66/7/0, the
+  towns kept their positions). Then: owner -1, resource 6, guards empty; `O-2` gave the mine to the player (its session
+  object ownerSide 0 via `fnt.bmiq`); the map snapshot is read again after a change of owner, so the next read in the
+  same call sees it. Setting R and M is reported unsupported.

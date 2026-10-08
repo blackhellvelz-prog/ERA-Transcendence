@@ -67,6 +67,7 @@ public sealed class DebugCommands
         "  vars v|z <from> <to>         ERM variables; vars i <name> for i^name^\n" +
         "  hero [number]                a hero through the WoG layer: stats, skills, spells, artifacts by position\n" +
         "  town [number]                the towns (CA numbers); one town: owner, heroes, H3 buildings, dwellings, garrison\n" +
+        "  objects x y l                the map objects ERM sees at a square: type, subtype, owner, engine id\n" +
         "                               {town} in any command: the town the active hero visits, else the player's first\n" +
         "  peek <path> [max]            read a game object: root.heroes.list[0].node, Type.staticMember.member...\n" +
         "  invoke <path> <method> [arg...]  call a game method; args: numbers, \"text\", true/false, null, @<path>\n" +
@@ -96,6 +97,7 @@ public sealed class DebugCommands
                 "vars" => Vars(rest),
                 "hero" => Hero(rest),
                 "town" => Town(rest),
+                "objects" => Objects(rest),
                 "peek" => engine?.Peek(rest) ?? "no engine",
                 "invoke" => engine?.Invoke(rest) ?? "no engine",
                 "set" => engine?.Set(rest) ?? "no engine",
@@ -165,6 +167,19 @@ public sealed class DebugCommands
         "жилище 1", "жилище 2", "жилище 3", "жилище 4", "жилище 5", "жилище 6", "жилище 7",
         "жилище 1+", "жилище 2+", "жилище 3+", "жилище 4+", "жилище 5+", "жилище 6+", "жилище 7+",
     };
+
+    /// <summary>objects x y l — every map object ERM sees at a square (several share one in Olden Era).</summary>
+    string Objects(string args)
+    {
+        var p = args.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
+        if (p.Length != 3) return "usage: objects x y l";
+        var pos = new MapPos(p[0], p[1], p[2]);
+        var all = host.Game.Map.GetObjects();
+        if (!all.IsOk) return "objects: " + all;
+        var here = all.Value.Where(o => o.Position == pos).ToList();
+        return $"{here.Count} object(s) at {pos}\n" +
+               string.Concat(here.Select(o => $"  type {o.Type}/{o.SubType}, owner {o.Owner}, {o.Sid ?? "-"}\n"));
+    }
 
     /// <summary>The town the active hero visits, else the current player's first town, else town 0 ({town} in commands).</summary>
     int DefaultTown()

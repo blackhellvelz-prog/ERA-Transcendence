@@ -1263,6 +1263,7 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
                 if (o != null) owners[Convert.ToInt32(sym.Read("object.mapId", o))] = Convert.ToInt32(sym.Read("object.owner", o));
 
         var covered = new List<(WoGMapObject Obj, List<int> Nodes)>();
+        var found = new List<(object Obj, string Sid, int Type, int Subtype, List<int> Blocked)>();
         foreach (var o in OldenEraSymbols.Items(sym.Read("map.objects", map)))
         {
             if (o == null) continue;
@@ -1271,16 +1272,28 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
                 : new List<int>();
             foreach (int n in blocked) snap.Blocked[n] = true;
             if (sym.Read("mapobj.sid", o) is not string sid || !ObjectTypes.TryGet(sid, out int type, out int subtype)) continue;
-            // A pick-up (resource, chest, artifact, prison) occupies one node with entrances all around: as in H3 a hero
-            // steps onto it, so that node is its position. A building stands at its first entrance in H3 scan order.
+            found.Add((o, sid, type, subtype, blocked));
+        }
+        // A pick-up (resource, chest, artifact, prison) occupies one node with entrances all around: as in H3 a hero
+        // steps onto it, so that node is its position. A building stands at its first entrance in H3 scan order that
+        // no pick-up lies on: in H3 a square holds one object, while an Olden Era map can put a resource pile on a
+        // mine's entrance [V-game: resource_gold and mine_gold both at 67/6/0 of the test map].
+        var taken = new HashSet<int>(found.Where(f => f.Blocked.Count == 1).Select(f => f.Blocked[0]));
+        foreach (var (o, sid, type, subtype, blocked) in found)
+        {
             var pos = MapPos.None;
             if (blocked.Count == 1) pos = NodeToPos(blocked[0], sx, sz);
             else
-                foreach (var n in OldenEraSymbols.Items(sym.Read("mapobj.entrances", o)))
+            {
+                var entrances = OldenEraSymbols.Items(sym.Read("mapobj.entrances", o)).Select(Convert.ToInt32)
+                    .Select(n => (Node: n, Pos: NodeToPos(n, sx, sz))).OrderBy(e => e.Pos.Y).ThenBy(e => e.Pos.X).ToList();
+                var free = entrances.Where(e => !taken.Contains(e.Node)).DefaultIfEmpty(entrances.FirstOrDefault()).First();
+                if (entrances.Count > 0)
                 {
-                    var p = NodeToPos(Convert.ToInt32(n), sx, sz);
-                    if (pos.IsNone || p.Y < pos.Y || (p.Y == pos.Y && p.X < pos.X)) pos = p;
+                    pos = free.Pos;
+                    taken.Add(free.Node);
                 }
+            }
             if (pos.IsNone) pos = NodeToPos(Convert.ToInt32(sym.Read("mapobj.node", o)), sx, sz);
             int id = Convert.ToInt32(sym.Read("mapobj.id", o));
             int owner = owners.TryGetValue(id, out int side) && side >= 0 ? PlayerOfSide(side) : -1;
@@ -1473,7 +1486,9 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
     {
         var all = GetObjects();
         if (all.Status != AdapterStatus.Ok) return all.Error<WoGMapObject>();
-        var o = all.Value.FirstOrDefault(x => x.Position == pos);
+        // An Olden Era squad can stand on the entrance of what it guards (a mine) [V-game: MN at a mine's position found
+        // the squad]: the building is the object of the square, as in H3, where a square has one object.
+        var o = all.Value.Where(x => x.Position == pos).OrderBy(x => x.Type is 54 or 34 ? 1 : 0).FirstOrDefault();
         return o == null ? AdapterResult<WoGMapObject>.Failed($"no object at {pos}") : AdapterResult<WoGMapObject>.Ok(o);
     }
 
@@ -1517,6 +1532,7 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         var all = sym.Read("world.objectLogics", null);
         if (all == null || !Convert.ToBoolean(OldenEraSymbols.Call(all, "ContainsKey", id.Value))) return AdapterResult.Failed("the object has no map logic");
         OldenEraSymbols.Call(MethodTrace.Real(OldenEraSymbols.Call(all, "get_Item", id.Value)!), sym.MemberOf("object.setOwner")!.Name, side);
+        snapshot = null; // the owners of the map snapshot are read again
         return AdapterResult.Ok;
     }
 
@@ -1623,6 +1639,7 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         }
         if (CityLogicObject(c) is not { } logic) return AdapterResult.Failed("the town has no map logic");
         OldenEraSymbols.Call(logic, sym.MemberOf("object.setOwner")!.Name, side);
+        snapshot = null; // the owners of the map snapshot are read again
         return AdapterResult.Ok;
     });
 
