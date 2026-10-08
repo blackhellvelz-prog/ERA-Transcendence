@@ -123,6 +123,11 @@ internal static class FeatureCatalog
         new("Бой (BM)", "Отряд 0: +10 существ (BM:N)", "erm !!BM0:Nd10 N?x1;", note: "x1 — число после"),
         new("Бой (BM)", "Отряд 0: атака +5 (BM:A)", "erm !!BM0:Ad5 A?x1;", note: "сохраняется при пересчётах игры (модификатор отряда)"),
         new("Бой (BM)", "Враг 21: защита −3 (BM:D)", "erm !!BM21:Dd-3 D?x1;"),
+        new("Бой (BM)", "Триггеры боя (!?BR, !?BG, !?MF)",
+            "vars i wogdebug_br wogdebug_round wogdebug_bg0 wogdebug_bg1 wogdebug_action wogdebug_stack wogdebug_side wogdebug_target wogdebug_mf wogdebug_damage wogdebug_hit",
+            note: "счётчики скрипта WoG Debug: br — раундов (round = v997), bg0/bg1 — действий, action — BG:A последнего (1 заклинание героя, 2 движение, 3 защита, 6 атака, 7 выстрел, 8 ожидание, 12 без действия), mf — ударов, damage — урон последнего"),
+        new("Бой (BM)", "События боя: подписаться", "battleevents", note: "журнал всех событий боя Olden Era; затем «События боя: показать»"),
+        new("Бой (BM)", "События боя: показать", "battleevents show"),
 
         new("Существа (MA)", "Копейщик: атака, защита, ОЗ", "erm !!MA:A0/?x1 D0/?x2 P0/?x3;", note: "x1 — атака, x2 — защита, x3 — здоровье"),
         new("Существа (MA)", "Копейщик: атака +5", "erm !!MA:A0/d5 A0/?x1;", note: "x1 — атака после"),

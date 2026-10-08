@@ -352,6 +352,9 @@ public sealed class WoGHost : IWoGServices
             case WoGEventKind.BattleActionPost:
                 Erm?.Raise(30304, ctx);
                 break;
+            case WoGEventKind.BattleDamage:
+                Erm?.Raise(30802, ctx); // !?MF1
+                break;
             case WoGEventKind.BattleEnd:
                 Erm?.Raise(30301, ctx);
                 Erm?.Raise(30353, ctx);

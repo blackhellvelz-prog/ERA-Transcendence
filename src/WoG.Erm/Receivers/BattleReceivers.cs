@@ -143,3 +143,69 @@ public sealed class BmReceiver : ErmReceiverBase
         c.Need(battle.SetStack(mn, stat, v));
     }
 }
+
+/// <summary>!!BG — the action of a stack in !?BG (Monsters.cpp, the G2B_* action of the battle manager).</summary>
+public sealed class BgReceiver : ErmReceiverBase
+{
+    const string Change = "BG — changing a stack's action, its target or spell: Olden Era reports the action as it starts";
+
+    public BgReceiver() : base("BG")
+    {
+        Declare("ANQHE", CompatLevel.PartiallySupported,
+            "BG:A/N/Q/H/E — the action in !?BG (the hero's spell, walk, defend, attack, shoot, wait, a monster's spell, no action; Olden Era's turn events), the acting stack, its side, its hero and the targeted stack; read only");
+        Declare("DSX", CompatLevel.Unsupported, "BG:D/S/X — the destination position, the spell and the second position of an action are not mapped yet");
+    }
+
+    protected override void Run(ErmCall c)
+    {
+        var battle = c.Rt.Services.Game.Battle;
+        var b = c.Need(battle.GetBattle());
+        if (b.CompleteAi) throw new ErmRuntimeException("ERROR! Attempt to use \"!!BG\" in non-human battle (use flag 1000 for checking).");
+        if (b.ActionStack < 0) throw new ErmRuntimeException("\"!!BG\"-no action of a stack (use it in !?BG).");
+        int side = b.ActionSide >= 0 ? b.ActionSide : b.ActionStack / 21;
+        switch (c.Letter)
+        {
+            case 'A':
+                if (b.ActionType < 0) throw new ErmUnsupportedException("BG:A — this kind of Olden Era action has no H3 action type mapped");
+                MapSelector.ReadOnly(c, b.ActionType, 0, Change);
+                break;
+            case 'N': MapSelector.ReadOnly(c, b.ActionStack, 0, Change); break;
+            case 'Q': MapSelector.ReadOnly(c, side, 0, Change); break;
+            case 'H': MapSelector.ReadOnly(c, b.Heroes[side], 0, Change); break;
+            case 'E': MapSelector.ReadOnly(c, b.ActionTarget, 0, Change); break;
+            case 'D':
+            case 'S':
+            case 'X':
+                throw new ErmUnsupportedException("BG:D/S/X — the destination position, the spell and the second position of an action are not mapped yet");
+            default:
+                throw ErmCall.WrongCommand(c.Letter);
+        }
+    }
+}
+
+/// <summary>!!MF — a stack taking physical damage in !?MF1 (Monsters.cpp ERM_MonFeature).</summary>
+public sealed class MfReceiver : ErmReceiverBase
+{
+    const string Dealt = "MF:E/F — Olden Era reports the damage after it is dealt, so it cannot be changed or cancelled yet";
+
+    public MfReceiver() : base("MF")
+    {
+        Declare("DNW", CompatLevel.PartiallySupported, "MF:D/N/W — the damage, the stack taking it, the kind of attacker (0); Olden Era reports the damage after it is dealt");
+        Declare("EF", CompatLevel.PartiallySupported, "MF:E/F — enabled (1) and the corrected damage read as dealt; changing them is not possible when the damage is reported after it is dealt");
+    }
+
+    protected override void Run(ErmCall c)
+    {
+        var b = c.Need(c.Rt.Services.Game.Battle.GetBattle());
+        if (b.DamageStack < 0) throw new ErmRuntimeException("\"!!MF\"-no damage (use it in !?MF1).");
+        switch (c.Letter)
+        {
+            case 'D': MapSelector.ReadOnly(c, b.Damage, 0, Dealt); break;
+            case 'F': MapSelector.ReadOnly(c, b.Damage, 0, Dealt); break;
+            case 'E': MapSelector.ReadOnly(c, 1, 0, Dealt); break;
+            case 'N': MapSelector.ReadOnly(c, b.DamageStack, 0, Dealt); break;
+            case 'W': MapSelector.ReadOnly(c, 0, 0, Dealt); break;
+            default: throw ErmCall.WrongCommand(c.Letter);
+        }
+    }
+}

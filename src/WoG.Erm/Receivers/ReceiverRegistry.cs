@@ -78,6 +78,8 @@ public sealed class ReceiverRegistry
         reg.Register(new MnReceiver());
         reg.Register(new BaReceiver());
         reg.Register(new BmReceiver());
+        reg.Register(new BgReceiver());
+        reg.Register(new MfReceiver());
         reg.Register(new TmReceiver());
         reg.Register(new HeReceiver());
         reg.Register(new OwReceiver());
@@ -116,6 +118,8 @@ public sealed class ReceiverRegistry
         reg.Register(new MnReceiver());
         reg.Register(new BaReceiver());
         reg.Register(new BmReceiver());
+        reg.Register(new BgReceiver());
+        reg.Register(new MfReceiver());
         reg.Register(new TmReceiver());
         reg.Register(new HeReceiver());
         reg.Register(new OwReceiver());
@@ -231,6 +235,20 @@ public sealed class ReceiverRegistry
             "BM:T/B/I/O/P/F/E/R/J/U3 — тип, количество в начале, сторона, слот армии, позиция, флаги, заклинания, ответные удары, активные заклинания и выстрелы отряда в бою: чтение там, где в Olden Era они есть; изменение не отображено",
         ["BM:G/C/K/M/Q/V/U4/U5 — spells on a stack, casting, damage, magic obstacles, animations and spell or clone settings are not mapped yet"] =
             "BM:G/C/K/M/Q/V/U4/U5 — заклинания на отряде, их применение, урон, магические препятствия, анимации и настройки заклинания или клона ещё не отображены",
+        ["BG:A/N/Q/H/E — the action in !?BG (the hero's spell, walk, defend, attack, shoot, wait, a monster's spell, no action; Olden Era's turn events), the acting stack, its side, its hero and the targeted stack; read only"] =
+            "BG:A/N/Q/H/E — действие в !?BG (заклинание героя, движение, защита, атака, выстрел, ожидание, заклинание монстра, без действия; события хода Olden Era), действующий отряд, его сторона, его герой и отряд-цель; только чтение",
+        ["BG:D/S/X — the destination position, the spell and the second position of an action are not mapped yet"] =
+            "BG:D/S/X — позиция назначения, заклинание и вторая позиция действия ещё не отображены",
+        ["BG — changing a stack's action, its target or spell: Olden Era reports the action as it starts"] =
+            "BG — смена действия отряда, его цели или заклинания: Olden Era сообщает о действии, когда оно уже начинается",
+        ["BG:A — this kind of Olden Era action has no H3 action type mapped"] =
+            "BG:A — у этого вида действия Olden Era нет сопоставленного типа действия H3",
+        ["MF:D/N/W — the damage, the stack taking it, the kind of attacker (0); Olden Era reports the damage after it is dealt"] =
+            "MF:D/N/W — урон, отряд, получающий его, вид атакующего (0); Olden Era сообщает об уроне после того, как он нанесён",
+        ["MF:E/F — enabled (1) and the corrected damage read as dealt; changing them is not possible when the damage is reported after it is dealt"] =
+            "MF:E/F — «разрешён» (1) и исправленный урон читаются как нанесённые; изменить их нельзя, пока об уроне сообщается после нанесения",
+        ["MF:E/F — Olden Era reports the damage after it is dealt, so it cannot be changed or cancelled yet"] =
+            "MF:E/F — Olden Era сообщает об уроне после того, как он нанесён, поэтому изменить или отменить его пока нельзя",
         ["PO — WoG data of a map square, kept in the WoG state and saved with it"] =
             "PO — данные WoG для клетки карты, хранятся в состоянии WoG и сохраняются вместе с ним",
         ["CA:B — buildings by H3 number: dwellings, mage guild, fort/citadel/castle, village/town/city hall, tavern, marketplace, resource silo and grail are Olden Era's buildings (a higher level counts its lower ones as built); the other numbers read as not built and cannot be built; B1/B6 build through the game's construction, free and without using the day's one; B4/B5 allow or forbid; B3…/1 (bonus taken) reads as built; B2 is not possible: Olden Era has no demolition"] =

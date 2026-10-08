@@ -289,6 +289,17 @@ public sealed class WoGBattle
     public bool Siege { get; set; }
     /// <summary>Both sides are run by the computer (BA:A).</summary>
     public bool CompleteAi { get; set; }
+    /// <summary>The action of !?BG: the acting stack, its side, its type (BG:A: 1 the hero casts a spell, 2 walk,
+    /// 3 defend, 6 attack, 7 shoot, 8 wait, 10 a monster's spell, 12 no action; -1 unknown) and the stack it targets
+    /// (-1 none).</summary>
+    public int ActionStack { get; set; } = -1;
+    public int ActionSide { get; set; } = -1;
+    public int ActionType { get; set; } = -1;
+    public int ActionTarget { get; set; } = -1;
+    /// <summary>The damage of !?MF: the stack taking it, the damage, whether it was already dealt (MF:F/E cannot change it then).</summary>
+    public int DamageStack { get; set; } = -1;
+    public int Damage { get; set; }
+    public bool DamageDealt { get; set; }
 }
 
 /// <summary>A loaded ERM script (text and origin).</summary>

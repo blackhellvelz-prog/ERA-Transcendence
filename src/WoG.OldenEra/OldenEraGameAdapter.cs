@@ -2043,6 +2043,36 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         return AdapterResult<Dictionary<int, object>>.Ok(byNumber);
     }
 
+    /// <summary>The WoG stack number of a battle unit; -1 for anything else.</summary>
+    public int StackNumberOf(object? unit)
+    {
+        if (unit is not Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase u || !BattleUnits().IsOk) return -1;
+        return stackNumbers.TryGetValue(u.Pointer, out int n) ? n : -1;
+    }
+
+    /// <summary>
+    /// BG:A of an ability or attack a unit used: its config's ability (CastAbilityEventArgs.abilityID: abilityType,
+    /// indexInArray into defaultAttacks / alternativeAttacks / counterAttacks / abilities) has attackType_ shoot → 7,
+    /// melee → 6, anything else (a spell, an ability) → 10 [V-game: crossbowman's default attack "shoot", griffin's
+    /// "melee"].
+    /// </summary>
+    public int AttackKind(object? unit, object? abilityId)
+    {
+        if (unit == null || abilityId == null || !sym.Has("bunit.config")) return -1;
+        var cfg = sym.Read("bunit.config", unit);
+        string type = OldenEraSymbols.ReadMember(abilityId, "abilityType")?.ToString() ?? "";
+        int index = Convert.ToInt32(OldenEraSymbols.ReadMember(abilityId, "indexInArray"));
+        string? list = type switch
+        {
+            "DefaultAttack" => "defaultAttacks", "AlternativeAttack" => "alternativeAttacks",
+            "CounterAttack" => "counterAttacks", "Ability" => "abilities", _ => null,
+        };
+        if (cfg == null || list == null) return 10;
+        var abilities = OldenEraSymbols.Items(OldenEraSymbols.ReadMember(cfg, list));
+        if (index < 0 || index >= abilities.Count || abilities[index] == null) return 10;
+        return OldenEraSymbols.ReadMember(abilities[index]!, "attackType_")?.ToString() switch { "shoot" => 7, "melee" => 6, _ => 10 };
+    }
+
     public AdapterResult<int> StackCount()
     {
         var units = BattleUnits();

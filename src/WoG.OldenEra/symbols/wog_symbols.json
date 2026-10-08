@@ -1217,6 +1217,97 @@
       "Member": "cmws",
       "Status": "verified",
       "Note": "0.81.04: UnitStat battle modifier, all 0 at the start; offence +11 made the total 20 after the next recalculation | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+    },
+    "bunit.config": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Battle.Unit",
+      "Member": "cmwn",
+      "Status": "verified",
+      "Note": "0.81.04: UnitLogicConfig: ai (range_type / melee_type), defaultAttacks[] (AbilityLogicConfig.attackType_ shoot / melee), alternativeAttacks, counterAttacks, abilities | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+    },
+    "battle.events": {
+      "Assembly": "Hex",
+      "Type": "eor",
+      "Member": "clgz.cksd",
+      "Status": "verified",
+      "Note": "0.81.04: ena.cksd: enb, the logic event bus (ena.ckse: enc raises the same for the view) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+    },
+    "battleevent.roundStart": {
+      "Assembly": "Hex",
+      "Type": "enb",
+      "Member": "ckso",
+      "Status": "verified",
+      "Note": "0.81.04: BattleEventArgs roundNumber 1 at the first round, 2 at the second; target = the first unit | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+    },
+    "battleevent.turnStart": {
+      "Assembly": "Hex",
+      "Type": "enb",
+      "Member": "cksj",
+      "Status": "verified",
+      "Note": "0.81.04: BattleEventArgs target = the unit whose turn starts — every turn, also the second one after waiting (cksi fires only on a fresh turn, cksx on the turn after waiting, cksl after a hero's spell too) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+    },
+    "battleevent.turnEnd": {
+      "Assembly": "Hex",
+      "Type": "enb",
+      "Member": "cksn",
+      "Status": "verified",
+      "Note": "0.81.04: BattleEventArgs target = the unit whose turn ended | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+    },
+    "battleevent.move": {
+      "Assembly": "Hex",
+      "Type": "enb",
+      "Member": "cktd",
+      "Status": "verified",
+      "Note": "0.81.04: UnitStartedMovementEventArgs target = the moving unit (path, pathLength) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+    },
+    "battleevent.cast": {
+      "Assembly": "Hex",
+      "Type": "enb",
+      "Member": "ckts",
+      "Status": "verified",
+      "Note": "0.81.04: CastAbilityEventArgs caster, abilityID {abilityType, indexInArray}, attackedObjects — a crossbowman's shot | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+    },
+    "battleevent.castEnd": {
+      "Assembly": "Hex",
+      "Type": "enb",
+      "Member": "cktt",
+      "Status": "verified",
+      "Note": "0.81.04: CastAbilityEventArgs caster — the ability or attack has ended (its damage, cksq, comes before; a retaliation follows as its own ckts … cktt) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+    },
+    "battleevent.defend": {
+      "Assembly": "Hex",
+      "Type": "enb",
+      "Member": "cksv",
+      "Status": "verified",
+      "Note": "0.81.04: BattleEventArgs target = the unit that skipped its turn (the shield button «Пропустить ход», H3's defend), before its turn ends (cksn) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+    },
+    "battleevent.wait": {
+      "Assembly": "Hex",
+      "Type": "enb",
+      "Member": "cksw",
+      "Status": "verified",
+      "Note": "0.81.04: BattleEventArgs target = the unit that waits (the hourglass button), before its turn ends (cksn); it acts again later in the round (cksj, cksx) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+    },
+    "battleevent.magicStart": {
+      "Assembly": "Hex",
+      "Type": "enb",
+      "Member": "cktn",
+      "Status": "verified",
+      "Note": "0.81.04: CastMagicEventArgs casterSide, attackedObjects, castedMagic — a hero's spell (Bless) during a unit's turn; the unit acts after it (cksl) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+    },
+    "battleevent.magicEnd": {
+      "Assembly": "Hex",
+      "Type": "enb",
+      "Member": "cktm",
+      "Status": "verified",
+      "Note": "0.81.04: CastMagicEventArgs — a hero's spell has ended | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+    },
+    "battleevent.damage": {
+      "Assembly": "Hex",
+      "Type": "enb",
+      "Member": "cksq",
+      "Status": "verified",
+      "Note": "0.81.04: ObjectTookDamageEventArgs target = the unit hit, damage 16, stacksDestroyed 1 (after the damage is dealt) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
     }
   }
 }

@@ -161,6 +161,13 @@ public sealed class OldenEraSymbols
         "bunit.sid", "bunit.side",   // battle unit → unit sid / side (0 attacker, 1 defender)
         "bunit.data", "bunit.army",  // battle unit → its battle data (count, top hit points) / the army stack it came from
         "bunit.stats", "bunit.mods", // battle unit → its total stats / its battle modifier
+        "bunit.config",              // battle unit → its type config (abilities, attacks)
+        "battle.events",             // battle logic → its event bus (fields of EventHandler<BattleEventArgs>)
+        "battleevent.roundStart", "battleevent.turnStart", "battleevent.turnEnd", // events: a round / a unit's turn starts, a turn ends
+        "battleevent.move", "battleevent.cast", "battleevent.castEnd", // events: a unit starts moving, uses an ability or attack, it ends
+        "battleevent.defend", "battleevent.wait", // events: a unit skips its turn (H3's defend), waits
+        "battleevent.magicStart", "battleevent.magicEnd", // events: a hero's spell starts, ends
+        "battleevent.damage",        // event: a unit took damage
         "squad.list",                // root → wandering monster squads
         "squad.node", "squad.units", "squad.released", // squad → node / unit stacks / defeated
         "squadunit.sid", "squadunit.amount",           // squad unit → unit sid / count

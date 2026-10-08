@@ -21,6 +21,7 @@ public enum WoGEventKind
     BattleRound,          // !?BR
     BattleActionPre,      // !?BG0
     BattleActionPost,     // !?BG1
+    BattleDamage,         // !?MF1 (a stack takes damage)
     BattleEnd,            // !?BA1 / BA53
     ArtifactEquip,        // !?AE1
     ArtifactUnequip,      // !?AE0

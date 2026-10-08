@@ -1,0 +1,19 @@
+ZVSE2
+; WoG Debug - battle triggers: counts !?BR, !?BG0, !?BG1 and !?MF1 and remembers what they saw, so the command bridge
+; can check them ("vars i wogdebug_br wogdebug_round wogdebug_bg0 wogdebug_bg1 wogdebug_action wogdebug_stack
+; wogdebug_side wogdebug_target wogdebug_mf wogdebug_damage wogdebug_hit"). Loaded only while WoG Debug is on.
+
+!?BR;
+!!VRi^wogdebug_br^:+1;
+!!VRi^wogdebug_round^:Sv997;
+
+!?BG0;
+!!VRi^wogdebug_bg0^:+1;
+!!BG:A?i^wogdebug_action^ N?i^wogdebug_stack^ Q?i^wogdebug_side^ E?i^wogdebug_target^;
+
+!?BG1;
+!!VRi^wogdebug_bg1^:+1;
+
+!?MF1;
+!!VRi^wogdebug_mf^:+1;
+!!MF:D?i^wogdebug_damage^ N?i^wogdebug_hit^;

@@ -135,6 +135,8 @@ public sealed class WoGPlugin : BasePlugin
                     : players.GetActiveHero(players.CurrentPlayer) is { IsOk: true } active ? active.Value : -1;
                 return Adapter!.DescribeSubSkills(hero);
             }, "sub-skills of a hero's skills in Olden Era (the active hero by default): sid, level, status");
+            DebugBridge.Commands.Add("battleevents", BattleEventProbe.Run,
+                "subscribe to every event of the battle being fought and log them (battleevents show|clear)");
             MethodTrace.Install(harmony, trace.Value, Log);
             Log.LogWarning("WoG Debug is ON: command bridge in " + Path.Combine(cfgDir, "debug", "in"));
         }
@@ -475,6 +477,8 @@ internal static class FrameHook
     static void Tick()
     {
         OldenEraGameAdapter.Frame++;
+        try { BattleEventBridge.Poll(); }
+        catch (Exception ex) { WoGPlugin.L?.LogError("WoG battle events failed: " + ex); }
         try { WoGPlugin.RaiseFrame(); }
         catch (Exception ex) { WoGPlugin.L?.LogError("WoG frame handler failed: " + ex); }
         var now = DateTime.UtcNow;

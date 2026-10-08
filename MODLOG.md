@@ -692,3 +692,34 @@ Reverse engineered in a manual battle (Istr: 18 esquires, 10 crossbowmen, 7 grif
 * WoG Debug: a "Бой (BM)" group of buttons. 223 xUnit tests (`BmReceiverTests`).
 * Next: the battle triggers (!?BR round, !?BG action, !?MF damage) and battlefield positions (H3 17×11 ↔ Olden Era
   13×11) for BU/BG/BF.
+
+## 2026-10-08 — session 2, continued: battle triggers (!?BR, !?BG0/1, !?MF1; BG, MF)
+
+Reverse engineered in a manual battle with WoG Debug `battleevents` (it subscribes to all events of the battle's two
+buses and logs them) `[V-game]`:
+* The battle logic `eor` raises its events on `eor.clgz.cksd` (`enb`, fields of `EventHandler<BattleEventArgs>`;
+  `clgz.ckse` — `enc` — repeats them for the view). The port subscribes to them from managed code when a new battle
+  logic appears (checked every frame): the managed handler becomes an Il2Cpp delegate (`DelegateSupport.ConvertDelegate`)
+  and is combined with the field's delegate (`Il2CppSystem.Delegate.Combine`).
+* Events: a round starts `ckso` (roundNumber 1 at the first round); a unit's turn starts `cksj` — every turn, also
+  the second one after waiting (`cksi` only a fresh turn, `cksx` the turn after waiting); the turn ends `cksn`; the
+  unit starts moving `cktd`; uses an attack or ability `ckts` … `cktt` (CastAbilityEventArgs: caster, abilityID
+  {abilityType, indexInArray} into the unit config's defaultAttacks / counterAttacks / abilities, whose
+  `attackType_` is shoot or melee; attackedObjects); waits `cksw`; skips its turn `cksv` (the shield button
+  "Пропустить ход" — H3's defend); a hero's spell during a unit's turn `cktn` … `cktm` (CastMagicEventArgs:
+  casterSide, attackedObjects; the unit acts after it); a unit took damage `cksq` (ObjectTookDamageEventArgs: damage,
+  stacksDestroyed — after the damage is dealt). A retaliation is its own `ckts` … `cktt` after the attack's.
+* WoG (Monsters.cpp `ERM_MAction`, `ApplyDamage` and its hooks in `_B1.cpp`): !?BG0/1 come before and after the
+  battle manager's action (BG:A 1 the hero's spell, 2 walk, 3 defend, 6 attack, 7 shoot, 8 wait, 10 a monster's
+  spell, 12 no action); !?MF1 only on the physical attack paths — not a spell's damage.
+* **`BattleActionTracker`** (WoG.Core, engine-neutral) turns the events into the triggers: !?BR at each round start
+  with v997 = round − 1 (0 when the battle starts); !?BG0 once per action — a walk is reported at the attack it ends
+  in, or when the turn ends; !?BG1 at the turn's end; the hero's spell is its own !?BG0/1 with BG:A 1; !?MF1 for the
+  damage of a shot or melee attack (a retaliation too), not of a spell or ability. Olden Era reports an action as it
+  starts and damage after it is dealt, so `BG` (A N Q H E) and `MF` (D N W; E, F read as dealt) are read only;
+  BG:D/S/X (positions, the spell) are unsupported.
+* Checked in the battle (the first version of the bridge): !?BR twice (v997 0, then 1), !?BG0/1 thirteen times,
+  !?MF1 with 13 damage to stack 21 (the crossbowmen's shot); the waits and the skipped turn came as "no action", the
+  griffins' walk-and-attack as a walk — the tracker now tells them apart (`cksw`, `cksv`, a walk held back until the
+  attack), checked by `BattleTriggerTests` (233 xUnit tests).
+* WoG Debug: `wogdebug - battle.erm` counts the triggers into i^wogdebug_*^; buttons "Триггеры боя" and "События боя".
