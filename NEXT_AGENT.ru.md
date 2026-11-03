@@ -129,8 +129,8 @@
 логики опыта `dyx.chmo`), `HE:X` для специализаций, которые есть только в Olden Era.
 
 **Уже спроектировано, не закончено:** изменения `SS` → конфиги магии Olden Era (`DB/magics/*.json`: `rank`,
-`manaCost[4]`; заклинания сопоставлены по эффекту в `Compatibility/id-maps/spell.json`); окно WoG Options (написано,
-`WoGOptionsWindow`, F6; в игре ещё не открывалось); таблицы силы навыков, которые хранит `UN:C`
+`manaCost[4]`; заклинания сопоставлены по эффекту в `Compatibility/id-maps/spell.json`); окно WoG Options (работает в
+игре с 2026-11-03, `WoGOptionsWindow`, F6); таблицы силы навыков, которые хранит `UN:C`
 (`WoGGameState.SkillEffects`) → `skill_protection`, `skill_resistance`, `skill_sorcery` Olden Era
 (`DB/heroes_skills/skills/skills.json` `parametersPerLevel[].bonuses`; правило перевода чисел H3 в числа Olden Era
 ещё не выбрано); командиры и опыт стеков в боях Olden Era

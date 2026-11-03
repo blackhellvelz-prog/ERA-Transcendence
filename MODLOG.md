@@ -1103,3 +1103,24 @@ buses and logs them) `[V-game]`:
 * **Not in the game yet:** Olden Era's map tooltip does not call `MapHints.ForObject` (needs RE of the tooltip in the
   game; Steam was stuck); a set reports "kept, not shown". The corpus: SN:H 124 unsupported → 114 kept (the 10 reads
   work), HT 46 kept; 183 scripts, 0 ERM errors; the WoG 3.58 and ERA (eng) corpora pass. 301 tests (+6 `HintTests`).
+
+## 2026-11-03 — session 3, continued: the WoG Options window in the game; three interface fixes
+
+* **Launch:** Steam's own launch stayed at "synchronizing with the cloud" (its `cloud_log.txt`: uploads to the Amazon
+  S3 hosts failed to resolve since 13:18); the game's exe started directly runs and Steam takes it as its game
+  ("Game process added", the stuck launch "Completed"). Steam's settings were not touched.
+* **Verified in the game (main menu and map):** F6 and the round button open the window; the pages switch; a click
+  toggles a check box and moves a radio button; "Закрыть без сохранения" leaves no file and the window opens again
+  with the saved choice; "Сохранить для новых карт" writes `BepInEx/config/WoG/wog_options.json` (299 options) and
+  closes the window; with option 69 saved on, the running game keeps `UN:P69` = 0 and a new map has 1. The test file
+  was deleted afterwards (new maps of the user start with the defaults).
+* **Fix 1 — the texts were keys** (`wog_options.5.0.name`): ERA's Lang texts were loaded only with a game's scripts.
+  `WoGHost.Lang` now loads them on first use (also in the main menu) and a game's scripts get a fresh copy; the window
+  reads `Host.Lang`. Test `The_option_texts_are_translated_outside_a_game`.
+* **Fix 2 — the selected radio button was invisible:** its mark used the dark icon disc, which a gold color cannot
+  lighten; `Icons.Dot` is a white disc the color paints (gold selected, dark not).
+* **Fix 3 — no letters on the map** (both the WoG Options and the WoG Debug window): they are built in the main menu,
+  and the game destroys the font materials of its texts when a map loads (the `ui tree` probe showed the font asset
+  alive, the material null). `GameUi.KeepFonts` (every 30 frames) gives the game's current fonts and materials to every
+  window text when one has lost its font or material. Both windows show their texts on the map.
+* 302 tests (+1).

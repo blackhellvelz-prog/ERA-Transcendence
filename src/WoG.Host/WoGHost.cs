@@ -68,7 +68,7 @@ public sealed class WoGHost : IWoGServices
     readonly List<string> eraMods = new();
     string eraLanguage = "en";
     public IReadOnlyList<WoG.Erm.Era.EraScriptFile> EraScripts { get; private set; } = Array.Empty<WoG.Erm.Era.EraScriptFile>();
-    bool IsEra => ErmOptions.Dialect == ErmDialect.Era;
+    public bool IsEra => ErmOptions.Dialect == ErmDialect.Era;
 
     public WoGHost(IGameAdapter game, IVisualResolver visuals, WoGModules? modules = null,
         ErmRuntimeOptions? ermOptions = null, IWoGRandom? random = null, WoGGameState? state = null)
@@ -277,7 +277,23 @@ public sealed class WoGHost : IWoGServices
         if (!IsEra) throw new InvalidOperationException("AddEraMods needs ErmRuntimeOptions.Dialect = Era");
         eraMods.AddRange(modRoots);
         eraLanguage = language;
+        lang = null;
         LoadH3Tables();
+    }
+
+    WoG.Erm.Runtime.EraLang? lang;
+
+    /// <summary>
+    /// ERA: the mods' Lang texts in the installation's language (Era's Trans) — also outside a game, for the interface
+    /// (the WoG Options window in the main menu); a game's scripts get a fresh copy when they load.
+    /// </summary>
+    public WoG.Erm.Runtime.EraLang Lang => lang ??= LoadLang();
+
+    WoG.Erm.Runtime.EraLang LoadLang()
+    {
+        var l = new WoG.Erm.Runtime.EraLang();
+        l.LoadMods(eraMods, eraLanguage);
+        return l;
     }
 
     /// <summary>
@@ -307,9 +323,7 @@ public sealed class WoGHost : IWoGServices
     {
         if (question == WogifyQuestion.MapScripts && IsEra)
         {
-            var lang = new EraLang();
-            lang.LoadMods(eraMods, eraLanguage);
-            return lang.TryGet("era.global_scripts_vs_map_scripts_warning", out var t) ? t
+            return Lang.TryGet("era.global_scripts_vs_map_scripts_warning", out var t) ? t
                 : "{Load global scripts?}\n\nThis map has its own set of ERM scripts. Do you want to additionally load global ERM scripts?";
         }
         int line = question == WogifyQuestion.MapScripts ? 197 : 226;
@@ -353,8 +367,7 @@ public sealed class WoGHost : IWoGServices
             scripts.Add(script);
             LoadErt(Path.ChangeExtension(f.Path, ".ert"));
         }
-        Erm.Lang = new EraLang();
-        Erm.Lang.LoadMods(eraMods, eraLanguage);
+        Erm.Lang = lang = LoadLang();
     }
 
     /// <summary>ERT text table next to a script: header row, then "index TAB text ..." rows (CRLF-separated).</summary>

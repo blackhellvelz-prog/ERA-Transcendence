@@ -22,7 +22,7 @@ internal static class Icons
 
     static readonly Dictionary<string, Sprite> h3 = new(StringComparer.OrdinalIgnoreCase);
     static readonly HashSet<string> missing = new(StringComparer.OrdinalIgnoreCase);
-    static Sprite disc, ring, glow;
+    static Sprite disc, dot, ring, glow;
 
     /// <summary>The sprite of a spec and whether it already fills the circle (an H3 picture cut round).</summary>
     public static (Sprite Sprite, bool Round) Get(string spec)
@@ -64,6 +64,9 @@ internal static class Icons
         double t = Math.Clamp(1 - d / 120, 0, 1); // lighter in the middle
         return (0.07 + 0.08 * t, 0.09 + 0.10 * t, 0.15 + 0.14 * t, a);
     }));
+
+    /// <summary>A white disc that takes an Image's color (a radio button's mark).</summary>
+    public static Sprite Dot => dot ??= Make(Shape(64, (d, y) => (1, 1, 1, Edge(120 - d))));
 
     /// <summary>A golden ring with a bevel, lighter at the top (the game's gold, #DDB484).</summary>
     public static Sprite Ring => ring ??= Make(Shape(256, (d, y) =>

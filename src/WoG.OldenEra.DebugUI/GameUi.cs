@@ -45,6 +45,11 @@ internal static class GameUi
     public static bool Load()
     {
         sprites = null;
+        return FindFonts() && SpriteOf("Window_ModalWindow_Center") != null && SpriteOf("buttom") != null;
+    }
+
+    static bool FindFonts()
+    {
         Font = HeaderFont = null;
         foreach (var t in Resources.FindObjectsOfTypeAll<TextMeshProUGUI>())
         {
@@ -54,7 +59,29 @@ internal static class GameUi
             if (HeaderFont == null && mat.StartsWith("AmrysMedium", StringComparison.Ordinal)) { HeaderFont = t.font; HeaderMaterial = t.fontSharedMaterial; }
         }
         if (HeaderFont == null) { HeaderFont = Font; HeaderMaterial = FontMaterial; }
-        return Font != null && SpriteOf("Window_ModalWindow_Center") != null && SpriteOf("buttom") != null;
+        return Font != null;
+    }
+
+    /// <summary>The windows' texts and whether each is a header (<see cref="KeepFonts"/>).</summary>
+    static readonly List<(TextMeshProUGUI Text, bool Header)> texts = new();
+    static int nextFontCheck;
+
+    /// <summary>
+    /// Every frame: the game destroys the font materials of the main menu when a map loads (and back; the font assets
+    /// stay), which leaves the windows built with them without letters; then the fonts and materials the game's own
+    /// texts use now are given to every window text.
+    /// </summary>
+    public static void KeepFonts()
+    {
+        if (Time.frameCount < nextFontCheck || texts.Count == 0) return;
+        nextFontCheck = Time.frameCount + 30;
+        texts.RemoveAll(e => e.Text == null);
+        if (!texts.Exists(e => e.Text.font == null || e.Text.fontSharedMaterial == null) || !FindFonts()) return;
+        foreach (var (t, header) in texts)
+        {
+            t.font = header ? HeaderFont : Font;
+            t.fontSharedMaterial = header ? HeaderMaterial : FontMaterial;
+        }
     }
 
     public static RectTransform Rect(string name, Transform parent)
@@ -94,6 +121,7 @@ internal static class GameUi
         var t = rt.gameObject.AddComponent<TextMeshProUGUI>();
         t.font = header ? HeaderFont : Font;
         t.fontSharedMaterial = header ? HeaderMaterial : FontMaterial;
+        texts.Add((t, header));
         t.fontSize = size;
         t.color = color;
         t.alignment = align;
@@ -178,6 +206,7 @@ internal static class GameUi
         var text = content.gameObject.AddComponent<TextMeshProUGUI>();
         text.font = Font;
         text.fontSharedMaterial = FontMaterial;
+        texts.Add((text, false));
         text.fontSize = 32;
         text.lineSpacing = -55; // the Amrys fonts have a tall line; the game's lists use them tighter too
         text.color = new Color(0.9f, 0.9f, 0.9f);

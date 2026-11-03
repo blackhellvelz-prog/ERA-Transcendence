@@ -64,8 +64,8 @@ WoG Debug window. The user may be playing — check before closing the game or c
    the hints (`SN:H` ×114, `HT` ×46) are kept and read back but Olden Era's map does not show them until its tooltip
    calls `MapHints.ForObject`. Done since: `SS`, `SN:F^Erm_FillInt32Array^` and `SN:M` (native `Array_Fill`),
    `IF:M`/`IF:Q` (scripts wait for the player on a worker thread), `UN:C` by meaning (`H3Memory`), hints in the core.
-3. **The WoG Options window** (`WoGOptionsWindow`, F6 or the round button in the top bar) is written and tested in the
-   core (`WoGOptionDialog`, the choice saved for new maps); it has not been opened in the game yet — check it first.
+3. **The WoG Options window** (`WoGOptionsWindow`, F6 or the round button in the top bar) works in the game (2026-11-03:
+   the main menu and the map, the saved choice reaches a new map); WoG's own WoGSetupEx.dat presets are not imported.
 4. **Commanders and stack experience in battle** (buffs, the commander as a unit), the battle receivers `BU`, `BF`,
    `BH`, `BM`, `MR`.
 5. To see how an ERA feature behaves, the user's ERA may be launched and watched (read-only).

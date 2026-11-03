@@ -30,6 +30,8 @@ public sealed class DebugUiPlugin : BasePlugin
         if (!Enum.TryParse<Key>(optionsKey.Value, true, out var optionsHotkey) || optionsHotkey == Key.None) optionsHotkey = Key.F6;
         var options = new WoGOptionsWindow(Log, optionsHotkey);
         WoGPlugin.Frame += options.Tick;
+        // the windows are built in the main menu: its fonts are unloaded when a map loads
+        WoGPlugin.Frame += GameUi.KeepFonts;
 
         var commands = WoGPlugin.Commands;
         if (commands == null)

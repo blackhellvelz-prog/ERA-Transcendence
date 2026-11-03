@@ -275,7 +275,7 @@ internal sealed class WoGOptionsWindow
         bool radio = WoGOptionSetup.IsRadio(item.Page, item.Group);
         var markRect = GameUi.Place(GameUi.Rect("Mark", rt), 0, 0.5f, 0, 0.5f, 10, -17, -44, -17);
         var mark = markRect.gameObject.AddComponent<Image>();
-        if (radio) mark.sprite = Icons.Disc;
+        if (radio) mark.sprite = Icons.Dot;
         mark.raycastTarget = false;
         var text = GameUi.Text(GameUi.Place(GameUi.Rect("Text", rt), 0, 0, 1, 1, 64, 0, 8, 0), "Text", Name(item), 28, GameUi.Light,
             TextAlignmentOptions.MidlineLeft);
@@ -314,7 +314,7 @@ internal sealed class WoGOptionsWindow
 
     static string Name(WoGSetupItem item) => Tr(item.Text).Trim('*', ' ');
 
-    static string Tr(string key) => key.Length == 0 ? "" : WoGPlugin.Host?.Erm?.Lang.Tr(key) ?? key;
+    static string Tr(string key) => key.Length == 0 || WoGPlugin.Host is not { IsEra: true } host ? key : host.Lang.Tr(key);
 
     /// <summary>A text as plain TextMeshPro text (no tags of its own).</summary>
     static string Plain(string s) => s.Replace("<", "<noparse><</noparse>");

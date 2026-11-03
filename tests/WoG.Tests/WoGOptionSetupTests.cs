@@ -102,6 +102,14 @@ public class WoGOptionSetupTests
         Assert.Equal(s.Defaults().Values, shown.Result().Values);
     }
 
+    /// <summary>The window is opened in the main menu too: the option texts are translated before any game starts.</summary>
+    [Fact]
+    public void The_option_texts_are_translated_outside_a_game()
+    {
+        using var t = new EraTestHost().Lang("{\"wog_options\": {\"0\": {\"name\": \"Dwellings\"}, \"5\": [{\"name\": \"Never\"}]}}");
+        Assert.Equal(("Dwellings", "Never"), (t.Host.Lang.Tr("wog_options.0.name"), t.Host.Lang.Tr("wog_options.5.0.name")));
+    }
+
     /// <summary>The player's choice is kept (WoGSetupEx.dat in WoG) and every new map starts with it.</summary>
     [Fact]
     public void A_saved_choice_is_the_options_of_new_maps()

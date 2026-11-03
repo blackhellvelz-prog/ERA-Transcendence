@@ -125,8 +125,8 @@ armies), `TR:G` (terrain overlays), `UN:J1` with a non-zero limit (enforce throu
 `dyx.chmo`), `HE:X` for Olden Era-only specialties.
 
 **Already designed, not finished:** `SS` changes → Olden Era magic configs (`DB/magics/*.json`: `rank`,
-`manaCost[4]`; spells map by effect in `Compatibility/id-maps/spell.json`); the WoG Options window (written,
-`WoGOptionsWindow`, F6; not yet opened in the game); the skill effect tables `UN:C` keeps (`WoGGameState.SkillEffects`)
+`manaCost[4]`; spells map by effect in `Compatibility/id-maps/spell.json`); the WoG Options window (works in
+the game since 2026-11-03, `WoGOptionsWindow`, F6); the skill effect tables `UN:C` keeps (`WoGGameState.SkillEffects`)
 → Olden Era's `skill_protection`, `skill_resistance`, `skill_sorcery` (`DB/heroes_skills/skills/skills.json`
 `parametersPerLevel[].bonuses`; the rule from H3's numbers to Olden Era's is still to be chosen); commanders and stack experience inside Olden Era
 battles (buff generator exists; commander as a unit not started); battle receivers `BU/BF/BH/MR` and a coordinate
