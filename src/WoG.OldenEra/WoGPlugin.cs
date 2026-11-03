@@ -11,6 +11,7 @@ using HarmonyLib;
 using WoG.Core.Events;
 using WoG.Core.Ids;
 using WoG.Core.Model;
+using WoG.Core.Threading;
 using WoG.Core.Visual;
 using WoG.Erm.Runtime;
 using WoG.Erm.Syntax;
@@ -58,16 +59,19 @@ public sealed class WoGPlugin : BasePlugin
         }
     }
     /// <summary>
-    /// A yes/no question in the game's own style (text with H3 markup, the answer), shown by the interface plugin;
-    /// null without it. The WoGify question of a new map uses it.
+    /// A yes/no question in the game's own style (text with H3 markup, a heading or "", the answer), shown by the
+    /// interface plugin; null without it. The WoGify question of a new map and ERM's IF:Q use it.
     /// </summary>
-    public static Action<string, Action<bool>>? AskDialog;
+    public static Action<string, string, Action<bool>>? AskDialog;
 
     /// <summary>
-    /// A message with one button in the game's own style (ERM's IF:M), queued by the interface plugin; null without
-    /// it. The script does not wait for it to be closed.
+    /// A message with one button in the game's own style (ERM's IF:M), queued by the interface plugin, with what to do
+    /// when the player closes it; null without the interface plugin.
     /// </summary>
-    public static Action<string>? MessageDialog;
+    public static Action<string, Action?>? MessageDialog;
+
+    /// <summary>The scripts' worker: an ERM entry runs there, so it can wait for the player (IF:Q, IF:M).</summary>
+    public static ScriptFibers? Fibers { get; private set; }
 
     /// <summary>Every frame on the game thread (the in-game debug window draws and reads keys here).</summary>
     public static event Action? Frame;
@@ -83,6 +87,9 @@ public sealed class WoGPlugin : BasePlugin
         var dialect = Config.Bind("ERM", "Dialect", "Era", "Era: ERA 2.x scripts (ERM 2.0); Wog: classic WoG 3.58 scripts from WoG/scripts");
         var timeLimit = Config.Bind("ERM", "TimeLimitMs", 10000,
             "An ERM event running longer than this is abandoned with an error (0 = no limit); keeps an endless script loop from freezing the game");
+        var scriptWorker = Config.Bind("ERM", "ScriptWorker", true,
+            "Run ERM entries on a worker thread so that IF:Q questions and IF:M messages wait for the player as in H3; " +
+            "false runs them on the game thread (questions are then unsupported, messages do not wait)");
         var modsRoot = Config.Bind("ERA", "ModsRoot", Path.Combine(cfgDir, "mods"),
             "Folder with ERA mods (each mod has Data/s). Can be the Mods folder of an ERA installation.");
         var modList = Config.Bind("ERA", "ModList", "WoG Debug",
@@ -112,18 +119,26 @@ public sealed class WoGPlugin : BasePlugin
         bool era = string.Equals(dialect.Value, "Era", StringComparison.OrdinalIgnoreCase);
         WoGHost? host = null;
         var adapter = new OldenEraGameAdapter(symbols, () => host!.State.Ids, () => host!.State.PoolHeroes);
-        host = new WoGHost(adapter, new VisualResolver(new UnityAssetProbe()), new WoGModules(),
+        // Scripts run on a worker so that IF:Q and IF:M can wait for the player; their calls into the game come back
+        // to this (Unity's) thread through the GameThreadAdapter.
+        var fibers = new ScriptFibers { OnError = ex => Log.LogError("WoG: a script entry failed: " + ex) };
+        Fibers = fibers;
+        host = new WoGHost(new GameThreadAdapter(adapter, fibers), new VisualResolver(new UnityAssetProbe()), new WoGModules(),
             new ErmRuntimeOptions { Dialect = era ? ErmDialect.Era : ErmDialect.Wog358, TimeLimitMs = timeLimit.Value });
+        if (scriptWorker.Value) host.RunEntry = fibers.Run;
         Host = host;
         Adapter = adapter;
         adapter.PoolHeroes.PoolName = n => n < host.H3.HeroNames.Count ? host.H3.HeroNames[n] : null;
-        // IF:M through the interface plugin's window (it loads after this plugin: read at the time of the message)
+        // IF:M and IF:Q through the interface plugin's windows (it loads after this plugin: read at the time of use).
+        // A script on the worker waits for the player as in H3; one running on the game thread (nested in another
+        // entry, or while one waits) cannot: its message shows without waiting, its question is unsupported.
         adapter.ShowMessageImpl = text =>
         {
             if (MessageDialog is not { } show) return false;
-            show(text);
+            if (!fibers.TryWait<bool>(closed => show(text, () => closed(true)), out _)) show(text, null);
             return true;
         };
+        adapter.AskImpl = text => AskDialog is { } ask && fibers.TryWait<bool>(answer => ask(text, "", answer), out bool yes) ? yes : null;
         if (wogify.Value >= 0) host.WogifySetting = Math.Min(wogify.Value, 3);
         OldenEraGameAdapter.MethodTraceReal = MethodTrace.Real;
         host.ErmLog = m => Log.LogInfo("[ERM] " + m);
@@ -168,6 +183,7 @@ public sealed class WoGPlugin : BasePlugin
         if (debugEnabled.Value)
         {
             DebugBridge = new DebugBridge(Path.Combine(cfgDir, "debug"), host, new OldenEraDebugEngine(), Log);
+            if (scriptWorker.Value) DebugBridge.Commands.RunEntry = fibers.Run;
             DebugBridge.Commands.Add("subskills", a =>
             {
                 var players = host.Game.Players;
@@ -291,7 +307,7 @@ internal static class WoGSession
         {
             var session = ptr;
             WoGPlugin.L?.LogInfo($"WoG: new game session — asking whether to WoGify it ({plan.Question})");
-            ask(host.WogifyText(plan.Question), yes =>
+            ask(host.WogifyText(plan.Question), "WoG'ификация", yes =>
             {
                 if (current != session) return; // another game started meanwhile
                 Begin(host, adapter, yes);
@@ -308,10 +324,12 @@ internal static class WoGSession
     {
         try
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             host.StartNewGame(wogify);
             adapter.ApplySavedTexts();
             firstDayPending = true;
-            WoGPlugin.L?.LogInfo($"WoG: new game session — {(host.State.Wogified ? "WoGified" : "not WoGified")}, ERM instructions done");
+            WoGPlugin.L?.LogInfo($"WoG: new game session — {(host.State.Wogified ? "WoGified" : "not WoGified")}, ERM instructions done " +
+                                 $"in {watch.ElapsedMilliseconds} ms{(WoGPlugin.Fibers?.Waiting == true ? " (a script waits for the player)" : "")}");
         }
         catch (Exception ex) { WoGPlugin.L?.LogError("WoG: starting the new game failed: " + ex); }
     }

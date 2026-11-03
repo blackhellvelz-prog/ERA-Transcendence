@@ -11,7 +11,7 @@ namespace WoG.OldenEra.DebugUI;
 /// <summary>
 /// WoG's questions and messages in the game's own style (the window frame, fonts and buttons of its message box) over
 /// a dimmed screen that keeps the mouse off the game; the game's hotkeys are off while one waits. They come one at a
-/// time, in order. Users: the WoGify question of a new map (WoGPlugin.AskDialog) and ERM's IF:M messages
+/// time, in order. Users: the WoGify question of a new map and ERM's IF:Q (WoGPlugin.AskDialog), ERM's IF:M messages
 /// (WoGPlugin.MessageDialog). It runs whether WoG Debug is on or not.
 /// </summary>
 internal sealed class GameDialogs
@@ -28,9 +28,7 @@ internal sealed class GameDialogs
 
     public GameDialogs(ManualLogSource log) => this.log = log;
 
-    /// <summary>Queues a yes/no question (H3 markup: {…} highlighted, {~color}…{~} colored).</summary>
-    public void Ask(string text, Action<bool> onAnswer) => Ask(text, "WoG'ификация", onAnswer);
-
+    /// <summary>Queues a yes/no question (H3 markup: {…} highlighted, {~color}…{~} colored; no heading when "").</summary>
     public void Ask(string text, string heading, Action<bool> onAnswer)
     {
         if (failed) { onAnswer(true); return; }
@@ -38,13 +36,13 @@ internal sealed class GameDialogs
     }
 
     /// <summary>
-    /// Queues a message with one button (H3's IF:M). The caller does not wait: Olden Era's interface cannot hold the
-    /// game thread the way H3's modal message box held the script.
+    /// Queues a message with one button (H3's IF:M); <paramref name="onClose"/> runs when the player closes it (a
+    /// script on the scripts' worker waits for that, as H3's modal message box held the script).
     /// </summary>
-    public void Message(string text)
+    public void Message(string text, Action onClose)
     {
-        if (failed) return;
-        pending.Enqueue((text, "", _ => { }, true));
+        if (failed) { onClose?.Invoke(); return; }
+        pending.Enqueue((text, "", _ => onClose?.Invoke(), true));
     }
 
     /// <summary>Every frame: shows the next question once the game's interface is loaded.</summary>

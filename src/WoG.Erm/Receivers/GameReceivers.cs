@@ -21,7 +21,7 @@ public sealed class IfReceiver : ErmReceiverBase
     {
         Declare("VASRW", CompatLevel.FullySupported);
         Declare("MQ", CompatLevel.PartiallySupported,
-            "text messages and yes/no questions; in Olden Era a message shows in the game's style without pausing the script (H3's message box held it), a question needs the script suspended until the answer (not yet); variants with pictures need custom UI");
+            "text messages and yes/no questions; in Olden Era scripts run on a worker thread and wait for the player in the game's own windows, as H3's modal dialogs held them (an entry nested in another, or started while one waits, shows its message without waiting and cannot ask); variants with pictures need custom UI");
         Declare("TPEXBFGDNL", CompatLevel.Unsupported, "special WoG dialogs (pictures, sphinx, checkboxes, multiple choice) need a custom UI layer");
     }
 
@@ -38,21 +38,22 @@ public sealed class IfReceiver : ErmReceiverBase
                     c.Apply(ref type, 1);
                     string text = c.Text(2);
                     int result;
-                    if (type == 1) { c.Need(ui.ShowMessage(text)); result = 0; }
-                    else if (type == 2) result = c.Need(ui.AskYesNo(text)) ? 1 : 0;
+                    if (type == 1) { c.Need(rt.WhileWaiting(() => ui.ShowMessage(text))); result = 0; }
+                    else if (type == 2) result = c.Need(rt.WhileWaiting(() => ui.AskYesNo(text))) ? 1 : 0;
                     else throw new ErmUnsupportedException($"IF:M message type {type} needs custom UI");
                     c.Apply(ref result, 0);
                 }
                 else if (c.Num == 2)
                 {
                     if (c.N(0) != 1) throw new ErmRuntimeException("\"IF:M\"-wrong syntax (M1/$).");
-                    c.Need(ui.ShowMessage(rt.GetString(c.N(1))));
+                    string text = rt.GetString(c.N(1));
+                    c.Need(rt.WhileWaiting(() => ui.ShowMessage(text)));
                 }
                 else
                 {
                     var p = c.P(0);
                     string text = p.Var?.Kind == WoG.Core.State.ErmVarKind.Z ? rt.GetString(c.N(0)) : rt.Interpolate(c.Cmd.Text ?? "");
-                    c.Need(ui.ShowMessage(text));
+                    c.Need(rt.WhileWaiting(() => ui.ShowMessage(text)));
                 }
                 break;
             case 'Q':
@@ -60,7 +61,7 @@ public sealed class IfReceiver : ErmReceiverBase
                 if (c.N(0) < 1 || c.N(0) > 1000) throw new ErmRuntimeException("\"IF:Q\"-wrong flag number (1...1000).");
                 if (c.Num > 2) throw new ErmUnsupportedException("IF:Q with pictures needs custom UI");
                 string text = c.Num == 2 ? c.Text(1) : rt.Interpolate(c.Cmd.Text ?? "");
-                rt.SetFlag(c.N(0), c.Need(ui.AskYesNo(text)));
+                rt.SetFlag(c.N(0), c.Need(rt.WhileWaiting(() => ui.AskYesNo(text))));
                 break;
             }
             case 'V':

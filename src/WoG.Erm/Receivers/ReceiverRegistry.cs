@@ -172,8 +172,8 @@ public sealed class ReceiverRegistry
         ["SN:E — calling a function by address in the H3 exe: different engine"] = "SN:E — вызов функции по адресу в exe H3: другой движок",
         ["SN:L/A/B — DLL loading, addresses and H3 process memory: different engine"] = "SN:L/A/B — загрузка DLL, адреса и память процесса H3: другой движок",
         // GameReceivers
-        ["text messages and yes/no questions; in Olden Era a message shows in the game's style without pausing the script (H3's message box held it), a question needs the script suspended until the answer (not yet); variants with pictures need custom UI"] =
-            "текстовые сообщения и вопросы да/нет; в Olden Era сообщение показывается в стиле игры, не останавливая скрипт (окно H3 его держало), вопросу нужна приостановка скрипта до ответа (пока нет); варианты с картинками требуют своего UI",
+        ["text messages and yes/no questions; in Olden Era scripts run on a worker thread and wait for the player in the game's own windows, as H3's modal dialogs held them (an entry nested in another, or started while one waits, shows its message without waiting and cannot ask); variants with pictures need custom UI"] =
+            "текстовые сообщения и вопросы да/нет; в Olden Era скрипты выполняются в рабочем потоке и ждут игрока в окнах самой игры, как их держали модальные окна H3 (запуск, вложенный в другой или начатый, пока другой ждёт, показывает сообщение без ожидания и не может спрашивать); варианты с картинками требуют своего UI",
         ["special WoG dialogs (pictures, sphinx, checkboxes, multiple choice) need a custom UI layer"] = "особые диалоги WoG (картинки, сфинкс, флажки, множественный выбор) требуют своего UI-слоя",
         ["UN:C writes to H3 memory addresses — impossible on a different engine"] = "UN:C пишет по адресам памяти H3 — на другом движке невозможно",
         ["UN:A — artifact types come from the ERA installation's artraits.txt and are kept per game; Olden Era items are not linked to them yet, so changes do not affect the game's items, and the map ban does not affect map generation"] =

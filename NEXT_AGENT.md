@@ -115,7 +115,7 @@ Russian copy (`X.ru.md`) in the same change; code comments are English.
 | `HT:W/P/T/V` | 19/19/6/2 | magic mushrooms, potion fountains, fishing well, artificer, palace of dreams, school of wizardry… | object hint texts (same UI path as SN:H) |
 | `UN:B` | 10 | wogify, mithril enhancements, chests | object/resource changes on the map |
 | ~~`SN:M` address + `SN:F^Erm_FillInt32Array^`~~ | 0 (was 7 + 7) | Era stdlib `Array_Fill` / `Array_Revert` | **done 2026-11-03:** native in `EraNativeLibrary` (test `Array_fill_and_revert_work_on_the_array_without_its_address`) |
-| `IF:D/E/F/G` | 2 each | wogify (setup dialog), map rules | custom dialogs in the interface plugin; `IF:M` messages show in the game since 2026-11-03 (`GameDialogs.Message`, the script does not wait); `IF:Q` and `IF:M` type 2 need ERM suspension (resume the exact ERM state after the answer, never block the game thread) |
+| `IF:D/E/F/G` | 2 each | wogify (setup dialog), map rules | custom dialogs in the interface plugin, on the same waiting as `IF:Q`: since 2026-11-03 `IF:M`/`IF:Q` show in the game's windows and the script waits for the player on the scripts' worker (`ScriptFibers`, `GameThreadAdapter`; `MODLOG.md` session 3) |
 | `SN:L/B/E` | 3/1/1 | stdlib DLL calls, enhanced commanders | per call: what it computes, then a native equivalent |
 
 **In the game (the user's whole mod list)** additionally: `DW:M` (dwellings with upgraded creatures), `CB:A` (creature

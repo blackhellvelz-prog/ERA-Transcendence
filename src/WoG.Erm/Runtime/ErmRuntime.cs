@@ -198,6 +198,15 @@ public sealed partial class ErmRuntime
         finally { guardDepth--; }
     }
 
+    /// <summary>The time a script waits for the player (a message, a question) does not count against the limit.</summary>
+    public T WhileWaiting<T>(Func<T> wait)
+    {
+        bool timing = watch.IsRunning;
+        watch.Stop();
+        try { return wait(); }
+        finally { if (timing) watch.Start(); }
+    }
+
     /// <summary>Called for every executed line and loop turn: throws when the current engine call is over time.</summary>
     internal void CheckTime(ErmSourceLoc? loc)
     {

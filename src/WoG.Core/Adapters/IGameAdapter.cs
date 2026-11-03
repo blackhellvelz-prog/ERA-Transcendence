@@ -202,7 +202,11 @@ public interface ITownAdapter
 
 public interface IUiAdapter
 {
+    /// <summary>A message (IF:M); on the scripts' worker the script waits until the player closes it.</summary>
+    [WoG.Core.Threading.OnCallerThread]
     AdapterResult ShowMessage(string text);
+    /// <summary>A yes/no question (IF:Q); the script waits for the answer — possible only on the scripts' worker.</summary>
+    [WoG.Core.Threading.OnCallerThread]
     AdapterResult<bool> AskYesNo(string text);
 }
 

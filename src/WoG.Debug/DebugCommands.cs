@@ -130,13 +130,20 @@ public sealed class DebugCommands
         return sb.ToString();
     }
 
+    /// <summary>Runs a script entry (the game plugin's ScriptFibers.Run, so IF:Q can wait); null: at once.</summary>
+    public Action<Action>? RunEntry { get; set; }
+
     string Erm(string code)
     {
         if (code.Length == 0) return "usage: erm <code>";
         // A single line typed without ';' gets one, as in the ERM console of Era's debug mode.
         if (!code.Contains('\n') && !code.TrimEnd().EndsWith(";")) code += ";";
         var zBefore = Strings();
-        var r = Console.Run(code);
+        ErmRunResult? run = null;
+        if (RunEntry != null) RunEntry(() => run = Console.Run(code));
+        else run = Console.Run(code);
+        if (run == null) return "the code waits for the player's answer in the game; it goes on after it (see the log)";
+        var r = run;
         var sb = new StringBuilder(r.Summary()).Append('\n');
         // x1..x16 the code left: a snippet returns values this way
         var xs = r.Returns.Select((v, i) => (v, i)).Where(p => p.v != 0).Select(p => $"x{p.i + 1}={p.v}").ToList();

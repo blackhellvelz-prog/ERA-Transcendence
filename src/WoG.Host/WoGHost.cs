@@ -47,6 +47,18 @@ public sealed class WoGHost : IWoGServices
     public WoGModules Modules { get; }
     public ErmRuntimeOptions ErmOptions { get; }
 
+    /// <summary>
+    /// Runs one script entry (the ERM of an engine event, of a new or loaded game). The game plugin gives
+    /// <see cref="WoG.Core.Threading.ScriptFibers.Run"/>, so a script can wait for the player; null runs it at once.
+    /// </summary>
+    public Action<Action>? RunEntry { get; set; }
+
+    void Entry(Action action)
+    {
+        if (RunEntry != null) RunEntry(action);
+        else action();
+    }
+
     CommanderService? commanders;
     StackExperienceService? stackExp;
     readonly List<ErmScript> scripts = new();
@@ -343,8 +355,12 @@ public sealed class WoGHost : IWoGServices
             foreach (var s in scripts) Erm.Load(s, newGame: true);
         State.InstructionsDone = true;
         var ctx = new ErmEventContext { Player = Game.Players.CurrentPlayer };
-        Erm.Raise(30370, ctx);
-        if (IsEra) Erm.Raise(WoG.Erm.Era.EraEvents.GameEnter, ctx);
+        var erm = Erm;
+        Entry(() =>
+        {
+            erm.Raise(30370, ctx);
+            if (IsEra) erm.Raise(WoG.Erm.Era.EraEvents.GameEnter, ctx);
+        });
     }
 
     // ------------------------------------------------------------------------------------------
@@ -399,16 +415,22 @@ public sealed class WoGHost : IWoGServices
         }
         if (IsEra || State.Wogified)
             foreach (var s in scripts) Erm.Load(s, newGame: false);
-        if (IsEra) Erm.Raise(WoG.Erm.Era.EraEvents.SavegameRead, ctx);
-        Erm.Raise(30360, ctx);
-        if (IsEra) Erm.Raise(WoG.Erm.Era.EraEvents.GameEnter, ctx);
+        var erm = Erm;
+        Entry(() =>
+        {
+            if (IsEra) erm.Raise(WoG.Erm.Era.EraEvents.SavegameRead, ctx);
+            erm.Raise(30360, ctx);
+            if (IsEra) erm.Raise(WoG.Erm.Era.EraEvents.GameEnter, ctx);
+        });
     }
 
     // ------------------------------------------------------------------------------------------
     // Engine events → WoG
     // ------------------------------------------------------------------------------------------
 
-    void OnEvent(WoGEvent e)
+    void OnEvent(WoGEvent e) => Entry(() => Dispatch(e));
+
+    void Dispatch(WoGEvent e)
     {
         var ctx = new ErmEventContext { Hero = e.Hero, Player = e.Player, Position = e.Position.IsNone ? new MapPos(0, 0, 0) : e.Position };
         switch (e.Kind)

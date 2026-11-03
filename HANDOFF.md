@@ -58,10 +58,10 @@ WoG Debug window. The user may be playing — check before closing the game or c
 
 1. **The WoG level limit** (`UN:J1` with a limit): hold Olden Era's heroes to it (the experience logic's last level,
    `dyx.chmo`, is the candidate); the experience table itself is done.
-2. **What the full WoG exercises now** (the unsupported list of the corpus run): `SS:F/L/S` (ERA's secondary skills
-   plugin, ×490), `UN:C` (H3 memory, ×1498 — map the addresses scripts actually use), `SN:H` hints (×124), `HT`,
-   `UN:I` (placing objects), `OW:I`, `UN:B`, `SN:F^Erm_FillInt32Array^`, `SN:M`, `UN:J1`, `IF:D/E/F/G` dialogs,
-   `IF:M`/`IF:Q` messages (they need the ERM call to wait for the player's answer).
+2. **What the full WoG exercises now** (the unsupported list of the corpus run, 2026-11-03): `UN:C` (H3 memory, ×160 —
+   map the addresses scripts actually use), `SN:H` hints (×124), `HT`, `UN:I` (placing objects — WoG's own objects
+   with their questions come with it), `UN:B`, `UN:J1`, `IF:D/E/F/G` dialogs. Done since: `SS`, `SN:F^Erm_FillInt32Array^`
+   and `SN:M` (native `Array_Fill`), `IF:M`/`IF:Q` (scripts wait for the player on a worker thread).
 3. **The WoG Options window** in the game's style: the dialog items are already loaded (`WoGHost.OptionSetup`, pages
    × groups × items from ZSETUP01.TXT and the .ers files), the values are applied at a new map.
 4. **Commanders and stack experience in battle** (buffs, the commander as a unit), the battle receivers `BU`, `BF`,

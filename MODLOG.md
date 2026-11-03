@@ -1008,3 +1008,32 @@ buses and logs them) `[V-game]`:
 * 281 xUnit tests (+2: `Array_fill_and_revert_work_on_the_array_without_its_address`,
   `Gem_town_functions_do_not_warn_and_read_the_spell_ban`); the build has 0 warnings; the corpus 183 scripts, 0 ERM
   errors.
+
+## 2026-11-03 — session 3, continued: scripts wait for the player (IF:Q, IF:M) — ERM on a worker thread
+
+* **Why:** 475 question sites in the core mods (`IF:Q`, `IF:M` type 2), almost all in WoG's objects (school of wizardry
+  36, tavern gambling 25, sorcery 24, battle academy 24, artificer 24, fishing well 22…). H3 held the script in a modal
+  dialog until the answer; Olden Era's game thread cannot stop for a dialog, and the ERM interpreter keeps its state on
+  the C# stack, so the script itself must wait somewhere else.
+* **`ScriptFibers`** (`WoG.Core.Threading`): ERM entries run on one worker thread. While a script runs, the game thread
+  executes its calls into the game (`OnGameThread`) and gets its own work back when the script ends or waits
+  (`TryWait`: the dialog is started on the game thread with a callback; the worker parks; the callback resumes it and
+  pumps the rest of the script from the game's frame). One script waits at a time; an entry that arrives meanwhile, or
+  one raised from inside a call the game thread runs for the script, runs at once nested on the calling thread, as
+  before, and cannot wait (its message shows without waiting, its question is unsupported).
+* **`GameThreadAdapter`**: the engine adapter as the host sees it — each call of a script carried to the game thread
+  (a `DispatchProxy` per adapter interface: IL2CPP objects and Unity's interface are single-threaded); the dialogs
+  (`IUiAdapter.ShowMessage`, `AskYesNo`, marked `[OnCallerThread]`) wait on the worker themselves.
+* `WoGHost.RunEntry` runs every engine event's ERM, the start of a new map and a load through the fibers;
+  `ErmRuntime.WhileWaiting` keeps the time a script waits out of `TimeLimitMs`; the WoG Debug `erm` command runs through
+  them too (it answers "the code waits for the player's answer" when it does).
+* **The cost:** a hand-over spins for up to 200 µs before blocking — with `Monitor.Wait`/`PulseAll` alone the scripts
+  of a new map took 5069 ms instead of 2023 ms without the worker; with the spin 2126 ms. `[ERM] ScriptWorker = false`
+  runs everything on the game thread again (questions unsupported, messages do not wait).
+* [V-game] `IF:Q` from the bridge: the question in the game's window, the script parked (`v5001` 0) while the game
+  went on; «Да» → `v5001` 11, then `IF:M` with the answer, the script parked again until «Принять» (`v5002` 33);
+  «Нет» → 22. An ERM question has no heading (the WoGify question keeps «WoG'ификация»). A new map, the AI's turn with
+  its visits, day 2 and the autosave through the worker without errors.
+* Limitation (documented): while a script waits, the game's own action goes on — a pre-visit `!?OB` that asks before
+  the object acts gets its answer after the object acted (H3 held the visit).
+* 286 xUnit tests (+5 `ScriptFibersTests`); the build has 0 warnings; the corpus 183 scripts, 0 ERM errors.
