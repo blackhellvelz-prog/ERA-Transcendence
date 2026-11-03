@@ -100,7 +100,9 @@ if ($DebugMode) {
     $pluginCfg = Join-Path $cfg "wog.oldenera.cfg"
     Set-CfgValue $pluginCfg "Debug" "Enabled" "true"
     Set-CfgValue $pluginCfg "Debug" "AllowUnverifiedSymbols" "true"
-    Set-CfgValue $pluginCfg "Debug" "TraceMethods" "ebe.OnStartDay;ebe.OnStartWeek"
+    # the day-start class from the symbol registry: its obfuscated name changes with every game update
+    $dayType = (Get-Content (Join-Path $repo "src\WoG.OldenEra\symbols\wog_symbols.json") -Raw -Encoding UTF8 | ConvertFrom-Json).Bindings.'turn.start'.Type
+    Set-CfgValue $pluginCfg "Debug" "TraceMethods" "$dayType.OnStartDay;$dayType.OnStartWeek"
     Write-Host "WoG Debug enabled in $pluginCfg"
 }
 Write-Host "Installed WoG into $bep"

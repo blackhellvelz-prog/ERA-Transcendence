@@ -904,3 +904,83 @@ buses and logs them) `[V-game]`:
 * In the game `[V-game]`: the plugin read "spell flags ← h3era.exe"; `SS15` → level 1, schools 15, flags 33297
   (0x8211), target -1, basic cost 4; `SS41` → target 1, flags 264261 (0x40845); `SS0` → flags 1048578 (0x100002).
   WoG Debug tile "Заклинание из таблицы H3 (SS)".
+
+## 2026-11-03 — session 3: Olden Era 0.82.07 — the port restored on the updated game
+
+* **The assignment** (the user, 2026-11-03): restore the project's context, adapt it to the updated Olden Era and continue
+  the port towards full compatibility; one main agent; the classic commanders' models are in the user's
+  `Commanders ERA-T` folder; Meshy AI only after the user agrees to the cost.
+* **State found:** the local branch `claude/wog-olden-era-port` equals GitHub (69a4de2, 2026-10-09), clean tree; the
+  build has 0 warnings; 279 xUnit tests green.
+* **Olden Era 0.82.07** (the main menu; Steam build 26321935, files of 2026-10-31); Unity 6000.0.66f1 as before. BepInEx
+  be.785 regenerated its interop at the first start (Cpp2IL + Il2CppInterop, about a minute) and works. `Hex.dll`
+  33.4 → 35.5 MB, 7440 → 7687 types. Before that start: a backup of the saves, `Core.zip` (with SHA-256), the BepInEx
+  config and the installed plugin outside the repository, and the plugin moved out of `plugins` (symbols of 0.81.04
+  must not hook another method); `deploy.ps1` installed it again. The interop of 0.81.04 is kept in
+  `../research/oe-interop-0.81.04` — the remapper needs it.
+* **Every obfuscated name changed** (`dbx` → `dcy`, `fdq` → `fgc`, `enb` → `eoi`, `fnt.bmjj` → `fqk.bnui`…), and some
+  classes got real names: the skill logic `eah` is `Hex.Session.Logic.HeroSkill`. 90 bindings still resolved (readable
+  names), 99 did not.
+* **`WoG.ErmTool remap-symbols <old interop> <new interop> <wog_symbols.json> [out.json] --tag <version>`** (new,
+  `SymbolRemap.cs`) finds every binding's types and members in the new version by structure, from metadata only:
+  * types: refinement rounds — a type's features are its kind, base type, interfaces, the types of its members, its
+    stable member names and who refers to it; a feature set unique on both sides maps the pair (2367 types so); the
+    types on the binding paths left open are scored (weighted Jaccard, a clear lead over the runner-up), a member's
+    type also among the types of its candidates only;
+  * members: the same name and signature; else among the same signature the call graph (Il2CppInterop's
+    `MethodXrefScanCache.db` + `MethodAddressToToken.db`: whom a method calls and who calls it), the declaration order,
+    and a diff (LCS) of both declaration orders when members were added;
+  * two facts of the obfuscator: a class's own members get consecutive names (`bmbi` … `bmdp`), decoy methods random
+    short ones (`sg`, `jpn`, `oka`). Decoys are left out of the features and the candidates — that alone fixed
+    `buildings.construct` (the call graph had chosen the decoy `eie.foi`; the real one is `eie.bejd`);
+  * result: 90 unchanged, 102 remapped, 0 failed. A remapped binding gets the status `remapped` (normal play keeps it
+    off) and its old binding in the note.
+  `WoG.ErmTool find-member <interop> <name regex> [--type <regex>]` lists members for the manual part of the RE.
+* **Checked in the game, 0.82.07** `[V-game]` (new ARCADE maps, the arena, the command bridge, screenshots): the plugin
+  loads and hooks `ech.OnStartDay`, `fqk.bnui`/`fqk.bntv`, `zi.Invoke`; WoG self-test 36 pass, 0 fail (sulfur
+  unsupported as before); day 1 and day 2; WoGification and the ERA scripts at a new map; the daily +1000 gold
+  script; autosaves and the quick save write the WoG state, the quick load restores it (`v5000` 777 → 0); visits
+  `!?OB12`/`!$OB12` (a campfire), an Olden Era-only object (whispering stones, 1189), visits of the AI's hero; heroes
+  (name, biography `HE:B3`, class, specialty, skills and sub-skills, spells, worn and backpack artifacts with the
+  totals recalculated); learning a skill, raising one with the game's sub-skill window, a level-up by experience with
+  the game's window; towns (names, owners, buildings, hiring, income, guild spells `CA:G`, a free fort `CA:B1`, a new
+  name `CA:N`); a mine's owner `MN:O`; terrain `TR:T`; the experience table; a map battle with `!?BR` (rounds 0–2),
+  `!?BG0`/`!?BG1` (hero spell 1, defend 3, melee 6), `!?MF1` (22 damage and its retaliation), `BG:N`,
+  `BM:N`/`BM:T`/`BM:H`/`BM:L`, `BM:A` set through the battle modifier, the battle's end; the arena battle with the
+  event probe (144 events). 189 of 192 bindings are `verified`; `game.difficulty`, `magics.variant` (no spell
+  specialist on these maps; `null` for the others, as in 0.81.04) and `skilllogic.pickSub` resolve but were not
+  exercised.
+* **Two remap errors the game caught** (structure alone could not tell): `resource.spend` — the call graph chose
+  `edf.bcmc`, which only answers whether the amount is there (`bcmc(gold,100)` → True, gold unchanged); the spend is
+  `edf.bcmb` (36000 → 35900, the top bar follows): the two methods swapped places in 0.82.07. `resource.add` — the old
+  wrapper's place `edf.bcmg` no longer adds; the core `edf.bcma(name, delta, false)` (0.81.04's `bbqe`) does (wood
+  30 → 35). The adapter passes the third argument. The self-test missed both because `SetResource` falls back to a
+  direct write; the adapter now logs a warning once when the game's method did not change the amount.
+* **A bug of the port on 0.82.07, fixed:** WoG's free construction (`CA:B1`/`CA:B6`) wrote +1 000 000 of every resource
+  straight into the session data so the game's construction could pay, then wrote the old amounts back. 0.82.07 keeps
+  the amounts in the side's resource logic: the fort was paid (1500 gold, 5 ore) and the top bar showed +1 000 000
+  until the next resource change. The reserve and its return now go through the game's add and spend [V-game: the fort
+  built; the resources and the top bar unchanged].
+* **No obfuscated name in the code any more:** `UnitData.ctxq`/`UnitData.cnbx` (a battle stack's count, its top
+  creature's hit points) became the symbols `bdata.count`/`bdata.topHp`; the `battleevents` probe (`clgz`, `cksd`,
+  `ckse`, `ckyo`) uses `battle.eventBuses` and `bunit.sid`; `deploy.ps1 -DebugMode` takes the day-start class from the
+  registry.
+* **Tools:** `tools/debug/bridge.ps1` (the bridge client for PowerShell); `tools/debug/new-skirmish.ps1` (starts the
+  game if needed, a new ARCADE map, waits for WoG's day 1). Clicks of 0.82.07: New game 195,250 → Quick start 195,296 →
+  Templates 800,400 → ARCADE 912,280 → Choose 1290,800 → Temple 515,290 → hero 465,205 → Start 800,821.
+* **Game facts of 0.82.07:** the Arena (New game → Quick start → Arena) is a battle without an adventure map — no WoG
+  game there, so the ERM battle triggers do not run (the events do arrive). An ARCADE map's orange zones belong to
+  monsters: entering one may ask "the enemy flees — attack / let them go", then a preview of the simulated result with
+  «В бой!» / «Принять» / «Сбежать»; «Принять» is the quick battle (`BattleResultsStartApplying`). "Finish the battle
+  instantly" is the battle's bottom-right button (1485,878). The skill system has faction skills
+  (`skill_faction_humans` with sub-skills `sub_skill_faction_humans_rework_*`). The game menu's animation slider keeps
+  nothing without «Подтвердить» (the settings files match the backup).
+* **The user's comment** (2026-11-03): a second Succubus model is available — asked for it (an FBX with skeleton and
+  animation; the folder has only a GLB without the run animation). The 9 classic commanders are there as Meshy AI
+  models (character FBX, run animation FBX with skin, PBR textures); Olden Era loads models from AssetBundles of its
+  own Unity (6000.0.66f1) — no editor is installed — or a runtime glTF/FBX loader would be needed. Graphics after the
+  gameplay (the project rule).
+* Before the commit: the build has 0 warnings, 279 xUnit tests green, the ERA corpus 183 scripts, 0 ERM errors,
+  96 WoG options on.
+* Next: commanders and stack experience inside Olden Era battles; the WoG Options window; `IF` dialogs with ERM
+  suspension; the backlog of `NEXT_AGENT.md` §6.

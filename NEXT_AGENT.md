@@ -26,6 +26,9 @@ run the tests and the ERA corpus, then start with the backlog in NEXT_AGENT.md s
 * ERA corpus (the user's ERA 2.291, core mods in Era's order): **183 scripts, 0 ERM errors, 96 WoG options on
   (WoGified)**. The remaining *unsupported* calls are listed in section 6.
 * Runs in the real game since 2026-10-07: Olden Era 0.81.04 (Unity 6000.0.66f1, IL2CPP), BepInEx 6 IL2CPP be.785.
+  **Since 2026-11-03 on Olden Era 0.82.07** (session 3 in `MODLOG.md`): every obfuscated symbol was remapped with
+  `WoG.ErmTool remap-symbols` and checked again in the game — 189 of 192 bindings `verified`; the free construction and
+  the game's resource add/spend fixed for 0.82.07. After the next game update follow section 7a.
 * **Verified in the game** `[V-game]` (evidence in `MODLOG.md`): day start (OnEveryDay, timers; day 1; a day runs
   once per WoG state across saves), object visits (`!?OB`/`!$OB`), save/load of the WoG state next to Olden Era saves,
   the map layer (size, squares, objects, OB/TR/PO), heroes (HE:E/F/I/W/O/S/M/A/B/X/H/C/P; experience through the
@@ -143,6 +146,25 @@ needs UN:I/UN:B/UN:U/OB first); map scripts for Olden Era maps (the ERA rules ar
   `ckts`/`cktt`, wait `cksw`, skip (= defend) `cksv`, hero magic `cktn`/`cktm`, damage `cksq`.
 * The ERA corpus run must list mods highest priority first; the H3 data then comes from the right mod (WoG Scripts'
   ZSETUP01 over WoG's).
+* The obfuscated names above are 0.81.04's; 0.82.07's are in `wog_symbols.json` (the old one in each note).
+
+## 7a. After an Olden Era update (the procedure of 2026-11-03)
+
+1. Check the version (the main menu, bottom right) and the date of the Steam files. Back up the saves
+   (`%USERPROFILE%\AppData\LocalLow\Unfrozen\HeroesOldenEra`), `Core.zip` and `BepInEx\config` outside the repository.
+2. **Before the first start** copy the old `BepInEx\interop` (with `MethodXrefScanCache.db` and
+   `MethodAddressToToken.db`) to `../research/oe-interop-<old version>` — the start overwrites it.
+3. Move `BepInEx\plugins\WoG` out of `plugins` (old symbols must not hook another method) and start the game once:
+   BepInEx regenerates the interop ("Chainloader startup complete"); close it and copy the new interop to
+   `../research/oe-interop-<new version>`.
+4. `dotnet run --project tools/WoG.ErmTool -- remap-symbols ../research/oe-interop-<old> ../research/oe-interop-<new> src/WoG.OldenEra/symbols/wog_symbols.json <out.json> --tag <new version>`
+   (about 6 minutes; `OLDEN_ERA_DIR` lets it find `BepInEx/core`). Read every line: "unique signature" is strong,
+   "calls" and "#k of n" need the game; `find-member` helps with what failed.
+5. Install the result as the registry, `deploy.ps1 -DebugMode` (it runs unverified symbols),
+   `tools/debug/new-skirmish.ps1`, the self-test and the checks of `MODLOG.md` session 3 — each symbol by what it does,
+   not only "no error": a method that runs and changes nothing is a wrong match (that is how `resource.add` and
+   `resource.spend` were caught). Mark each checked binding `verified` with the evidence in its note.
+6. No obfuscated name in the code: every engine name goes through `wog_symbols.json`.
 
 ---
 

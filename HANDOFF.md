@@ -10,6 +10,8 @@ ERA installed. A new agent starts with `NEXT_AGENT.md` (the handoff, the measure
 * The goal is a port of **HoMM3 ERA** to Olden Era (the user's decision: ERA instead of WoG 3.58; ERA is built on
   WoG, so all of WoG is the lower layer). The full mod is the target: every WoG and ERA function, the core mods first
   (`WoG`, `Era Erm Framework`, `WoG Rus`, `WoG Scripts`, `WoG Scripts Rus`, `WoG Fix Lite`, `ERA Scripts`).
+* **2026-11-03: Olden Era updated to 0.82.07** — the symbols were remapped (`WoG.ErmTool remap-symbols`) and the
+  port was checked again in the game (`MODLOG.md`, session 3); after a game update follow `NEXT_AGENT.md` section 7a.
 * Since session 2 (2026-10-07) the port **runs in the real game** (Olden Era 0.81.04, BepInEx 6 be.785). Verified
   in game: day start, object visits, save/load of the WoG state, the map layer, heroes, towns, players, mines,
   creature types, battles with the triggers `!?BR`, `!?BG0/1` (every action: walk, attack, shot, wait, defend, hero

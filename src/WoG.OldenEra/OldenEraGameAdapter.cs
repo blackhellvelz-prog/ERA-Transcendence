@@ -994,24 +994,44 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         int current = Convert.ToInt32(sym.Read("resource.value", r.Value));
         if (value == current) return AdapterResult.Ok;
         // The game's own "add resource" updates the top bar, quests and statistics; a plain write is the fallback.
-        if (AddResourceTheGameWay(player, resource, value - current) &&
-            Convert.ToInt32(sym.Read("resource.value", r.Value)) == value)
+        bool called = AddResourceTheGameWay(player, resource, value - current);
+        if (called && Convert.ToInt32(sym.Read("resource.value", r.Value)) == value)
             return AdapterResult.Ok;
+        if (called) WarnResourceMethod(value > current ? "resource.add" : "resource.spend");
         sym.Write("resource.value", r.Value, value);
         return AdapterResult.Ok;
     }
 
+    readonly HashSet<string> resourceWarnings = new();
+
+    /// <summary>
+    /// The game's add/spend ran but the amount did not follow: the symbol points at the wrong method (after 0.82.07
+    /// the remapped add and spend both did that, hidden by the fallback write). Logged once per symbol.
+    /// </summary>
+    void WarnResourceMethod(string key)
+    {
+        if (resourceWarnings.Add(key))
+            WoGPlugin.L?.LogWarning($"WoG: {key} ({sym.TypeOf(key).Name}.{sym.MemberOf(key)?.Name}) did not change the amount — " +
+                                    "the value was written directly and the top bar may lag; check the symbol in wog_symbols.json");
+    }
+
     /// <summary>Gains go through the game's "add", losses through its "spend" (add ignores negative amounts).</summary>
-    bool AddResourceTheGameWay(int player, int resource, int delta)
+    bool AddResourceTheGameWay(int player, int resource, int delta) =>
+        currentIds().TryGetEngine("resource", resource, out var sid) && AddResourceTheGameWay(player, sid, delta);
+
+    /// <summary>The same by the Olden Era resource name (a member of the resource heap: gold, wood, graal…).</summary>
+    bool AddResourceTheGameWay(int player, string sid, int delta)
     {
         string key = delta > 0 ? "resource.add" : "resource.spend";
         if (!sym.Has("player.logic") || !sym.Has("player.resourceLogic") || !sym.Has(key)) return false;
-        if (!currentIds().TryGetEngine("resource", resource, out var sid)) return false;
         var logic = OldenEraSymbols.Items(sym.Read("player.logic", null));
         if (player < 0 || player >= logic.Count || logic[player] == null) return false;
         var component = sym.Read("player.resourceLogic", logic[player]);
         if (component == null || sym.MemberOf(key) is not System.Reflection.MethodInfo method) return false;
-        method.Invoke(component, new object[] { sid, Math.Abs(delta) });
+        // 0.81.04's add was ecc.bbqk(name, delta), a wrapper of bbqe(name, delta, false); in 0.82.07 the wrapper
+        // (edf.bcmg) no longer adds, so the registry binds the core edf.bcma(name, delta, false) itself [V-game]
+        var args = method.GetParameters().Length == 3 ? new object[] { sid, Math.Abs(delta), false } : new object[] { sid, Math.Abs(delta) };
+        method.Invoke(component, args);
         return true;
     }
 
@@ -1867,17 +1887,20 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         if (logic == null) return AdapterResult.Failed("the town has no map logic");
         sid = (string)sym.Read("building.sid", b)!;
         if (level > Levels(b)) return AdapterResult.Unsupported($"{sid} of this Olden Era town has {Levels(b)} levels, not {level}");
-        // egz.bdkr is the player's construction: one per day, paid by the owner [V-game: Build_Wall 1 took 2500 gold
-        // and 5 ore, todaysConstructionsCount 0 -> 1; a second level the same day was refused; the grail, which costs
-        // a "graal" resource, was refused]. WoG's construction is free and keeps the day's one: the count is cleared
-        // before each level, the owner can afford anything meanwhile, and both are restored afterwards.
+        // buildings.construct is the player's construction: one per day, paid by the owner [V-game 0.81.04: Build_Wall 1
+        // took 2500 gold and 5 ore, todaysConstructionsCount 0 -> 1; a second level the same day was refused; the
+        // grail, which costs a "graal" resource, was refused]. WoG's construction is free and keeps the day's one: the
+        // count is cleared before each level, the owner can afford anything meanwhile, and both are restored
+        // afterwards. The reserve goes through the game's own resource logic: 0.82.07 keeps the amounts there apart
+        // from the session data, so a direct write neither paid for the building nor came back [V-game 0.82.07: the
+        // fort cost 1500 gold and 5 ore and the top bar kept +1 000 000 until the next resource change].
         int today = sym.Has("town.builtToday") ? Convert.ToInt32(sym.Read("town.builtToday", c)) : -1;
         int side = Convert.ToInt32(sym.Read("object.owner", c)), owner = side >= 0 ? PlayerOfSide(side) : -1;
         var before = Resources(owner);
         int built = BuiltLevel(b);
         try
         {
-            foreach (var (r, was) in before) sym.Write("resource.value", r, was + 1_000_000);
+            foreach (var (name, _) in before) SetResourceTheGameWay(owner, name, ResourceAmount(owner, name) + ConstructionReserve);
             for (int l = built + 1; l <= level; l++)
             {
                 if (today >= 0) sym.Write("town.builtToday", c, 0);
@@ -1888,22 +1911,45 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         finally
         {
             if (today >= 0) sym.Write("town.builtToday", c, today);
-            foreach (var (r, was) in before) sym.Write("resource.value", r, was);
+            foreach (var (name, was) in before) SetResourceTheGameWay(owner, name, was);
         }
         return AdapterResult.Ok;
     });
 
-    /// <summary>All resource objects of a player with their amounts (the heap holds more than H3's seven).</summary>
-    List<(object Resource, int Value)> Resources(int player)
+    const int ConstructionReserve = 1_000_000;
+
+    /// <summary>All resources of a player by Olden Era name with their amounts (the heap holds more than H3's seven).</summary>
+    List<(string Name, int Value)> Resources(int player)
     {
-        var all = new List<(object, int)>();
-        if (!sym.Has("player.resources") || !sym.Has("resource.value") || FindPlayer(player) is not { } p) return all;
-        if (sym.Read("player.resources", p) is not { } heap) return all;
+        var all = new List<(string, int)>();
+        if (ResourceHeap(player) is not { } heap) return all;
         var resType = sym.TypeOf("resource.value");
         foreach (var prop in heap.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
             if (prop.PropertyType == resType && prop.GetValue(heap) is { } r)
-                all.Add((r, Convert.ToInt32(sym.Read("resource.value", r))));
+                all.Add((prop.Name, Convert.ToInt32(sym.Read("resource.value", r))));
         return all;
+    }
+
+    object? ResourceHeap(int player) =>
+        sym.Has("player.resources") && sym.Has("resource.value") && FindPlayer(player) is { } p ? sym.Read("player.resources", p) : null;
+
+    /// <summary>The live amount of a resource by name (read again each time: the game may replace the objects).</summary>
+    int ResourceAmount(int player, string name) =>
+        ResourceHeap(player) is { } heap && OldenEraSymbols.ReadMember(heap, name) is { } r ? Convert.ToInt32(sym.Read("resource.value", r)) : 0;
+
+    /// <summary>Sets an amount through the game's add/spend; a direct write on the live object is the fallback.</summary>
+    void SetResourceTheGameWay(int player, string name, int value)
+    {
+        int now = ResourceAmount(player, name);
+        if (now == value) return;
+        bool called = false;
+        try { called = AddResourceTheGameWay(player, name, value - now); }
+        catch (Exception ex) { WoGPlugin.L?.LogWarning($"WoG: the game's resource change of {name} failed: {ex.Message}"); }
+        if (ResourceAmount(player, name) != value && ResourceHeap(player) is { } heap && OldenEraSymbols.ReadMember(heap, name) is { } r)
+        {
+            if (called) WarnResourceMethod(value > now ? "resource.add" : "resource.spend");
+            sym.Write("resource.value", r, value);
+        }
     }
 
     // B2: Olden Era has no demolition of buildings.
@@ -2152,9 +2198,11 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
                 return currentIds().TryGetWoG("creature", sid, out int type) ? AdapterResult<int>.Ok(type)
                     : AdapterResult<int>.Unsupported($"Olden Era unit '{sid}' has no WoG creature mapping");
             }
-            case BattleStackStat.Count: return AdapterResult<int>.Ok(Convert.ToInt32(OldenEraSymbols.ReadMember(data, "ctxq")));
+            case BattleStackStat.Count:
+                return sym.Has("bdata.count") ? AdapterResult<int>.Ok(Convert.ToInt32(sym.Read("bdata.count", data))) : Missing<int>("bdata.count");
             case BattleStackStat.CountAtStart: return AdapterResult<int>.Ok(Convert.ToInt32(OldenEraSymbols.ReadMember(sym.Read("bunit.army", u)!, "stacks")));
-            case BattleStackStat.HitPointsLost: return AdapterResult<int>.Ok(Total("hp") - Convert.ToInt32(OldenEraSymbols.ReadMember(data, "cnbx")));
+            case BattleStackStat.HitPointsLost:
+                return sym.Has("bdata.topHp") ? AdapterResult<int>.Ok(Total("hp") - Convert.ToInt32(sym.Read("bdata.topHp", data))) : Missing<int>("bdata.topHp");
             case BattleStackStat.Side: return AdapterResult<int>.Ok(Convert.ToInt32(sym.Read("bunit.side", u)) == 0 ? 0 : 1);
             case BattleStackStat.ArmySlot: return AdapterResult<int>.Ok(Convert.ToInt32(OldenEraSymbols.ReadMember(sym.Read("bunit.army", u)!, "slotPos")));
         }
@@ -2178,8 +2226,9 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
                 return AdapterResult.Ok;
             case BattleStackStat.HitPointsLost:
             {
+                if (!sym.Has("bdata.topHp")) return Missing("bdata.topHp");
                 int hp = Convert.ToInt32(OldenEraSymbols.ReadMember(stats, "hp"));
-                OldenEraSymbols.WriteMember(data, "cnbx", Math.Clamp(hp - value, 1, Math.Max(1, hp)));
+                sym.Write("bdata.topHp", data, Math.Clamp(hp - value, 1, Math.Max(1, hp)));
                 return AdapterResult.Ok;
             }
         }

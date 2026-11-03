@@ -163,6 +163,8 @@ public sealed class OldenEraSymbols
         "bunit.data", "bunit.army",  // battle unit → its battle data (count, top hit points) / the army stack it came from
         "bunit.stats", "bunit.mods", // battle unit → its total stats / its battle modifier
         "bunit.config",              // battle unit → its type config (abilities, attacks)
+        "bdata.count", "bdata.topHp", // battle data of a unit → creatures in the stack / hit points of the top one
+        "battle.eventBuses",         // battle logic → the container of its event buses (WoG Debug battleevents)
         "battle.events",             // battle logic → its event bus (fields of EventHandler<BattleEventArgs>)
         "battleevent.roundStart", "battleevent.turnStart", "battleevent.turnEnd", // events: a round / a unit's turn starts, a turn ends
         "battleevent.move", "battleevent.cast", "battleevent.castEnd", // events: a unit starts moving, uses an ability or attack, it ends

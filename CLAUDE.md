@@ -51,10 +51,11 @@ oracle check → log.
 | `src/WoG.OldenEra` | BepInEx 6 IL2CPP plugin: game symbols from `wog_symbols.json`, adapter, Harmony hooks, the WoG Debug command bridge |
 | `src/WoG.OldenEra.DebugUI` | the interface plugin (uGUI from the game's own sprites/fonts): WoG's questions as game dialogs, the WoG Debug window (`FeatureCatalog.cs` — every feature gets a tile there); compiles against Unity interop of the installed game, empty without it |
 | `src/WoG.OldenEra.Data` | `Core.zip` overlay (unit clones, buffs, localization) |
-| `tools/WoG.ErmTool` | `parse`, `run [--era]`, `compat [--era]`, `era-pp`, `probe-symbols` |
+| `tools/WoG.ErmTool` | `parse`, `run [--era]`, `compat [--era]`, `era-pp`, `probe-symbols`; `remap-symbols` (after a game update: the registry's types and members in the new interop by structure and call graph) and `find-member` |
 | `tools/deploy/deploy.ps1` | builds both plugins and installs them into the game (`-DebugMode` turns WoG Debug on); the game must be closed |
 | `tools/docs/check-translations.py` | code spans and numbers of every `X.md` against its `X.ru.md` |
-| `tools/debug/bridge.sh` | runs one WoG Debug command in the running game (`OLDEN_ERA_DIR`) |
+| `tools/debug/bridge.sh` | runs one WoG Debug command in the running game (`OLDEN_ERA_DIR`); `bridge.ps1` is its PowerShell twin |
+| `tools/debug/new-skirmish.ps1` | starts the game if needed and a new ARCADE map, waits for WoG's day 1 (for in-game checks) |
 | `tools/oe-recon/collect.ps1` | collects data about the Olden Era installation (read-only) |
 | `tools/fetch-references/` | downloads reference sources into `../research` |
 

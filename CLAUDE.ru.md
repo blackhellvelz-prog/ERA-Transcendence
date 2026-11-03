@@ -50,10 +50,11 @@ Magic: Olden Era** (Unity IL2CPP, BepInEx 6). Полное задание пол
 | `src/WoG.OldenEra` | плагин BepInEx 6 IL2CPP: символы игры из `wog_symbols.json`, адаптер, хуки Harmony, командный мост WoG Debug |
 | `src/WoG.OldenEra.DebugUI` | плагин интерфейса (uGUI из спрайтов и шрифтов самой игры): вопросы WoG как диалоги игры, окно WoG Debug (`FeatureCatalog.cs` — у каждой функции там своя плитка); собирается против Unity interop установленной игры, без него пустой |
 | `src/WoG.OldenEra.Data` | оверлей `Core.zip` (клоны юнитов, баффы, локализация) |
-| `tools/WoG.ErmTool` | `parse`, `run [--era]`, `compat [--era]`, `era-pp`, `probe-symbols` |
+| `tools/WoG.ErmTool` | `parse`, `run [--era]`, `compat [--era]`, `era-pp`, `probe-symbols`; `remap-symbols` (после обновления игры: типы и члены реестра в новом interop по структуре и графу вызовов) и `find-member` |
 | `tools/deploy/deploy.ps1` | собирает оба плагина и ставит их в игру (`-DebugMode` включает WoG Debug); игра должна быть закрыта |
 | `tools/docs/check-translations.py` | фрагменты кода и числа каждого `X.md` против его `X.ru.md` |
-| `tools/debug/bridge.sh` | выполняет одну команду WoG Debug в запущенной игре (`OLDEN_ERA_DIR`) |
+| `tools/debug/bridge.sh` | выполняет одну команду WoG Debug в запущенной игре (`OLDEN_ERA_DIR`); `bridge.ps1` — его двойник для PowerShell |
+| `tools/debug/new-skirmish.ps1` | при необходимости запускает игру и новую карту ARCADE, ждёт дня 1 WoG (для проверок в игре) |
 | `tools/oe-recon/collect.ps1` | сбор данных об установке Olden Era (только чтение) |
 | `tools/fetch-references/` | скачать исходники для справки в `../research` |
 

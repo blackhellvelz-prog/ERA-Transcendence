@@ -44,7 +44,8 @@ Verification on real scripts:
   0 ERM errors**; what the engine cannot do yet is listed as *unsupported*;
 * WoG 3.58f (78 files) and WoG 3.59 (117 files): parsing and running — 0 errors.
 
-**Status:** since session 2 (2026-10-07) the port runs in the real game (Olden Era 0.81.04, BepInEx 6). Verified in
+**Status:** since session 2 (2026-10-07) the port runs in the real game (Olden Era 0.81.04, BepInEx 6; since
+2026-11-03 Olden Era 0.82.07, checked again after the update). Verified in
 game: day start, object visits, save/load of the WoG state, the map layer, heroes (skills, spells, artifacts, name,
 biography, specialty, hired army), towns (buildings, creatures to hire, garrison, owner, name, income), players, mines,
 creature types, battles (the battle's stacks and the triggers !?BR, !?BG, !?MF), WoGification and the WoG Options

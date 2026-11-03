@@ -2,10 +2,10 @@
   "Bindings": {
     "game.root": {
       "Assembly": "Hex",
-      "Type": "dbx",
-      "Member": "me.cfjl",
+      "Type": "dcy",
+      "Member": "me.chlv",
       "Status": "verified",
-      "Note": "0.81.04: dbx = session singleton (static 'me'); cfjl = its Hex.Session.Data.Data (sides, heroes, day/week/month) | verified 2026-10-07 (0.81.04): non-null in a skirmish, null in the main menu"
+      "Note": "0.81.04: dbx = session singleton (static 'me'); cfjl = its Hex.Session.Data.Data (sides, heroes, day/week/month) | verified 2026-10-07 (0.81.04): non-null in a skirmish, null in the main menu | 0.82.07: remapped from dbx.me.cfjl by structure (type dbx→dcy 0,79; cfjl→chlv unique signature); was verified | verified 0.82.07 2026-11-03: a new ARCADE map started a WoG session; every read below goes through it"
     },
     "game.day": {
       "Assembly": "Hex",
@@ -79,10 +79,10 @@
     },
     "turn.start": {
       "Assembly": "Hex",
-      "Type": "ebe",
+      "Type": "ech",
       "Member": "OnStartDay",
       "Status": "verified",
-      "Note": "0.81.04: ebe = game logic singleton (static chsz; holds Data, SerializableRandom, Events); OnStartDay() public | verified 2026-10-07: called once per day for all sides (day 2 after End Turn); NOT called on day 1"
+      "Note": "0.81.04: ebe = game logic singleton (static chsz; holds Data, SerializableRandom, Events); OnStartDay() public | verified 2026-10-07: called once per day for all sides (day 2 after End Turn); NOT called on day 1 | 0.82.07: remapped from ebe.OnStartDay by structure (type ebe→ech 0,85); was verified | verified 0.82.07 2026-11-03: day 2 started after End Turn (trace ech.OnStartDay call #1); day 1 by the map-ready path"
     },
     "player.id": {
       "Assembly": "Hex",
@@ -227,9 +227,9 @@
     "hero.statsBase": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Data.Hero",
-      "Member": "cnih.stats",
+      "Member": "cptr.stats",
       "Status": "verified",
-      "Note": "0.81.04: cnih = the hero's HeroConfig (obfuscated property); HeroConfig.stats = type base | verified 2026-10-07: human_hero_1 = offence 2, defence 3, spellPower 1, intelligence 1 = the hero panel"
+      "Note": "0.81.04: cnih = the hero's HeroConfig (obfuscated property); HeroConfig.stats = type base | verified 2026-10-07: human_hero_1 = offence 2, defence 3, spellPower 1, intelligence 1 = the hero panel | 0.82.07: remapped from Hex.Session.Data.Hero.cnih.stats by structure (cnih→cptr #1 of 2 same signature); was verified | verified 0.82.07 2026-11-03: self-test game.he.primary passes; the state dump shows the type base"
     },
     "stack.create": {
       "Assembly": "Hex",
@@ -240,94 +240,94 @@
     },
     "player.logic": {
       "Assembly": "Hex",
-      "Type": "ebe",
-      "Member": "chsz.chth.chwu",
+      "Type": "ech",
+      "Member": "cjvo.cjvw.cjzj",
       "Status": "verified",
-      "Note": "0.81.04: ebe.chsz (logic singleton) → chth (ecd) → chwu: eby[] (side logic, eby.chvl = Side) | verified 2026-10-07: eby[2], same order as the sides"
+      "Note": "0.81.04: ebe.chsz (logic singleton) → chth (ecd) → chwu: eby[] (side logic, eby.chvl = Side) | verified 2026-10-07: eby[2], same order as the sides | 0.82.07: remapped from ebe.chsz.chth.chwu by structure (type ebe→ech 0,85; chsz→cjvo unique signature; chth→cjvw unique signature; chwu→cjzj unique signature); was verified | verified 0.82.07 2026-11-03: invoke ech.cjvo.cjvw.cjzj[0].cjxs reached player 0's resource logic"
     },
     "player.resourceLogic": {
       "Assembly": "Hex",
-      "Type": "eby",
-      "Member": "chvd",
+      "Type": "edb",
+      "Member": "cjxs",
       "Status": "verified",
-      "Note": "0.81.04: eby.chvd = ecc, the side's resource component | verified 2026-10-07"
+      "Note": "0.81.04: eby.chvd = ecc, the side's resource component | verified 2026-10-07 | 0.82.07: remapped from eby.chvd by structure (type eby→edb 0,78; chvd→cjxs #2 of 2 same signature); was verified | verified 0.82.07 2026-11-03: the same path; add/spend on it change player 0's amounts"
     },
     "resource.add": {
       "Assembly": "Hex",
-      "Type": "ecc",
-      "Member": "bbqk",
+      "Type": "edf",
+      "Member": "bcma",
       "Status": "verified",
-      "Note": "0.81.04: ecc.bbqk(string resource, int delta) — seen adding start bonuses; calls bbqe(name, delta, false), which raises EEvent.ResChange | only adds: a negative delta changes nothing (seen 2026-10-07) | verified 2026-10-07: adds and updates the top bar (day 1: 36000 shown)"
+      "Note": "0.81.04: ecc.bbqk(string resource, int delta) — seen adding start bonuses; calls bbqe(name, delta, false), which raises EEvent.ResChange | only adds: a negative delta changes nothing (seen 2026-10-07) | verified 2026-10-07: adds and updates the top bar (day 1: 36000 shown) | 0.82.07: the remap's edf.bcmg (the old wrapper's place) no longer adds: bcmg(gold,100) and bcmg(ore,4) changed nothing [V-game 2026-11-03]; the core edf.bcma(name, delta, false) — the old bbqe — adds and updates the top bar: wood 30→35, ore 30→34 [V-game 2026-11-03]; the adapter passes false as the third argument"
     },
     "resource.spend": {
       "Assembly": "Hex",
-      "Type": "ecc",
-      "Member": "bbqg",
+      "Type": "edf",
+      "Member": "bcmb",
       "Status": "verified",
-      "Note": "0.81.04: ecc.bbqg(string resource, int amount) → bool; the AI pays a building with it (gold 2500, wood 5, ore 5) | verified 2026-10-07: spends and updates the top bar (-500 shown)"
+      "Note": "0.81.04: ecc.bbqg(string resource, int amount) → bool; the AI pays a building with it (gold 2500, wood 5, ore 5) | verified 2026-10-07: spends and updates the top bar (-500 shown) | 0.82.07: the remap (call graph) chose edf.bcmc, which only answers whether the amount is there: bcmc(gold,100) → True, gold unchanged [V-game 2026-11-03]; the two methods swapped places — edf.bcmb spends and updates the top bar: gold 36000→35900, ore 34→26 [V-game 2026-11-03]"
     },
     "map.root": {
       "Assembly": "Hex",
-      "Type": "dbx",
-      "Member": "me.cfjj.cnlq",
+      "Type": "dcy",
+      "Member": "me.chlt.cpxa",
       "Status": "verified",
-      "Note": "0.81.04: dbx.me.cfjj = adventure world (fbu); cnlq = Hex.Map.Map | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+      "Note": "0.81.04: dbx.me.cfjj = adventure world (fbu); cnlq = Hex.Map.Map | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80) | 0.82.07: remapped from dbx.me.cfjj.cnlq by structure (type dbx→dcy 0,79; cfjj→chlt unique signature; cnlq→cpxa unique signature); was verified | verified 0.82.07 2026-11-03: UN:U found 54 resources, 4 chests, 4 campfires, 4 mines, 97 monsters; objects at a square"
     },
     "map.sizeX": {
       "Assembly": "Hex",
       "Type": "Hex.Map.Map",
-      "Member": "csns",
+      "Member": "cves",
       "Status": "verified",
-      "Note": "0.81.04: Map.csns = MapData.sizeX_ (80) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+      "Note": "0.81.04: Map.csns = MapData.sizeX_ (80) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80) | 0.82.07: remapped from Hex.Map.Map.csns by structure (csns→cves #1 of 2 same signature); was verified | verified 0.82.07 2026-11-03: positions match the screen: campfire 35/62 up-right of the hero at 33/65 (H3 y = sizeZ-1-z)"
     },
     "map.sizeZ": {
       "Assembly": "Hex",
       "Type": "Hex.Map.Map",
-      "Member": "csnt",
+      "Member": "cvet",
       "Status": "verified",
-      "Note": "0.81.04: Map.csnt = MapData.sizeZ_ (80) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+      "Note": "0.81.04: Map.csnt = MapData.sizeZ_ (80) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80) | 0.82.07: remapped from Hex.Map.Map.csnt by structure (csnt→cvet #2 of 2 same signature); was verified | verified 0.82.07 2026-11-03: same check as map.sizeX"
     },
     "map.objects": {
       "Assembly": "Hex",
       "Type": "Hex.Map.Map",
-      "Member": "bzjn.bzsr",
+      "Member": "cbgg.cbpk",
       "Status": "verified",
-      "Note": "0.81.04: MapObjects.bzsr: List<bxp>, every placed object incl. scenery (2581) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+      "Note": "0.81.04: MapObjects.bzsr: List<bxp>, every placed object incl. scenery (2581) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80) | 0.82.07: remapped from Hex.Map.Map.bzjn.bzsr by structure (bzjn→cbgg unique signature; bzsr→cbpk unique signature); was verified | verified 0.82.07 2026-11-03: UN:U and \"objects x y l\" list the map objects"
     },
     "mapobj.id": {
       "Assembly": "Hex",
-      "Type": "bxp",
-      "Member": "bzrb",
+      "Type": "bye",
+      "Member": "cbnu",
       "Status": "verified",
-      "Note": "0.81.04: bxp.bzrb: map object id = DataObject.idMapObject | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+      "Note": "0.81.04: bxp.bzrb: map object id = DataObject.idMapObject | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80) | 0.82.07: remapped from bxp.bzrb by structure (type bxp→bye 0,87; bzrb→cbnu #1 of 2 same signature); was verified | verified 0.82.07 2026-11-03: visits and the towns resolve their objects"
     },
     "mapobj.node": {
       "Assembly": "Hex",
-      "Type": "bxp",
-      "Member": "bzrc",
+      "Type": "bye",
+      "Member": "cbnv",
       "Status": "verified",
-      "Note": "0.81.04: bxp.bzrc: pivot node (human_city id 1 at 2655) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+      "Note": "0.81.04: bxp.bzrc: pivot node (human_city id 1 at 2655) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80) | 0.82.07: remapped from bxp.bzrc by structure (type bxp→bye 0,87; bzrc→cbnv #2 of 2 same signature); was verified | verified 0.82.07 2026-11-03: object positions (campfire 35/62, mine 35/69) are the visited squares"
     },
     "mapobj.entrances": {
       "Assembly": "Hex",
-      "Type": "bxp",
-      "Member": "bzrf",
+      "Type": "bye",
+      "Member": "cbny",
       "Status": "verified",
-      "Note": "0.81.04: bxp.bzrf: List<int> of entrance nodes (mine_gold: 2260, 2181, 2180) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+      "Note": "0.81.04: bxp.bzrf: List<int> of entrance nodes (mine_gold: 2260, 2181, 2180) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80) | 0.82.07: remapped from bxp.bzrf by structure (type bxp→bye 0,87; bzrf→cbny #1 of 2 same signature); was verified | verified 0.82.07 2026-11-03: the hero visits the campfire from its entrance (visit at 35/62)"
     },
     "mapobj.sid": {
       "Assembly": "Hex",
-      "Type": "bxp",
-      "Member": "bzra.bzsi.csoi",
+      "Type": "bye",
+      "Member": "cbnt.cbpb.cvfi",
       "Status": "verified",
-      "Note": "0.81.04: bxp.bzra = object type (bxr), bzsi = Hex.Map.ObjectConfig, csoi = sid (mine_gold) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+      "Note": "0.81.04: bxp.bzra = object type (bxr), bzsi = Hex.Map.ObjectConfig, csoi = sid (mine_gold) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80) | 0.82.07: remapped from bxp.bzra.bzsi.csoi by structure (type bxp→bye 0,87; bzra→cbnt unique signature; bzsi→cbpb unique signature; csoi→cvfi #1 of 4 same signature); was verified | verified 0.82.07 2026-11-03: \"objects 35 69 0\" gives mine_gold; towns human_city"
     },
     "object.list": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Data.Data",
-      "Member": "objects.cnja",
+      "Member": "objects.cpuk",
       "Status": "verified",
-      "Note": "0.81.04: DataObjects.cnja: List<DataObject>, all interactive objects (214) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80)"
+      "Note": "0.81.04: DataObjects.cnja: List<DataObject>, all interactive objects (214) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish (ARCADE template, 80x80) | 0.82.07: remapped from Hex.Session.Data.Data.objects.cnja by structure (cnja→cpuk #1 of 2 same signature); was verified | verified 0.82.07 2026-11-03: 7 towns and the mines with owners"
     },
     "object.mapId": {
       "Assembly": "Hex",
@@ -394,17 +394,17 @@
     },
     "mapobj.blocked": {
       "Assembly": "Hex",
-      "Type": "bxp",
-      "Member": "bzrg",
+      "Type": "bye",
+      "Member": "cbnz",
       "Status": "verified",
-      "Note": "0.81.04: bxp.bzrg: List<int> of occupied nodes, the list twice (mine_gold pivot 1414: 1414 1415 1334 1335; resource_gold: its own node 1416) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: bxp.bzrg: List<int> of occupied nodes, the list twice (mine_gold pivot 1414: 1414 1415 1334 1335; resource_gold: its own node 1416) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from bxp.bzrg by structure (type bxp→bye 0,87; bzrg→cbnz #2 of 2 same signature); was verified | verified 0.82.07 2026-11-03: one object per square in \"objects\" (town 98/0 and hero 34/105 at the gate)"
     },
     "map.data": {
       "Assembly": "Hex",
       "Type": "Hex.Map.Map",
-      "Member": "bzje",
+      "Member": "cbfx",
       "Status": "verified",
-      "Note": "0.81.04: Map.bzje = Hex.Map.MapData | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: Map.bzje = Hex.Map.MapData | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from Hex.Map.Map.bzje by structure (bzje→cbfx unique signature); was verified | verified 0.82.07 2026-11-03: TR23/15/0:T gives 2 (grass) beside the castle"
     },
     "map.tiles": {
       "Assembly": "Hex",
@@ -429,80 +429,80 @@
     },
     "object.interact": {
       "Assembly": "Hex",
-      "Type": "fnt",
-      "Member": "bmjj",
+      "Type": "fqk",
+      "Member": "bnui",
       "Status": "verified",
-      "Note": "0.81.04: fnt = logic of a world object; bmjj(fdq) is the first call when a hero arrives, before the object acts or shows its dialog | verified 2026-10-07 (0.81.04) with WoG Debug method traces: gems (no dialog) bmjj, bmjb, bmiw, bmjf, bmji, bmip, bmio; treasure chest bmjj, bmji, bmip, bmio, reward dialog, choice (command dfv), bmjb, bmiw"
+      "Note": "0.81.04: fnt = logic of a world object; bmjj(fdq) is the first call when a hero arrives, before the object acts or shows its dialog | verified 2026-10-07 (0.81.04) with WoG Debug method traces: gems (no dialog) bmjj, bmjb, bmiw, bmjf, bmji, bmip, bmio; treasure chest bmjj, bmji, bmip, bmio, reward dialog, choice (command dfv), bmjb, bmiw | 0.82.07: remapped from fnt.bmjj by structure (type fnt→fqk 0,83; bmjj→bnui calls 0,64 (next 0,11, order says bnoh) among 3 same signature); was verified | verified 0.82.07 2026-11-03: !?OB12 before the campfire acts (wogdebug_visits 1, type 12, 35/62, hero 105); AI hero 137 visits too"
     },
     "object.interactEnd": {
       "Assembly": "Hex",
-      "Type": "fnt",
-      "Member": "bmiw",
+      "Type": "fqk",
+      "Member": "bntv",
       "Status": "verified",
-      "Note": "0.81.04: bmiw(fdq) runs right after bmjb, when the object's action (reward) has been applied | verified 2026-10-07 (0.81.04) with WoG Debug method traces: gems (no dialog) bmjj, bmjb, bmiw, bmjf, bmji, bmip, bmio; treasure chest bmjj, bmji, bmip, bmio, reward dialog, choice (command dfv), bmjb, bmiw"
+      "Note": "0.81.04: bmiw(fdq) runs right after bmjb, when the object's action (reward) has been applied | verified 2026-10-07 (0.81.04) with WoG Debug method traces: gems (no dialog) bmjj, bmjb, bmiw, bmjf, bmji, bmip, bmio; treasure chest bmjj, bmji, bmip, bmio, reward dialog, choice (command dfv), bmjb, bmiw | 0.82.07: remapped from fnt.bmiw by structure (type fnt→fqk 0,83; bmiw→bntv calls 0,64 (next 0,25, order says bntu) among 13 same signature); was verified | verified 0.82.07 2026-11-03: !$OB12 after it (wogdebug_postVisits 1)"
     },
     "visit.mapObject": {
       "Assembly": "Hex",
-      "Type": "fnt",
-      "Member": "coyw",
+      "Type": "fqk",
+      "Member": "crkb",
       "Status": "verified",
-      "Note": "0.81.04: fnt.coyw = the map object (bxp); fnt.coyx = the session DataObject | verified 2026-10-07 (0.81.04): WoG Debug method trace while a hero picked up gems — bmjj, bmjb, bmiw, bmjf, bmji, bmip, bmio ran once each, in this order"
+      "Note": "0.81.04: fnt.coyw = the map object (bxp); fnt.coyx = the session DataObject | verified 2026-10-07 (0.81.04): WoG Debug method trace while a hero picked up gems — bmjj, bmjb, bmiw, bmjf, bmji, bmip, bmio ran once each, in this order | 0.82.07: remapped from fnt.coyw by structure (type fnt→fqk 0,83; coyw→crkb unique signature); was verified | verified 0.82.07 2026-11-03: the visit reports the campfire 12/0 at 35/62"
     },
     "visitor.hero": {
       "Assembly": "Hex",
-      "Type": "fdq",
-      "Member": "cnsj.chna",
+      "Type": "fgc",
+      "Member": "cqdv.cjpp",
       "Status": "verified",
-      "Note": "0.81.04: fdq = hero logic; cnsj = Hex.Session.Logic.Hero; chna = Hex.Session.Data.Hero | verified 2026-10-07 (0.81.04): WoG Debug method trace while a hero picked up gems — bmjj, bmjb, bmiw, bmjf, bmji, bmip, bmio ran once each, in this order"
+      "Note": "0.81.04: fdq = hero logic; cnsj = Hex.Session.Logic.Hero; chna = Hex.Session.Data.Hero | verified 2026-10-07 (0.81.04): WoG Debug method trace while a hero picked up gems — bmjj, bmjb, bmiw, bmjf, bmji, bmip, bmio ran once each, in this order | 0.82.07: remapped from fdq.cnsj.chna by structure (type fdq→fgc 0,84; cnsj→cqdv unique signature; chna→cjpp unique signature); was verified | verified 0.82.07 2026-11-03: the visit reports hero 105 (player 0)"
     },
     "events.invoke": {
       "Assembly": "Hex",
-      "Type": "zb",
+      "Type": "zi",
       "Member": "Invoke",
       "Status": "verified",
-      "Note": "0.81.04: zb = game event bus (singleton zb.buvw); Invoke(EEvent, yx) raises every game event | verified 2026-10-07 (0.81.04) with a WoG Debug trace of zb.Invoke during moves, visits, an accepted battle simulation and a fought battle"
+      "Note": "0.81.04: zb = game event bus (singleton zb.buvw); Invoke(EEvent, yx) raises every game event | verified 2026-10-07 (0.81.04) with a WoG Debug trace of zb.Invoke during moves, visits, an accepted battle simulation and a fought battle | 0.82.07: remapped from zb.Invoke by structure (type zb→zi 0,96); was verified | verified 0.82.07 2026-11-03: MapSaved, SideStartBattle, BattleResultsStartApplying, SideEndBattle arrive"
     },
     "event.battleSide": {
       "Assembly": "Hex",
-      "Type": "xe",
-      "Member": "buri",
+      "Type": "xl",
+      "Member": "bwjk",
       "Status": "verified",
-      "Note": "0.81.04: xe = SideStartBattle argument; buri = side id (0 the player, -1 neutral) | verified 2026-10-07 (0.81.04) with a WoG Debug trace of zb.Invoke during moves, visits, an accepted battle simulation and a fought battle"
+      "Note": "0.81.04: xe = SideStartBattle argument; buri = side id (0 the player, -1 neutral) | verified 2026-10-07 (0.81.04) with a WoG Debug trace of zb.Invoke during moves, visits, an accepted battle simulation and a fought battle | 0.82.07: remapped from xe.buri by structure (type xe→xl 1,00; buri→bwjk unique signature); was verified | verified 0.82.07 2026-11-03: arena battle: \"battle starts (SideStartBattle) - player 0\""
     },
     "event.battleEndSide": {
       "Assembly": "Hex",
-      "Type": "xb",
-      "Member": "bura",
+      "Type": "xi",
+      "Member": "bwjc",
       "Status": "verified",
-      "Note": "0.81.04: xb = SideEndBattle argument; bura = side id | verified 2026-10-07 (0.81.04) with a WoG Debug trace of zb.Invoke during moves, visits, an accepted battle simulation and a fought battle"
+      "Note": "0.81.04: xb = SideEndBattle argument; bura = side id | verified 2026-10-07 (0.81.04) with a WoG Debug trace of zb.Invoke during moves, visits, an accepted battle simulation and a fought battle | 0.82.07: remapped from xb.bura by structure (type xb→xi 1,00; bura→bwjc unique signature); was verified | verified 0.82.07 2026-11-03: map quick battle: \"battle ends - player 0, hero 105\""
     },
     "unit.config": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Data.Unit",
-      "Member": "ctzt",
+      "Member": "cwsr",
       "Status": "verified",
-      "Note": "0.81.04: Unit.ctzt = Hex.Configs.UnitLogicConfig of the unit's sid (cnkj is a cache that stays null); stats (offence, defence, hp, damageMin/Max, speed, initiative), tier, fraction, upgradeSid, squadValue, unitCost.costResArray (name, cost) | verified 2026-10-07 with WoG Debug peek on the hero's army: esquire 4/4/12, 2-3, speed 4, 85 gold"
+      "Note": "0.81.04: Unit.ctzt = Hex.Configs.UnitLogicConfig of the unit's sid (cnkj is a cache that stays null); stats (offence, defence, hp, damageMin/Max, speed, initiative), tier, fraction, upgradeSid, squadValue, unitCost.costResArray (name, cost) | verified 2026-10-07 with WoG Debug peek on the hero's army: esquire 4/4/12, 2-3, speed 4, 85 gold | 0.82.07: remapped from Hex.Session.Data.Unit.ctzt by structure (ctzt→cwsr unique signature); was verified | verified 0.82.07 2026-11-03: MA:A0 / MA:P0 read 3 / 12 from the engine unit"
     },
     "event.saveOk": {
       "Assembly": "Hex",
-      "Type": "wb",
-      "Member": "bupq",
+      "Type": "wi",
+      "Member": "bwhs",
       "Status": "verified",
-      "Note": "0.81.04: wb = MapSaved argument; bupq = true when saved | verified 2026-10-07 (0.81.04): quick save + quick load in a skirmish, with a trace of zb.Invoke and Data.biyb"
+      "Note": "0.81.04: wb = MapSaved argument; bupq = true when saved | verified 2026-10-07 (0.81.04): quick save + quick load in a skirmish, with a trace of zb.Invoke and Data.biyb | 0.82.07: remapped from wb.bupq by structure (type wb→wi 1,00; bupq→bwhs unique signature); was verified | verified 0.82.07 2026-11-03: autosaves as_1/as_2 and the quick save write the WoG state"
     },
     "event.savePath": {
       "Assembly": "Hex",
-      "Type": "wb",
-      "Member": "bupr",
+      "Type": "wi",
+      "Member": "bwht",
       "Status": "verified",
-      "Note": "0.81.04: bupr = save path relative to the user folder (saves/singleplayer/ld_15.08_07.10.2026_human/quicksave.saveskirmish) | verified 2026-10-07 (0.81.04): quick save + quick load in a skirmish, with a trace of zb.Invoke and Data.biyb"
+      "Note": "0.81.04: bupr = save path relative to the user folder (saves/singleplayer/ld_15.08_07.10.2026_human/quicksave.saveskirmish) | verified 2026-10-07 (0.81.04): quick save + quick load in a skirmish, with a trace of zb.Invoke and Data.biyb | 0.82.07: remapped from wb.bupr by structure (type wb→wi 1,00; bupr→bwht unique signature); was verified | verified 0.82.07 2026-11-03: the state file is named after quicksave.saveskirmish"
     },
     "session.startInfo": {
       "Assembly": "Hex",
-      "Type": "dbx",
-      "Member": "me.ctic",
+      "Type": "dcy",
+      "Member": "me.cwad",
       "Status": "verified",
-      "Note": "0.81.04: dbx.me.ctic = Hex.Session.StartInfo of the running session | verified 2026-10-07 (0.81.04): quick save + quick load in a skirmish, with a trace of zb.Invoke and Data.biyb"
+      "Note": "0.81.04: dbx.me.ctic = Hex.Session.StartInfo of the running session | verified 2026-10-07 (0.81.04): quick save + quick load in a skirmish, with a trace of zb.Invoke and Data.biyb | 0.82.07: remapped from dbx.me.ctic by structure (type dbx→dcy 0,79; ctic→cwad unique signature); was verified | verified 0.82.07 2026-11-03: quick load: \"loaded game - WoG state restored (ed73cd...)\", v5000 back to 0"
     },
     "startInfo.load": {
       "Assembly": "Hex",
@@ -541,10 +541,10 @@
     },
     "game.difficulty": {
       "Assembly": "Hex",
-      "Type": "dbx",
-      "Member": "me.ctic.settings.AiDifficulty",
-      "Status": "verified",
-      "Note": "0.81.04: StartInfo.settings (Hex.SharedLibrary.Models.Lobby.GameStartInfo).AiDifficulty; also in the save header startSettings | verified 2026-10-07 with WoG Debug peek: 1 after choosing the low difficulty"
+      "Type": "dcy",
+      "Member": "me.cwad.settings.AiDifficulty",
+      "Status": "remapped",
+      "Note": "0.81.04: StartInfo.settings (Hex.SharedLibrary.Models.Lobby.GameStartInfo).AiDifficulty; also in the save header startSettings | verified 2026-10-07 with WoG Debug peek: 1 after choosing the low difficulty | 0.82.07: remapped from dbx.me.ctic.settings.AiDifficulty by structure (type dbx→dcy 0,79; ctic→cwad unique signature); was verified | 0.82.07 2026-11-03: resolves; not yet exercised in the game (WoG Debug allows it, normal play keeps it off)"
     },
     "hero.skills": {
       "Assembly": "Hex",
@@ -577,51 +577,51 @@
     "hero.skillsAdd": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Data.HeroSkills",
-      "Member": "bjfv",
+      "Member": "bkpw",
       "Status": "verified",
-      "Note": "0.81.04: HeroSkills.bjfv(string sid, int level = 1) → HeroSkill (decompiled signature); whether the game applies the skill's bonuses after it | verified 2026-10-07 (0.81.04) in a skirmish: !!HE:S3/1 (bjfv + bazp) gave skill_scouting 1, view radius 7 to 8; !!HE:S2/2 (one LevelUp) raised skill_logistic 1 to 2, movement bonus 0.10 to 0.15, max movement 201; the hero screen shows the skills"
+      "Note": "0.81.04: HeroSkills.bjfv(string sid, int level = 1) → HeroSkill (decompiled signature); whether the game applies the skill's bonuses after it | verified 2026-10-07 (0.81.04) in a skirmish: !!HE:S3/1 (bjfv + bazp) gave skill_scouting 1, view radius 7 to 8; !!HE:S2/2 (one LevelUp) raised skill_logistic 1 to 2, movement bonus 0.10 to 0.15, max movement 201; the hero screen shows the skills | 0.82.07: remapped from Hex.Session.Data.HeroSkills.bjfv by structure (bjfv→bkpw unique signature); was verified | verified 0.82.07 2026-11-03: HE:S3/1 (a skill the hero did not have) went through it: Разведка 1"
     },
     "world.heroLogics": {
       "Assembly": "Hex",
-      "Type": "dbx",
-      "Member": "me.cfjj.cnme.cntj",
+      "Type": "dcy",
+      "Member": "me.chlt.cpxp.cqev",
       "Status": "verified",
-      "Note": "0.81.04: world (fbu).cnme (fds).cntj: List<fdq> of the heroes on the map (fds.cntk is Dictionary<int, fdq> by hero id) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish: 2 entries, heroes 105 and 156"
+      "Note": "0.81.04: world (fbu).cnme (fds).cntj: List<fdq> of the heroes on the map (fds.cntk is Dictionary<int, fdq> by hero id) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish: 2 entries, heroes 105 and 156 | 0.82.07: remapped from dbx.me.cfjj.cnme.cntj by structure (type dbx→dcy 0,79; cfjj→chlt unique signature; cnme→cpxp unique signature; cntj→cqev #1 of 2 same signature); was verified | verified 0.82.07 2026-11-03: skills, spells, items and level-ups reach the hero logic"
     },
     "herologic.skills": {
       "Assembly": "Hex",
-      "Type": "fdq",
-      "Member": "cnsj.chnk",
+      "Type": "fgc",
+      "Member": "cqdv.cjpz",
       "Status": "verified",
-      "Note": "0.81.04: Logic.Hero.chnk: eaj (skills logic: chrr HeroSkills, chrs Logic.Hero, chrt List<eah>, chru Dictionary<string, eah>) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: Logic.Hero.chnk: eaj (skills logic: chrr HeroSkills, chrs Logic.Hero, chrt List<eah>, chru Dictionary<string, eah>) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from fdq.cnsj.chnk by structure (type fdq→fgc 0,84; cnsj→cqdv unique signature; chnk→cjpz unique signature); was verified | verified 0.82.07 2026-11-03: \"subskills\" lists skill_logistic and skill_faction_humans with their sub-skills"
     },
     "skilllogic.list": {
       "Assembly": "Hex",
-      "Type": "eaj",
-      "Member": "chrt",
+      "Type": "ebm",
+      "Member": "cjui",
       "Status": "verified",
-      "Note": "0.81.04: List<eah>, one per applied skill | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish: a skill added only to the data list (HeroSkills.bjfv) has no entry here and gives no bonus until the save is loaded again"
+      "Note": "0.81.04: List<eah>, one per applied skill | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish: a skill added only to the data list (HeroSkills.bjfv) has no entry here and gives no bonus until the save is loaded again | 0.82.07: remapped from eaj.chrt by structure (type eaj→ebm 0,90; chrt→cjui unique signature); was verified | verified 0.82.07 2026-11-03: the same listing"
     },
     "skilllogic.sid": {
       "Assembly": "Hex",
-      "Type": "eah",
-      "Member": "ctnu",
+      "Type": "Hex.Session.Logic.HeroSkill",
+      "Member": "cwfv",
       "Status": "verified",
-      "Note": "0.81.04: skill sid (ctnw = level) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: skill sid (ctnw = level) | verified 2026-10-07 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from eah.ctnu by structure (type eah→Hex.Session.Logic.HeroSkill 0,96; ctnu→cwfv #1 of 4 same signature); was verified | verified 0.82.07 2026-11-03: HeroSkill.cwfv gives skill_logistic / skill_faction_humans"
     },
     "skills.learn": {
       "Assembly": "Hex",
-      "Type": "eaj",
-      "Member": "bazp",
+      "Type": "ebm",
+      "Member": "bbvf",
       "Status": "verified",
-      "Note": "0.81.04: eaj.bazp(HeroSkill) → eah; WoG Debug trace on loading a save: 523 calls, each with eah.Init(HeroSkill, Hero); after the load skill_luck 2 (added by bjfv) had wasApplied=True and hero luck 2. Live call | verified 2026-10-07 (0.81.04) in a skirmish: !!HE:S3/1 (bjfv + bazp) gave skill_scouting 1, view radius 7 to 8; !!HE:S2/2 (one LevelUp) raised skill_logistic 1 to 2, movement bonus 0.10 to 0.15, max movement 201; the hero screen shows the skills"
+      "Note": "0.81.04: eaj.bazp(HeroSkill) → eah; WoG Debug trace on loading a save: 523 calls, each with eah.Init(HeroSkill, Hero); after the load skill_luck 2 (added by bjfv) had wasApplied=True and hero luck 2. Live call | verified 2026-10-07 (0.81.04) in a skirmish: !!HE:S3/1 (bjfv + bazp) gave skill_scouting 1, view radius 7 to 8; !!HE:S2/2 (one LevelUp) raised skill_logistic 1 to 2, movement bonus 0.10 to 0.15, max movement 201; the hero screen shows the skills | 0.82.07: remapped from eaj.bazp by structure (type eaj→ebm 0,90; bazp→bbvf unique signature); was verified | verified 0.82.07 2026-11-03: HE:S3/1 gave Разведка 1 in the hero's skills"
     },
     "skilllogic.levelUp": {
       "Assembly": "Hex",
-      "Type": "eah",
+      "Type": "Hex.Session.Logic.HeroSkill",
       "Member": "LevelUp",
       "Status": "verified",
-      "Note": "0.81.04: eah.LevelUp() (12 callers): raises the skill by one level | verified 2026-10-07 (0.81.04) in a skirmish: !!HE:S3/1 (bjfv + bazp) gave skill_scouting 1, view radius 7 to 8; !!HE:S2/2 (one LevelUp) raised skill_logistic 1 to 2, movement bonus 0.10 to 0.15, max movement 201; the hero screen shows the skills"
+      "Note": "0.81.04: eah.LevelUp() (12 callers): raises the skill by one level | verified 2026-10-07 (0.81.04) in a skirmish: !!HE:S3/1 (bjfv + bazp) gave skill_scouting 1, view radius 7 to 8; !!HE:S2/2 (one LevelUp) raised skill_logistic 1 to 2, movement bonus 0.10 to 0.15, max movement 201; the hero screen shows the skills | 0.82.07: remapped from eah.LevelUp by structure (type eah→Hex.Session.Logic.HeroSkill 0,96); was verified | verified 0.82.07 2026-11-03: HE:S2 1->2 opened the game's «Продвинутая логистика» choice; sub_skill_logistic_2 PermanentActive after the pick"
     },
     "hero.magics": {
       "Assembly": "Hex",
@@ -646,45 +646,45 @@
     },
     "herologic.magics": {
       "Assembly": "Hex",
-      "Type": "fdq",
-      "Member": "cnsj.chnj",
+      "Type": "fgc",
+      "Member": "cqdv.cjpy",
       "Status": "verified",
-      "Note": "0.81.04: Logic.Hero.chnj: eaa (magic logic: chqp HeroMagics, chqq List<dzx>, chqr Dictionary<string, dzx>) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+      "Note": "0.81.04: Logic.Hero.chnj: eaa (magic logic: chqp HeroMagics, chqq List<dzx>, chqr Dictionary<string, dzx>) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish | 0.82.07: remapped from fdq.cnsj.chnj by structure (type fdq→fgc 0,84; cnsj→cqdv unique signature; chnj→cjpy unique signature); was verified | verified 0.82.07 2026-11-03: spells listed: Лечение, Благословение, Проклятье, Слабость"
     },
     "magiclogic.list": {
       "Assembly": "Hex",
-      "Type": "eaa",
-      "Member": "chqq",
+      "Type": "ebe",
+      "Member": "cjtf",
       "Status": "verified",
-      "Note": "0.81.04: List<dzx>, one per spell | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+      "Note": "0.81.04: List<dzx>, one per spell | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish | 0.82.07: remapped from eaa.chqq by structure (type eaa→ebe 1,00; chqq→cjtf unique signature); was verified | verified 0.82.07 2026-11-03: the same listing"
     },
     "magiclogic.sid": {
       "Assembly": "Hex",
-      "Type": "dzx",
-      "Member": "ctnj",
+      "Type": "ebb",
+      "Member": "cwfk",
       "Status": "verified",
-      "Note": "0.81.04: spell sid (ctno = level) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+      "Note": "0.81.04: spell sid (ctno = level) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish | 0.82.07: remapped from dzx.ctnj by structure (type dzx→ebb 0,91; ctnj→cwfk #1 of 2 same signature); was verified | verified 0.82.07 2026-11-03: spell sids map to H3 spells (37, 41, 42, 45)"
     },
     "magics.learn": {
       "Assembly": "Hex",
-      "Type": "eaa",
-      "Member": "baxs",
+      "Type": "ebe",
+      "Member": "bbti",
       "Status": "verified",
-      "Note": "0.81.04: eaa.baxs(string sid, bool = false) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish: baxs(primal_1_magic_thunderbolt, false) added the data entry (isLearned) and its logic, the spellbook showed Lightning Bolt in the primal school; for a specialist baxs(night_2_magic_web) added night_2_magic_web_special"
+      "Note": "0.81.04: eaa.baxs(string sid, bool = false) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish: baxs(primal_1_magic_thunderbolt, false) added the data entry (isLearned) and its logic, the spellbook showed Lightning Bolt in the primal school; for a specialist baxs(night_2_magic_web) added night_2_magic_web_special | 0.82.07: remapped from eaa.baxs by structure (type eaa→ebe 1,00; baxs→bbti unique signature); was verified | verified 0.82.07 2026-11-03: HE:M17/1 learned Удар молнии"
     },
     "magics.forget": {
       "Assembly": "Hex",
-      "Type": "eaa",
-      "Member": "bayb",
+      "Type": "ebe",
+      "Member": "bbtr",
       "Status": "verified",
-      "Note": "0.81.04: eaa.bayb(dzx) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish: removed the spell's logic and its data entry (baxt/baxu(string) changed nothing)"
+      "Note": "0.81.04: eaa.bayb(dzx) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish: removed the spell's logic and its data entry (baxt/baxu(string) changed nothing) | 0.82.07: remapped from eaa.bayb by structure (type eaa→ebe 1,00; bayb→bbtr unique signature); was verified | verified 0.82.07 2026-11-03: HE:M17/0 removed Удар молнии"
     },
     "magics.variant": {
       "Assembly": "Hex",
-      "Type": "eaa",
-      "Member": "baxy",
-      "Status": "verified",
-      "Note": "0.81.04: eaa.baxy(string sid) → the hero's variant sid or null | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish: null for a hero without a spell specialty, night_2_magic_web_special for hero 156"
+      "Type": "ebe",
+      "Member": "bbto",
+      "Status": "remapped",
+      "Note": "0.81.04: eaa.baxy(string sid) → the hero's variant sid or null | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish: null for a hero without a spell specialty, night_2_magic_web_special for hero 156 | 0.82.07: remapped from eaa.baxy by structure (type eaa→ebe 1,00; baxy→bbto unique signature); was verified | 0.82.07 2026-11-03: resolves; null for both heroes of an ARCADE map (neither has a spell specialty), as in 0.81.04; the specialist case not seen yet (WoG Debug allows it, normal play keeps it off)"
     },
     "hero.doll": {
       "Assembly": "Hex",
@@ -745,86 +745,86 @@
     "item.slotType": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Data.DataItem",
-      "Member": "cnhy._cbup_k__BackingField",
+      "Member": "cpth._cduc_k__BackingField",
       "Status": "verified",
-      "Note": "0.81.04: ItemConfig slot type (cnl.EType): head_torch_artifact HEAD | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+      "Note": "0.81.04: ItemConfig slot type (cnl.EType): head_torch_artifact HEAD | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish | 0.82.07: remapped from Hex.Session.Data.DataItem.cnhy._cbup_k__BackingField by structure (cnhy→cpth unique signature; _cbup_k__BackingField→_cduc_k__BackingField #1 of 2 same signature); was verified | verified 0.82.07 2026-11-03: HE:A1/22/0 put the Crown of the Supreme Magi on the head"
     },
     "herologic.doll": {
       "Assembly": "Hex",
-      "Type": "fdq",
-      "Member": "cnsj.chnh",
+      "Type": "fgc",
+      "Member": "cqdv.cjpw",
       "Status": "verified",
-      "Note": "0.81.04: Logic.Hero.chnh: ean (eas) item logic of the doll | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+      "Note": "0.81.04: Logic.Hero.chnh: ean (eas) item logic of the doll | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish | 0.82.07: remapped from fdq.cnsj.chnh by structure (type fdq→fgc 0,84; cnsj→cqdv unique signature; chnh→cjpw #1 of 2 same signature); was verified | verified 0.82.07 2026-11-03: worn: голова 22, книга 0"
     },
     "herologic.backpack": {
       "Assembly": "Hex",
-      "Type": "fdq",
-      "Member": "cnsj.chni",
+      "Type": "fgc",
+      "Member": "cqdv.cjpx",
       "Status": "verified",
-      "Note": "0.81.04: Logic.Hero.chni: eap (eas) item logic of the backpack | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+      "Note": "0.81.04: Logic.Hero.chni: eap (eas) item logic of the backpack | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish | 0.82.07: remapped from fdq.cnsj.chni by structure (type fdq→fgc 0,84; cnsj→cqdv unique signature; chni→cjpx #2 of 2 same signature); was verified | verified 0.82.07 2026-11-03: backpack: 53 Spyglass"
     },
     "items.add": {
       "Assembly": "Hex",
-      "Type": "eas",
-      "Member": "bbci",
+      "Type": "ebv",
+      "Member": "bbyb",
       "Status": "verified",
-      "Note": "0.81.04: eas.bbci(string sid, EListenerCallbackCall, int count = 1) → bool: on the backpack logic adds a new item at the end (spyglass shown in the hero's backpack); on the doll it throws (no ANY slot) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+      "Note": "0.81.04: eas.bbci(string sid, EListenerCallbackCall, int count = 1) → bool: on the backpack logic adds a new item at the end (spyglass shown in the hero's backpack); on the doll it throws (no ANY slot) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish | 0.82.07: remapped from eas.bbci by structure (type eas→ebv 0,90; bbci→bbyb calls 0,83 (next 0,18, order agrees) among 2 same signature); was verified | verified 0.82.07 2026-11-03: HE:A53 put the Spyglass in the backpack"
     },
     "items.move": {
       "Assembly": "Hex",
-      "Type": "eas",
+      "Type": "ebv",
       "Member": "Move",
       "Status": "verified",
-      "Note": "0.81.04: eas.Move(toType, toIndex, toContainer, fromType, fromIndex, callType) → bool: backpack ANY k → doll HEAD 0 put a head torch on, view radius 7 to 8; it does not check the slot type (a spyglass went onto HEAD) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+      "Note": "0.81.04: eas.Move(toType, toIndex, toContainer, fromType, fromIndex, callType) → bool: backpack ANY k → doll HEAD 0 put a head torch on, view radius 7 to 8; it does not check the slot type (a spyglass went onto HEAD) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish | 0.82.07: remapped from eas.Move by structure (type eas→ebv 0,90); was verified | verified 0.82.07 2026-11-03: HE:A1/22/0 moved the crown to the head"
     },
     "items.remove": {
       "Assembly": "Hex",
-      "Type": "eas",
-      "Member": "bbck",
+      "Type": "ebv",
+      "Member": "bbyd",
       "Status": "verified",
-      "Note": "0.81.04: eas.bbck(EType, int index, bool, EListenerCallbackCall) → bool with false, Real: removes the item at that slot (also from Data.items; the head torch's view radius bonus went away) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish"
+      "Note": "0.81.04: eas.bbck(EType, int index, bool, EListenerCallbackCall) → bool with false, Real: removes the item at that slot (also from Data.items; the head torch's view radius bonus went away) | verified 2026-10-07 (0.81.04) with WoG Debug peek/invoke in a skirmish | 0.82.07: remapped from eas.bbck by structure (type eas→ebv 0,90; bbck→bbyd calls 0,52 (next 0,33, order agrees) among 2 same signature); was verified | verified 0.82.07 2026-11-03: HE:A-53 removed the spyglass"
     },
     "herologic.stats": {
       "Assembly": "Hex",
-      "Type": "fdq",
-      "Member": "cnsj.chnt",
+      "Type": "fgc",
+      "Member": "cqdv.cjqi",
       "Status": "verified",
-      "Note": "0.81.04: Logic.Hero.chnt: HeroStat with every bonus (fdq.cuab holds the same) | verified 2026-10-08 (0.81.04) with WoG Debug peek: with Crown of the Supreme Magi worn intelligence 5 (the hero panel 5) while statsByLevel + type base give 1 and additionalStats 0"
+      "Note": "0.81.04: Logic.Hero.chnt: HeroStat with every bonus (fdq.cuab holds the same) | verified 2026-10-08 (0.81.04) with WoG Debug peek: with Crown of the Supreme Magi worn intelligence 5 (the hero panel 5) while statsByLevel + type base give 1 and additionalStats 0 | 0.82.07: remapped from fdq.cnsj.chnt by structure (type fdq→fgc 0,84; cnsj→cqdv unique signature; chnt→cjqi #2 of 2 same signature); was verified | verified 0.82.07 2026-11-03: knowledge 1 -> 5 with the crown"
     },
     "herologic.logic": {
       "Assembly": "Hex",
-      "Type": "fdq",
-      "Member": "cnsj",
+      "Type": "fgc",
+      "Member": "cqdv",
       "Status": "verified",
-      "Note": "0.81.04: fdq.cnsj = Hex.Session.Logic.Hero | verified 2026-10-08 (0.81.04) with WoG Debug invoke: after HE:F raised the growth of attack by 1, chnt.offence stayed 2 until baql(), then 3"
+      "Note": "0.81.04: fdq.cnsj = Hex.Session.Logic.Hero | verified 2026-10-08 (0.81.04) with WoG Debug invoke: after HE:F raised the growth of attack by 1, chnt.offence stayed 2 until baql(), then 3 | 0.82.07: remapped from fdq.cnsj by structure (type fdq→fgc 0,84; cnsj→cqdv unique signature); was verified | verified 0.82.07 2026-11-03: all hero logic paths above"
     },
     "herologic.recalc": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Logic.Hero",
-      "Member": "baql",
+      "Member": "bbmc",
       "Status": "verified",
-      "Note": "0.81.04: Logic.Hero.baql() (46 callers): recalculates the hero's total stats | verified 2026-10-08 (0.81.04) with WoG Debug invoke: after HE:F raised the growth of attack by 1, chnt.offence stayed 2 until baql(), then 3"
+      "Note": "0.81.04: Logic.Hero.baql() (46 callers): recalculates the hero's total stats | verified 2026-10-08 (0.81.04) with WoG Debug invoke: after HE:F raised the growth of attack by 1, chnt.offence stayed 2 until baql(), then 3 | 0.82.07: remapped from Hex.Session.Logic.Hero.baql by structure (baql→bbmc calls 0,56 (next 0,14, order agrees) among 4 same signature); was verified | verified 0.82.07 2026-11-03: the totals followed the crown at once"
     },
     "herologic.experience": {
       "Assembly": "Hex",
-      "Type": "fdq",
-      "Member": "cnsj.chnq",
+      "Type": "fgc",
+      "Member": "cqdv.cjqf",
       "Status": "verified",
-      "Note": "0.81.04: Logic.Hero.chnq: dze, the experience logic | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+      "Note": "0.81.04: Logic.Hero.chnq: dze, the experience logic | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish | 0.82.07: remapped from fdq.cnsj.chnq by structure (type fdq→fgc 0,84; cnsj→cqdv unique signature; chnq→cjqf unique signature); was verified | verified 0.82.07 2026-11-03: HE:Ed1100 gave level 2"
     },
     "experience.table": {
       "Assembly": "Hex",
-      "Type": "dyx",
-      "Member": "chmm",
+      "Type": "eab",
+      "Member": "cjpb",
       "Status": "verified",
-      "Note": "0.81.04: dyx (the base of dze, the hero's experience logic).chmm: int[] total experience by level from 1 (the hero type's expVariant); chmo is the last level, chmp its experience | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish: 50 levels, [0] 0, chmp 29750000 = exp_standard"
+      "Note": "0.81.04: dyx (the base of dze, the hero's experience logic).chmm: int[] total experience by level from 1 (the hero type's expVariant); chmo is the last level, chmp its experience | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish: 50 levels, [0] 0, chmp 29750000 = exp_standard | 0.82.07: remapped from dyx.chmm by structure (type dyx→eab 1,00; chmm→cjpb unique signature); was verified | verified 0.82.07 2026-11-03: WOG_GetExpRequirementOfLevel 13 -> 43 700 (as in 0.81.04)"
     },
     "experience.add": {
       "Assembly": "Hex",
-      "Type": "dze",
-      "Member": "barm",
+      "Type": "eai",
+      "Member": "bbnd",
       "Status": "verified",
-      "Note": "0.81.04: dze.barm(int gain, bool): +10 at currentExp 1000 → level 2, a level-up (bjhn, LevelUp.Init) and the game's level-up window | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+      "Note": "0.81.04: dze.barm(int gain, bool): +10 at currentExp 1000 → level 2, a level-up (bjhn, LevelUp.Init) and the game's level-up window | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish | 0.82.07: remapped from dze.barm by structure (type dze→eai 0,46; barm→bbnd unique signature); was verified | verified 0.82.07 2026-11-03: HE:Ed1100 raised level 1 -> 2 with the game's level-up window"
     },
     "hero.levelUpPool": {
       "Assembly": "Hex",
@@ -836,37 +836,37 @@
     "levelups.add": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Data.DataLevelUpPool",
-      "Member": "bjhn",
+      "Member": "bkro",
       "Status": "verified",
-      "Note": "0.81.04: bjhn(bool = false) → a new DataLevelUp (traced on a natural level-up) | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+      "Note": "0.81.04: bjhn(bool = false) → a new DataLevelUp (traced on a natural level-up) | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish | 0.82.07: remapped from Hex.Session.Data.DataLevelUpPool.bjhn by structure (bjhn→bkro unique signature); was verified | verified 0.82.07 2026-11-03: the HE:S raise queued the game's sub-skill choice"
     },
     "herologic.levelUps": {
       "Assembly": "Hex",
-      "Type": "fdq",
-      "Member": "cnsj.chnn",
+      "Type": "fgc",
+      "Member": "cqdv.cjqc",
       "Status": "verified",
-      "Note": "0.81.04: Logic.Hero.chnn: dzm, the level-up logic (chpk List<LevelUp>) | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+      "Note": "0.81.04: Logic.Hero.chnn: dzm, the level-up logic (chpk List<LevelUp>) | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish | 0.82.07: remapped from fdq.cnsj.chnn by structure (type fdq→fgc 0,84; cnsj→cqdv unique signature; chnn→cjqc unique signature); was verified | verified 0.82.07 2026-11-03: the same"
     },
     "levelups.register": {
       "Assembly": "Hex",
-      "Type": "dzm",
-      "Member": "baue",
+      "Type": "eaq",
+      "Member": "bbpu",
       "Status": "verified",
-      "Note": "0.81.04: dzm.baue(DataLevelUp, bool): makes its LevelUp (Init, stage queue); a level-up with only subSkillStage active (skill_luck, level 2) showed the three level-2 luck sub-skills | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+      "Note": "0.81.04: dzm.baue(DataLevelUp, bool): makes its LevelUp (Init, stage queue); a level-up with only subSkillStage active (skill_luck, level 2) showed the three level-2 luck sub-skills | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish | 0.82.07: remapped from dzm.baue by structure (type dzm→eaq 0,90; baue→bbpu unique signature); was verified | verified 0.82.07 2026-11-03: the same"
     },
     "levelups.show": {
       "Assembly": "Hex",
-      "Type": "dzm",
-      "Member": "bauh",
+      "Type": "eaq",
+      "Member": "bbpx",
       "Status": "verified",
-      "Note": "0.81.04: dzm.bauh(): shows the next pending level-up in the game's window (also called after each pick) | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+      "Note": "0.81.04: dzm.bauh(): shows the next pending level-up in the game's window (also called after each pick) | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish | 0.82.07: remapped from dzm.bauh by structure (type dzm→eaq 0,90; bauh→bbpx calls 0,78 (next 0,15, order says bbqc) among 6 same signature); was verified | verified 0.82.07 2026-11-03: the choice window showed"
     },
     "skilllogic.pickSub": {
       "Assembly": "Hex",
-      "Type": "eah",
-      "Member": "bayw",
-      "Status": "verified",
-      "Note": "0.81.04: eah.bayw(subSkillSid): the pick of a sub-skill (traced: LevelUp.batq → eah.bayw(sub_skill_luck_6) → PermanentActive) | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish"
+      "Type": "Hex.Session.Logic.HeroSkill",
+      "Member": "bbum",
+      "Status": "remapped",
+      "Note": "0.81.04: eah.bayw(subSkillSid): the pick of a sub-skill (traced: LevelUp.batq → eah.bayw(sub_skill_luck_6) → PermanentActive) | verified 2026-10-08 (0.81.04) with WoG Debug invoke/set and method traces in a skirmish | 0.82.07: remapped from eah.bayw by structure (type eah→Hex.Session.Logic.HeroSkill 0,96; bayw→bbum unique signature); was verified | 0.82.07 2026-11-03: resolves; not yet exercised in the game (WoG Debug allows it, normal play keeps it off)"
     },
     "town.class": {
       "Assembly": "Hex",
@@ -906,9 +906,9 @@
     "town.buildings": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Data.ObjCity",
-      "Member": "buildings.cniw",
+      "Member": "buildings.cpug",
       "Status": "verified",
-      "Note": "0.81.04: List<BuildingData>, 20 for a human city (Build_Main level 2, Build_Wall level 1 isConstructed False…) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: List<BuildingData>, 20 for a human city (Build_Main level 2, Build_Wall level 1 isConstructed False…) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from Hex.Session.Data.ObjCity.buildings.cniw by structure (cniw→cpug #1 of 2 same signature); was verified | verified 0.82.07 2026-11-03: \"town 0\" lists the built buildings"
     },
     "building.sid": {
       "Assembly": "Hex",
@@ -982,101 +982,101 @@
     },
     "world.objectLogics": {
       "Assembly": "Hex",
-      "Type": "dbx",
-      "Member": "me.cfjj.cnmf.cozn",
+      "Type": "dcy",
+      "Member": "me.chlt.cpxq.crks",
       "Status": "verified",
-      "Note": "0.81.04: Dictionary<int, fnt>: map object id → its logic (213 on the test map; 3 → fmr, the city logic) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: Dictionary<int, fnt>: map object id → its logic (213 on the test map; 3 → fmr, the city logic) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from dbx.me.cfjj.cnmf.cozn by structure (type dbx→dcy 0,79; cfjj→chlt unique signature; cnmf→cpxq unique signature; cozn→crks unique signature); was verified | verified 0.82.07 2026-11-03: the city logic is found for construction (fort built)"
     },
     "citylogic.buildings": {
       "Assembly": "Hex",
-      "Type": "fmr",
-      "Member": "covs",
+      "Type": "fph",
+      "Member": "crgw",
       "Status": "verified",
-      "Note": "0.81.04: fmr.covs: egz, the buildings logic of a city | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: fmr.covs: egz, the buildings logic of a city | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from fmr.covs by structure (type fmr→fph 0,75; covs→crgw unique signature); was verified | verified 0.82.07 2026-11-03: CA:B1/7 built the fort"
     },
     "buildings.construct": {
       "Assembly": "Hex",
-      "Type": "egz",
-      "Member": "bdkr",
+      "Type": "eie",
+      "Member": "bejd",
       "Status": "verified",
-      "Note": "0.81.04: egz.bdkr(String sid, Int32 level): the player's construction — Build_Wall 1 became constructed, 2500 gold and 5 ore were taken, todaysConstructionsCount 0 → 1 | verified 2026-10-08 (0.81.04) with WoG Debug invoke in a skirmish"
+      "Note": "0.81.04: egz.bdkr(String sid, Int32 level): the player's construction — Build_Wall 1 became constructed, 2500 gold and 5 ore were taken, todaysConstructionsCount 0 → 1 | verified 2026-10-08 (0.81.04) with WoG Debug invoke in a skirmish | 0.82.07: remapped from egz.bdkr by structure (type egz→eie 0,39; bdkr→bejd unique signature); was verified | verified 0.82.07 2026-11-03: CA:B1/7 built the fort (B3/7 0 -> 1); resources unchanged in the data and the top bar after the fix"
     },
     "loc.text": {
       "Assembly": "Hex",
-      "Type": "it",
-      "Member": "iap",
+      "Type": "iv",
+      "Member": "ihh",
       "Status": "verified",
-      "Note": "0.81.04: static it.iap(key) → localized text; \"LOC:key\" when there is none | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: static it.iap(key) → localized text; \"LOC:key\" when there is none | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from it.iap by structure (type it→iv 1,00; iap→ihh unique signature); was verified | verified 0.82.07 2026-11-03: town and hero names («Гелиотроп», «Истр»)"
     },
     "citylogic.income": {
       "Assembly": "Hex",
-      "Type": "fmr",
-      "Member": "bmcz",
+      "Type": "fph",
+      "Member": "bnny",
       "Status": "verified",
-      "Note": "0.81.04: fmr.bmcz() → Dictionary<string,int> {gold 1250, gemstones 1, dust 5} for the player's human city | verified 2026-10-08 (0.81.04) with WoG Debug invoke in a skirmish"
+      "Note": "0.81.04: fmr.bmcz() → Dictionary<string,int> {gold 1250, gemstones 1, dust 5} for the player's human city | verified 2026-10-08 (0.81.04) with WoG Debug invoke in a skirmish | 0.82.07: remapped from fmr.bmcz by structure (type fmr→fph 0,75; bmcz→bnny unique signature); was verified | verified 0.82.07 2026-11-03: income 1250 / 750 in \"town 0\""
     },
     "citylogic.guildSpells": {
       "Assembly": "Hex",
-      "Type": "fmr",
-      "Member": "bmdd",
+      "Type": "fph",
+      "Member": "bnoc",
       "Status": "verified",
-      "Note": "0.81.04: fmr.bmdd(int level 1..5) → List<string> spell sids (7 at level 1 of a level-1 guild, 0 at level 2) | verified 2026-10-08 (0.81.04) with WoG Debug invoke in a skirmish"
+      "Note": "0.81.04: fmr.bmdd(int level 1..5) → List<string> spell sids (7 at level 1 of a level-1 guild, 0 at level 2) | verified 2026-10-08 (0.81.04) with WoG Debug invoke in a skirmish | 0.82.07: remapped from fmr.bmdd by structure (type fmr→fph 0,75; bmdd→bnoc unique signature); was verified | verified 0.82.07 2026-11-03: CA:G0 gives 7 level-1 guild spells (42, 53, ...)"
     },
     "loc.entries": {
       "Assembly": "Hex",
-      "Type": "it",
-      "Member": "btdt.cafu",
+      "Type": "iv",
+      "Member": "buvm.cccn",
       "Status": "verified",
-      "Note": "0.81.04: static it.btdt (cad, language russian).cafu: Dictionary<string, cae>, 13991 entries | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: static it.btdt (cad, language russian).cafu: Dictionary<string, cae>, 13991 entries | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from it.btdt.cafu by structure (type it→iv 1,00; btdt→buvm unique signature; cafu→cccn unique signature); was verified | verified 0.82.07 2026-11-03: CA:N renamed the town to «Тест WoG»"
     },
     "locentry.key": {
       "Assembly": "Hex",
-      "Type": "cae",
-      "Member": "cafy",
+      "Type": "cax",
+      "Member": "cccw",
       "Status": "verified",
-      "Note": "0.81.04: cae.cafy = the key (human_city_name_16); the type has a parameterless constructor | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: cae.cafy = the key (human_city_name_16); the type has a parameterless constructor | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from cae.cafy by structure (type cae→cax 0,73; cafy→cccw #1 of 2 same signature); was verified | verified 0.82.07 2026-11-03: the same"
     },
     "locentry.text": {
       "Assembly": "Hex",
-      "Type": "cae",
-      "Member": "cafz",
+      "Type": "cax",
+      "Member": "cccx",
       "Status": "verified",
-      "Note": "0.81.04: cae.cafz = the text (Кузня Сердца) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: cae.cafz = the text (Кузня Сердца) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from cae.cafz by structure (type cae→cax 0,73; cafz→cccx #2 of 2 same signature); was verified | verified 0.82.07 2026-11-03: the same"
     },
     "locentry.args": {
       "Assembly": "Hex",
-      "Type": "cae",
-      "Member": "caga",
+      "Type": "cax",
+      "Member": "cccy",
       "Status": "verified",
-      "Note": "0.81.04: cae.caga = Il2CppStringArray of format arguments (empty for a city name) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: cae.caga = Il2CppStringArray of format arguments (empty for a city name) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from cae.caga by structure (type cae→cax 0,73; caga→cccy unique signature); was verified | verified 0.82.07 2026-11-03: the same"
     },
     "object.setOwner": {
       "Assembly": "Hex",
-      "Type": "fnt",
-      "Member": "bmiq",
+      "Type": "fqk",
+      "Member": "bntp",
       "Status": "verified",
-      "Note": "0.81.04: fnt.bmiq(int side): a neutral city (map id 4) given to side 0 got ownerSide 0, joined the player's town list, opened its view radius and raised the daily income | verified 2026-10-08 (0.81.04) with WoG Debug invoke in a skirmish"
+      "Note": "0.81.04: fnt.bmiq(int side): a neutral city (map id 4) given to side 0 got ownerSide 0, joined the player's town list, opened its view radius and raised the daily income | verified 2026-10-08 (0.81.04) with WoG Debug invoke in a skirmish | 0.82.07: remapped from fnt.bmiq by structure (type fnt→fqk 0,83; bmiq→bntp calls 0,60 (next 0,17, order agrees) among 3 same signature); was verified | verified 0.82.07 2026-11-03: MN35/69/0:O0 gave the gold mine to player 0"
     },
     "hero.typeConfig": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Data.Hero",
-      "Member": "cnih",
+      "Member": "cptr",
       "Status": "verified",
-      "Note": "0.81.04: Hero.cnih: HeroConfig of the hero type (human_hero_1: fraction human, classType might) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: Hero.cnih: HeroConfig of the hero type (human_hero_1: fraction human, classType might) | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from Hex.Session.Data.Hero.cnih by structure (cnih→cptr #1 of 2 same signature); was verified | verified 0.82.07 2026-11-03: name «Истр», class 0"
     },
     "heroconfig.nameKey": {
       "Assembly": "Hex",
       "Type": "Hex.Configs.HeroConfig",
-      "Member": "cswm",
+      "Member": "cvns",
       "Status": "verified",
-      "Note": "0.81.04: the name key human_hero_1 (it.iap → «Истр»); the config field name is empty | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: the name key human_hero_1 (it.iap → «Истр»); the config field name is empty | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from Hex.Configs.HeroConfig.cswm by structure (cswm→cvns #1 of 7 same signature); was verified | verified 0.82.07 2026-11-03: HE:B0 gives «Истр»"
     },
     "heroconfig.bioKey": {
       "Assembly": "Hex",
       "Type": "Hex.Configs.HeroConfig",
-      "Member": "cswo",
+      "Member": "cvnu",
       "Status": "verified",
-      "Note": "0.81.04: the biography key human_hero_1_description | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: the biography key human_hero_1_description | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from Hex.Configs.HeroConfig.cswo by structure (cswo→cvnu #3 of 7 same signature); was verified | verified 0.82.07 2026-11-03: HE:B3 gives the full biography of Истр"
     },
     "heroconfig.fraction": {
       "Assembly": "Hex",
@@ -1095,9 +1095,9 @@
     "hero.specialization": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Data.Hero",
-      "Member": "specialization.cnka",
+      "Member": "specialization.cpvk",
       "Status": "verified",
-      "Note": "0.81.04: HeroSpecialization (sid human_hero_1_specialization).cnka: SpecializationConfig | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish"
+      "Note": "0.81.04: HeroSpecialization (sid human_hero_1_specialization).cnka: SpecializationConfig | verified 2026-10-08 (0.81.04) with WoG Debug peek in a skirmish | 0.82.07: remapped from Hex.Session.Data.Hero.specialization.cnka by structure (cnka→cpvk #1 of 2 same signature); was verified | verified 0.82.07 2026-11-03: specialty Логистика"
     },
     "spec.bonuses": {
       "Assembly": "Hex",
@@ -1157,24 +1157,24 @@
     },
     "battle.logic": {
       "Assembly": "Hex",
-      "Type": "elb",
-      "Member": "ckia.ckic",
+      "Type": "emh",
+      "Member": "cmlp.cmlr",
       "Status": "verified",
-      "Note": "0.81.04: elb.ckia: the battle controller instance (static), .ckic: eor, the battle logic (null outside battles) | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+      "Note": "0.81.04: elb.ckia: the battle controller instance (static), .ckic: eor, the battle logic (null outside battles) | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set | 0.82.07: remapped from elb.ckia.ckic by structure (type elb→emh 0,94; ckia→cmlp unique signature; ckic→cmlr unique signature); was verified | verified 0.82.07 2026-11-03: arena battle: \"battle triggers on (11 battle events)\""
     },
     "battle.objects": {
       "Assembly": "Hex",
-      "Type": "eor",
-      "Member": "clgt.ckzg",
+      "Type": "epx",
+      "Member": "cnkk.cncx",
       "Status": "verified",
-      "Note": "0.81.04: enj.ckzg: List<FieldObject>, the 6 units in placement order (attacker slots 0,1,2, defender 0,1,2); eor.clhe.cmgo is the turn queue | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+      "Note": "0.81.04: enj.ckzg: List<FieldObject>, the 6 units in placement order (attacker slots 0,1,2, defender 0,1,2); eor.clhe.cmgo is the turn queue | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set | 0.82.07: remapped from eor.clgt.ckzg by structure (type eor→epx 0,49; clgt→cnkk unique signature; ckzg→cncx unique signature); was verified | verified 0.82.07 2026-11-03: BM0: count 31, type 1040, hit points 60 (the drafted Concubines)"
     },
     "battle.current": {
       "Assembly": "Hex",
-      "Type": "eor",
-      "Member": "clhe.current",
+      "Type": "epx",
+      "Member": "cnkv.current",
       "Status": "verified",
-      "Note": "0.81.04: eup.current: the unit whose turn it is | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+      "Note": "0.81.04: eup.current: the unit whose turn it is | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set | 0.82.07: remapped from eor.clhe.current by structure (type eor→epx 0,49; clhe→cnkv unique signature); was verified | verified 0.82.07 2026-11-03: map battle: BG:N gives 2, the griffins whose turn it was"
     },
     "bunit.class": {
       "Assembly": "Hex",
@@ -1186,142 +1186,163 @@
     "bunit.sid": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Battle.FieldObject",
-      "Member": "ckyo",
+      "Member": "cncf",
       "Status": "verified",
-      "Note": "0.81.04: griffin, esquire_upg… | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+      "Note": "0.81.04: griffin, esquire_upg… | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set | 0.82.07: remapped from Hex.Session.Battle.FieldObject.ckyo by structure (ckyo→cncf unique signature); was verified | verified 0.82.07 2026-11-03: battle event targets elf_tracker_upg_alt, twinkle_upg, lich_upg_alt"
     },
     "bunit.side": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Battle.FieldObject",
-      "Member": "ckys.clxl",
+      "Member": "cncj.cocn",
       "Status": "verified",
-      "Note": "0.81.04: esw.clxl: 0 attacker, 1 defender (esw.clxo: TransferSide) | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+      "Note": "0.81.04: esw.clxl: 0 attacker, 1 defender (esw.clxo: TransferSide) | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set | 0.82.07: remapped from Hex.Session.Battle.FieldObject.ckys.clxl by structure (ckys→cncj #2 of 2 same signature; clxl→cocn #1 of 7 same signature); was verified | verified 0.82.07 2026-11-03: battle actions report side 0 / 1 per stack"
     },
     "bunit.data": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Battle.Unit",
-      "Member": "cmwp",
+      "Member": "cpgj",
       "Status": "verified",
-      "Note": "0.81.04: UnitData: ctxq count, fullStacks, cnbx top creature's hit points, ctxt total hit points | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+      "Note": "0.81.04: UnitData: ctxq count, fullStacks, cnbx top creature's hit points, ctxt total hit points | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set | 0.82.07: remapped from Hex.Session.Battle.Unit.cmwp by structure (cmwp→cpgj unique signature); was verified | verified 0.82.07 2026-11-03: BM0:N 31, BM0:L 0"
     },
     "bunit.army": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Battle.Unit",
-      "Member": "cmwm",
+      "Member": "cpgg",
       "Status": "verified",
-      "Note": "0.81.04: TransferUnit: configSid, stacks (count at the start), slotPos | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+      "Note": "0.81.04: TransferUnit: configSid, stacks (count at the start), slotPos | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set | 0.82.07: remapped from Hex.Session.Battle.Unit.cmwm by structure (cmwm→cpgg unique signature); was verified | verified 0.82.07 2026-11-03: stack numbers follow the army slots: BM0 is the first drafted stack (31)"
     },
     "bunit.stats": {
       "Assembly": "Hex",
-      "Type": "eng",
+      "Type": "eom",
       "Member": "stats",
       "Status": "verified",
-      "Note": "0.81.04: UnitStat totals (griffin: offence 9, defence 9, hp 30, speed 5, damage 5-9), recalculated by the game | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+      "Note": "0.81.04: UnitStat totals (griffin: offence 9, defence 9, hp 30, speed 5, damage 5-9), recalculated by the game | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set | 0.82.07: remapped from eng.stats by structure (type eng→eom 0,54); was verified | verified 0.82.07 2026-11-03: BM0:H 60"
     },
     "bunit.mods": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Battle.Unit",
-      "Member": "cmws",
+      "Member": "cpgm",
       "Status": "verified",
-      "Note": "0.81.04: UnitStat battle modifier, all 0 at the start; offence +11 made the total 20 after the next recalculation | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set"
+      "Note": "0.81.04: UnitStat battle modifier, all 0 at the start; offence +11 made the total 20 after the next recalculation | verified 2026-10-08 (0.81.04) in a manual battle (Istr against 3 stacks of knights) with WoG Debug peek/set | 0.82.07: remapped from Hex.Session.Battle.Unit.cmws by structure (cmws→cpgm #1 of 2 same signature); was verified | verified 0.82.07 2026-11-03: map battle: BM0:A10 then BM0:A read 10 (was 5)"
     },
     "bunit.config": {
       "Assembly": "Hex",
       "Type": "Hex.Session.Battle.Unit",
-      "Member": "cmwn",
+      "Member": "cpgh",
       "Status": "verified",
-      "Note": "0.81.04: UnitLogicConfig: ai (range_type / melee_type), defaultAttacks[] (AbilityLogicConfig.attackType_ shoot / melee), alternativeAttacks, counterAttacks, abilities | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+      "Note": "0.81.04: UnitLogicConfig: ai (range_type / melee_type), defaultAttacks[] (AbilityLogicConfig.attackType_ shoot / melee), alternativeAttacks, counterAttacks, abilities | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents | 0.82.07: remapped from Hex.Session.Battle.Unit.cmwn by structure (cmwn→cpgh unique signature); was verified | verified 0.82.07 2026-11-03: attacks classified: shot 7, hero spell 1"
+    },
+    "bdata.count": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Battle.UnitData",
+      "Member": "cwqk",
+      "Status": "verified",
+      "Note": "0.81.04: UnitData.ctxq = creatures in the stack (fullStacks + 1) | verified 2026-10-08 with BM (BM:N read the battle's count); was hard-coded in OldenEraGameAdapter until 2026-11-03 | 0.82.07: remapped from Hex.Session.Battle.UnitData.ctxq by structure (ctxq→cwqk #12 of 15 same signature); was verified | verified 0.82.07 2026-11-03: BM0:N 31 = the first drafted stack"
+    },
+    "bdata.topHp": {
+      "Assembly": "Hex",
+      "Type": "Hex.Session.Battle.UnitData",
+      "Member": "cplr",
+      "Status": "verified",
+      "Note": "0.81.04: UnitData.cnbx = hit points left of the top creature | verified 2026-10-08 with BM:L; was hard-coded in OldenEraGameAdapter until 2026-11-03 | 0.82.07: remapped from Hex.Session.Battle.UnitData.cnbx by structure (cnbx→cplr #7 of 15 same signature); was verified | verified 0.82.07 2026-11-03: BM0:L 0 at the battle start"
+    },
+    "battle.eventBuses": {
+      "Assembly": "Hex",
+      "Type": "epx",
+      "Member": "cnkq",
+      "Status": "verified",
+      "Note": "0.81.04: eor.clgz = ena, the container of the battle's event buses (cksd enb, ckse enc) | used by WoG Debug battleevents since 2026-10-08; was hard-coded until 2026-11-03 | 0.82.07: remapped from eor.clgz by structure (type eor→epx 0,49; clgz→cnkq unique signature); was verified | verified 0.82.07 2026-11-03: battleevents subscribed to 144 events"
     },
     "battle.events": {
       "Assembly": "Hex",
-      "Type": "eor",
-      "Member": "clgz.cksd",
+      "Type": "epx",
+      "Member": "cnkq.cmvs",
       "Status": "verified",
-      "Note": "0.81.04: ena.cksd: enb, the logic event bus (ena.ckse: enc raises the same for the view) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+      "Note": "0.81.04: ena.cksd: enb, the logic event bus (ena.ckse: enc raises the same for the view) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents | 0.82.07: remapped from eor.clgz.cksd by structure (type eor→epx 0,49; clgz→cnkq unique signature; cksd→cmvs unique signature); was verified | verified 0.82.07 2026-11-03: 11 events subscribed; the tracker logged round, actions and damage"
     },
     "battleevent.roundStart": {
       "Assembly": "Hex",
-      "Type": "enb",
-      "Member": "ckso",
+      "Type": "eoi",
+      "Member": "cmwd",
       "Status": "verified",
-      "Note": "0.81.04: BattleEventArgs roundNumber 1 at the first round, 2 at the second; target = the first unit | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+      "Note": "0.81.04: BattleEventArgs roundNumber 1 at the first round, 2 at the second; target = the first unit | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents | 0.82.07: remapped from enb.ckso by structure (type enb→eoi 0,90; ckso→cmwd #10 of 54 same signature); was verified | verified 0.82.07 2026-11-03: \"battle round 0\" at the first round"
     },
     "battleevent.turnStart": {
       "Assembly": "Hex",
-      "Type": "enb",
-      "Member": "cksj",
+      "Type": "eoi",
+      "Member": "cmvy",
       "Status": "verified",
-      "Note": "0.81.04: BattleEventArgs target = the unit whose turn starts — every turn, also the second one after waiting (cksi fires only on a fresh turn, cksx on the turn after waiting, cksl after a hero's spell too) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+      "Note": "0.81.04: BattleEventArgs target = the unit whose turn starts — every turn, also the second one after waiting (cksi fires only on a fresh turn, cksx on the turn after waiting, cksl after a hero's spell too) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents | 0.82.07: remapped from enb.cksj by structure (type enb→eoi 0,90; cksj→cmvy #5 of 54 same signature); was verified | verified 0.82.07 2026-11-03: each unit's turn opened its action (probe: cmvy per turn)"
     },
     "battleevent.turnEnd": {
       "Assembly": "Hex",
-      "Type": "enb",
-      "Member": "cksn",
+      "Type": "eoi",
+      "Member": "cmwc",
       "Status": "verified",
-      "Note": "0.81.04: BattleEventArgs target = the unit whose turn ended | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+      "Note": "0.81.04: BattleEventArgs target = the unit whose turn ended | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents | 0.82.07: remapped from enb.cksn by structure (type enb→eoi 0,90; cksn→cmwc #9 of 54 same signature); was verified | verified 0.82.07 2026-11-03: probe: cmwc after every action"
     },
     "battleevent.move": {
       "Assembly": "Hex",
-      "Type": "enb",
-      "Member": "cktd",
+      "Type": "eoi",
+      "Member": "cmws",
       "Status": "verified",
-      "Note": "0.81.04: UnitStartedMovementEventArgs target = the moving unit (path, pathLength) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+      "Note": "0.81.04: UnitStartedMovementEventArgs target = the moving unit (path, pathLength) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents | 0.82.07: remapped from enb.cktd by structure (type enb→eoi 0,90; cktd→cmws #25 of 54 same signature); was verified | verified 0.82.07 2026-11-03: \"battle action 2\" (walk) of enemy stacks"
     },
     "battleevent.cast": {
       "Assembly": "Hex",
-      "Type": "enb",
-      "Member": "ckts",
+      "Type": "eoi",
+      "Member": "cmxh",
       "Status": "verified",
-      "Note": "0.81.04: CastAbilityEventArgs caster, abilityID {abilityType, indexInArray}, attackedObjects — a crossbowman's shot | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+      "Note": "0.81.04: CastAbilityEventArgs caster, abilityID {abilityType, indexInArray}, attackedObjects — a crossbowman's shot | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents | 0.82.07: remapped from enb.ckts by structure (type enb→eoi 0,90; ckts→cmxh #40 of 54 same signature); was verified | verified 0.82.07 2026-11-03: \"battle action 7 of stack 21, target 3\" (shot)"
     },
     "battleevent.castEnd": {
       "Assembly": "Hex",
-      "Type": "enb",
-      "Member": "cktt",
+      "Type": "eoi",
+      "Member": "cmxi",
       "Status": "verified",
-      "Note": "0.81.04: CastAbilityEventArgs caster — the ability or attack has ended (its damage, cksq, comes before; a retaliation follows as its own ckts … cktt) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+      "Note": "0.81.04: CastAbilityEventArgs caster — the ability or attack has ended (its damage, cksq, comes before; a retaliation follows as its own ckts … cktt) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents | 0.82.07: remapped from enb.cktt by structure (type enb→eoi 0,90; cktt→cmxi #41 of 54 same signature); was verified | verified 0.82.07 2026-11-03: probe: cmxi closes each attack"
     },
     "battleevent.defend": {
       "Assembly": "Hex",
-      "Type": "enb",
-      "Member": "cksv",
+      "Type": "eoi",
+      "Member": "cmwk",
       "Status": "verified",
-      "Note": "0.81.04: BattleEventArgs target = the unit that skipped its turn (the shield button «Пропустить ход», H3's defend), before its turn ends (cksn) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+      "Note": "0.81.04: BattleEventArgs target = the unit that skipped its turn (the shield button «Пропустить ход», H3's defend), before its turn ends (cksn) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents | 0.82.07: remapped from enb.cksv by structure (type enb→eoi 0,90; cksv→cmwk #17 of 54 same signature); was verified | verified 0.82.07 2026-11-03: skip turn of twinkle_upg: cmwk, \"battle action 3\""
     },
     "battleevent.wait": {
       "Assembly": "Hex",
-      "Type": "enb",
-      "Member": "cksw",
+      "Type": "eoi",
+      "Member": "cmwl",
       "Status": "verified",
-      "Note": "0.81.04: BattleEventArgs target = the unit that waits (the hourglass button), before its turn ends (cksn); it acts again later in the round (cksj, cksx) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+      "Note": "0.81.04: BattleEventArgs target = the unit that waits (the hourglass button), before its turn ends (cksn); it acts again later in the round (cksj, cksx) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents | 0.82.07: remapped from enb.cksw by structure (type enb→eoi 0,90; cksw→cmwl #18 of 54 same signature); was verified | verified 0.82.07 2026-11-03: \"battle action 8\" (wait)"
     },
     "battleevent.magicStart": {
       "Assembly": "Hex",
-      "Type": "enb",
-      "Member": "cktn",
+      "Type": "eoi",
+      "Member": "cmxc",
       "Status": "verified",
-      "Note": "0.81.04: CastMagicEventArgs casterSide, attackedObjects, castedMagic — a hero's spell (Bless) during a unit's turn; the unit acts after it (cksl) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+      "Note": "0.81.04: CastMagicEventArgs casterSide, attackedObjects, castedMagic — a hero's spell (Bless) during a unit's turn; the unit acts after it (cksl) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents | 0.82.07: remapped from enb.cktn by structure (type enb→eoi 0,90; cktn→cmxc #35 of 54 same signature); was verified | verified 0.82.07 2026-11-03: \"battle action 1 of stack 27\" (enemy hero spell)"
     },
     "battleevent.magicEnd": {
       "Assembly": "Hex",
-      "Type": "enb",
-      "Member": "cktm",
+      "Type": "eoi",
+      "Member": "cmxb",
       "Status": "verified",
-      "Note": "0.81.04: CastMagicEventArgs — a hero's spell has ended | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+      "Note": "0.81.04: CastMagicEventArgs — a hero's spell has ended | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents | 0.82.07: remapped from enb.cktm by structure (type enb→eoi 0,90; cktm→cmxb #34 of 54 same signature); was verified | verified 0.82.07 2026-11-03: map battle: Bless by the hero raised !?BG0 and !?BG1 (action 1, stack 2, target 0)"
     },
     "battleevent.damage": {
       "Assembly": "Hex",
-      "Type": "enb",
-      "Member": "cksq",
+      "Type": "eoi",
+      "Member": "cmwf",
       "Status": "verified",
-      "Note": "0.81.04: ObjectTookDamageEventArgs target = the unit hit, damage 16, stacksDestroyed 1 (after the damage is dealt) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents"
+      "Note": "0.81.04: ObjectTookDamageEventArgs target = the unit hit, damage 16, stacksDestroyed 1 (after the damage is dealt) | verified 2026-10-08 (0.81.04) in a manual battle with WoG Debug battleevents | 0.82.07: remapped from enb.cksq by structure (type enb→eoi 0,90; cksq→cmwf #12 of 54 same signature); was verified | verified 0.82.07 2026-11-03: \"battle damage 416 / 353 to stack 3\""
     },
     "input.hotkeys": {
       "Assembly": "Hex",
-      "Type": "cov",
+      "Type": "cpv",
       "Member": "instance.canProcessHotkeys",
       "Status": "verified",
-      "Note": "0.81.04: cov.instance (static) .canProcessHotkeys (bool, true in the main menu and on the map). The game's hotkeys are Hex.InputSys.EInputAction bound by a JSON TextAsset in resources.assets (JsonBindingContainer: QuickSave F5, QuickLoad F9, BugReport F1, CheatPanel F2, FlyTrailer F7, most letters) | verified 2026-10-08 (0.81.04) with WoG Debug peek"
+      "Note": "0.81.04: cov.instance (static) .canProcessHotkeys (bool, true in the main menu and on the map). The game's hotkeys are Hex.InputSys.EInputAction bound by a JSON TextAsset in resources.assets (JsonBindingContainer: QuickSave F5, QuickLoad F9, BugReport F1, CheatPanel F2, FlyTrailer F7, most letters) | verified 2026-10-08 (0.81.04) with WoG Debug peek | 0.82.07: remapped from cov.instance.canProcessHotkeys by structure (type cov→cpv 1,00); was verified | verified 0.82.07 2026-11-03: reads True on the adventure map"
     }
   }
 }

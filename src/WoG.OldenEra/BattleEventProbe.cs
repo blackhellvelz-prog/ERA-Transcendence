@@ -8,9 +8,10 @@ using Il2CppInterop.Runtime.InteropTypes;
 namespace WoG.OldenEra;
 
 /// <summary>
-/// WoG Debug "battleevents": subscribes to every event of the battle's event buses (eor.clgz → ena: cksd enb,
-/// ckse enc — fields of EventHandler&lt;BattleEventArgs&gt;) and logs which fire, with the round, the target and the
-/// arguments — to tell the round start, a unit's turn, damage… apart while reverse engineering. Debug only.
+/// WoG Debug "battleevents": subscribes to every event of the battle's event buses (symbol battle.eventBuses — in
+/// 0.81.04 eor.clgz → ena with the buses cksd enb and ckse enc, fields of EventHandler&lt;BattleEventArgs&gt;) and logs
+/// which fire, with the round, the target and the arguments — to tell the round start, a unit's turn, damage… apart
+/// while reverse engineering. Debug only.
 /// </summary>
 internal static class BattleEventProbe
 {
@@ -23,11 +24,15 @@ internal static class BattleEventProbe
         if (a == "clear") { Log.Clear(); return "cleared"; }
         var sym = WoGPlugin.Symbols!;
         if (!sym.Has("battle.logic") || sym.Read("battle.logic", null) is not { } logic) return "not in battle";
-        var buses = MethodTrace.Real(OldenEraSymbols.ReadMember(MethodTrace.Real(logic), "clgz")!);
+        if (!sym.Has("battle.eventBuses")) return "symbol battle.eventBuses is not verified";
+        var buses = MethodTrace.Real(sym.Read("battle.eventBuses", MethodTrace.Real(logic))!);
         int n = 0;
-        foreach (var name in new[] { "cksd", "ckse" })
+        // every bus of the container: the objects whose properties are EventHandler<…>
+        foreach (var busProp in buses.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                     .Where(p => p.PropertyType.GetProperties().Any(x => x.PropertyType.Name.StartsWith("EventHandler`1", StringComparison.Ordinal))))
         {
-            var bus = MethodTrace.Real(OldenEraSymbols.ReadMember(buses, name)!);
+            if (busProp.GetValue(buses) is not { } busObj) continue;
+            var bus = MethodTrace.Real(busObj);
             foreach (var prop in bus.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
                          .Where(p => p.PropertyType.Name.StartsWith("EventHandler`1", StringComparison.Ordinal) && p.CanWrite))
             {
@@ -54,7 +59,9 @@ internal static class BattleEventProbe
                 if (real.GetType().GetProperty("target")?.GetValue(real) is { } t)
                 {
                     var rt = MethodTrace.Real(t);
-                    target = rt.GetType().GetProperty("ckyo")?.GetValue(rt) as string ?? rt.GetType().Name;
+                    var sym = WoGPlugin.Symbols!;
+                    target = (sym.Has("bunit.sid") && sym.TypeOf("bunit.sid").IsInstanceOfType(rt) ? sym.Read("bunit.sid", rt) as string : null)
+                             ?? rt.GetType().Name;
                 }
                 string line = $"{Label}: {real.GetType().Name} round {real.GetType().GetProperty("roundNumber")?.GetValue(real)} target {target} | {MethodTrace.Describe(real)}";
                 Log.Add(line);
