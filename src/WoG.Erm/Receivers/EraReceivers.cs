@@ -902,8 +902,8 @@ public sealed class SnReceiver : ErmReceiverBase
     // ---- SN:H -----------------------------------------------------------------------------------
 
     public const string HintsNote =
-        "SN:H — hints of map objects (squares, types) and the texts of the H3 tables (hero specialties, secondary skills, creature names, artifacts, spells): kept with the WoG state like Era's save and read back (UN:N reads them too); Olden Era's map and windows do not show them yet";
-    public const string HintsNotShown = "SN:H — the hint or text is kept with the WoG state and read back, but Olden Era does not show it yet";
+        "SN:H — hints of map objects (squares, types; shown in Olden Era's map tooltip in place of the object's name (objects that have one: resource piles; buildings and monsters have none)) and the texts of the H3 tables (hero specialties, secondary skills, creature names, artifacts, spells: kept with the WoG state like Era's save and read back, UN:N reads them too; Olden Era's windows do not show them yet)";
+    public const string TextsNotShown = "SN:H — the text is kept with the WoG state and read back, but Olden Era's windows do not show it yet";
 
     /// <summary>AdvErm.SN_H: SN:H^section^/…/text, "-section" deletes the hint.</summary>
     static void H(ErmCall c)
@@ -927,7 +927,8 @@ public sealed class SnReceiver : ErmReceiverBase
         {
             if (delete) { section.Remove(code); return; }
             section[code] = AssignStr(c, last, section.TryGetValue(code, out var old) ? old : "");
-            throw new ErmUnsupportedException(HintsNotShown);
+            // an object's hint shows in the map tooltip (MapHints); a table's text no Olden Era window shows yet
+            if (name != "object") throw new ErmUnsupportedException(TextsNotShown);
         }
 
         if (name == "object")

@@ -1168,3 +1168,25 @@ buses and logs them) `[V-game]`:
   (IF:G)», «Школы Магической стрелы (UN:C)», «Описание артефакта (SN:H^art^)», «Подсказка шахт (SN:H^object^)»,
   «Подсказка клетки героя (OB:H)».
 * 309 tests (+2).
+
+## 2026-11-03 — session 3, continued: WoG hints in Olden Era's map tooltip
+
+* **RE in the game** (WoG Debug traces of `Hex.UI.Tooltips.BhTooltip`): over a map object Olden Era sets the
+  tooltip's texts with `vzp(header, subheader, content, extra, false, null)` ("Дерево", "", "Даёт дерево: 4-6.", …),
+  then shows it with `Show(Camera, GameObject, Single)` over the object's model. The trace now prints a Unity
+  object's name, world position and parents (`UnityObjects`): the model `resource_wood` at (4, 0.61, 21) of an 80×80
+  map is the wood pile at H3 44/18 — the model's name is the object's sid, its world x/z the node minus half the map
+  size. Buildings (a mine, a tower) and monsters (skulls and difficulty) have no such name line.
+* **Symbols:** `ui.tooltipShowAt` = `BhTooltip.Show(Camera,GameObject,Single)` and `ui.tooltipHeader` =
+  `BhTooltip.header` (not obfuscated); the registry takes a method with its parameter types in `Member` for
+  overloads (`OldenEraSymbols.Overload`).
+* **`MapObjectHint`** (a prefix of `ui.tooltipShowAt`): the model → `OldenEraGameAdapter.ObjectOfModel` (the node of
+  its position in the map snapshot, else the nearest object of its sid) → `MapHints.ForObject` (the active hero of
+  the current player for `HT:W`) → the header text, as H3 put the hint in the status bar in place of the name; the
+  game's content stays.
+* **Verified in the game** (an ARCADE map, ore pile at 62/60): `SN:H^object^/-1/-1` (any object) shows; a type hint
+  `SN:H^object^/79/2` wins over it; with the Era hints removed `OB:H` of the square shows, after `OB:B` the type's
+  `HT:T`; without hints the game's "Руда" comes back; a gold pile shows the any-object hint too.
+* Object hints are no longer reported as "kept, not shown"; `SN:H` texts of the H3 tables still are
+  (`TextsNotShown`). The corpus: 0 ERM errors, `HT`/`OB:H` off the unsupported list, `SN:H` 112 (texts). New WoG
+  Debug tiles: «Подсказка куч руды», «Убрать подсказку куч руды». 309 tests.

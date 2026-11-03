@@ -43,7 +43,7 @@ public sealed class ObReceiver : ErmReceiverBase
 {
     const string ChangeType = "OB:T/U — changing the type of an object: Olden Era objects keep their own type";
     const string Visit = "OB:D/E/R/S/M — disabling objects and auto-answers need the object visit hook (not verified yet)";
-    const string SquareHint = "OB:H/B — the hint of the object on a square (a z variable read when it shows, or a text), kept with the WoG state; Olden Era's map does not show it yet";
+    const string SquareHint = "OB:H/B — the hint of the object on a square (a z variable read when it shows, or a text), kept with the WoG state and shown in Olden Era's map tooltip in place of the object's name (objects that have one: resource piles; buildings and monsters have none)";
 
     public ObReceiver() : base("OB")
     {

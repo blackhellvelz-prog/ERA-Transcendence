@@ -10,7 +10,7 @@ namespace WoG.Erm.Receivers;
 public sealed class HtReceiver : ErmReceiverBase
 {
     public const string Note =
-        "HT — the hint of objects of a type and subtype (T), by the square's PO:N number (P), the active hero's w variable (W) or a v variable (V), kept with the WoG state in WoG's order; Olden Era's map does not show it yet";
+        "HT — the hint of objects of a type and subtype (T), by the square's PO:N number (P), the active hero's w variable (W) or a v variable (V), kept with the WoG state in WoG's order and shown in Olden Era's map tooltip in place of the object's name (objects that have one: resource piles; buildings and monsters have none)";
 
     public HtReceiver() : base("HT")
     {
@@ -67,7 +67,6 @@ public static class MapHints
     /// <summary>ERMOBJECTS: WoG's ERM objects (squares and HT hints together).</summary>
     public const int MaxObjects = 1000;
 
-    public const string NotShown = "HT, OB:H — the hint is kept with the WoG state, but Olden Era's map does not show it yet";
 
     /// <summary>
     /// StrMan::Apply on a hint: a string (^text^ or a z variable) is copied as the hint's own text; a number is the z
@@ -118,7 +117,6 @@ public static class MapHints
             }
             slots[at] = new ErmTypeHint { Code = code, Hint = hint };
         }
-        throw new ErmUnsupportedException(NotShown);
     }
 
     /// <summary>OB:H — the hint of the object on a square (ObjChangeHint on its position).</summary>
@@ -129,7 +127,6 @@ public static class MapHints
         var hint = obj?.Hint;
         if (!Apply(c, ref hint, i)) return;
         SetSquareHint(objects, pos, hint);
-        if (hint != null) throw new ErmUnsupportedException(NotShown);
     }
 
     /// <summary>The hint of a square; an object left with nothing is deleted (CheckDelObj).</summary>

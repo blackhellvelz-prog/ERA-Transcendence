@@ -193,12 +193,12 @@ public sealed class ReceiverRegistry
             "OB:C — управляющее слово — это данные настройки объекта H3: другой движок",
         ["OB:D/E/R/S/M — disabling objects and auto-answers need the object visit hook (not verified yet)"] =
             "OB:D/E/R/S/M — запрет объектов и автоответы требуют хука посещения объекта (ещё не проверен)",
-        ["OB:H/B — the hint of the object on a square (a z variable read when it shows, or a text), kept with the WoG state; Olden Era's map does not show it yet"] =
-            "OB:H/B — подсказка объекта на клетке (z-переменная, читаемая в момент показа, или текст) хранится в состоянии WoG; карта Olden Era её пока не показывает",
+        ["OB:H/B — the hint of the object on a square (a z variable read when it shows, or a text), kept with the WoG state and shown in Olden Era's map tooltip in place of the object's name (objects that have one: resource piles; buildings and monsters have none)"] =
+            "OB:H/B — подсказка объекта на клетке (z-переменная, читаемая в момент показа, или текст) хранится в состоянии WoG и показывается в подсказке карты Olden Era вместо имени объекта (у объектов, у которых она есть: кучи ресурсов; у построек и монстров её нет)",
         [HtReceiver.Note] =
-            "HT — подсказка объектов типа и подтипа (T), по номеру клетки PO:N (P), по w-переменной активного героя (W) или по v-переменной (V); хранится в состоянии WoG в порядке WoG; карта Olden Era её пока не показывает",
+            "HT — подсказка объектов типа и подтипа (T), по номеру клетки PO:N (P), по w-переменной активного героя (W) или по v-переменной (V); хранится в состоянии WoG в порядке WoG и показывается в подсказке карты Olden Era вместо имени объекта (у объектов, у которых она есть: кучи ресурсов; у построек и монстров её нет)",
         [SnReceiver.HintsNote] =
-            "SN:H — подсказки объектов карты (клетки, типы) и тексты таблиц H3 (специализации героев, вторичные навыки, имена существ, артефакты, заклинания): хранятся в состоянии WoG, как в сохранении Era, и читаются обратно (их читает и UN:N); карта и окна Olden Era их пока не показывают",
+            "SN:H — подсказки объектов карты (клетки, типы; показывается в подсказке карты Olden Era вместо имени объекта (у объектов, у которых она есть: кучи ресурсов; у построек и монстров её нет)) и тексты таблиц H3 (специализации героев, вторичные навыки, имена существ, артефакты, заклинания: хранятся в состоянии WoG, как в сохранении Era, и читаются обратно, их читает и UN:N; окна Olden Era их пока не показывают)",
         ["TR:T/P/E — terrain (Olden Era biomes as the H3 terrain of the matching town), road, blocked (red) and entrance (yellow) squares; read only; rivers are 0"] =
             "TR:T/P/E — почва (биомы Olden Era как почва H3 соответствующего города), дорога, занятые (красные) и входные (жёлтые) клетки; только чтение; реки 0",
         ["TR:G — H3 terrain overlays (magic plains, cursed ground…) have no Olden Era equivalent mapped"] =

@@ -1253,6 +1253,20 @@
       "Status": "verified",
       "Note": "0.81.04: eor.clgz = ena, the container of the battle's event buses (cksd enb, ckse enc) | used by WoG Debug battleevents since 2026-10-08; was hard-coded until 2026-11-03 | 0.82.07: remapped from eor.clgz by structure (type eor→epx 0,49; clgz→cnkq unique signature); was verified | verified 0.82.07 2026-11-03: battleevents subscribed to 144 events"
     },
+    "ui.tooltipShowAt": {
+      "Assembly": "Hex",
+      "Type": "Hex.UI.Tooltips.BhTooltip",
+      "Member": "Show(Camera,GameObject,Single)",
+      "Status": "verified",
+      "Note": "0.82.07: BhTooltip (not obfuscated) shows a map object's tooltip with Show(camera, the object's model, 0.2) after vzp(header, subheader, content, extra, false, null) set its texts; the model's name is the object's sid (resource_wood), its position is the node minus half the map size (resource_wood at 4, 0.61, 21 = node 44/61 of 80x80, H3 44/18) [V-game 2026-11-03: WoG Debug trace while hovering a wood pile] | verified 0.82.07 2026-11-03: the prefix put WoG hints (SN:H type and any object, OB:H, HT) over ore and gold piles of an ARCADE map; the game's own header came back without a hint"
+    },
+    "ui.tooltipHeader": {
+      "Assembly": "Hex",
+      "Type": "Hex.UI.Tooltips.BhTooltip",
+      "Member": "header",
+      "Status": "verified",
+      "Note": "0.82.07: TextMeshProUGUI of the tooltip's header (the object's name: Дерево, Золото) | verified 0.82.07 2026-11-03: setting its text in the prefix of Show changes the shown header"
+    },
     "battle.events": {
       "Assembly": "Hex",
       "Type": "epx",

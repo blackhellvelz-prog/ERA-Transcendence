@@ -61,8 +61,8 @@ WoG Debug window. The user may be playing — check before closing the game or c
 2. **What the full WoG exercises now** (the unsupported list of the corpus run, 2026-11-03): `UN:I` (placing objects —
    WoG's own objects with their questions come with it), `UN:B`, `UN:J1`, `IF:D/E/F` dialogs and pictures in `IF:Q`; `UN:C` is down to 12
    (H3's game manager for the quest texts; the skill effect tables are kept but do not change Olden Era's skills yet);
-   the hints (`SN:H` ×114, `HT` ×46) are kept and read back but Olden Era's map does not show them until its tooltip
-   calls `MapHints.ForObject`. Done since: `SS`, `SN:F^Erm_FillInt32Array^` and `SN:M` (native `Array_Fill`),
+   map object hints (`SN:H`, `HT`, `OB:H`) show in Olden Era's map tooltip; the H3 table texts of `SN:H` (×112) are
+   kept but no Olden Era window shows them. Done since: `SS`, `SN:F^Erm_FillInt32Array^` and `SN:M` (native `Array_Fill`),
    `IF:M`/`IF:Q` (scripts wait for the player on a worker thread), `UN:C` by meaning (`H3Memory`), hints in the core.
 3. **The WoG Options window** (`WoGOptionsWindow`, F6 or the round button in the top bar) works in the game (2026-11-03:
    the main menu and the map, the saved choice reaches a new map); WoG's own WoGSetupEx.dat presets are not imported.

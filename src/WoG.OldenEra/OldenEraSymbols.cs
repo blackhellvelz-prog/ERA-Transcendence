@@ -165,6 +165,8 @@ public sealed class OldenEraSymbols
         "bunit.config",              // battle unit → its type config (abilities, attacks)
         "bdata.count", "bdata.topHp", // battle data of a unit → creatures in the stack / hit points of the top one
         "battle.eventBuses",         // battle logic → the container of its event buses (WoG Debug battleevents)
+        "ui.tooltipShowAt",          // a tooltip is shown over a 3D object: (camera, the object's model, delay)
+        "ui.tooltipHeader",          // a tooltip → its header text (the map object's name)
         "battle.events",             // battle logic → its event bus (fields of EventHandler<BattleEventArgs>)
         "battleevent.roundStart", "battleevent.turnStart", "battleevent.turnEnd", // events: a round / a unit's turn starts, a turn ends
         "battleevent.move", "battleevent.cast", "battleevent.castEnd", // events: a unit starts moving, uses an ability or attack, it ends
@@ -218,7 +220,7 @@ public sealed class OldenEraSymbols
             var current = type;
             foreach (var name in string.IsNullOrEmpty(b.Member) ? Array.Empty<string>() : b.Member.Split('.'))
             {
-                var m = current.GetMember(name, All).FirstOrDefault(x => x is FieldInfo or PropertyInfo or MethodInfo);
+                var m = Overload(current, name) ?? current.GetMember(name, All).FirstOrDefault(x => x is FieldInfo or PropertyInfo or MethodInfo);
                 if (m == null) { error = $"member {current.FullName}.{name} not found"; break; }
                 path.Add(m);
                 if (m is MethodInfo) break;
@@ -232,6 +234,20 @@ public sealed class OldenEraSymbols
             resolved[key] = (type, path.ToArray());
         }
         foreach (var m in missing) log("Game API not found: " + m);
+    }
+
+    /// <summary>
+    /// A method named with its parameter types, "Show(Camera,GameObject,Single)" (type names without namespaces, as
+    /// WoG Debug traces print them), for a method with overloads; null for a plain name.
+    /// </summary>
+    static MethodInfo? Overload(Type type, string name)
+    {
+        int open = name.IndexOf('(');
+        if (open < 0 || !name.EndsWith(")")) return null;
+        string method = name[..open];
+        var wanted = name[(open + 1)..^1].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return type.GetMethods(All).FirstOrDefault(m => m.Name == method
+            && m.GetParameters().Select(p => p.ParameterType.Name).SequenceEqual(wanted));
     }
 
     /// <summary>True for resolved and in-game-verified symbols (or any resolved one in debug mode).</summary>

@@ -122,12 +122,26 @@ internal static class MethodTrace
         var t = a.GetType();
         if (t.IsPrimitive || t.IsEnum || a is string) return a.ToString() ?? "";
         var real = Real(a);
-        if (real.GetType().Assembly.GetName().Name != "Hex") return "<" + RuntimeName(a) + ">";
+        if (real.GetType().Assembly.GetName().Name != "Hex") return "<" + RuntimeName(a) + UnityObject(a) + ">";
         // The real class's own fields (event argument data, session objects).
         var fields = real.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
             .Where(p => p.GetIndexParameters().Length == 0)
             .Select(p => { try { return $"{p.Name}={Short(p.GetValue(real))}"; } catch { return p.Name + "=?"; } });
         return $"<{RuntimeName(a)} {string.Join(" ", fields)}>";
+    }
+
+    /// <summary>
+    /// A Unity object's name, world position and parents (a GameObject or a component; by reflection, the plugin has no
+    /// Unity references): which map object a tooltip is shown for.
+    /// </summary>
+    static string UnityObject(object a)
+    {
+        try
+        {
+            if (UnityObjects.Describe(a) is not var (name, x, y, z)) return "";
+            return $" '{name}' at ({UnityObjects.Number(x)}, {UnityObjects.Number(y)}, {UnityObjects.Number(z)}) in {UnityObjects.Parents(a)}";
+        }
+        catch { return ""; }
     }
 
     /// <summary>The IL2CPP runtime class name of an object (the declared .NET type is often a base class).</summary>

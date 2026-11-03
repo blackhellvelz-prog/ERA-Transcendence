@@ -193,6 +193,7 @@ public sealed class WoGPlugin : BasePlugin
         HookPostfix(harmony, symbols, "battle.end", nameof(Hooks.BattleEndPostfix));
         HookPostfix(harmony, symbols, "save.write", nameof(Hooks.SavePostfix));
         HookPostfix(harmony, symbols, "save.read", nameof(Hooks.LoadPostfix));
+        HookPrefix(harmony, symbols, "ui.tooltipShowAt", nameof(Hooks.TooltipShowAtPrefix));
 
         if (debugEnabled.Value)
         {
@@ -408,6 +409,10 @@ internal static class Hooks
         try { WoGPlugin.L?.LogInfo("WoG: " + WoGSession.StartDay()); }
         catch (Exception ex) { WoGPlugin.L?.LogError("WoG: day start failed: " + ex); }
     }
+
+    // A map object's tooltip over its model [V-game 0.82.07]: WoG's hint in place of the object's name.
+    internal static void TooltipShowAtPrefix(object __instance, object[] __args) =>
+        MapObjectHint.Show(__instance, __args.Length > 1 ? __args[1] : null);
 
     // A hero visiting a map object [V-game 0.81.04, method traces]: on arrival Olden Era calls fnt.bmjj(fdq) on the
     // object's logic (fnt: coyw = map object, coyx = session DataObject) with the hero's logic (fdq); the object's

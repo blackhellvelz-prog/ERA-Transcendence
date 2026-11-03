@@ -42,7 +42,7 @@ public class HintTests
         t.Call("Go");
         Assert.Equal("", t.ErrorText);
         Assert.Equal(("Description 5 +WoG", "Axe of WoG", "more and more", "Spell15"), (t.Z(1), t.Z(2), t.Z(3), t.Z(4)));
-        Assert.Contains(t.Host.Compat.Entries, e => e.Reason == SnReceiver.HintsNotShown);
+        Assert.Contains(t.Host.Compat.Entries, e => e.Reason == SnReceiver.TextsNotShown);
         var loaded = WoGSaveSerializer.Deserialize(WoGSaveSerializer.Serialize(t.Host.State, "id"), "id");
         Assert.Equal("Axe of WoG", loaded.Hints["art"][5]);
         t.Call("Delete");
@@ -72,6 +72,7 @@ public class HintTests
             "!!HT101/-1:T^chest^;\n");
         t.Call("Go");
         Assert.Equal("Era type", t.Z(1));
+        Assert.Empty(t.Host.Compat.Entries);                            // object hints show in the map tooltip
         t.Host.State.Erm.Z[99] = "WoG square %V1";                      // its codes are read when the hint shows
         t.Host.State.Erm.V[0] = 7;
         string? Hint(int x, int type, int sub, bool visible = true) => MapHints.ForObject(t.Erm, new MapPos(x, 11, 0), type, sub, visible, -1);

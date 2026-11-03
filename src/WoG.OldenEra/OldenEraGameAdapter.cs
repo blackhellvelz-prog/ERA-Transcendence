@@ -1406,6 +1406,27 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         return s.Status == AdapterStatus.Ok ? AdapterResult<IReadOnlyList<WoGMapObject>>.Ok(s.Value.Objects) : s.Error<IReadOnlyList<WoGMapObject>>();
     }
 
+    /// <summary>
+    /// The map object a 3D model shows (the GameObject a tooltip is shown for): its name is the object's sid, its world
+    /// position the node minus half the map size, one unit a node (resource_wood at 4/21 of an 80x80 map = node 44/61,
+    /// H3 44/18) [V-game]. The object on that node when its sid matches, else the nearest object of the sid (a building's
+    /// model may stand off the node of its ERM position); null when none is near.
+    /// </summary>
+    public WoGMapObject? ObjectOfModel(string? sid, float worldX, float worldZ)
+    {
+        var r = Snapshot();
+        if (r.Status != AdapterStatus.Ok) return null;
+        var s = r.Value;
+        int x = (int)Math.Round(worldX) + s.SizeX / 2, z = (int)Math.Round(worldZ) + s.SizeZ / 2;
+        if (x < 0 || x >= s.SizeX || z < 0 || z >= s.SizeZ) return null;
+        int i = s.ObjectAt[x + z * s.SizeX];
+        if (i >= 0 && (sid == null || s.Objects[i].Sid == sid)) return s.Objects[i];
+        if (sid == null) return null;
+        var at = NodeToPos(x + z * s.SizeX, s.SizeX, s.SizeZ);
+        return s.Objects.Where(o => o.Sid == sid && Math.Abs(o.Position.X - at.X) <= 3 && Math.Abs(o.Position.Y - at.Y) <= 3)
+            .OrderBy(o => Math.Abs(o.Position.X - at.X) + Math.Abs(o.Position.Y - at.Y)).FirstOrDefault();
+    }
+
     public AdapterResult<MapSquare> GetSquare(MapPos pos)
     {
         var r = Snapshot();
