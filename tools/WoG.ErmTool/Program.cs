@@ -17,6 +17,10 @@ using WoG.Host;
 //                                     (default language en; --lang ru prints the Russian copy)
 //   idmap-creatures <Core.zip> <creature.json>  fill the creature id map from the game's units (CreatureMap.cs)
 //   probe-symbols <BepInEx/interop>   list Olden Era types/members matching the symbols the adapter needs
+//   remap-symbols <old interop> <new interop> <wog_symbols.json> [out.json] [--tag <version>]
+//                                     after a game update: find every binding's types and members in the new
+//                                     version by structure (SymbolRemap.cs); remapped ones need the in-game check
+//   find-member <interop> <name regex> [--type <regex>]  members of Hex by name, with types and signatures
 //   idmap-objects <Core.zip> <object.json> [artifact.json]  fill the map object type map (ObjectMap.cs)
 //   h3data <ERA folder> [id...]      read the H3/WoG tables of an ERA installation (Mods/list.txt order) the way the
 //                                     plugin does; print where each came from and the given artifact ids
@@ -99,6 +103,18 @@ switch (args[0])
     }
     case "probe-symbols":
         return ProbeSymbols(args[1]);
+    case "remap-symbols":
+    {
+        int tagAt = Array.IndexOf(args, "--tag");
+        string tag = tagAt > 0 && tagAt + 1 < args.Length ? args[tagAt + 1] : "new version";
+        var rest = args.Skip(1).Where((a, i) => !a.StartsWith("--") && (tagAt < 0 || i + 1 != tagAt + 1)).ToList();
+        return SymbolRemap.Run(rest[0], rest[1], rest[2], rest.Count > 3 ? rest[3] : null, tag);
+    }
+    case "find-member":
+    {
+        int typeAt = Array.IndexOf(args, "--type");
+        return SymbolRemap.FindMember(args[1], args[2], typeAt > 0 && typeAt + 1 < args.Length ? args[typeAt + 1] : null);
+    }
     case "idmap-creatures":
         return CreatureMap.Run(args[1], args[2]);
     case "idmap-objects":
