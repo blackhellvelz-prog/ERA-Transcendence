@@ -22,6 +22,7 @@ public sealed class DebugUiPlugin : BasePlugin
         var dialogs = new GameDialogs(Log);
         WoGPlugin.AskDialog = dialogs.Ask;
         WoGPlugin.MessageDialog = dialogs.Message;
+        WoGPlugin.ChoiceDialog = dialogs.Choose;
         WoGPlugin.Frame += dialogs.Tick;
 
         // the WoG Options window, with or without WoG Debug

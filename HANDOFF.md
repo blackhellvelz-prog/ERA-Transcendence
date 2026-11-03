@@ -59,7 +59,7 @@ WoG Debug window. The user may be playing — check before closing the game or c
 1. **The WoG level limit** (`UN:J1` with a limit): hold Olden Era's heroes to it (the experience logic's last level,
    `dyx.chmo`, is the candidate); the experience table itself is done.
 2. **What the full WoG exercises now** (the unsupported list of the corpus run, 2026-11-03): `UN:I` (placing objects —
-   WoG's own objects with their questions come with it), `UN:B`, `UN:J1`, `IF:D/E/F/G` dialogs; `UN:C` is down to 12
+   WoG's own objects with their questions come with it), `UN:B`, `UN:J1`, `IF:D/E/F` dialogs and pictures in `IF:Q`; `UN:C` is down to 12
    (H3's game manager for the quest texts; the skill effect tables are kept but do not change Olden Era's skills yet);
    the hints (`SN:H` ×114, `HT` ×46) are kept and read back but Olden Era's map does not show them until its tooltip
    calls `MapHints.ForObject`. Done since: `SS`, `SN:F^Erm_FillInt32Array^` and `SN:M` (native `Array_Fill`),

@@ -16,15 +16,28 @@ namespace WoG.OldenEra.DebugUI;
 /// </summary>
 internal sealed class GameDialogs
 {
+    /// <summary>An IF:G dialog: its items (null = not shown), radio buttons or check boxes, the starting bits.</summary>
+    sealed class Choice
+    {
+        public IReadOnlyList<string> Items;
+        public bool Radio;
+        public int State;
+        public Action<int> OnBits;
+    }
+
     readonly ManualLogSource log;
-    readonly Queue<(string Text, string Title, Action<bool> Answer, bool Message)> pending = new();
+    readonly Queue<(string Text, string Title, Action<bool> Answer, bool Message, Choice Choice)> pending = new();
     GameObject root;
-    RectTransform window;
+    RectTransform window, inner;
     TextMeshProUGUI body, title;
     GameObject yes, no, ok;
     Action<bool> answer;
     bool? gameHotkeys;
     bool failed;
+    // the shown IF:G dialog: its rows (item number, mark) and the bits on
+    Choice choice;
+    readonly List<(int Item, Image Mark, GameObject Row)> rows = new();
+    int bits;
 
     public GameDialogs(ManualLogSource log) => this.log = log;
 
@@ -32,7 +45,7 @@ internal sealed class GameDialogs
     public void Ask(string text, string heading, Action<bool> onAnswer)
     {
         if (failed) { onAnswer(true); return; }
-        pending.Enqueue((text, heading, onAnswer, false));
+        pending.Enqueue((text, heading, onAnswer, false, null));
     }
 
     /// <summary>
@@ -42,7 +55,18 @@ internal sealed class GameDialogs
     public void Message(string text, Action onClose)
     {
         if (failed) { onClose?.Invoke(); return; }
-        pending.Enqueue((text, "", _ => onClose?.Invoke(), true));
+        pending.Enqueue((text, "", _ => onClose?.Invoke(), true, null));
+    }
+
+    /// <summary>
+    /// Queues check boxes or radio buttons under a header (ERM's IF:G); <paramref name="onBits"/> gets the bits the
+    /// player leaves on when they press the button.
+    /// </summary>
+    public void Choose(string header, IReadOnlyList<string> items, bool radio, int state, Action<int> onBits)
+    {
+        var c = new Choice { Items = items, Radio = radio, State = state, OnBits = onBits };
+        if (failed) { onBits(Core.Adapters.Choice.Initial(items, radio, state)); return; }
+        pending.Enqueue((header, "", null, true, c));
     }
 
     /// <summary>Every frame: shows the next question once the game's interface is loaded.</summary>
@@ -56,10 +80,20 @@ internal sealed class GameDialogs
                 if (!GameUi.Load()) return;
                 Build();
             }
-            var (text, heading, onAnswer, message) = pending.Dequeue();
-            answer = onAnswer;
+            var (text, heading, onAnswer, message, c) = pending.Dequeue();
+            choice = c;
+            answer = c == null ? onAnswer : _ => c.OnBits(bits);
+            if (c != null)
+            {
+                // the header as the window's title, the items under it
+                heading = text;
+                text = "";
+                ShowRows(c);
+            }
+            else ClearRows();
             body.text = H3Markup(text);
-            title.text = heading;
+            body.gameObject.SetActive(c == null);
+            title.text = H3Markup(heading);
             title.gameObject.SetActive(heading.Length > 0);
             yes.SetActive(!message);
             no.SetActive(!message);
@@ -70,11 +104,71 @@ internal sealed class GameDialogs
         }
         catch (Exception ex)
         {
-            failed = true; // nobody can answer: every question is taken as "yes", the game goes on
+            failed = true; // nobody can answer: every question is taken as "yes", a choice as it opened; the game goes on
             log.LogError("WoG dialogs stopped: " + ex);
             Answer(true);
-            while (pending.Count > 0) pending.Dequeue().Answer(true);
+            while (pending.Count > 0)
+            {
+                var p = pending.Dequeue();
+                if (p.Choice != null) p.Choice.OnBits(Core.Adapters.Choice.Initial(p.Choice.Items, p.Choice.Radio, p.Choice.State));
+                else p.Answer(true);
+            }
         }
+    }
+
+    // ---- IF:G -----------------------------------------------------------------------------------
+
+    const float RowHeight = 76, MessageHeight = 940;
+
+    /// <summary>A row a shown item (mark and text, a click marks it), the window as tall as they need.</summary>
+    void ShowRows(Choice c)
+    {
+        ClearRows();
+        bits = Core.Adapters.Choice.Initial(c.Items, c.Radio, c.State);
+        var shown = new List<int>();
+        for (int i = 0; i < c.Items.Count; i++)
+            if (Core.Adapters.Choice.Shown(c.Items, i)) shown.Add(i);
+        float height = Math.Max(MessageHeight, 470 + RowHeight * shown.Count);
+        GameUi.Place(window, 0.5f, 0.5f, 0.5f, 0.5f, -900, -height / 2, -900, -height / 2);
+        for (int k = 0; k < shown.Count; k++)
+        {
+            int item = shown[k];
+            var rt = GameUi.Place(GameUi.Rect("Item", inner), 0, 1, 1, 1, 60, -150 - RowHeight * (k + 1), 60, 150 + RowHeight * k);
+            var hit = GameUi.Img(rt, null, color: new Color(1, 1, 1, 0)); // catches the mouse for the whole row
+            var b = rt.gameObject.AddComponent<Button>();
+            b.targetGraphic = hit;
+            b.onClick.AddListener(Il2CppInterop.Runtime.DelegateSupport.ConvertDelegate<UnityEngine.Events.UnityAction>(new Action(() =>
+            {
+                bits = Core.Adapters.Choice.Click(bits, item, choice.Radio);
+                Marks();
+            })));
+            var markRect = GameUi.Place(GameUi.Rect("Mark", rt), 0, 0.5f, 0, 0.5f, 10, -20, -50, -20);
+            var mark = markRect.gameObject.AddComponent<Image>();
+            if (c.Radio) mark.sprite = Icons.Dot;
+            mark.raycastTarget = false;
+            var text = GameUi.Text(GameUi.Place(GameUi.Rect("Text", rt), 0, 0, 1, 1, 72, 0, 8, 0), "Text", H3Markup(c.Items[item]), 32,
+                GameUi.Light, TextAlignmentOptions.MidlineLeft);
+            text.enableAutoSizing = true;
+            text.fontSizeMin = 20;
+            text.fontSizeMax = 32;
+            text.raycastTarget = false;
+            rows.Add((item, mark, rt.gameObject));
+        }
+        Marks();
+    }
+
+    void Marks()
+    {
+        foreach (var (item, mark, _) in rows) mark.color = (bits & (1 << item)) != 0 ? GameUi.Gold : Unchecked;
+    }
+
+    static readonly Color Unchecked = new(0.22f, 0.20f, 0.18f);
+
+    void ClearRows()
+    {
+        foreach (var (_, _, row) in rows) UnityEngine.Object.Destroy(row);
+        rows.Clear();
+        if (window != null) GameUi.Place(window, 0.5f, 0.5f, 0.5f, 0.5f, -900, -MessageHeight / 2, -900, -MessageHeight / 2);
     }
 
     void Build()
@@ -95,7 +189,7 @@ internal sealed class GameDialogs
 
         window = GameUi.Place(GameUi.Rect("Window", top), 0.5f, 0.5f, 0.5f, 0.5f, -900, -470, -900, -470);
         GameUi.Frame(window);
-        var inner = GameUi.Place(GameUi.Rect("Body", window), 0, 0, 1, 1, 130, 110, 130, 90);
+        inner = GameUi.Place(GameUi.Rect("Body", window), 0, 0, 1, 1, 130, 110, 130, 90);
         title = GameUi.Text(GameUi.Place(GameUi.Rect("Title", inner), 0, 1, 1, 1, 0, -90, 0, 0), "Header", "", 46, GameUi.Gold,
             TextAlignmentOptions.Center, header: true);
         body = GameUi.Text(GameUi.Place(GameUi.Rect("Text", inner), 0, 0, 1, 1, 20, 150, 20, 110), "Text", "", 34, GameUi.Light,

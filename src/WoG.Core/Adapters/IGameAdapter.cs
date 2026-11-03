@@ -208,6 +208,34 @@ public interface IUiAdapter
     /// <summary>A yes/no question (IF:Q); the script waits for the answer — possible only on the scripts' worker.</summary>
     [WoG.Core.Threading.OnCallerThread]
     AdapterResult<bool> AskYesNo(string text);
+    /// <summary>
+    /// Check boxes or radio buttons under a header (IF:G, WoG's CheckBoxesDialog): item i is bit 1 &lt;&lt; i, null
+    /// items are not shown; starts with <see cref="Choice.Initial"/> and gives the bits the player left on.
+    /// </summary>
+    [WoG.Core.Threading.OnCallerThread]
+    AdapterResult<int> Choose(string header, IReadOnlyList<string?> items, bool radio, int state);
+}
+
+/// <summary>The rules of WoG's check box and radio dialog (Lua DialogsPredefined.CheckBoxesDialog).</summary>
+public static class Choice
+{
+    /// <summary>An item is shown when it has a text.</summary>
+    public static bool Shown(IReadOnlyList<string?> items, int i) => i < items.Count && !string.IsNullOrEmpty(items[i]);
+
+    /// <summary>
+    /// The marks the dialog starts with: the state's bits of shown items only (a hidden item is off, "the same as
+    /// IF:G"); radio buttons keep the last shown item that is on.
+    /// </summary>
+    public static int Initial(IReadOnlyList<string?> items, bool radio, int state)
+    {
+        int bits = 0;
+        for (int i = 0; i < items.Count && i < 31; i++)
+            if (Shown(items, i) && (state & (1 << i)) != 0) bits = radio ? 1 << i : bits | 1 << i;
+        return bits;
+    }
+
+    /// <summary>A click on item i: a check box toggles; a radio button becomes the only one on.</summary>
+    public static int Click(int bits, int i, bool radio) => radio ? 1 << i : bits ^ (1 << i);
 }
 
 public interface IGameClock

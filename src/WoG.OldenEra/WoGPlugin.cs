@@ -71,6 +71,12 @@ public sealed class WoGPlugin : BasePlugin
     /// </summary>
     public static Action<string, Action?>? MessageDialog;
 
+    /// <summary>
+    /// Check boxes or radio buttons in the game's own style (ERM's IF:G): header, items (null = not shown), radio,
+    /// the starting bits, what to do with the bits the player leaves on; null without the interface plugin.
+    /// </summary>
+    public static Action<string, IReadOnlyList<string?>, bool, int, Action<int>>? ChoiceDialog;
+
     /// <summary>The scripts' worker: an ERM entry runs there, so it can wait for the player (IF:Q, IF:M).</summary>
     public static ScriptFibers? Fibers { get; private set; }
 
@@ -143,6 +149,8 @@ public sealed class WoGPlugin : BasePlugin
             return true;
         };
         adapter.AskImpl = text => AskDialog is { } ask && fibers.TryWait<bool>(answer => ask(text, "", answer), out bool yes) ? yes : null;
+        adapter.ChooseImpl = (header, items, radio, state) => ChoiceDialog is { } choose
+            && fibers.TryWait<int>(answer => choose(header, items, radio, state, answer), out int bits) ? bits : null;
         if (wogify.Value >= 0) host.WogifySetting = Math.Min(wogify.Value, 3);
         OldenEraGameAdapter.MethodTraceReal = MethodTrace.Real;
         host.ErmLog = m => Log.LogInfo("[ERM] " + m);

@@ -146,6 +146,17 @@ public class H3DataTests : IDisposable
         return t;
     }
 
+    /// <summary>9 wog - custom alliances.erm: keep a name's text number in a y variable, rename, put it back by number.</summary>
+    [Fact]
+    public void Un_a_gives_a_text_number_into_a_number_variable()
+    {
+        using var t = EraWithArtifacts("!?FU(Go);\n!!UN:A125/9/?y-1;\n!!VRz1:S^Default^;\n!!UN:A125/9/1;\n" +
+            "!!UN:A125/9/?z2;\n!!UN:A125/9/?v1;\n!!UN:A125/9/y-1;\n!!UN:A125/9/?z3;\n!!VRv2:Sy-1;\n");
+        t.Call("Go");
+        Assert.Equal("", t.ErrorText);
+        Assert.Equal(("Default", -1, "Art 125", 0), (t.Z(2), t.V(1), t.Z(3), t.V(2)));
+    }
+
     [Fact]
     public void Un_a_reads_and_changes_artifact_fields_and_texts()
     {

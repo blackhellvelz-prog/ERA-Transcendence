@@ -329,6 +329,15 @@ public sealed class HeadlessGame : HeroRecords, IGameAdapter, IHeroAdapter, IPla
         return AdapterResult<bool>.Ok(Answers.Count > 0 ? Answers.Dequeue() : true);
     }
 
+    /// <summary>The player's choices for IF:G dialogs, in order; without one the dialog is closed as it opened.</summary>
+    public Queue<int> Choices { get; } = new();
+
+    public AdapterResult<int> Choose(string header, IReadOnlyList<string?> items, bool radio, int state)
+    {
+        Messages.Add("[" + header + "] " + string.Join(" | ", items));
+        return AdapterResult<int>.Ok(Choices.Count > 0 ? Choices.Dequeue() : Choice.Initial(items, radio, state));
+    }
+
     // ---- battle -----------------------------------------------------------------------------
 
     public bool InBattle => CurrentBattle != null;

@@ -1124,3 +1124,25 @@ buses and logs them) `[V-game]`:
   alive, the material null). `GameUi.KeepFonts` (every 30 frames) gives the game's current fonts and materials to every
   window text when one has lost its font or material. Both windows show their texts on the map.
 * 302 tests (+1).
+
+## 2026-11-03 — session 3, continued: `IF:G` check box dialogs, `IF:Q` with pictures, `UN:A` text numbers
+
+* **Found in the game:** with option 69 (custom alliances) saved on for a test, its script asked "... is this
+  correct?" over an empty team list — its picture choice (`IF:Q` type 7) and check box dialogs (`IF:G`) were not
+  supported, and `UN:A125/9/?y-1` gave an ERM error (the text instead of its number).
+* **`IF:G`** (ERM help; erm.cpp; WoG's Lua `CheckBoxesDialog`): `IUiAdapter.Choose(header, items, radio, state)` on
+  the same waiting as `IF:Q`; `Choice.Initial` (only shown items keep their bits, a radio keeps the last item on) and
+  `Choice.Click`; Era takes a string in place of a z number (map rules). The interface plugin's `GameDialogs.Choose`:
+  the game's message window with a row a shown item (a square or `Icons.Dot`, gold when on), as tall as the rows
+  need, and «Принять». The headless engine answers from `Choices` or closes the dialog as it opened.
+* **`IF:Q` with pictures** (`Request3Pic`: 1, 2 or 3 pictures, then the type and the text): type 1 a message (the
+  flag stays), type 2 a question; pictures are not shown yet (reported), a popup or a choice of pictures (4, 7, 10)
+  stays unsupported.
+* **`UN:A …/?y`** (`StrMan::Apply`): a number variable gets the text's number — 0 for the original text, -1 for WoG's
+  own copy; `ErmCall.ApplyText` in both dialects.
+* **Verified in the game:** a new map asks the map rules in two pages of check boxes (the user's ERA has the rules on
+  "the player's choice"); the chosen rule is on (`i^wog_101_map_rule_5_isEnabled^` = 1, an unchosen one 0) and its
+  announcement shows. It shows "4%%" like ERA: Era's `Hook_ERM2String` does not interpolate z variables and temporary
+  strings again, and `%T(...)` inserts a translation as it is.
+* 307 tests (+5: `ChoiceDialogTests`, `Un_a_gives_a_text_number_into_a_number_variable`); the corpus has 0 ERM errors,
+  `IF:G` left the unsupported list; the WoG 3.58 and ERA (eng) corpora pass.

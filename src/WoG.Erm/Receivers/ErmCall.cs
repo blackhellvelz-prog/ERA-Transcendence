@@ -156,6 +156,8 @@ public sealed class ErmCall
     /// StrMan::Apply for a stored text (artifact/skill/creature names…): '?' writes the text into the z (or s^^)
     /// variable; a z variable or ^text^ sets it; a number is a z var index whose text is taken (0 restores
     /// <paramref name="original"/>). Returns true for get. WoG keeps a live link to the z var; the text is copied here.
+    /// '?' into a number variable gives WoG's text number: 0 for the original text, else -1 (WoG's own copy, which a
+    /// script cannot set back by number) — custom alliances keep and restore artifact names that way.
     /// </summary>
     public bool ApplyText(ref string s, string original, int i)
     {
@@ -164,15 +166,21 @@ public sealed class ErmCall
         if (p.Mode == ErmParamMode.Check) throw new ErmRuntimeException("cannot check a text.");
         if (Rt.IsEra)
         {
-            if (p.Mode == ErmParamMode.Get) { Rt.EraSetString(p, s); return true; }
+            if (p.Mode == ErmParamMode.Get)
+            {
+                if (ErmRuntime.EraIsString(p)) Rt.EraSetString(p, s);
+                else Rt.EraSetInt(p, s == original ? 0 : -1);
+                return true;
+            }
             if (ErmRuntime.EraIsString(p)) { s = Rt.EraGetText(p); return false; }
             s = N(i) == 0 ? original : Rt.EraZRaw(N(i));
             return false;
         }
         if (p.Mode == ErmParamMode.Get)
         {
-            if (p.Var?.Kind != ErmVarKind.Z) throw new ErmRuntimeException("a z variable is expected.");
-            Rt.SetString(Rt.ResolveIndex(p.Var), s);
+            if (p.Var == null) throw new ErmRuntimeException("cannot get a text into a constant.");
+            if (p.Var.Kind == ErmVarKind.Z) Rt.SetString(Rt.ResolveIndex(p.Var), s);
+            else Rt.SetInt(p.Var, s == original ? 0 : -1);
             return true;
         }
         if (p.Var?.Kind == ErmVarKind.Z) { s = Rt.GetStringRaw(Rt.ResolveIndex(p.Var)); return false; }

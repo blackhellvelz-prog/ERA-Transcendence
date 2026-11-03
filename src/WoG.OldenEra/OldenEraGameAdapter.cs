@@ -2052,6 +2052,14 @@ public sealed class OldenEraGameAdapter : IGameAdapter, IHeroAdapter, IPlayerAda
         return r.HasValue ? AdapterResult<bool>.Ok(r.Value) : Missing<bool>("ui.question");
     }
 
+    public Func<string, IReadOnlyList<string?>, bool, int, int?>? ChooseImpl { get; set; }
+
+    public AdapterResult<int> Choose(string header, IReadOnlyList<string?> items, bool radio, int state)
+    {
+        var r = ChooseImpl?.Invoke(header, items, radio, state);
+        return r.HasValue ? AdapterResult<int>.Ok(r.Value) : Missing<int>("ui.choice");
+    }
+
     // ---- battle -----------------------------------------------------------------------------
 
     /// <summary>The battle the event bus reported starting; null outside battles.</summary>

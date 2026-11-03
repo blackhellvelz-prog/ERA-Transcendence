@@ -17,12 +17,16 @@ namespace WoG.Erm.Receivers;
 /// <summary>!!IF — inline IF of ProcessMes (messages, questions, flags, w-hero).</summary>
 public sealed class IfReceiver : ErmReceiverBase
 {
+    public const string ChoiceNote =
+        "IF:G — check boxes or radio buttons (up to 12, a bit each) in the game's own window; the script waits for the player as with IF:Q";
+
     public IfReceiver() : base("IF")
     {
         Declare("VASRW", CompatLevel.FullySupported);
         Declare("MQ", CompatLevel.PartiallySupported,
-            "text messages and yes/no questions; in Olden Era scripts run on a worker thread and wait for the player in the game's own windows, as H3's modal dialogs held them (an entry nested in another, or started while one waits, shows its message without waiting and cannot ask); variants with pictures need custom UI");
-        Declare("TPEXBFGDNL", CompatLevel.Unsupported, "special WoG dialogs (pictures, sphinx, checkboxes, multiple choice) need a custom UI layer");
+            "text messages and yes/no questions; in Olden Era scripts run on a worker thread and wait for the player in the game's own windows, as H3's modal dialogs held them (an entry nested in another, or started while one waits, shows its message without waiting and cannot ask); with pictures a message or question is shown without them yet, a popup or a choice of pictures needs custom UI");
+        Declare("G", CompatLevel.FullySupported, ChoiceNote);
+        Declare("TPEXBFDNL", CompatLevel.Unsupported, "special WoG dialogs (pictures, sphinx, the multipurpose dialog) need a custom UI layer");
     }
 
     protected override void Run(ErmCall c)
@@ -59,9 +63,43 @@ public sealed class IfReceiver : ErmReceiverBase
             case 'Q':
             {
                 if (c.N(0) < 1 || c.N(0) > 1000) throw new ErmRuntimeException("\"IF:Q\"-wrong flag number (1...1000).");
-                if (c.Num > 2) throw new ErmUnsupportedException("IF:Q with pictures needs custom UI");
-                string text = c.Num == 2 ? c.Text(1) : rt.Interpolate(c.Cmd.Text ?? "");
-                rt.SetFlag(c.N(0), c.Need(rt.WhileWaiting(() => ui.AskYesNo(text))));
+                if (c.Num <= 2)
+                {
+                    string text = c.Num == 2 ? c.Text(1) : rt.Interpolate(c.Cmd.Text ?? "");
+                    rt.SetFlag(c.N(0), c.Need(rt.WhileWaiting(() => ui.AskYesNo(text))));
+                    break;
+                }
+                // with pictures (Request3Pic): Qflag/type1/sub1[/type2/sub2[/type3/sub3]]/style[/z or ^text^]; type -1 = none
+                int pictures = c.Num < 6 ? 1 : c.Num < 8 ? 2 : c.Num < 10 ? 3 : throw new ErmRuntimeException("wrong number of parameters");
+                int style = c.N(1 + 2 * pictures), at = 2 + 2 * pictures;
+                string message = at >= c.Num ? (rt.IsEra ? rt.InterpolateEra(c.Cmd.Text ?? "") : rt.Interpolate(c.Cmd.Text ?? ""))
+                    : rt.IsEra || c.P(at).Var?.Kind == ErmVarKind.Z ? c.Text(at) : rt.GetString(c.N(at));
+                bool withPictures = Enumerable.Range(0, pictures).Any(k => c.N(1 + 2 * k) != -1);
+                switch (style)
+                {
+                    case 1: c.Need(rt.WhileWaiting(() => ui.ShowMessage(message))); break; // a message leaves the flag
+                    case 2: rt.SetFlag(c.N(0), c.Need(rt.WhileWaiting(() => ui.AskYesNo(message)))); break;
+                    default: throw new ErmUnsupportedException($"IF:Q dialog type {style} (a popup or a choice of pictures) needs custom UI");
+                }
+                if (withPictures) throw new ErmUnsupportedException("IF:Q — the message or question is shown, its pictures not yet");
+                break;
+            }
+            case 'G': // GchRAD/var/state/header/item1..item12 — check boxes or radio buttons (erm.cpp, CheckBoxesDialog)
+            {
+                if (c.Num < 5) throw new ErmRuntimeException("wrong number of parameters");
+                int v = c.N(1);
+                if (v < 1 || v > WoGVariables.VCount) throw new ErmRuntimeException("\"IF:G\"-wrong v var index (1...10000).");
+                for (int i = 0; i < c.Num; i++)
+                    if (c.IsGetOrCheck(i)) throw new ErmRuntimeException("\"IF:G\"-cannot get or check var.");
+                if (c.Num - 4 > 12) throw new ErmRuntimeException("\"IF:G\"-too many items.");
+                // a z variable number (0 = none); Era also takes a string in its place
+                string Item(int i) => rt.IsEra && ErmRuntime.EraIsString(c.P(i)) ? c.Text(i)
+                    : c.N(i) == 0 ? "" : rt.IsEra ? rt.EraZInterpolated(c.N(i)) : rt.GetString(c.N(i));
+                var items = new List<string?>();
+                for (int i = 4; i < c.Num; i++) items.Add(Item(i) is { Length: > 0 } t ? t : null);
+                string header = Item(3);
+                int bits = c.Need(rt.WhileWaiting(() => ui.Choose(header, items, c.N(0) != 0, c.N(2))));
+                rt.Services.State.Erm.V[v - 1] = bits;
                 break;
             }
             case 'V':
