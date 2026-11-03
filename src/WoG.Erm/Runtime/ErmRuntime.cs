@@ -47,6 +47,8 @@ public sealed partial class ErmRuntime
     public IWoGServices Services { get; }
     public ErmRuntimeOptions Options { get; }
     public ReceiverRegistry Receivers { get; }
+    /// <summary>H3 memory by meaning, for UN:C.</summary>
+    public WoG.Erm.Era.H3Memory Memory { get; }
     public List<ErmDiagnostic> Diagnostics { get; } = new();
     /// <summary>Optional log sink (WOGERMLOG.TXT equivalent).</summary>
     public Action<string>? Log { get; set; }
@@ -82,7 +84,8 @@ public sealed partial class ErmRuntime
     {
         Services = services;
         Options = options ?? new ErmRuntimeOptions();
-        Receivers = Options.Dialect == ErmDialect.Era ? ReceiverRegistry.CreateEra(this) : ReceiverRegistry.CreateDefault(this);
+        Memory = new WoG.Erm.Era.H3Memory(services);
+        Receivers =Options.Dialect == ErmDialect.Era ? ReceiverRegistry.CreateEra(this) : ReceiverRegistry.CreateDefault(this);
         if (Options.Dialect == ErmDialect.Era) WoG.Erm.Era.EraNativeLibrary.Register(this);
     }
 

@@ -78,6 +78,11 @@ public sealed class WoGGameState
     public HashSet<int> BannedArtifacts { get; set; } = new();
     /// <summary>Spell types changed by SS (only changed ones; the rest come from the H3 spell table).</summary>
     public Dictionary<int, WoGSpell> SpellOverrides { get; set; } = new();
+    /// <summary>
+    /// H3 skill effect tables changed through UN:C (skill → none/basic/advanced/expert as float bits; only changed
+    /// skills, the rest come from the installation's executable).
+    /// </summary>
+    public Dictionary<int, int[]> SkillEffects { get; set; } = new();
     /// <summary>Combination table entries changed by UN:A (index 0..31 → [combo artifact, parts…]; 0 = empty entry).</summary>
     public Dictionary<int, int[]> ComboOverrides { get; set; } = new();
     public IdMap Ids { get; set; } = new();

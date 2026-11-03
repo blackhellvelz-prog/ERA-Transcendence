@@ -29,6 +29,17 @@ public sealed class H3Tables
     public IReadOnlyList<string> HeroNames { get; private set; } = Array.Empty<string>();
     /// <summary>Where each table came from (for the log).</summary>
     public Dictionary<string, string> Sources { get; } = new(StringComparer.OrdinalIgnoreCase);
+    /// <summary>The installation's executable whose spell table was read (<see cref="ExeSpellTable"/>); null without one.</summary>
+    public string? Executable { get; private set; }
+    byte[]? image;
+
+    /// <summary>Initialised bytes of <see cref="Executable"/> at an H3 address; null without it or outside its file.</summary>
+    public byte[]? ReadExecutable(int address, int size)
+    {
+        if (Executable == null) return null;
+        image ??= System.IO.File.ReadAllBytes(Executable);
+        return PeImage.ReadVirtual(image, unchecked((uint)address), size);
+    }
 
     public static H3Tables Load(EraVfs vfs)
     {
@@ -46,7 +57,11 @@ public sealed class H3Tables
             t.Spells = ParseSpells(text);
             t.SpellTable = ParseSpellTable(text);
             t.Sources["sptraits.txt"] = from!;
-            if (vfs.GameFolder != null && ExeSpellTable.Apply(vfs.GameFolder, t.SpellTable) is { } exe) t.Sources["spell flags"] = exe;
+            if (vfs.GameFolder != null && ExeSpellTable.Apply(vfs.GameFolder, t.SpellTable) is { } exe)
+            {
+                t.Sources["spell flags"] = exe;
+                t.Executable = exe;
+            }
         }
         var ss = vfs.Read("sstraits.txt", out from);
         if (ss != null) { t.SecondarySkills = ParseSkills(H3Text.Decode(ss)); t.Sources["sstraits.txt"] = from!; }

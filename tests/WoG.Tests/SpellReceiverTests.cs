@@ -69,7 +69,7 @@ public class SpellReceiverTests
     }
 
     /// <summary>H3-like values: Summon Boat an adventure spell, Magic Arrow a battle damage spell at an enemy.</summary>
-    static (int, int, int) H3Like(int i) => i switch
+    internal static (int, int, int) H3Like(int i) => i switch
     {
         0 => (0, -1, 0x100002),
         15 => (-1, 64, 0x8211),

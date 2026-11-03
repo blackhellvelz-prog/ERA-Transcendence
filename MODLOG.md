@@ -1059,3 +1059,30 @@ buses and logs them) `[V-game]`:
 * `WoG.ErmTool vfs-read <ERA folder> <file> [out]` — a file as Era's VFS gives it (ZSETUP00.TXT is in the archives).
 * 288 xUnit tests (+2: `The_dialog_clicks_give_the_options_and_show_them_back`,
   `A_saved_choice_is_the_options_of_new_maps`); the build has 0 warnings.
+
+## 2026-11-03 — session 3, continued: UN:C by meaning (`H3Memory`)
+
+* **What the corpus reads and writes** (the ERA corpus' 160 unsupported `UN:C` calls, read in the scripts and in the
+  user's h3era.exe with a PE reader): wogify's FU7779 takes a spell's schools from the operand of H3's code at 4474587
+  (0x4446DB → the variable 0x687FA8 → the table 0x6854A0, + spell × 136 + 28); "30 wog - enhanced secondary skills"
+  sets the effect tables of Armorer (6547980), Resistance (6548044) and Sorcery (6548092) — 4 floats each: none,
+  basic, advanced, expert; SoD's 5/10/15, 5/10/20, 5/10/15 % become 10/15/20, 10/20/30, 10/20/30 % — and puts the old
+  values back on leaving the game; the WoG and ERA Scripts stdlibs jump over H3's object deletion sound (2 bytes at
+  4893167) while they walk the map; "towns may be renamed" reads H3's screen height (600) and could move the town
+  hint (7415917, y 555); Era's stdlib reads H3's game manager for the quest texts.
+* **`H3Memory`** (`src/WoG.Erm/Era/H3Memory.cs`; `ErmRuntime.Memory`; Erm.pas `Hook_UN_C`: 3 or 4 parameters, sizes
+  ±1/±2/4 with the sign as ZvsApply, GET only in the last parameter): byte-exact reads and writes of
+  * the spell table at a virtual address (0x7D000000, like the towns' 0x7E000000), its int fields as `SS` has them
+    (target, animation, flags, level, schools, costs, power, effects, chances, AI values) — a write is `SS`'s change
+    (`SsReceiver.OwnSpell`), the text pointers stay unsupported;
+  * the three skill effect tables → `WoGGameState.SkillEffects` (float bits, saved with the game; putting the
+    executable's values back removes the change); Olden Era has the same skills (`skill_protection` −10/15/20 % damage,
+    `skill_resistance` −15/25/35 % magic damage, `skill_sorcery` +20/25/30 %) but they do not change yet;
+  * five H3 code places with no meaning in Olden Era (its code does not run): a read gives the executable's bytes
+    (`H3Tables.ReadExecutable`), a write is kept for the session;
+  * any other address: unsupported, the address in the reason.
+* The corpus: `UN:C` 160 → 12 (9 kept skill table changes, 3 reads of H3's game manager); 183 scripts, 0 ERM errors,
+  96 WoG options on. Tests 288 → 295 (`H3MemoryTests`: the wogify read, spell table writes, the enhanced Resistance
+  round trip with the save, the code patch, unknown addresses and sizes, no executable, the user's h3era.exe).
+* `NEXT_AGENT.md`: the commit step now names the author blackhellvelz and the user's rule that commits name no AI
+  tools (it still had the old wording).

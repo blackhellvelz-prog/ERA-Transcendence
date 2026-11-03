@@ -2,6 +2,7 @@ using System;
 using WoG.Core.Compat;
 using WoG.Core.H3Data;
 using WoG.Core.Model;
+using WoG.Core.Services;
 using WoG.Erm.Runtime;
 
 namespace WoG.Erm.Receivers;
@@ -41,10 +42,8 @@ public sealed class SsReceiver : ErmReceiverBase
         {
             int v = get(spell);
             if (c.Apply(ref v, param) || v == get(spell)) return;
-            if (!s.State.SpellOverrides.TryGetValue(id, out var copy))
-                s.State.SpellOverrides[id] = copy = table[id].Clone();
-            set(copy, v);
-            spell = copy;
+            spell = OwnSpell(s, id);
+            set(spell, v);
             changed = true;
         }
 
@@ -87,11 +86,17 @@ public sealed class SsReceiver : ErmReceiverBase
         {
             int v = spell.TextVars[slot];
             if (c.Apply(ref v, param) || v == spell.TextVars[slot]) return;
-            if (!s.State.SpellOverrides.TryGetValue(id, out var copy))
-                s.State.SpellOverrides[id] = copy = table[id].Clone();
-            copy.TextVars[slot] = v;
-            spell = copy;
+            spell = OwnSpell(s, id);
+            spell.TextVars[slot] = v;
             changed = true;
         }
+    }
+
+    /// <summary>The WoG state's own copy of a spell, made from the installation's table on its first change.</summary>
+    internal static WoGSpell OwnSpell(IWoGServices s, int id)
+    {
+        if (!s.State.SpellOverrides.TryGetValue(id, out var copy))
+            s.State.SpellOverrides[id] = copy = s.H3.SpellTable[id].Clone();
+        return copy;
     }
 }

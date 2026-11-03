@@ -97,8 +97,9 @@ run the tests and the ERA corpus, then start with the backlog in NEXT_AGENT.md s
    through the bridge and screenshots; read `BepInEx/LogOutput.log` (`[ERM] Error …` and `[unsupported] …`).
 6. A tile in `FeatureCatalog.cs`; `Declare(...)` notes (+ Russian in `ReceiverRegistry.RussianNotes`) → regenerate
    `Compatibility/ERM_Compatibility*.md` with `WoG.ErmTool compat`; matrix rows; `MODLOG.md` + `MODLOG.ru.md`.
-7. Commit (`git -c user.name="Claude" -c user.email="noreply@anthropic.com" commit`, ending with the
-   `Co-Authored-By` line); the user wants GitHub kept up to date — push the branch after a verified wave; no PRs.
+7. Commit as the author `blackhellvelz` (`git -c user.name=blackhellvelz -c
+   user.email=blackhellvelz-prog@users.noreply.github.com commit`); the user's rule: commit messages and every public
+   text name no AI tools; the user wants GitHub kept up to date — push the branch after a verified wave; no PRs.
 
 The user writes in Russian and wants the answers in Russian; documentation is English (`X.md`) with a synchronized
 Russian copy (`X.ru.md`) in the same change; code comments are English.
@@ -109,7 +110,7 @@ Russian copy (`X.ru.md`) in the same change; code comments are English.
 
 | Item | Count | Where | Next step |
 |---|---|---|---|
-| `UN:C` (H3 memory) | 160 (1291 before 2026-11-03: arrays from `NewIntArray` were not filled, so loops took their empty items for real ones) | enhanced secondary skills (skill effect tables, e.g. Resistance at 6548044), wogify (spell schools via the spell table), the stdlibs of WoG/Era/ERA Scripts, towns may be renamed | an address registry with *semantic* accessors per known address (spell table → `SS` data; skill tables → Olden Era sub-skill configs; …); unknown addresses stay unsupported with the address in the reason |
+| `UN:C` (H3 memory) | 12 (160 before `H3Memory`, 1291 before the arrays were filled; 2026-11-03) | era stdlib `H3Quests_RefreshData` (H3's game manager, the quest vector); the 9 calls of the enhanced secondary skills are kept with the WoG state but do not change Olden Era's skills | **done 2026-11-03:** `H3Memory` maps each address the corpus uses by meaning (the spell table through 4474587 → `SS` data; Armorer/Resistance/Sorcery effect tables → `WoGGameState.SkillEffects`; H3 code patches → the executable's bytes); next: the skill tables → Olden Era's skill bonuses, then any new address by its meaning |
 | `SN:H` hints | 124 | secondary skill text (30 sites), enhanced secondary skills, cards of prophecy, market of time | keep hints in the WoG state; show them through Olden Era's tooltips (RE the tooltip source) |
 | `UN:I` place object | 23 | wogify (12 sites) | Olden Era map object creation (RE needed) — the base of WoGification's transformations |
 | `HT:W/P/T/V` | 19/19/6/2 | magic mushrooms, potion fountains, fishing well, artificer, palace of dreams, school of wizardry… | object hint texts (same UI path as SN:H) |
@@ -124,8 +125,10 @@ armies), `TR:G` (terrain overlays), `UN:J1` with a non-zero limit (enforce throu
 `dyx.chmo`), `HE:X` for Olden Era-only specialties.
 
 **Already designed, not finished:** `SS` changes → Olden Era magic configs (`DB/magics/*.json`: `rank`,
-`manaCost[4]`; spells map by effect in `Compatibility/id-maps/spell.json`); the WoG Options window (the dialog items
-are loaded: `WoGHost.OptionSetup`, values applied at a new map); commanders and stack experience inside Olden Era
+`manaCost[4]`; spells map by effect in `Compatibility/id-maps/spell.json`); the WoG Options window (written,
+`WoGOptionsWindow`, F6; not yet opened in the game); the skill effect tables `UN:C` keeps (`WoGGameState.SkillEffects`)
+→ Olden Era's `skill_protection`, `skill_resistance`, `skill_sorcery` (`DB/heroes_skills/skills/skills.json`
+`parametersPerLevel[].bonuses`; the rule from H3's numbers to Olden Era's is still to be chosen); commanders and stack experience inside Olden Era
 battles (buff generator exists; commander as a unit not started); battle receivers `BU/BF/BH/MR` and a coordinate
 translation layer (H3 17×11 ↔ Olden Era's field); WoGification's actual map transformations (`78 wog - wogify.erm`
 needs UN:I/UN:B/UN:U/OB first); map scripts for Olden Era maps (the ERA rules are in `Wogification.Plan`).

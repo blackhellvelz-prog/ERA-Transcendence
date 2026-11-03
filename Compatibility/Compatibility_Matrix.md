@@ -58,7 +58,7 @@ Columns:
 | Saving/loading WoG state | Full | saves are gzip text starting with a checksum; `StartInfo.fileHashSum` after loading | state file per save in `BepInEx/config/WoG/saves/<checksum>.wog.json` + ownership check | **Done + round-trip tests** | **Done**: `MapSaved` (path) → state file; session from a save → state restored, no instructions, no second day 1; a save without WoG state gets a fresh one | **Yes** (quick save / quick load, autosave) | WORKAROUND | the state stays on this PC (not inside the Olden Era save file) |
 | Visual resources | — | OE models/icons | `VisualRef` + priority-based resolver | **Done (resolver) + test** | placeholders | No | PARTIALLY SUPPORTED | placeholders are allowed by the policy |
 | Multiplayer / network ERM (`IP`, `FU:D`) | Partial | n/a | — | — | — | — | UNSUPPORTED | project rule: single-player only |
-| Memory-level ERM (`UN:C`, addresses) | Full | impossible | — | — | — | — | UNSUPPORTED | different engine, no addresses |
+| Memory-level ERM (`UN:C`, addresses) | Full | by meaning only | `H3Memory`: the addresses scripts use, each by what it means — the spell table (fields of `SS`), the effect tables of Armorer, Resistance and Sorcery (WoG state), H3 code patches with no Olden Era meaning (the executable's bytes) | **tests** (`H3MemoryTests`; the ERA corpus 160 → 12) | — | not yet | PARTIAL | other addresses unsupported, the address in the reason; the skill tables do not change Olden Era's skills yet |
 
 The per-command ERM table is generated from the code: `dotnet run --project tools/WoG.ErmTool -- compat`
 → `ERM_Compatibility.md`.
@@ -67,7 +67,7 @@ The per-command ERM table is generated from the code: `dotnet run --project tool
 
 | What | Why it cannot be full | What was tried | Engine limitation | How much is reproducible | Possible path |
 |------|-----------------------|----------------|-------------------|--------------------------|---------------|
-| `UN:C` | writes to H3 memory addresses | — | different engine | 0 % | rewrite the specific scripts that use `UN:C` in terms of receivers |
+| `UN:C` | reads and writes H3 memory addresses | the addresses the corpus uses, by meaning (`H3Memory`, 2026-11-03) | different engine: no H3 structures | the spell table, three skill effect tables, five code patches; 12 of 160 corpus calls left (H3's game manager for the quest texts) | each further address by its meaning, never a copy of H3's memory |
 | `SN:E` (ERA) | calls an H3 exe function by address | — | different engine | 0 % | for frequent addresses — a custom function with the same meaning (based on the call site in the script) |
 | ERA plugins | closed-source DLLs | — | no sources | 0 % for now | describe the behavior from documentation/experience and reimplement it |
 | Commanders as an entity | OE has no "special hero unit" | data analysis (`units`, `heroes`) | no such entity | estimate: everything except the native UI (not measured) | emulation: unit clone + WoG state + uGUI |

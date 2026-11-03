@@ -119,7 +119,8 @@ public sealed class UnReceiver : ErmReceiverBase
         Declare("R", CompatLevel.PartiallySupported,
             "UN:R — R1-R4 redraws: Olden Era redraws its screens itself; R5-R7 (mouse pointer shape, delay) are cosmetic and do nothing");
         Declare("J", CompatLevel.PartiallySupported, "UN:J — J0 spell bans (kept; Olden Era's guilds do not use them yet), J1 the WoG level limit (kept, 0 = none; a limit is not enforced yet) and the experience of a level (the engine's table), J2 difficulty (Olden Era's AI difficulty), J8/J9 files and folders (the write folder first, then the ERA installation), J10 variable log, J11; J3-J7, J12, J13 are not mapped yet");
-        Declare("C", CompatLevel.Unsupported, "UN:C writes to H3 memory addresses — impossible on a different engine");
+        Declare("C", CompatLevel.PartiallySupported,
+            "UN:C — H3 memory by meaning: the spell table (through the address H3's code keeps at 4474587; the fields of SS), the effect tables of Armorer, Resistance and Sorcery (kept with the WoG state; Olden Era's skills do not change yet), H3 code patches with no meaning in Olden Era (object deletion sound, screen size, town hint: the executable's bytes, a write kept for the session); any other address is unsupported, the address in the reason");
         Declare("BDEFGHIKLMOQSTWYZ", CompatLevel.Unsupported, "UN map/object/global commands are not mapped yet");
     }
 
@@ -135,6 +136,7 @@ public sealed class UnReceiver : ErmReceiverBase
             case 'N': Names(c); break;
             case 'J': Misc(c); break;
             case 'R': Redraw(c); break;
+            case 'C': c.Rt.Memory.UnC(c); break;
             default: throw ErmCall.WrongCommand(c.Letter);
         }
     }
