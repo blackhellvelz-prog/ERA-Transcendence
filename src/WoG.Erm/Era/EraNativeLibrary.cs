@@ -35,6 +35,8 @@ public static class EraNativeLibrary
         n["Array_Merge"] = ArrayMerge;
         n["Array_Slice"] = ArraySlice;
         n["Array_Shuffle"] = ArrayShuffle;
+        n["Array_Revert"] = ArrayRevert;
+        n["Array_Fill"] = ArrayFill;
         // artifacts: ERA reads and changes H3's hero structure (HE:Z + UN:C, SN:E to H3's own functions); here the
         // hero adapter does it, with ERA's artifact numbers (NO_ART -1, a spell scroll is 1 with its spell as modifier)
         n["GetArtAtSlot"] = GetArtAtSlot;
@@ -61,7 +63,18 @@ public static class EraNativeLibrary
         n["WOG_GetExpRequirementOfLevel"] = (rt, x, _) => x[1] = x[0] < 1 ? 0 : Need(rt.Services.Game.Heroes.ExperienceForLevel(-1, x[0]));
         n["WOG_GameMgr_GetPlayer_Team"] = (rt, x, _) =>
             x[1] = rt.Services.Game.Players.GetTeam(x[0]) is { Status: AdapterStatus.Ok, Value: var t } ? t : x[0];
+        // ---- Game Enhancement Mod (gem_functions.erm), loaded with the user's whole mod list ----
+        // gem_Town_GetStruct(town, ?struct): H3's town structure (UN:C of the game manager + 136724 + town * 360); GEM
+        // warns "Error in getting town structure address. The game may fall at any time" when it reads 0. An Olden
+        // Era town has no such structure: a virtual address that is never 0 — reads and calls at it stay unsupported.
+        n["gem_Town_GetStruct"] = (_, x, _) => x[1] = VirtualTownStructs + x[0] * 360;
+        // Town_IsSpellBanned(town, spell, ?result): the town's own banned-spell bits (no such ban in Olden Era) or the
+        // map's ban (the game manager's byte at 74 + spell = UN:J0)
+        n["Town_IsSpellBanned"] = (rt, x, _) => x[2] = rt.Services.State.DisabledSpells.Contains(x[1]) ? 1 : 0;
     }
+
+    /// <summary>The virtual "address" of town 0's H3 structure (see gem_Town_GetStruct); far from H3's real ones.</summary>
+    public const int VirtualTownStructs = 0x7E000000;
 
     // ---- artifacts ------------------------------------------------------------------------------
 
@@ -231,6 +244,45 @@ public static class EraNativeLibrary
         if (count <= 0) return;
         if (list.IsString) result.Strs.AddRange(list.Strs.GetRange(start, count));
         else result.Ints.AddRange(list.Ints.GetRange(start, count));
+    }
+
+    /// <summary>
+    /// The item range of Array_Revert/Array_Fill (stdlib.erm): the whole array by default, the optional start and end
+    /// indexes (the call's arguments at <paramref name="startArg"/>, +1) clamped to the array; null when it is empty.
+    /// </summary>
+    static (int Start, int End)? Range(EraSlot s, int[] x, int numArgs, int startArg)
+    {
+        int count = s.Count;
+        if (count <= 0) return null;
+        int start = numArgs <= startArg ? 0 : x[startArg];
+        int end = numArgs <= startArg + 1 ? count - 1 : x[startArg + 1];
+        return (Math.Max(start, 0), Math.Min(end, count - 1));
+    }
+
+    /// <summary>
+    /// Array_Revert(list, startInd = 0, endInd = numItems - 1): reverses the items of the range (stdlib.erm:
+    /// SN:F^Erm_RevertInt32Array^ on the array's address; a string array's items are its string pointers there).
+    /// </summary>
+    static void ArrayRevert(ErmRuntime rt, int[] x, int numArgs)
+    {
+        var s = Slot(rt, x[0]);
+        if (Range(s, x, numArgs, 1) is not var (start, end) || start >= end) return;
+        if (s.IsString) s.Strs.Reverse(start, end - start + 1);
+        else s.Ints.Reverse(start, end - start + 1);
+    }
+
+    /// <summary>
+    /// Array_Fill(list, startValue, step = 0, startInd = 0, endInd = numItems - 1): items of the range get startValue,
+    /// startValue + step… (stdlib.erm: SN:F^Erm_FillInt32Array^ on the array's address; Delphi integers wrap around).
+    /// A string array would get numbers in place of its string pointers in Era — undefined, so not reproduced.
+    /// </summary>
+    static void ArrayFill(ErmRuntime rt, int[] x, int numArgs)
+    {
+        var s = Slot(rt, x[0]);
+        if (Range(s, x, numArgs, 3) is not var (start, end) || start > end) return;
+        if (s.IsString) throw new ErmUnsupportedException("Array_Fill on an array of strings writes numbers over its string pointers in Era (undefined)");
+        int value = x[1], step = numArgs > 2 ? x[2] : 0;
+        for (int i = start; i <= end; i++, value = unchecked(value + step)) s.Ints[i] = value;
     }
 
     /// <summary>Array_Shuffle(list): for each index i, swaps the item with a random one from i to the end.</summary>

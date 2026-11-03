@@ -63,6 +63,12 @@ public sealed class WoGPlugin : BasePlugin
     /// </summary>
     public static Action<string, Action<bool>>? AskDialog;
 
+    /// <summary>
+    /// A message with one button in the game's own style (ERM's IF:M), queued by the interface plugin; null without
+    /// it. The script does not wait for it to be closed.
+    /// </summary>
+    public static Action<string>? MessageDialog;
+
     /// <summary>Every frame on the game thread (the in-game debug window draws and reads keys here).</summary>
     public static event Action? Frame;
     internal static void RaiseFrame() => Frame?.Invoke();
@@ -111,6 +117,13 @@ public sealed class WoGPlugin : BasePlugin
         Host = host;
         Adapter = adapter;
         adapter.PoolHeroes.PoolName = n => n < host.H3.HeroNames.Count ? host.H3.HeroNames[n] : null;
+        // IF:M through the interface plugin's window (it loads after this plugin: read at the time of the message)
+        adapter.ShowMessageImpl = text =>
+        {
+            if (MessageDialog is not { } show) return false;
+            show(text);
+            return true;
+        };
         if (wogify.Value >= 0) host.WogifySetting = Math.Min(wogify.Value, 3);
         OldenEraGameAdapter.MethodTraceReal = MethodTrace.Real;
         host.ErmLog = m => Log.LogInfo("[ERM] " + m);

@@ -20,7 +20,8 @@ public sealed class IfReceiver : ErmReceiverBase
     public IfReceiver() : base("IF")
     {
         Declare("VASRW", CompatLevel.FullySupported);
-        Declare("MQ", CompatLevel.PartiallySupported, "text messages and yes/no questions; variants with pictures need custom UI");
+        Declare("MQ", CompatLevel.PartiallySupported,
+            "text messages and yes/no questions; in Olden Era a message shows in the game's style without pausing the script (H3's message box held it), a question needs the script suspended until the answer (not yet); variants with pictures need custom UI");
         Declare("TPEXBFGDNL", CompatLevel.Unsupported, "special WoG dialogs (pictures, sphinx, checkboxes, multiple choice) need a custom UI layer");
     }
 

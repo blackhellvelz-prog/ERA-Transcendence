@@ -55,6 +55,58 @@ public class EraNativeLibraryTests
         Assert.Equal(1, t.V(11));
     }
 
+    /// <summary>
+    /// Array_Fill and Array_Revert (stdlib.erm) pass the array's address to Era's Erm_FillInt32Array /
+    /// Erm_RevertInt32Array; natively: the same defaults, clamping and steps.
+    /// </summary>
+    [Fact]
+    public void Array_fill_and_revert_work_on_the_array_without_its_address()
+    {
+        using var t = new EraTestHost().Script("t.erm", "ZVSE2\n" +
+            "!?FU(Array_Fill);\n!#VA(list:x);\n!!SN:M(list)/?(n:y)/d/d/?(addr:y);\n" + // the ERM body needs the address
+            "!?FU(Go);\n" +
+            "!!SN:M-1/6/0/1/?v1;\n" +
+            "!!FU(Array_Fill):Pv1/100/2;\n" +                 // 100 102 104 106 108 110
+            "!!SN:Vv1/0/?v2/?v3/?v4/?v5/?v6/?v7;\n" +
+            "!!FU(Array_Fill):Pv1/7/0/4/99;\n" +              // items 4..5 (the end clamped) = 7
+            "!!FU(Array_Revert):Pv1/-3/3;\n" +                 // items 0..3 reversed (the start clamped)
+            "!!SN:Vv1/0/?v8/?v9/?v10/?v11/?v12/?v13;\n" +
+            "!!FU(Array_Revert):Pv1/5/5;\n" +                  // a single item: nothing
+            "!!SN:M-1/0/0/1/?v14;\n" +
+            "!!FU(Array_Fill):Pv14/1/1;\n" +                   // an empty array: nothing
+            "!!FU(Array_Fill):Pv1/2147483647/1/0/1;\n" +       // Delphi integers wrap around
+            "!!SN:Vv1/0/?v15/?v16;\n").Start();
+        t.Call("Go");
+        Assert.Equal("", t.ErrorText);
+        Assert.Empty(t.Host.Compat.Entries);
+        Assert.Equal(new[] { 100, 102, 104, 106, 108, 110 }, Enumerable.Range(2, 6).Select(t.V));
+        Assert.Equal(new[] { 106, 104, 102, 100, 7, 7 }, Enumerable.Range(8, 6).Select(t.V));
+        Assert.Equal((int.MaxValue, int.MinValue), (t.V(15), t.V(16)));
+    }
+
+    /// <summary>
+    /// Game Enhancement Mod reads H3's town structure by address and warns the player when it gets 0 ("the game may
+    /// fall at any time"); natively: a virtual non-zero address, and the spell ban from UN:J0.
+    /// </summary>
+    [Fact]
+    public void Gem_town_functions_do_not_warn_and_read_the_spell_ban()
+    {
+        using var t = new EraTestHost().Script("t.erm", "ZVSE2\n" +
+            "!?FU(gem_Town_GetStruct);\n!#VA(townId:x) (buildId:x);\n!!UN:C6919480/4/?(game:y);\n" +
+            "!!IF&(buildId)<43200000:M^{FU(gem_Town_GetStruct): Attention!}^;\n" +
+            "!?FU(Go);\n" +
+            "!!FU(gem_Town_GetStruct):P3/?v1;\n" +
+            "!!UN:J0/17/1;\n" +
+            "!!FU(Town_IsSpellBanned):P3/17/?v2;\n" +
+            "!!FU(Town_IsSpellBanned):P3/18/?v3;\n").Start();
+        t.Call("Go");
+        Assert.Equal("", t.ErrorText);
+        Assert.Empty(t.Host.Compat.Entries);
+        Assert.Empty(t.Game.Messages);
+        Assert.Equal(WoG.Erm.Era.EraNativeLibrary.VirtualTownStructs + 3 * 360, t.V(1));
+        Assert.Equal((1, 0), (t.V(2), t.V(3)));
+    }
+
     /// <summary>Era Erm Framework's artifact functions read H3's hero structure (HE:Z, UN:C, SN:E): here the adapter.</summary>
     [Fact]
     public void Era_artifact_functions_work_on_the_hero_through_the_adapter()

@@ -55,7 +55,7 @@ engine (`WoG.ErmTool run`) currently runs into: `HT:P/W`, `OW:T`, `UN:A/B/R/V/X`
 | `HL` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `HO` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `HT` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
-| `IF` | yes | `ARSVW` FULLY SUPPORTED; `BDEFGLNPTX` UNSUPPORTED (special WoG dialogs (pictures, sphinx, checkboxes, multiple choice) need a custom UI layer); `MQ` PARTIALLY SUPPORTED (text messages and yes/no questions; variants with pictures need custom UI) |
+| `IF` | yes | `ARSVW` FULLY SUPPORTED; `BDEFGLNPTX` UNSUPPORTED (special WoG dialogs (pictures, sphinx, checkboxes, multiple choice) need a custom UI layer); `MQ` PARTIALLY SUPPORTED (text messages and yes/no questions; in Olden Era a message shows in the game's style without pausing the script (H3's message box held it), a question needs the script suspended until the answer (not yet); variants with pictures need custom UI) |
 | `IP` | no | UNSUPPORTED — network ERM is out of scope (single-player only) |
 | `KT` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |
 | `LD` | no | UNSUPPORTED — receiver is not mapped to the target engine yet |

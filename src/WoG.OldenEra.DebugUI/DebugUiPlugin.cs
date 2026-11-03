@@ -21,6 +21,7 @@ public sealed class DebugUiPlugin : BasePlugin
         // WoG's questions (the WoGify question of a new map) in the game's style, with or without WoG Debug
         var dialogs = new GameDialogs(Log);
         WoGPlugin.AskDialog = dialogs.Ask;
+        WoGPlugin.MessageDialog = dialogs.Message;
         WoGPlugin.Frame += dialogs.Tick;
 
         var commands = WoGPlugin.Commands;

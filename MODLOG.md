@@ -984,3 +984,27 @@ buses and logs them) `[V-game]`:
   96 WoG options on.
 * Next: commanders and stack experience inside Olden Era battles; the WoG Options window; `IF` dialogs with ERM
   suspension; the backlog of `NEXT_AGENT.md` §6.
+
+## 2026-11-03 — session 3, continued: Era's arrays, ERM messages in the game, GEM's town structure
+
+* **`Array_Fill` / `Array_Revert`** (Era Erm Framework's stdlib) pass the array's address (`SN:M` with `?addr`) to
+  Era's `Erm_FillInt32Array` / `Erm_RevertInt32Array`. Native now, with the ERM bodies' defaults (the whole array),
+  clamping and steps (Delphi integers wrap around); an array of strings is not filled (Era would write numbers over its
+  string pointers). `NewIntArray(size, value)` fills through `Array_Fill`, so until now every such array stayed 0 —
+  living scrolls' list of `NO_SPELL` was spell 0, and so on. The corpus: `SN:M` with an address and
+  `SN:F^Erm_FillInt32Array^` are gone (7 + 7), `UN:C` 1291 → 160 (loops no longer take the empty items for real ones);
+  183 scripts, 0 ERM errors. [V-game: `Array_Fill` 10, step 5 → 10 15 20 25 30; `Array_Revert` → 30 25 20 15 10.]
+* **`IF:M` in the game.** The interface plugin's dialogs (so far the WoGify question) got a message with one button
+  («Принять»); the adapter's `ShowMessage` queues it through `WoGPlugin.MessageDialog`. The script does not wait for
+  the window (Olden Era's interface cannot hold the game thread the way H3's modal box held the script); questions
+  (`IF:Q`, `IF:M` type 2) still need the script suspended until the answer — the next step. [V-game: a message with
+  `{…}` highlighted, in the game's frame and fonts.]
+* The first real message it showed was a false alarm of Game Enhancement Mod (in the user's mod list):
+  `gem_Town_GetStruct` reads H3's town structure (the game manager + 136724 + town × 360) and warns "Error in getting
+  town structure address. The game may fall at any time" when it reads 0 — once per town at every new map. Native now:
+  a virtual non-zero address (reads and calls at it stay unsupported), and `Town_IsSpellBanned` answers from `UN:J0`'s
+  ban (Olden Era has no ban per town). [V-game: a new map starts without the warnings.]
+* `tools/docs/regen-compat.py` writes the four generated tables byte for byte (a PowerShell redirect re-encodes them).
+* 281 xUnit tests (+2: `Array_fill_and_revert_work_on_the_array_without_its_address`,
+  `Gem_town_functions_do_not_warn_and_read_the_spell_ban`); the build has 0 warnings; the corpus 183 scripts, 0 ERM
+  errors.

@@ -9,18 +9,19 @@ using UnityEngine.UI;
 namespace WoG.OldenEra.DebugUI;
 
 /// <summary>
-/// WoG's questions in the game's own style (the window frame, fonts and buttons of its message box) over a dimmed
-/// screen that keeps the mouse off the game; the game's hotkeys are off while a question waits. Questions come one
-/// at a time, in order. The WoGify question of a new map is the first user (WoGPlugin.AskDialog). It runs whether
-/// WoG Debug is on or not.
+/// WoG's questions and messages in the game's own style (the window frame, fonts and buttons of its message box) over
+/// a dimmed screen that keeps the mouse off the game; the game's hotkeys are off while one waits. They come one at a
+/// time, in order. Users: the WoGify question of a new map (WoGPlugin.AskDialog) and ERM's IF:M messages
+/// (WoGPlugin.MessageDialog). It runs whether WoG Debug is on or not.
 /// </summary>
 internal sealed class GameDialogs
 {
     readonly ManualLogSource log;
-    readonly Queue<(string Text, Action<bool> Answer)> pending = new();
+    readonly Queue<(string Text, string Title, Action<bool> Answer, bool Message)> pending = new();
     GameObject root;
     RectTransform window;
-    TextMeshProUGUI body;
+    TextMeshProUGUI body, title;
+    GameObject yes, no, ok;
     Action<bool> answer;
     bool? gameHotkeys;
     bool failed;
@@ -28,10 +29,22 @@ internal sealed class GameDialogs
     public GameDialogs(ManualLogSource log) => this.log = log;
 
     /// <summary>Queues a yes/no question (H3 markup: {…} highlighted, {~color}…{~} colored).</summary>
-    public void Ask(string text, Action<bool> onAnswer)
+    public void Ask(string text, Action<bool> onAnswer) => Ask(text, "WoG'ификация", onAnswer);
+
+    public void Ask(string text, string heading, Action<bool> onAnswer)
     {
         if (failed) { onAnswer(true); return; }
-        pending.Enqueue((text, onAnswer));
+        pending.Enqueue((text, heading, onAnswer, false));
+    }
+
+    /// <summary>
+    /// Queues a message with one button (H3's IF:M). The caller does not wait: Olden Era's interface cannot hold the
+    /// game thread the way H3's modal message box held the script.
+    /// </summary>
+    public void Message(string text)
+    {
+        if (failed) return;
+        pending.Enqueue((text, "", _ => { }, true));
     }
 
     /// <summary>Every frame: shows the next question once the game's interface is loaded.</summary>
@@ -45,9 +58,14 @@ internal sealed class GameDialogs
                 if (!GameUi.Load()) return;
                 Build();
             }
-            var (text, onAnswer) = pending.Dequeue();
+            var (text, heading, onAnswer, message) = pending.Dequeue();
             answer = onAnswer;
             body.text = H3Markup(text);
+            title.text = heading;
+            title.gameObject.SetActive(heading.Length > 0);
+            yes.SetActive(!message);
+            no.SetActive(!message);
+            ok.SetActive(message);
             root.SetActive(true);
             gameHotkeys = WoGPlugin.GameHotkeys;
             WoGPlugin.GameHotkeys = false;
@@ -80,7 +98,7 @@ internal sealed class GameDialogs
         window = GameUi.Place(GameUi.Rect("Window", top), 0.5f, 0.5f, 0.5f, 0.5f, -900, -470, -900, -470);
         GameUi.Frame(window);
         var inner = GameUi.Place(GameUi.Rect("Body", window), 0, 0, 1, 1, 130, 110, 130, 90);
-        GameUi.Text(GameUi.Place(GameUi.Rect("Title", inner), 0, 1, 1, 1, 0, -90, 0, 0), "Header", "WoG'ификация", 46, GameUi.Gold,
+        title = GameUi.Text(GameUi.Place(GameUi.Rect("Title", inner), 0, 1, 1, 1, 0, -90, 0, 0), "Header", "", 46, GameUi.Gold,
             TextAlignmentOptions.Center, header: true);
         body = GameUi.Text(GameUi.Place(GameUi.Rect("Text", inner), 0, 0, 1, 1, 20, 150, 20, 110), "Text", "", 34, GameUi.Light,
             TextAlignmentOptions.Center);
@@ -89,10 +107,13 @@ internal sealed class GameDialogs
         body.fontSizeMax = 34;
         body.textWrappingMode = TextWrappingModes.Normal;
 
-        var yes = GameUi.Button(inner, "Yes", "Да", () => Answer(true), size: 34);
-        GameUi.Place(yes.GetComponent<RectTransform>(), 0.5f, 0, 0.5f, 0, -440, 10, 40, -120);
-        var no = GameUi.Button(inner, "No", "Нет", () => Answer(false), violet: true, size: 34);
-        GameUi.Place(no.GetComponent<RectTransform>(), 0.5f, 0, 0.5f, 0, 40, 10, -440, -120);
+        var yesButton = GameUi.Button(inner, "Yes", "Да", () => Answer(true), size: 34);
+        GameUi.Place(yesButton.GetComponent<RectTransform>(), 0.5f, 0, 0.5f, 0, -440, 10, 40, -120);
+        var noButton = GameUi.Button(inner, "No", "Нет", () => Answer(false), violet: true, size: 34);
+        GameUi.Place(noButton.GetComponent<RectTransform>(), 0.5f, 0, 0.5f, 0, 40, 10, -440, -120);
+        var okButton = GameUi.Button(inner, "Ok", "Принять", () => Answer(true), size: 34);
+        GameUi.Place(okButton.GetComponent<RectTransform>(), 0.5f, 0, 0.5f, 0, -200, 10, -200, -120);
+        (yes, no, ok) = (yesButton.gameObject, noButton.gameObject, okButton.gameObject);
         root.SetActive(false);
     }
 
