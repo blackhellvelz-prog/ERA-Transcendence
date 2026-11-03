@@ -24,9 +24,17 @@ public sealed class IfReceiver : ErmReceiverBase
     {
         Declare("VASRW", CompatLevel.FullySupported);
         Declare("MQ", CompatLevel.PartiallySupported,
-            "text messages and yes/no questions; in Olden Era scripts run on a worker thread and wait for the player in the game's own windows, as H3's modal dialogs held them (an entry nested in another, or started while one waits, shows its message without waiting and cannot ask); with pictures a message or question is shown without them yet, a popup or a choice of pictures needs custom UI");
+            "text messages and yes/no questions; in Olden Era scripts run on a worker thread and wait for the player in the game's own windows, as H3's modal dialogs held them (one that comes while a script waits runs after it; an entry nested in another shows its message without waiting and cannot ask); with pictures a message or question is shown without them yet, a popup or a choice of pictures needs custom UI");
         Declare("G", CompatLevel.FullySupported, ChoiceNote);
         Declare("TPEXBFDNL", CompatLevel.Unsupported, "special WoG dialogs (pictures, sphinx, the multipurpose dialog) need a custom UI layer");
+    }
+
+    /// <summary>The ERM log gets every dialog with its script line (WOGERMLOG; the plugin's log in the game).</summary>
+    static string Logged(ErmCall c, string text)
+    {
+        string one = text.Replace("\r", "").Replace('\n', ' ');
+        c.Rt.Log?.Invoke($"[dialog] {c.Line.Loc} !!IF:{c.Letter} — {(one.Length > 100 ? one[..100] + "…" : one)}");
+        return text;
     }
 
     protected override void Run(ErmCall c)
@@ -42,22 +50,23 @@ public sealed class IfReceiver : ErmReceiverBase
                     c.Apply(ref type, 1);
                     string text = c.Text(2);
                     int result;
-                    if (type == 1) { c.Need(rt.WhileWaiting(() => ui.ShowMessage(text))); result = 0; }
-                    else if (type == 2) result = c.Need(rt.WhileWaiting(() => ui.AskYesNo(text))) ? 1 : 0;
+                    if (type == 1) { c.Need(rt.WhileWaiting(() => ui.ShowMessage(Logged(c, text)))); result = 0; }
+                    else if (type == 2) result = c.Need(rt.WhileWaiting(() => ui.AskYesNo(Logged(c, text)))) ? 1 : 0;
                     else throw new ErmUnsupportedException($"IF:M message type {type} needs custom UI");
                     c.Apply(ref result, 0);
                 }
                 else if (c.Num == 2)
                 {
                     if (c.N(0) != 1) throw new ErmRuntimeException("\"IF:M\"-wrong syntax (M1/$).");
-                    string text = rt.GetString(c.N(1));
-                    c.Need(rt.WhileWaiting(() => ui.ShowMessage(text)));
+                    // GetErmString; Era's z numbers include the scripts' ERT strings (z130133 of adventure cave)
+                    string text = rt.IsEra ? rt.EraZInterpolated(c.N(1)) : rt.GetString(c.N(1));
+                    c.Need(rt.WhileWaiting(() => ui.ShowMessage(Logged(c, text))));
                 }
                 else
                 {
                     var p = c.P(0);
                     string text = p.Var?.Kind == WoG.Core.State.ErmVarKind.Z ? rt.GetString(c.N(0)) : rt.Interpolate(c.Cmd.Text ?? "");
-                    c.Need(rt.WhileWaiting(() => ui.ShowMessage(text)));
+                    c.Need(rt.WhileWaiting(() => ui.ShowMessage(Logged(c, text))));
                 }
                 break;
             case 'Q':
@@ -66,7 +75,7 @@ public sealed class IfReceiver : ErmReceiverBase
                 if (c.Num <= 2)
                 {
                     string text = c.Num == 2 ? c.Text(1) : rt.Interpolate(c.Cmd.Text ?? "");
-                    rt.SetFlag(c.N(0), c.Need(rt.WhileWaiting(() => ui.AskYesNo(text))));
+                    rt.SetFlag(c.N(0), c.Need(rt.WhileWaiting(() => ui.AskYesNo(Logged(c, text)))));
                     break;
                 }
                 // with pictures (Request3Pic): Qflag/type1/sub1[/type2/sub2[/type3/sub3]]/style[/z or ^text^]; type -1 = none
@@ -77,8 +86,8 @@ public sealed class IfReceiver : ErmReceiverBase
                 bool withPictures = Enumerable.Range(0, pictures).Any(k => c.N(1 + 2 * k) != -1);
                 switch (style)
                 {
-                    case 1: c.Need(rt.WhileWaiting(() => ui.ShowMessage(message))); break; // a message leaves the flag
-                    case 2: rt.SetFlag(c.N(0), c.Need(rt.WhileWaiting(() => ui.AskYesNo(message)))); break;
+                    case 1: c.Need(rt.WhileWaiting(() => ui.ShowMessage(Logged(c, message)))); break; // a message leaves the flag
+                    case 2: rt.SetFlag(c.N(0), c.Need(rt.WhileWaiting(() => ui.AskYesNo(Logged(c, message))))); break;
                     default: throw new ErmUnsupportedException($"IF:Q dialog type {style} (a popup or a choice of pictures) needs custom UI");
                 }
                 if (withPictures) throw new ErmUnsupportedException("IF:Q — the message or question is shown, its pictures not yet");
@@ -98,7 +107,7 @@ public sealed class IfReceiver : ErmReceiverBase
                 var items = new List<string?>();
                 for (int i = 4; i < c.Num; i++) items.Add(Item(i) is { Length: > 0 } t ? t : null);
                 string header = Item(3);
-                int bits = c.Need(rt.WhileWaiting(() => ui.Choose(header, items, c.N(0) != 0, c.N(2))));
+                int bits = c.Need(rt.WhileWaiting(() => ui.Choose(Logged(c, header), items, c.N(0) != 0, c.N(2))));
                 rt.Services.State.Erm.V[v - 1] = bits;
                 break;
             }

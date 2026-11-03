@@ -51,14 +51,42 @@ public class ScriptFibersTests
         Assert.Equal(new[] { "asks" }, log);
         Assert.NotNull(answer);
 
-        // meanwhile another entry runs at once on this thread (it cannot wait)
-        bool nestedOnGame = false;
-        fibers.Run(() => nestedOnGame = !fibers.OnWorker && !fibers.TryWait<bool>(_ => { }, out _));
-        Assert.True(nestedOnGame);
+        // meanwhile another entry (the next player's day) waits its turn, as under H3's modal dialog
+        Action<bool>? second = null;
+        fibers.Run(() =>
+        {
+            log.Add("second on the worker " + fibers.OnWorker);
+            Assert.True(fibers.TryWait<bool>(a => second = a, out bool yes));
+            log.Add("second answer " + yes);
+        });
+        Assert.Equal(1, fibers.Queued);
+        Assert.Equal(new[] { "asks" }, log);
 
-        answer!(false); // the player answers: the script finishes, pumped from the answer's callback
+        answer!(false); // the player answers: the script finishes, then the queued one runs and asks in its turn
+        Assert.True(fibers.Waiting);
+        Assert.Equal(new[] { "asks", "answer False", "then a game call", "second on the worker True" }, log);
+        second!(true);
         Assert.False(fibers.Waiting);
-        Assert.Equal(new[] { "asks", "answer False", "then a game call" }, log);
+        Assert.Equal(0, fibers.Queued);
+        Assert.Equal("second answer True", log[^1]);
+    }
+
+    /// <summary>An event a script's own game call raises runs nested at once, as before.</summary>
+    [Fact]
+    public void An_entry_raised_inside_a_game_call_runs_nested()
+    {
+        var fibers = new ScriptFibers();
+        var log = new List<string>();
+        fibers.Run(() =>
+        {
+            fibers.OnGameThread(() =>
+            {
+                fibers.Run(() => log.Add("nested on the game thread " + !fibers.OnWorker));
+                return 0;
+            });
+            log.Add("the script goes on");
+        });
+        Assert.Equal(new[] { "nested on the game thread True", "the script goes on" }, log);
     }
 
     [Fact]

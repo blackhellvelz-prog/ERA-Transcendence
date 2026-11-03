@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using System.Threading;
@@ -12,9 +13,10 @@ namespace WoG.Core.Threading;
 /// and gets its own work back when the script ends or waits for an answer (<see cref="TryWait{T}"/>); the answer
 /// resumes the script, pumped from the answer's callback.
 /// <para>
-/// One script waits at a time. An entry that arrives meanwhile, or one started from inside a call the game thread
-/// runs for the worker (a game event raised by a script's own change), runs at once on the calling thread, nested
-/// as before; it cannot wait for the player.
+/// One script waits at a time. An entry that arrives meanwhile (the next player's day while a script of this one's
+/// asks) waits too: it runs after the waiting script ends, in the order the entries came, as nothing else ran under
+/// H3's modal dialogs. One started from inside a call the game thread runs for the worker (a game event raised by a
+/// script's own change) runs at once on the calling thread, nested as before; it cannot wait for the player.
 /// </para>
 /// <para>
 /// A script makes thousands of calls (a new map's scripts: tens of thousands), so a hand-over first spins briefly
@@ -38,6 +40,7 @@ public sealed class ScriptFibers
     object? callResult;                  // published by callDone
     Exception? callError;
     volatile bool waiting;               // the worker waits for an answer; the game thread is free
+    readonly Queue<Action> queued = new(); // game thread only: entries that came while a script waits
 
     /// <summary>An entry ended with an exception (reported on the game thread).</summary>
     public Action<Exception>? OnError { get; set; }
@@ -77,20 +80,35 @@ public sealed class ScriptFibers
 
     /// <summary>
     /// Runs a script entry: on the worker, the calling (game) thread executing its calls until it ends or waits.
-    /// While a script runs or waits, or on the worker itself, the entry runs at once on this thread.
+    /// While a script waits for the player, the entry waits its turn; nested in a running script (or on the worker
+    /// itself) it runs at once on this thread.
     /// </summary>
     public void Run(Action action)
     {
-        if (running || OnWorker)
+        if (OnWorker)
         {
             action();
             return;
         }
+        if (running)
+        {
+            if (waiting) queued.Enqueue(action);
+            else action(); // a game event raised inside a call the game thread runs for the worker
+            return;
+        }
+        Start(action);
+        Pump();
+    }
+
+    /// <summary>The number of entries waiting for a script that waits for the player.</summary>
+    public int Queued => queued.Count;
+
+    void Start(Action action)
+    {
         running = true;
         entryDone = false;
         Volatile.Write(ref entry, action);
         Signal();
-        Pump();
     }
 
     /// <summary>
@@ -178,7 +196,9 @@ public sealed class ScriptFibers
                 var failed = entryError;
                 entryError = null;
                 if (failed != null) OnError?.Invoke(failed);
-                return;
+                if (queued.Count == 0) return;
+                Start(queued.Dequeue()); // the next entry that came while this one waited
+                continue;
             }
             if (waiting) return; // the script waits for the player: the game goes on
         }

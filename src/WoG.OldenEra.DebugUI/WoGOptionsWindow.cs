@@ -192,8 +192,10 @@ internal sealed class WoGOptionsWindow
         log.LogInfo($"WoG Options window built ({hotkey})");
     }
 
-    void Toggle()
+    /// <summary>Opens or closes the window (its key, the round button, the "options" debug command).</summary>
+    public void Toggle()
     {
+        if (root == null) return;
         if (Visible) { Close(); return; }
         var host = WoGPlugin.Host;
         dialog = host?.OptionDialog();

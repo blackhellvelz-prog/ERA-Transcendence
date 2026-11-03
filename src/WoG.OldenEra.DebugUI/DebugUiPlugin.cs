@@ -16,6 +16,15 @@ public sealed class DebugUiPlugin : BasePlugin
 {
     public const string Guid = "wog.oldenera.debugui";
 
+    static WoGOptionsWindow optionsWindow;
+
+    /// <summary>The "options" debug command: the WoG Options window as its key opens it.</summary>
+    static string ToggleOptions(string args)
+    {
+        optionsWindow?.Toggle();
+        return "WoG Options: the window is opened or closed";
+    }
+
     public override void Load()
     {
         // WoG's questions (the WoGify question of a new map) in the game's style, with or without WoG Debug
@@ -42,6 +51,8 @@ public sealed class DebugUiPlugin : BasePlugin
         }
         commands.Add("ui", UiProbe.Run,
             "the game's UI for the window's look: ui canvases | ui tree <name> [depth] | ui sprites <filter> | ui fonts | ui keys [filter]");
+        optionsWindow = options;
+        commands.Add("options", ToggleOptions, "opens or closes the WoG Options window (as its key)");
         // F9 was Olden Era's quick load (the game reloaded under the window). The game binds F1 F2 F5 F7 F9 F12, the
         // back quote and most letters (its JsonBindingContainer in resources.assets); F10 opens the window menu in Windows
         var hotkey = Config.Bind("Window", "Hotkey", "F8",

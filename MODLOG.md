@@ -1146,3 +1146,25 @@ buses and logs them) `[V-game]`:
   strings again, and `%T(...)` inserts a translation as it is.
 * 307 tests (+5: `ChoiceDialogTests`, `Un_a_gives_a_text_number_into_a_number_variable`); the corpus has 0 ERM errors,
   `IF:G` left the unsupported list; the WoG 3.58 and ERA (eng) corpora pass.
+
+## 2026-11-03 — session 3, continued: entries queue behind a waiting script; an empty message found and fixed
+
+* **Found in the game:** after the map rules' check boxes an empty message came up, then `HE:T` (a Rogue battle) was
+  tried. The new `[dialog]` lines of the ERM log (`IfReceiver.Logged`: every message, question and choice with its
+  script line) named `48 wog - adventure cave.erm:1055` — `!!IF&1000/w62>=0/x1=y1:M1/z130133`, a "Rogues attack"
+  message for a hero who never paid Rogues.
+* **Cause 1 (order):** Olden Era starts the day of players 0 and 1 at once. Player 0's `OnEveryDay` waited at the map
+  rules (`IF:G`); player 1's ran at once under it and set Era's `i^timerOnce^` to 0, so the adventure cave skipped
+  `WOG_30_InitializeHeroVars` (`w62 = -1` for every hero) and took `w62 = 0` for "this hero paid Rogues". In H3 nothing
+  ran under a modal dialog. **Fix:** `ScriptFibers.Run` queues an entry that comes while a script waits for the
+  player and starts it when that script ends, in order; an entry raised inside a game call of a running script still
+  runs nested at once. Tests: the queued entry runs after the answer on the worker and can ask in its turn; a nested
+  one runs at once.
+* **Cause 2 (the empty text):** `IF:M1/$` read the text the WoG way, which has no ERT strings (z numbers over 1000);
+  in Era it now reads `EraZInterpolated` (Era's `Hook_ERM2String`). Test `If_m_shows_an_ert_string_by_its_number`.
+* **Verified in the game:** a new map, the map rules accepted: no message, no `HE:T`, the hero's `w62` = -1 (the
+  script's own initialization), timer day 1 of player 0.
+* **WoG Debug tiles** (`FeatureCatalog`): «Окно WoG Options (F6)» (the new `options` command), «Окно с флажками
+  (IF:G)», «Школы Магической стрелы (UN:C)», «Описание артефакта (SN:H^art^)», «Подсказка шахт (SN:H^object^)»,
+  «Подсказка клетки героя (OB:H)».
+* 309 tests (+2).

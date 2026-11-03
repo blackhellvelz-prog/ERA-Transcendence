@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using WoG.Core.Adapters;
 using Xunit;
@@ -55,6 +56,18 @@ public class ChoiceDialogTests
         Assert.Equal(new[] { "Rules", "?Agree?", "?Prize" }, t.Game.Messages.Take(3));
         Assert.Contains(t.Host.Compat.Entries, e => e.Reason.Contains("its pictures not yet"));
         Assert.Contains(t.Host.Compat.Entries, e => e.Reason.Contains("dialog type 7"));
+    }
+
+    /// <summary>48 wog - adventure cave.erm: IF:M1/z130133 shows a string of the script's .ert table.</summary>
+    [Fact]
+    public void If_m_shows_an_ert_string_by_its_number()
+    {
+        using var t = new EraTestHost().Script("t.erm", "ZVSE2\n!?FU(Go);\n!!IF:M1/z130133;\n");
+        File.WriteAllText(Path.Combine(t.ModDir, "Data", "s", "t.ert"), "#\tText\r\n130133\tRogues attack!\r\n");
+        t.Start();
+        t.Call("Go");
+        Assert.Equal("", t.ErrorText);
+        Assert.Equal("Rogues attack!", t.Game.Messages.Last());
     }
 
     [Fact]

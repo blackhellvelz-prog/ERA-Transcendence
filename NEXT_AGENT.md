@@ -150,6 +150,10 @@ needs UN:I/UN:B/UN:U/OB first); map scripts for Olden Era maps (the ERA rules ar
 * The ERA corpus run must list mods highest priority first; the H3 data then comes from the right mod (WoG Scripts'
   ZSETUP01 over WoG's).
 * The obfuscated names above are 0.81.04's; 0.82.07's are in `wog_symbols.json` (the old one in each note).
+* Olden Era starts the day of every player at once, while H3 held everything under a modal dialog: an entry that
+  comes while a script waits for the player is queued (`ScriptFibers`), else the next player's `OnEveryDay` resets
+  Era's `i^timerOnce^` under the waiting one (2026-11-03: a false "rogues" event of the adventure cave).
+* `[dialog] <script:line>` lines of the ERM log show every message, question and choice with its source.
 
 ## 7a. After an Olden Era update (the procedure of 2026-11-03)
 
