@@ -1154,7 +1154,7 @@ buses and logs them) `[V-game]`:
   script line) named `48 wog - adventure cave.erm:1055` — `!!IF&1000/w62>=0/x1=y1:M1/z130133`, a "Rogues attack"
   message for a hero who never paid Rogues.
 * **Cause 1 (order):** Olden Era starts the day of players 0 and 1 at once. Player 0's `OnEveryDay` waited at the map
-  rules (`IF:G`); player 1's ran at once under it and set Era's `i^timerOnce^` to 0, so the adventure cave skipped
+  rules (`IF:G`); player 1's `OnEveryDay` ran at once under it and set Era's `i^timerOnce^` to 0, so the adventure cave skipped
   `WOG_30_InitializeHeroVars` (`w62 = -1` for every hero) and took `w62 = 0` for "this hero paid Rogues". In H3 nothing
   ran under a modal dialog. **Fix:** `ScriptFibers.Run` queues an entry that comes while a script waits for the
   player and starts it when that script ends, in order; an entry raised inside a game call of a running script still
