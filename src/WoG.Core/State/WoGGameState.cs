@@ -40,8 +40,25 @@ public sealed class StackExperienceState
 /// <summary>Per-object ERM data (ERM_Object): hint override and native-behaviour switches.</summary>
 public sealed class ErmObjectState
 {
-    public string? Hint { get; set; }
+    public ErmHint? Hint { get; set; }
     public int DisabledMask { get; set; }
+}
+
+/// <summary>
+/// A WoG hint text (ERM_Object.HintVar through StrMan::Apply): a z variable number, read when the hint shows (WoG keeps
+/// the link), or a text of its own (a string or a z variable given as the parameter is copied).
+/// </summary>
+public sealed class ErmHint
+{
+    public int Z { get; set; }
+    public string? Text { get; set; }
+}
+
+/// <summary>An HT hint (erm.cpp ERM_HintType): WoG's code of the type, subtype and condition, and the text.</summary>
+public sealed class ErmTypeHint
+{
+    public uint Code { get; set; }
+    public ErmHint Hint { get; set; } = new();
 }
 
 /// <summary>
@@ -64,6 +81,16 @@ public sealed class WoGGameState
     public StackExperienceState StackExperience { get; set; } = new();
     /// <summary>Key = MapPos.Pack().</summary>
     public Dictionary<int, ErmObjectState> Objects { get; set; } = new();
+    /// <summary>
+    /// HT hints in WoG's slot order (ERM_Object: a new one takes the first free slot, FindObjExt takes the first
+    /// match); null = a free slot.
+    /// </summary>
+    public List<ErmTypeHint?> TypeHints { get; set; } = new();
+    /// <summary>
+    /// SN:H (Era's AdvErm Hints, saved as "Era.Hints_SN_H"): section (object, spec, secskill, monname, art, spell) →
+    /// Era's code → text. The text sections replace the H3 tables' texts.
+    /// </summary>
+    public Dictionary<string, Dictionary<int, string>> Hints { get; set; } = new();
     /// <summary>Creature type values changed by MA: type → stat name (or "Cost0".."Cost6") → value.</summary>
     public Dictionary<int, Dictionary<string, int>> CreatureChanges { get; set; } = new();
     /// <summary>Artifact types changed by UN:A (only changed ones; the rest come from the H3 tables).</summary>

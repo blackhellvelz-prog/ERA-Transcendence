@@ -276,13 +276,14 @@ public sealed class UnReceiver : ErmReceiverBase
         }
         switch (c.N(0))
         {
+            // the names as SN:H left them (Era changes the tables themselves)
             case 0:
                 Table(h3.Artifacts.Count, "artraits.txt");
-                c.SetZ(zi, s.Artifact(v)!.Name);
+                c.SetZ(zi, Era.H3Texts.Get(s, "art", v, 0)!);
                 break;
             case 1:
                 Table(h3.Spells.Count, "sptraits.txt");
-                c.SetZ(zi, h3.Spells[v]);
+                c.SetZ(zi, s.State.Hints.TryGetValue("spell", out var spells) && spells.TryGetValue(Era.H3Texts.Code("spell", v, 0), out var spell) ? spell : h3.Spells[v]);
                 break;
             case 2:
                 throw new ErmUnsupportedException("UN:N2 — building names: the H3 building tables are not read yet");
@@ -293,12 +294,12 @@ public sealed class UnReceiver : ErmReceiverBase
                 c.Apply(ref plural, 3);
                 if (plural < 0) throw new ErmRuntimeException("\"!!UN:N\"-incorrect additioal type of object (<0).");
                 Table(h3.Creatures.Count, "zcrtrait.txt");
-                c.SetZ(zi, plural != 0 ? h3.Creatures[v].NamePlural : h3.Creatures[v].Name);
+                c.SetZ(zi, Era.H3Texts.Get(s, "monname", v, plural != 0 ? 1 : 0)!);
                 break;
             }
             case 4:
                 Table(h3.SecondarySkills.Count, "sstraits.txt");
-                c.SetZ(zi, h3.SecondarySkills[v][0]);
+                c.SetZ(zi, Era.H3Texts.Get(s, "secskill", v, 0)!);
                 break;
             case 5:
             case 6:

@@ -56,7 +56,7 @@ public class H3DataTests : IDisposable
     static readonly string[] Classes = { "S", "T", "N", "J", "R" };
 
     /// <summary>A WoG-sized artraits.txt (171 rows) with known values: cost = 10·id, slot column id % 19, class id % 5.</summary>
-    static string Artraits(Func<int, string>? name = null)
+    internal static string Artraits(Func<int, string>? name = null)
     {
         var sb = new StringBuilder();
         sb.Append("\t\tHero Slots\r\n");

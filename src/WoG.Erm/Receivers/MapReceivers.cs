@@ -42,12 +42,15 @@ internal static class MapSelector
 public sealed class ObReceiver : ErmReceiverBase
 {
     const string ChangeType = "OB:T/U — changing the type of an object: Olden Era objects keep their own type";
+    const string Visit = "OB:D/E/R/S/M — disabling objects and auto-answers need the object visit hook (not verified yet)";
+    const string SquareHint = "OB:H/B — the hint of the object on a square (a z variable read when it shows, or a text), kept with the WoG state; Olden Era's map does not show it yet";
 
     public ObReceiver() : base("OB")
     {
         Declare("TU", CompatLevel.PartiallySupported, "OB:T/U — the type and subtype of the object on a square (Format OB via id-maps/object.json); they cannot be changed");
         Declare("C", CompatLevel.Unsupported, "OB:C — the control word is H3's object setup data: different engine");
-        Declare("DERSMHB", CompatLevel.Unsupported, "OB:D/E/R/S/M/H/B — disabling objects, auto-answers and hints need the object visit hook (not verified yet)");
+        Declare("DERSM", CompatLevel.Unsupported, Visit);
+        Declare("HB", CompatLevel.PartiallySupported, SquareHint);
     }
 
     protected override void Run(ErmCall c)
@@ -70,9 +73,14 @@ public sealed class ObReceiver : ErmReceiverBase
             }
             case 'C':
                 throw new ErmUnsupportedException("OB:C — the control word is H3's object setup data: different engine");
+            case 'H': // H$ — the hint (z variable number or text; 0 deletes)
+                MapHints.ChangeSquareHint(c, pos, 0);
+                break;
+            case 'B': // B — delete the hint
+                MapHints.SetSquareHint(c.Rt.Services.State.Objects, pos, null);
+                break;
             default:
-                if ("DERSMHB".IndexOf(c.Letter) >= 0)
-                    throw new ErmUnsupportedException("OB:D/E/R/S/M/H/B — disabling objects, auto-answers and hints need the object visit hook (not verified yet)");
+                if ("DERSM".IndexOf(c.Letter) >= 0) throw new ErmUnsupportedException(Visit);
                 throw ErmCall.WrongCommand(c.Letter);
         }
     }

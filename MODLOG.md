@@ -1086,3 +1086,20 @@ buses and logs them) `[V-game]`:
   round trip with the save, the code patch, unknown addresses and sizes, no executable, the user's h3era.exe).
 * `NEXT_AGENT.md`: the commit step now names the author blackhellvelz and the user's rule that commits name no AI
   tools (it still had the old wording).
+
+## 2026-11-03 — session 3, continued: hints and H3 texts (`SN:H`, `HT`, `OB:H/B`) in the core
+
+* **Sources read:** AdvErm.pas `SN_H` (sections object, spec, secskill, monname, art, spell; codes: a square
+  `x | y<<8 | z<<16`, a type `type | subtype<<8 | 0x01000000`, texts `id | kind<<8` or `<<16`; "-section" deletes; d&
+  appends to the kept hint; saved as "Era.Hints_SN_H") and `Hook_ZvsCheckObjHint` (only for a square the human player
+  sees: the square, type/subtype, type/any, any/subtype, any/any); erm.cpp `ERM_HintType` (HT codes 0x1/0x2/0x4/0x8
+  in the top bits), `ObjChangeHint`, `FindObjExt` (the first slot that matches, the exact subtype first; W needs an
+  active hero), `CheckObjHint` (a square's OB:H hint before HT); string.cpp `StrMan::Apply` (a number is a z variable
+  read when the hint shows, a string or z variable parameter is copied, 0 deletes).
+* **The port:** `WoGGameState.Hints`, `TypeHints` (WoG's slot order: a new hint takes the first free slot),
+  `ErmObjectState.Hint` (`ErmHint`: z number or own text); `H3Texts` (the H3 tables' texts as SN:H left them — UN:N
+  reads them too); `SnReceiver.H`; `HtReceiver` (T/P/W/V); OB:H/B; `MapHints.ForObject(rt, square, type, subtype,
+  visible, activeHero)` — the text the map should show, or null for the game's own.
+* **Not in the game yet:** Olden Era's map tooltip does not call `MapHints.ForObject` (needs RE of the tooltip in the
+  game; Steam was stuck); a set reports "kept, not shown". The corpus: SN:H 124 unsupported → 114 kept (the 10 reads
+  work), HT 46 kept; 183 scripts, 0 ERM errors; the WoG 3.58 and ERA (eng) corpora pass. 301 tests (+6 `HintTests`).

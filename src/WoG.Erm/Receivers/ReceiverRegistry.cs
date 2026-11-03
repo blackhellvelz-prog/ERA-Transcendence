@@ -72,6 +72,7 @@ public sealed class ReceiverRegistry
         reg.Register(new IfReceiver());
         reg.Register(new UnReceiver());
         reg.Register(new ObReceiver());
+        reg.Register(new HtReceiver());
         reg.Register(new TrReceiver());
         reg.Register(new PoReceiver());
         reg.Register(new CaReceiver());
@@ -112,6 +113,7 @@ public sealed class ReceiverRegistry
         reg.Register(new IfReceiver());
         reg.Register(new UnReceiver());
         reg.Register(new ObReceiver());
+        reg.Register(new HtReceiver());
         reg.Register(new TrReceiver());
         reg.Register(new PoReceiver());
         reg.Register(new CaReceiver());
@@ -163,7 +165,6 @@ public sealed class ReceiverRegistry
         ["QU — receiver of the \"receiver qu.era\" plugin (closed-source ERA DLL)"] = "QU — ресивер плагина «receiver qu.era» (закрытая DLL ERA)",
         // CoreReceivers, EraReceivers
         ["FU:D — call on the remote player: a single-player game has none, so nothing runs (as in WoG offline)"] = "FU:D — вызов у удалённого игрока: в одиночной игре его нет, поэтому ничего не выполняется (как в WoG без сети)",
-        ["SN:H — object/monster hints: needs an Olden Era UI adapter"] = "SN:H — подсказки объектов/монстров: нужен UI-адаптер Olden Era",
         ["SN:O — object entrance tile: needs a map adapter"] = "SN:O — клетка входа объекта: нужен адаптер карты",
         ["SN:P — H3 sound playback: Olden Era sounds are different"] = "SN:P — проигрывание звука H3: звуки Olden Era другие",
         ["SN:S — sound name in !?SN: the sound trigger is not ported"] = "SN:S — имя звука в !?SN: звуковой триггер не перенесён",
@@ -189,8 +190,14 @@ public sealed class ReceiverRegistry
             "OB:T/U — тип и подтип объекта на клетке (Format OB через id-maps/object.json); изменить их нельзя",
         ["OB:C — the control word is H3's object setup data: different engine"] =
             "OB:C — управляющее слово — это данные настройки объекта H3: другой движок",
-        ["OB:D/E/R/S/M/H/B — disabling objects, auto-answers and hints need the object visit hook (not verified yet)"] =
-            "OB:D/E/R/S/M/H/B — запрет объектов, автоответы и подсказки требуют хука посещения объекта (ещё не проверен)",
+        ["OB:D/E/R/S/M — disabling objects and auto-answers need the object visit hook (not verified yet)"] =
+            "OB:D/E/R/S/M — запрет объектов и автоответы требуют хука посещения объекта (ещё не проверен)",
+        ["OB:H/B — the hint of the object on a square (a z variable read when it shows, or a text), kept with the WoG state; Olden Era's map does not show it yet"] =
+            "OB:H/B — подсказка объекта на клетке (z-переменная, читаемая в момент показа, или текст) хранится в состоянии WoG; карта Olden Era её пока не показывает",
+        [HtReceiver.Note] =
+            "HT — подсказка объектов типа и подтипа (T), по номеру клетки PO:N (P), по w-переменной активного героя (W) или по v-переменной (V); хранится в состоянии WoG в порядке WoG; карта Olden Era её пока не показывает",
+        [SnReceiver.HintsNote] =
+            "SN:H — подсказки объектов карты (клетки, типы) и тексты таблиц H3 (специализации героев, вторичные навыки, имена существ, артефакты, заклинания): хранятся в состоянии WoG, как в сохранении Era, и читаются обратно (их читает и UN:N); карта и окна Olden Era их пока не показывают",
         ["TR:T/P/E — terrain (Olden Era biomes as the H3 terrain of the matching town), road, blocked (red) and entrance (yellow) squares; read only; rivers are 0"] =
             "TR:T/P/E — почва (биомы Olden Era как почва H3 соответствующего города), дорога, занятые (красные) и входные (жёлтые) клетки; только чтение; реки 0",
         ["TR:G — H3 terrain overlays (magic plains, cursed ground…) have no Olden Era equivalent mapped"] =

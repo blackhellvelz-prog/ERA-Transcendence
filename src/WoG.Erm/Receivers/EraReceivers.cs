@@ -563,7 +563,7 @@ public sealed class SnReceiver : ErmReceiverBase
     public SnReceiver() : base("SN")
     {
         Declare("WMVKXTCGQID", CompatLevel.FullySupported);
-        Declare("H", CompatLevel.Unsupported, "SN:H — object/monster hints: needs an Olden Era UI adapter");
+        Declare("H", CompatLevel.PartiallySupported, HintsNote);
         Declare("O", CompatLevel.Unsupported, "SN:O — object entrance tile: needs a map adapter");
         Declare("P", CompatLevel.Unsupported, "SN:P — H3 sound playback: Olden Era sounds are different");
         Declare("S", CompatLevel.Unsupported, "SN:S — sound name in !?SN: the sound trigger is not ported");
@@ -584,6 +584,7 @@ public sealed class SnReceiver : ErmReceiverBase
             case 'K': K(c); break;
             case 'X': Xc(c); break;
             case 'T': T(c); break;
+            case 'H': H(c); break;
             case 'C':
             {
                 if (c.Num < 2 || !IsStr(c, 0) || c.IsGet(0) || IsStr(c, 1) || !c.IsGet(1)) throw Invalid();
@@ -897,4 +898,78 @@ public sealed class SnReceiver : ErmReceiverBase
     }
 
     const string EraTemplateEscape = "@";
+
+    // ---- SN:H -----------------------------------------------------------------------------------
+
+    public const string HintsNote =
+        "SN:H — hints of map objects (squares, types) and the texts of the H3 tables (hero specialties, secondary skills, creature names, artifacts, spells): kept with the WoG state like Era's save and read back (UN:N reads them too); Olden Era's map and windows do not show them yet";
+    public const string HintsNotShown = "SN:H — the hint or text is kept with the WoG state and read back, but Olden Era does not show it yet";
+
+    /// <summary>AdvErm.SN_H: SN:H^section^/…/text, "-section" deletes the hint.</summary>
+    static void H(ErmCall c)
+    {
+        if (c.Num < 3) throw new ErmRuntimeException("Invalid number of command parameters");
+        if (!IsStr(c, 0) || c.IsGet(0)) throw Invalid();
+        var s = c.Rt.Services;
+        string name = Text(c, 0);
+        bool delete = name.StartsWith('-');
+        if (delete) name = name[1..];
+        if (Array.IndexOf(Era.H3Texts.Sections, name) < 0) throw Invalid();
+        int last = c.Num - 1;
+        if (!IsStr(c, last)) throw Invalid();
+        var section = Era.H3Texts.Section(s, name);
+
+        int Int(int i) => c.IsGet(i) || IsStr(c, i) ? throw Invalid() : c.N(i);
+
+        // UpdateHint: the hint is the kept text with the parameter assigned (d& appends); a deleted one gives the
+        // table's text back (Era keeps a deleted spell text until the game is loaded again; the port restores it at once)
+        void Update(int code)
+        {
+            if (delete) { section.Remove(code); return; }
+            section[code] = AssignStr(c, last, section.TryGetValue(code, out var old) ? old : "");
+            throw new ErmUnsupportedException(HintsNotShown);
+        }
+
+        if (name == "object")
+        {
+            int code;
+            if (c.Num == 4) // ^object^/#type/#subtype or -1/$hint
+            {
+                int type = Int(1), sub = Int(2);
+                if (type < -1 || type > 254 || sub < -1 || sub > 254) throw Invalid();
+                code = (type & 0xFF) | ((sub & 0xFF) << 8) | Era.H3Texts.CodeTypeSubtype;
+            }
+            else if (c.Num == 5) // ^object^/x/y/z/hint
+            {
+                int x = Int(1), y = Int(2), z = Int(3);
+                if (x < 0 || x > 255 || y < 0 || y > 255 || z < 0 || z > 255) throw Invalid();
+                code = x | (y << 8) | (z << 16);
+            }
+            else throw new ErmRuntimeException("Invalid number of command parameters");
+            if (c.IsGet(last)) RetStr(c, last, section.TryGetValue(code, out var hint) ? hint : "");
+            else Update(code);
+            return;
+        }
+
+        if (c.Num != 4) throw new ErmRuntimeException("Invalid number of command parameters");
+        int id = Int(1), kind = Int(2);
+        if (id < 0 || id >= TextCount(s, name) || kind < 0 || kind > Era.H3Texts.MaxKind(name)) throw Invalid();
+        if (c.IsGet(last))
+        {
+            RetStr(c, last, Era.H3Texts.Get(s, name, id, kind)
+                ?? throw new ErmUnsupportedException($"SN:H^{name}^ — the ERA installation's table of these texts was not read"));
+            return;
+        }
+        Update(Era.H3Texts.Code(name, id, kind));
+    }
+
+    /// <summary>Era's ranges: NUM_WOG_HEROES, MAX_SECONDARY_SKILLS, then the installation's monsters, artifacts, spells.</summary>
+    static int TextCount(Core.Services.IWoGServices s, string section) => section switch
+    {
+        "spec" => 156,
+        "secskill" => 28,
+        "monname" => s.H3.Creatures.Count is > 0 and var n ? n : int.MaxValue,
+        "art" => s.H3.Artifacts.Count is > 0 and var n ? n : int.MaxValue,
+        _ => s.H3.SpellTable.Count is > 0 and var n ? n : int.MaxValue,
+    };
 }
