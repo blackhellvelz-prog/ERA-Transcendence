@@ -80,6 +80,50 @@ public class WoGOptionSetupTests
         Assert.True(t.Host.State.Options.CommandersEnabled);
     }
 
+    /// <summary>The dialog (wogsetup.cpp): clicks on its items, Prepare2Close of the marks, a preset shown back, Restore.</summary>
+    [Fact]
+    public void The_dialog_clicks_give_the_options_and_show_them_back()
+    {
+        var s = Setup();
+        var d = new WoGOptionDialog(s, s.Defaults());
+        Assert.Equal(s.Defaults().Values, d.Result().Values);
+        d.Click(s.Group(0, 0)[1]!);                             // the radio button "WoGify all"
+        d.Click(s.Group(0, 2)[0]!);                             // clear "arrow towers gain experience" (option 1, inverted)
+        d.Click(s.Group(1, 0)[1]!);                             // check the bank (724)
+        var o = d.Result();
+        Assert.Equal(1, o.Get(WoGOptionIds.ApplyWoG));
+        Assert.False(d.IsChecked(s.Group(0, 0)[3]!));           // the other radio button is cleared
+        Assert.Equal(1, o.Get(WoGOptionIds.TowerStd));          // standard towers
+        Assert.Equal(1, o.Get(724));
+        var shown = new WoGOptionDialog(s, o);                  // a preset shown again: the same marks
+        Assert.Equal(o.Values, shown.Result().Values);
+        Assert.True(shown.IsChecked(s.Group(0, 0)[1]!));
+        shown.Restore();
+        Assert.Equal(s.Defaults().Values, shown.Result().Values);
+    }
+
+    /// <summary>The player's choice is kept (WoGSetupEx.dat in WoG) and every new map starts with it.</summary>
+    [Fact]
+    public void A_saved_choice_is_the_options_of_new_maps()
+    {
+        using var t = new EraTestHost();
+        File.WriteAllText(Path.Combine(t.ModDir, "Data", "zsetup01.txt"), Zsetup);
+        File.WriteAllText(Path.Combine(t.ModDir, "Data", "s", "script60.ers"), Ers);
+        File.WriteAllText(Path.Combine(t.ModDir, "Data", "s", "t.erm"), "ZVSE2\n!?PI;\n!!UN:P724/?v1;\n!!UN:P1/?v2;\n");
+        t.Host.LoadH3Tables();
+        var d = t.Host.OptionDialog()!;
+        d.Click(t.Host.OptionSetup!.Group(1, 0)[1]!);           // the bank on
+        d.Click(t.Host.OptionSetup!.Group(0, 2)[0]!);           // standard towers
+        t.Host.SetSetupOptions(d.Result(t.Host.SetupOptions));
+        string preset = Path.Combine(t.ModDir, "wog_options.json");
+        t.Host.SaveOptionPreset(preset);
+        t.Host.SetSetupOptions(t.Host.OptionSetup!.Defaults()); // forget it; the file brings it back
+        Assert.True(t.Host.LoadOptionPreset(preset));
+        Assert.False(t.Host.LoadOptionPreset(preset + ".missing"));
+        t.Start();
+        Assert.Equal((1, 1), (t.V(1), t.V(2)));
+    }
+
     /// <summary>The user's ERA installation (ERA_GAME_DIR): WoG Scripts' ZSETUP01 turns 93 options on, WoGify "ask".</summary>
     [Fact]
     public void The_installation_defaults_are_WoGs()

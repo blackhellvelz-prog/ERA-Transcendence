@@ -22,6 +22,7 @@ using WoG.Host;
 //                                     version by structure (SymbolRemap.cs); remapped ones need the in-game check
 //   find-member <interop> <name regex> [--type <regex>]  members of Hex by name, with types and signatures
 //   idmap-objects <Core.zip> <object.json> [artifact.json]  fill the map object type map (ObjectMap.cs)
+//   vfs-read <ERA folder> <file> [out]  a file as Era's VFS gives it (mods, then LOD/PAC); H3 text to stdout
 //   h3data <ERA folder> [id...]      read the H3/WoG tables of an ERA installation (Mods/list.txt order) the way the
 //                                     plugin does; print where each came from and the given artifact ids
 //   era-pp  <out dir> <mod dir>...   Era: collect scripts of the mods (highest priority first) in Era load order,
@@ -119,6 +120,21 @@ switch (args[0])
         return CreatureMap.Run(args[1], args[2]);
     case "idmap-objects":
         return ObjectMap.Run(args[1], args[2], args.Length > 3 ? args[3] : null);
+    case "vfs-read":
+    {
+        // vfs-read <ERA folder> <file name> [out file]: a file as Era's VFS gives it (mods by Mods/list.txt, then the
+        // LOD/PAC archives); stdout gets it decoded as H3 text (cp1251) when no out file is given. Read only.
+        string era = args[1];
+        string list = Path.Combine(era, "Mods", "list.txt");
+        var mods = (File.Exists(list) ? File.ReadAllLines(list) : Array.Empty<string>())
+            .Select(l => l.Trim()).Where(l => l.Length > 0).Reverse()
+            .Select(n => Path.Combine(era, "Mods", n)).Where(Directory.Exists).ToList();
+        var bytes = new WoG.Core.H3Data.EraVfs(era, mods).Read(args[2]);
+        if (bytes == null) { Console.Error.WriteLine($"{args[2]}: not found"); return 2; }
+        if (args.Length > 3) File.WriteAllBytes(args[3], bytes);
+        else Console.Write(WoG.Core.H3Data.H3Text.Decode(bytes));
+        return 0;
+    }
     case "h3data":
     {
         string era = args[1];

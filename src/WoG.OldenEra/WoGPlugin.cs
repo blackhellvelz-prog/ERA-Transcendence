@@ -36,7 +36,8 @@ public sealed class WoGPlugin : BasePlugin
     public const string Version = "0.2.0";
 
     internal static WoGPlugin? Instance;
-    internal static WoGHost? Host;
+    /// <summary>The WoG host of this game process (the interface plugin's windows read and change it).</summary>
+    public static WoGHost? Host { get; internal set; }
     internal static OldenEraGameAdapter? Adapter;
     internal static OldenEraSymbols? Symbols;
     internal static ManualLogSource? L;
@@ -72,6 +73,9 @@ public sealed class WoGPlugin : BasePlugin
 
     /// <summary>The scripts' worker: an ERM entry runs there, so it can wait for the player (IF:Q, IF:M).</summary>
     public static ScriptFibers? Fibers { get; private set; }
+
+    /// <summary>The player's WoG Options for new maps (the WoG Options window saves them; WoG's WoGSetupEx.dat).</summary>
+    public static string OptionPresetPath => Path.Combine(Paths.ConfigPath, "WoG", "wog_options.json");
 
     /// <summary>Every frame on the game thread (the in-game debug window draws and reads keys here).</summary>
     public static event Action? Frame;
@@ -158,6 +162,8 @@ public sealed class WoGPlugin : BasePlugin
             host.SetEraFolders(eraFolder, Path.Combine(cfgDir, "era-root"));
             host.AddEraMods(mods, language.Value);
             Log.LogInfo($"WoG: ERA mods (highest priority first): {string.Join(", ", mods.Select(Path.GetFileName))}");
+            if (host.LoadOptionPreset(OptionPresetPath))
+                Log.LogInfo("WoG: WoG Options of new maps from " + OptionPresetPath);
             Log.LogInfo(host.H3.Sources.Count == 0
                 ? "WoG: no H3 text tables found (ERA installation not found?) — UN:A and other table commands are unsupported"
                 : $"WoG: H3 tables: {string.Join("; ", host.H3.Sources.Select(kv => kv.Key + " ← " + kv.Value))}; {host.H3.Artifacts.Count} artifacts");

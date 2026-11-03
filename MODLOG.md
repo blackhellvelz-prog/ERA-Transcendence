@@ -1037,3 +1037,25 @@ buses and logs them) `[V-game]`:
 * Limitation (documented): while a script waits, the game's own action goes on — a pre-visit `!?OB` that asks before
   the object acts gets its answer after the object acted (H3 held the visit).
 * 286 xUnit tests (+5 `ScriptFibersTests`); the build has 0 warnings; the corpus 183 scripts, 0 ERM errors.
+
+## 2026-11-03 — session 3, continued: the WoG Options window (core done, the window not yet seen in the game)
+
+* **Core** (`WoG.Core.Options`): `WoGOptionDialog` — the dialog's marks (wogsetup.cpp): started from option values
+  (the reverse of Prepare2Close: a check box from its option, inverted for 1..4; a radio button when its place is its
+  group's value), `Click` (a check box toggles, a radio button becomes its group's selection), `Restore` (the
+  installation's defaults), `Result` (Prepare2Close; options the dialog does not set keep the base values).
+  `WoGOptionSetup.Prepare2Close`, `IsChecked`, `Options` (the option numbers the dialog sets). The State column of the
+  user's ZSETUP01 and .ers files holds only 0 and 1 (221 and 93 items), so the defaults did not change.
+* **Host:** `OptionDialog()`, `SetSetupOptions` (the options every new map starts with), `SaveOptionPreset` /
+  `LoadOptionPreset` — WoG's WoGSetupEx.dat as JSON of ERM option numbers (`{"options": {"5": 3, …}}`), so a changed
+  ZSETUP keeps the player's choice of each option; the plugin loads `BepInEx/config/WoG/wog_options.json` at start.
+* **The window** (`WoGOptionsWindow` in the interface plugin, with or without WoG Debug): the eight pages as tabs
+  (titles from ZSETUP00.TXT, in Russian), each page's four groups (ZSETUP01 numbers them 0 upper left, 1 lower left,
+  2 upper right, 3 lower right), the items with their ERA translations (`wog_options.N.name`), a square mark for a
+  check box and a disc for a radio button; the item under the mouse shows its hint and its full text; «Сохранить для
+  новых карт», «По умолчанию», «Закрыть без сохранения». F6 (`[Window] OptionsHotkey`; Olden Era uses F1 F2 F5 F7 F9
+  F12) or the round button in the top bar. As in WoG, a running game keeps the options it started with. It builds; it
+  was **not opened in the game yet**: Steam stayed at "synchronizing with the cloud" when the game was launched again.
+* `WoG.ErmTool vfs-read <ERA folder> <file> [out]` — a file as Era's VFS gives it (ZSETUP00.TXT is in the archives).
+* 288 xUnit tests (+2: `The_dialog_clicks_give_the_options_and_show_them_back`,
+  `A_saved_choice_is_the_options_of_new_maps`); the build has 0 warnings.

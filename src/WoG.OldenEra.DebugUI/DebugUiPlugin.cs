@@ -24,6 +24,13 @@ public sealed class DebugUiPlugin : BasePlugin
         WoGPlugin.MessageDialog = dialogs.Message;
         WoGPlugin.Frame += dialogs.Tick;
 
+        // the WoG Options window, with or without WoG Debug
+        var optionsKey = Config.Bind("Window", "OptionsHotkey", "F6",
+            "The key that opens and closes the WoG Options window (a UnityEngine.InputSystem.Key name).");
+        if (!Enum.TryParse<Key>(optionsKey.Value, true, out var optionsHotkey) || optionsHotkey == Key.None) optionsHotkey = Key.F6;
+        var options = new WoGOptionsWindow(Log, optionsHotkey);
+        WoGPlugin.Frame += options.Tick;
+
         var commands = WoGPlugin.Commands;
         if (commands == null)
         {

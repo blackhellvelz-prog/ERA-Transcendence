@@ -107,9 +107,16 @@ public sealed class WoGOptionSetup
     }
 
     /// <summary>The option values of the dialog's starting states (Prepare2Close over every page and group in order).</summary>
-    public WoGOptions Defaults()
+    public WoGOptions Defaults() => Prepare2Close(item => item.Default == 1);
+
+    /// <summary>
+    /// Prepare2Close: the option values of the given item states — a check box group writes each item's state into its
+    /// option (1..4 inverted), a radio group the place of its selected item into the option of its first item.
+    /// Options no item sets keep <paramref name="into"/>'s values (0 for a new set).
+    /// </summary>
+    public WoGOptions Prepare2Close(Func<WoGSetupItem, bool> isChecked, WoGOptions? into = null)
     {
-        var o = new WoGOptions();
+        var o = into ?? new WoGOptions();
         for (int p = 0; p < Pages; p++)
             for (int g = 0; g < Groups; g++)
             {
@@ -119,16 +126,95 @@ public sealed class WoGOptionSetup
                 {
                     int option = list[0]?.Option ?? -1;
                     if (option < 0 || option >= WoGOptionIds.Count) continue;
-                    int selected = Array.FindIndex(list, i => i != null && i.Default == 1);
+                    int selected = Array.FindIndex(list, i => i != null && isChecked(i));
                     if (selected >= 0) o.Values[option] = selected;
                     continue;
                 }
                 foreach (var item in list)
                 {
                     if (item == null || item.Option < 0 || item.Option >= WoGOptionIds.Count) continue;
-                    o.Values[item.Option] = WoGOptionIds.IsInverted(item.Option) ? (item.Default == 0 ? 1 : 0) : item.Default;
+                    o.SetChecked(item.Option, isChecked(item));
                 }
             }
         return o;
+    }
+
+    /// <summary>
+    /// The item states that give these option values (the reverse of <see cref="Prepare2Close"/>, as WoG's dialog
+    /// shows a loaded preset): an item is checked when its option says so; a radio item when its place is the value of
+    /// its group's option.
+    /// </summary>
+    public bool IsChecked(WoGSetupItem item, WoGOptions options)
+    {
+        if (IsRadio(item.Page, item.Group))
+        {
+            int option = groups[item.Page, item.Group][0]?.Option ?? -1;
+            return option >= 0 && option < WoGOptionIds.Count && options.Get(option) == item.Item;
+        }
+        return item.Option >= 0 && item.Option < WoGOptionIds.Count ? options.IsChecked(item.Option) : item.Default == 1;
+    }
+
+    /// <summary>The option numbers the dialog sets (what a preset keeps).</summary>
+    public IEnumerable<int> Options()
+    {
+        for (int p = 0; p < Pages; p++)
+            for (int g = 0; g < Groups; g++)
+            {
+                var list = groups[p, g];
+                if (IsRadio(p, g)) { if (list[0]?.Option is int o and >= 0 and < WoGOptionIds.Count) yield return o; continue; }
+                foreach (var item in list)
+                    if (item != null && item.Option >= 0 && item.Option < WoGOptionIds.Count) yield return item.Option;
+            }
+    }
+}
+
+/// <summary>
+/// The WoG Options dialog's state (wogsetup.cpp): the items' check marks, started from option values; a click checks
+/// or clears a check box and selects a radio button in its group; <see cref="Result"/> is Prepare2Close.
+/// </summary>
+public sealed class WoGOptionDialog
+{
+    readonly WoGOptionSetup setup;
+    readonly HashSet<WoGSetupItem> checkedItems = new();
+
+    public WoGOptionDialog(WoGOptionSetup setup, WoGOptions start)
+    {
+        this.setup = setup;
+        Show(start);
+    }
+
+    public WoGOptionSetup Setup => setup;
+
+    public bool IsChecked(WoGSetupItem item) => checkedItems.Contains(item);
+
+    /// <summary>The marks of these option values (a loaded preset, the current game's options).</summary>
+    public void Show(WoGOptions options)
+    {
+        checkedItems.Clear();
+        foreach (var item in setup.Items)
+            if (setup.IsChecked(item, options)) checkedItems.Add(item);
+    }
+
+    /// <summary>The "Restore" button: the dialog's own starting states.</summary>
+    public void Restore() => Show(setup.Defaults());
+
+    /// <summary>A click on an item: a check box toggles, a radio button becomes the selected one of its group.</summary>
+    public void Click(WoGSetupItem item)
+    {
+        if (WoGOptionSetup.IsRadio(item.Page, item.Group))
+        {
+            foreach (var other in setup.Group(item.Page, item.Group))
+                if (other != null) checkedItems.Remove(other);
+            checkedItems.Add(item);
+        }
+        else if (!checkedItems.Remove(item)) checkedItems.Add(item);
+    }
+
+    /// <summary>The option values of the marks; options the dialog does not set keep <paramref name="baseOptions"/>'s.</summary>
+    public WoGOptions Result(WoGOptions? baseOptions = null)
+    {
+        var o = new WoGOptions();
+        if (baseOptions != null) Array.Copy(baseOptions.Values, o.Values, WoGOptionIds.Count);
+        return setup.Prepare2Close(IsChecked, o);
     }
 }

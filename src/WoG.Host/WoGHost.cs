@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using WoG.Commanders;
 using WoG.Core.Adapters;
 using WoG.Core.Compat;
@@ -157,8 +158,60 @@ public sealed class WoGHost : IWoGServices
     /// <summary>The WoG Options dialog's items (texts may be ERA language keys); null without an installation.</summary>
     public WoGOptionSetup? OptionSetup { get; private set; }
 
-    /// <summary>The options a new map starts with (PL_WoGOptions row 1): the dialog's defaults; null without an installation.</summary>
+    /// <summary>
+    /// The options a new map starts with (PL_WoGOptions row 1): the dialog's defaults, or the player's saved choice
+    /// (<see cref="LoadOptionPreset"/>, <see cref="SetSetupOptions"/>); null without an installation.
+    /// </summary>
     public WoGOptions? SetupOptions { get; private set; }
+
+    /// <summary>The WoG Options dialog over the options of the next new map; null without an installation.</summary>
+    public WoGOptionDialog? OptionDialog() =>
+        OptionSetup == null || SetupOptions == null ? null : new WoGOptionDialog(OptionSetup, SetupOptions);
+
+    /// <summary>The dialog's result: the options every new map starts with from now on (WoG's dialog state, row 1).</summary>
+    public void SetSetupOptions(WoGOptions options) => SetupOptions = options;
+
+    /// <summary>
+    /// Saves the options of new maps as WoG's WoGSetupEx.dat does — here a JSON object of the dialog's ERM option
+    /// numbers and values ({"options": {"5": 3, …}}), so a changed ZSETUP keeps the player's choice of each option.
+    /// </summary>
+    public void SaveOptionPreset(string path)
+    {
+        if (OptionSetup == null || SetupOptions == null) return;
+        var values = new SortedDictionary<int, int>();
+        foreach (int o in OptionSetup.Options()) values[o] = SetupOptions.Get(o);
+        var json = new System.Text.Json.Nodes.JsonObject
+        {
+            ["options"] = new System.Text.Json.Nodes.JsonObject(values.Select(kv =>
+                new KeyValuePair<string, System.Text.Json.Nodes.JsonNode?>(kv.Key.ToString(System.Globalization.CultureInfo.InvariantCulture), kv.Value))),
+        };
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
+        File.WriteAllText(path, json.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+    }
+
+    /// <summary>
+    /// Loads a saved choice over the installation's defaults (WoG: "On startup, options load from the last file
+    /// saved"): options the dialog sets take the file's values; false when there is none or it cannot be read.
+    /// </summary>
+    public bool LoadOptionPreset(string path)
+    {
+        if (OptionSetup == null || !File.Exists(path)) return false;
+        try
+        {
+            var root = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(path));
+            if (root?["options"] is not System.Text.Json.Nodes.JsonObject saved) return false;
+            var options = OptionSetup.Defaults();
+            var known = new HashSet<int>(OptionSetup.Options());
+            foreach (var (key, value) in saved)
+                if (int.TryParse(key, out int o) && known.Contains(o) && value != null) options.Set(o, value.GetValue<int>());
+            SetupOptions = options;
+            return true;
+        }
+        catch (Exception ex) when (ex is System.Text.Json.JsonException or InvalidOperationException or FormatException)
+        {
+            return false;
+        }
+    }
 
     /// <summary>The resource files of the ERA installation and the active mods (pictures for the WoG interface).</summary>
     public WoG.Core.H3Data.EraVfs Vfs { get; private set; } = new(null, Array.Empty<string>());
